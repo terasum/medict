@@ -1,5 +1,5 @@
 <template>
-    <div :class="[ 'search-box', global.state , global.state === 'normal' ? 'center': 'left' ]">
+    <div :class="[ 'search-box', globalState.state , globalState.state === 'normal' ? 'center': 'left' ]">
         <input 
         type="text" 
         autofocus="autofocus"
@@ -12,15 +12,14 @@
 
 <script>
 export default {
-  props: {
-    global: {
-      type: Object,
-      required: true
-    }
-  },
   computed: {
     searchButtonContent () {
-      return this.global.state === 'normal' ? 'Search' : ''
+      return this.globalState.state === 'normal' ? 'Search' : ''
+    }
+  },
+  data () {
+    return {
+      globalState: this.$store.state.MedictGlobal
     }
   },
   methods: {
@@ -28,7 +27,15 @@ export default {
       console.log('predict: ' + e.target.value)
     },
     search (e) {
-      console.log('search: ' + e.target.value)
+      if (this.globalState.state === 'normal') {
+        if (e.target.value.trim() !== '') {
+          this.$store.commit('TRANS_TO_SEARCH')
+        }
+      } else {
+        if (e.target.value.trim() === '') {
+          this.$store.commit('TRANS_TO_NORMAL')
+        }
+      }
     }
   }
 }
@@ -59,7 +66,7 @@ export default {
         border: 1px #fff solid;
         border-radius: 12px;
         height: 36px;
-        width: 287px;
+        width: 357px;
         background-color: #5CA2EF;
         padding-left: 36px;
         background: url("~@/assets/images/search.svg") no-repeat;
@@ -89,31 +96,7 @@ export default {
       white-space: pre;
     }
     &>button{
-        height: 36px;
-        width: 118px;
-        border-radius: 10px;
-        margin-left: 5px;
-        border: none;
-        background: #fff;
-        color:#0073F1;
-        font-size: 16px;
-        line-height: 36px;
-        font-weight: lighter;
-        transition: width 0.4s ease-in-out;
-        -webkit-transition: width 0.4s ease-in-out;
-        user-select: none;
-        outline: none;
-    }
-    &>button:hover{
-        background: #EFEFEF;
-        outline: none;
-        cursor: pointer;
-    }
-    &>button:active{
-        background: #ccc;
-        box-shadow: 2px 2px #666;
-        transform: translate(1px 1px);
-        outline: none;
+        display: none;
     }
 }
 
@@ -136,7 +119,7 @@ export default {
         /* fonts */
         font-weight: lighter;
         color: #fff;
-        font-size: 16px;
+        font-size: 14px;
         line-height: 30px;
 
     }
@@ -149,9 +132,9 @@ export default {
 
     &> input::-webkit-input-placeholder{
       color: #f0f0f0;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: lighter;
-      line-height: 36px;
+      line-height: 30px;
       white-space: pre;
     }
 

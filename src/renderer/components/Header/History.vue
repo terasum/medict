@@ -1,5 +1,5 @@
 <template>
-  <div :class="['history', global.state]">
+  <div :class="['history', globalState.state]">
     <div class="navi-btn prev"></div>
     <div class="navi-btn next"></div>
   </div>
@@ -7,10 +7,9 @@
 
 <script>
 export default {
-  props: {
-    global: {
-      type: Object,
-      required: true
+  data () {
+    return {
+      globalState: this.$store.state.MedictGlobal
     }
   }
 }
