@@ -36,7 +36,8 @@ let mainConfig = {
       {
         test: /\.node$/,
         use: 'node-loader'
-      }
+      },
+
     ]
   },
   node: {
