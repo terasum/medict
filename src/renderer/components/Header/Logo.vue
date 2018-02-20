@@ -1,5 +1,5 @@
 <template>
-<div :class="['logo', global.state, global.state === 'normal' ? 'center' : 'left' ]">
+<div :class="['logo', globalState.state, globalState.state === 'normal' ? 'center' : 'left' ]">
       <span class="logo-img"></span>
       <h1>MeDict</h1>
 </div>
@@ -7,20 +7,19 @@
 
 <script>
 export default {
-  props: {
-    global: {
-      type: Object,
-      required: true
+  data () {
+    return {
+      globalState: this.$store.state.MedictGlobal
     }
-
   }
 }
-</script>
-
+</script> 
 
 <style lang="scss" scoped>
-.logo{
+.logo {
   width: 100vw;
+  transition: width 0.8s ease-in-out;
+  -webkit-transition: width 0.8s ease-in-out;
 }
 
 .center {
@@ -30,7 +29,7 @@ export default {
   flex-direction: row;
 }
 
-.left{
+.left {
   width: 160px;
   display: flex;
   justify-content: flex-start;
@@ -39,14 +38,16 @@ export default {
 }
 /* normal part */
 
-.normal {
+.normal{
   margin-top: 80px;
   margin-bottom: 20px;
   height: 100px;
   user-select: none;
   cursor: default;
-
-  &>h1 {
+  transition: width 0.4s ease-in-out;
+  -webkit-transition: width 0.4s ease-in-out;
+  
+  &>h1{
     font-size: 64px;
     line-height: 100px;
     font-weight: lighter;
@@ -55,25 +56,31 @@ export default {
     width: 265px;
     height: 100px;
     cursor: default;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
+
   }
 
-  .logo-img{
+  .logo-img {
     background: url("~@/assets/images/medict.svg");
     background-size: cover;
     width: 54px;
-    height:54px;
+    height: 54px;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
   }
 }
 
 /* search state style */
- .search {
+.search {
   margin-left: 10px;
   width: 146px;
   height: 36px;
   user-select: none;
   cursor: default;
-
-  &>h1 {
+  transition: width 0.4s ease-in-out;
+  -webkit-transition: width 0.4s ease-in-out;
+  & > h1 {
     padding-left: 3px;
     font-size: 28px;
     line-height: 31px;
@@ -83,18 +90,21 @@ export default {
     width: 146px;
     height: 31px;
     cursor: default;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
+
   }
 
-  .logo-img{
+  .logo-img {
     display: inline-flex;
     background: url("~@/assets/images/medict.svg") 50% 50% no-repeat;
     background-size: cover;
     flex-direction: column;
     width: 25px;
     height: 28px;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
   }
 }
-
-
 </style>
 
