@@ -25,13 +25,14 @@ export default {
   methods: {
     predict (e) {
       console.log('predict: ' + e.target.value)
-    },
-    search (e) {
       if (this.globalState.state === 'normal') {
         if (e.target.value.trim() !== '') {
           this.$store.commit('TRANS_TO_SEARCH')
         }
-      } else {
+      }
+    },
+    search (e) {
+      if (this.globalState.state === 'search') {
         if (e.target.value.trim() === '') {
           this.$store.commit('TRANS_TO_NORMAL')
         }
@@ -45,12 +46,16 @@ export default {
 
 .search-box{
     user-select: none;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
 }
 
 .center{
     display: flex;
     flex-direction: row;
     justify-content: center;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
 }
 
 .left{
@@ -58,6 +63,8 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    transition: width 0.4s ease-in-out;
+    -webkit-transition: width 0.4s ease-in-out;
 }
 
 /* normal part */
@@ -73,8 +80,6 @@ export default {
         background-color: #5CA2EF;
         background-size: 22px 22px;
         background-position: 6px 6px;
-        transition: width 0.4s ease-in-out;
-        -webkit-transition: width 0.4s ease-in-out;
 
         color:#fff;
         font-size: 16px;
