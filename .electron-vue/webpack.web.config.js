@@ -36,6 +36,18 @@ let webConfig = {
         })
       },
       {
+        test: /\.scss$/,
+        use: ExtractTextPlugin.extract({
+          use: [{
+              loader: "css-loader"
+          }, {
+              loader: "sass-loader"
+          }],
+          // use style-loader in development
+          fallback: "style-loader"
+      })
+      },
+      {
         test: /\.html$/,
         use: 'vue-html-loader'
       },

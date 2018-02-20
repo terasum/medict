@@ -5,11 +5,13 @@
 </template>
 
 <script>
+  import '@/assets/styles/App.scss'
+
   export default {
     name: 'medict'
   }
 </script>
 
 <style>
-  /* CSS */
+
 </style>

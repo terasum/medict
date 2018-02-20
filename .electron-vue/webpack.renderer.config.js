@@ -20,6 +20,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
  */
 let whiteListedModules = ['vue']
 
+/**
+ * sass extract plugin
+ */
+const extractSass = new ExtractTextPlugin({
+  filename: "[name].[contenthash].css",
+  disable: process.env.NODE_ENV === "development"
+});
+
+
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
@@ -47,6 +56,18 @@ let rendererConfig = {
           fallback: 'style-loader',
           use: 'css-loader'
         })
+      },
+      {
+        test: /\.scss$/,
+        use: ExtractTextPlugin.extract({
+          use: [{
+              loader: "css-loader"
+          }, {
+              loader: "sass-loader"
+          }],
+          // use style-loader in development
+          fallback: "style-loader"
+      })
       },
       {
         test: /\.html$/,
@@ -109,7 +130,7 @@ let rendererConfig = {
     __filename: process.env.NODE_ENV !== 'production'
   },
   plugins: [
-    new ExtractTextPlugin('styles.css'),
+    new ExtractTextPlugin("style.css"),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
