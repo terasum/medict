@@ -18,8 +18,8 @@ export default {
 <style lang="scss" scoped>
 .logo {
   width: 100vw;
-  transition: width 0.8s ease-in-out;
-  -webkit-transition: width 0.8s ease-in-out;
+  transition: width 0.1s ease-in-out;
+  -webkit-transition: width 0.1s ease-in-out;
 }
 
 .center {
@@ -44,9 +44,7 @@ export default {
   height: 100px;
   user-select: none;
   cursor: default;
-  transition: width 0.4s ease-in-out;
-  -webkit-transition: width 0.4s ease-in-out;
-  
+
   &>h1{
     font-size: 64px;
     line-height: 100px;
@@ -56,8 +54,6 @@ export default {
     width: 265px;
     height: 100px;
     cursor: default;
-    transition: width 0.4s ease-in-out;
-    -webkit-transition: width 0.4s ease-in-out;
 
   }
 
@@ -66,8 +62,6 @@ export default {
     background-size: cover;
     width: 54px;
     height: 54px;
-    transition: width 0.4s ease-in-out;
-    -webkit-transition: width 0.4s ease-in-out;
   }
 }
 
@@ -78,8 +72,6 @@ export default {
   height: 36px;
   user-select: none;
   cursor: default;
-  transition: width 0.4s ease-in-out;
-  -webkit-transition: width 0.4s ease-in-out;
   & > h1 {
     padding-left: 3px;
     font-size: 28px;
@@ -90,8 +82,6 @@ export default {
     width: 146px;
     height: 31px;
     cursor: default;
-    transition: width 0.4s ease-in-out;
-    -webkit-transition: width 0.4s ease-in-out;
 
   }
 
@@ -102,8 +92,6 @@ export default {
     flex-direction: column;
     width: 25px;
     height: 28px;
-    transition: width 0.4s ease-in-out;
-    -webkit-transition: width 0.4s ease-in-out;
   }
 }
 </style>

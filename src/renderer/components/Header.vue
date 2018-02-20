@@ -1,8 +1,8 @@
 <template>
      <header :class="[ globalState.state === 'normal' ? 'center' : 'left' ]">
       <logo/>
-      <history/>
       <search-box/>
+      <history/>
       <select-dict/>
     </header> 
 </template>
