@@ -24,12 +24,18 @@ export default {
   },
   methods: {
     predict (e) {
-      console.log('predict: ' + e.target.value)
+      let queryWord = e.target.value.trim()
       if (this.globalState.state === 'normal') {
-        if (e.target.value.trim() !== '') {
-          this.$store.commit('TRANS_TO_SEARCH')
+        if (queryWord !== '') {
+          this.$store.commit('TRANS_TO_SEARCH', e.target.value)
         }
       }
+      let mdict = this.$store.dispatch('predict')
+      let _this = this
+      mdict.then((_mdict) => {
+        const prefix = _mdict.prefix(queryWord)
+        _this.$store.dispatch('searchWold', prefix)
+      })
     },
     search (e) {
       if (this.globalState.state === 'search') {
