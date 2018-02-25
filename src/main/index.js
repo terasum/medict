@@ -25,7 +25,8 @@ function createWindow () {
     width: 743,
     titleBarStyle: 'hidden'
   })
-  mainWindow.setMaximizable(true)
+  mainWindow.setMaximizable(false)
+  mainWindow.setResizable(false)
   mainWindow.setMinimizable(true)
 
   mainWindow.loadURL(winURL)

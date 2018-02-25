@@ -1,6 +1,5 @@
 <template>
-  <div :class='["content", globalState.state]'>
-
+  <div :class='["content", globalState.state]' v-html='content'>
   </div>  
 </template>
 
@@ -9,6 +8,11 @@ export default {
   data () {
     return {
       globalState: this.$store.state.MedictGlobal
+    }
+  },
+  computed: {
+    content () {
+      return this.globalState.searchContent ? this.globalState.searchContent : '<h3>NOT FOUND</h3>'
     }
   }
 }
@@ -25,6 +29,19 @@ export default {
   height: 100vh;
   display: flex;
   background: #fff;
+
+  
+}
+#medict-difination{
+    background-color: #fff;
+    &::after{
+      content: "";
+      display: block;
+      clear: both;
+    }
+  }
+#medict-clear{
+  clear: both;
 }
 </style>
 

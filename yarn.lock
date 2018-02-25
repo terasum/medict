@@ -270,6 +270,10 @@ array-unique@^0.3.2:
   version "0.3.2"
   resolved "http://registry.npm.taobao.org/array-unique/download/array-unique-0.3.2.tgz#a894b75d4bc4f6cd679ef3244a9fd8f46ae2d428"
 
+arraybuffer-to-buffer@0.0.4:
+  version "0.0.4"
+  resolved "http://registry.npm.taobao.org/arraybuffer-to-buffer/download/arraybuffer-to-buffer-0.0.4.tgz#2c3f8e8f4d54362a5c6165496f21176f7fd966a6"
+
 arraybuffer.slice@0.0.6:
   version "0.0.6"
   resolved "http://registry.npm.taobao.org/arraybuffer.slice/download/arraybuffer.slice-0.0.6.tgz#f33b2159f0532a3f3107a272c0ccfbd1ad2979ca"
@@ -1286,6 +1290,10 @@ bl@^1.0.0:
   dependencies:
     readable-stream "^2.0.5"
 
+blob-to-buffer@^1.2.6:
+  version "1.2.7"
+  resolved "http://registry.npm.taobao.org/blob-to-buffer/download/blob-to-buffer-1.2.7.tgz#bd8eee0aef300b509e2305ad752cde8c14e6499c"
+
 blob@0.0.4:
   version "0.0.4"
   resolved "http://registry.npm.taobao.org/blob/download/blob-0.0.4.tgz#bcf13052ca54463f30f9fc7e95b9a47630a94921"
@@ -1486,6 +1494,10 @@ buffer-crc32@^0.2.1:
   version "0.2.13"
   resolved "http://registry.npm.taobao.org/buffer-crc32/download/buffer-crc32-0.2.13.tgz#0d333e3f00eac50aa1454abd30ef8c2a5d9a7242"
 
+buffer-dataview@0.0.2:
+  version "0.0.2"
+  resolved "http://registry.npm.taobao.org/buffer-dataview/download/buffer-dataview-0.0.2.tgz#f2be7ee29ac2443ff3706ddef746c75cfe6507e1"
+
 buffer-indexof@^1.0.0:
   version "1.1.1"
   resolved "http://registry.npm.taobao.org/buffer-indexof/download/buffer-indexof-1.1.1.tgz#52fabcc6a606d1a00302802648ef68f639da268c"
@@ -1501,6 +1513,13 @@ buffer@^4.3.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
     isarray "^1.0.0"
+
+buffer@^5.0.7:
+  version "5.1.0"
+  resolved "http://registry.npm.taobao.org/buffer/download/buffer-5.1.0.tgz#c913e43678c7cb7c8bd16afbcddb6c5505e8f9fe"
+  dependencies:
+    base64-js "^1.0.2"
+    ieee754 "^1.1.4"
 
 builder-util-runtime@4.0.4:
   version "4.0.4"
@@ -3810,6 +3829,12 @@ fs-extra@^5.0.0:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
+fs-web@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.taobao.org/fs-web/download/fs-web-1.0.1.tgz#5317e717af94db1687da82a48fc6ee4f808b121b"
+  dependencies:
+    path "git://github.com/component/path#7b4f23c38833a5232cd5e3d50ccb8cd13dbcd2f4"
+
 fs-write-stream-atomic@^1.0.8:
   version "1.0.10"
   resolved "http://registry.npm.taobao.org/fs-write-stream-atomic/download/fs-write-stream-atomic-1.0.10.tgz#b47df53493ef911df75731e70a9ded0189db40c9"
@@ -4890,6 +4915,22 @@ js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.3"
   resolved "http://registry.npm.taobao.org/js-base64/download/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
 
+js-mdict@^1.0.1:
+  version "1.0.1"
+  resolved "http://registry.npm.taobao.org/js-mdict/download/js-mdict-1.0.1.tgz#13116490fcfb5fd4abbd770d71d959571341ff79"
+  dependencies:
+    arraybuffer-to-buffer "0.0.4"
+    blob-to-buffer "^1.2.6"
+    bluebird "^3.4.7"
+    buffer "^5.0.7"
+    buffer-dataview "0.0.2"
+    detect-node "^2.0.3"
+    fs-web "^1.0.1"
+    lodash "^4.17.4"
+    pako "^1.0.4"
+    text-encoding "^0.6.4"
+    xmldom "^0.1.27"
+
 js-string-escape@~1.0.0:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/js-string-escape/download/js-string-escape-1.0.1.tgz#e2625badbc0d67c7533e9edc1068c587ae4137ef"
@@ -5505,6 +5546,16 @@ md5.js@^1.3.4:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+mdict@^1.0.2:
+  version "1.0.2"
+  resolved "http://registry.npm.taobao.org/mdict/download/mdict-1.0.2.tgz#6a118b4ee3a554cee9d6d29096df5a018e15e7d3"
+  dependencies:
+    bluebird "^3.4.7"
+    buffer-dataview "0.0.2"
+    pako "^1.0.4"
+    text-encoding "^0.6.4"
+    xmldom "^0.1.27"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -6164,7 +6215,7 @@ package-json@^4.0.0:
     registry-url "^3.0.3"
     semver "^5.1.0"
 
-pako@~1.0.5:
+pako@^1.0.4, pako@~1.0.5:
   version "1.0.6"
   resolved "http://registry.npm.taobao.org/pako/download/pako-1.0.6.tgz#0101211baa70c4bca4a0f63f2206e97b7dfaf258"
 
@@ -6309,6 +6360,10 @@ path-type@^3.0.0:
   resolved "http://registry.npm.taobao.org/path-type/download/path-type-3.0.0.tgz#cef31dc8e0a1a3bb0d105c0cd97cf3bf47f4e36f"
   dependencies:
     pify "^3.0.0"
+
+"path@git://github.com/component/path.git#7b4f23c38833a5232cd5e3d50ccb8cd13dbcd2f4":
+  version "1.0.0"
+  resolved "git://github.com/component/path.git#7b4f23c38833a5232cd5e3d50ccb8cd13dbcd2f4"
 
 pathval@^1.0.0:
   version "1.1.0"
@@ -8020,6 +8075,10 @@ test-exclude@^4.1.1:
     read-pkg-up "^1.0.1"
     require-main-filename "^1.0.1"
 
+text-encoding@^0.6.4:
+  version "0.6.4"
+  resolved "http://registry.npm.taobao.org/text-encoding/download/text-encoding-0.6.4.tgz#e399a982257a276dae428bb92845cb71bdc26d19"
+
 text-table@^0.2.0, text-table@~0.2.0:
   version "0.2.0"
   resolved "http://registry.npm.taobao.org/text-table/download/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
@@ -8762,7 +8821,7 @@ xmlbuilder@8.2.2:
   version "8.2.2"
   resolved "http://registry.npm.taobao.org/xmlbuilder/download/xmlbuilder-8.2.2.tgz#69248673410b4ba42e1a6136551d2922335aa773"
 
-xmldom@0.1.x:
+xmldom@0.1.x, xmldom@^0.1.27:
   version "0.1.27"
   resolved "http://registry.npm.taobao.org/xmldom/download/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
 

@@ -73,3 +73,7 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
+# developments files
+*.mdx
+*.mdd
+certification/*
