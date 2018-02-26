@@ -14,9 +14,12 @@
 ![search ui](./docs/images/medict_search.png)
 
 
-## Build by yourself 
+## Build 
 
 ``` bash
+$ git clone https://github.com/terasum/medict.git
+
+$ cd medict
 # install dependencies
 npm install
 
@@ -33,3 +36,5 @@ npm test
 npm run lint
 
 ```
+
+**Medict is made by terasum with ❤️ **
