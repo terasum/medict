@@ -1,11 +1,7 @@
 # medict
 [![Build Status](https://travis-ci.org/terasum/medict.svg?branch=master)](https://travis-ci.org/terasum/medict)
-
 [![GitHub release](https://img.shields.io/github/release/terasum/medict.svg)](https://github.com/terasum/medict/releases)
-
 [![Github All Releases](https://img.shields.io/github/downloads/medict/atom/total.svg)](https://github.com/terasum/medict/releases)
-
-
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
 
 
