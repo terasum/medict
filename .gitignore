@@ -76,4 +76,5 @@ thumbs.db
 # developments files
 *.mdx
 *.mdd
+!static/dicts/opted003.mdx
 certification/*

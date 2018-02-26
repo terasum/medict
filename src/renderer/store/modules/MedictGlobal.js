@@ -7,8 +7,8 @@ import fs from 'fs-extra-promise'
 const state = {
   state: 'normal',
   dict: {
-    name: 'Collins',
-    path: path.join(__static, './dicts/Collins.mdx'),
+    name: 'OPTED v.003',
+    path: path.join(__static, './dicts/opted003.mdx'),
     dictionary: null
   },
   searchWords: [],
@@ -60,7 +60,7 @@ const actions = {
       commit('NOT_FOUND')
     }
     const word = words[words.length - 1]
-    if (!word.k) {
+    if (!word || !word.k) {
       commit('NOT_FOUND')
     }
     if (state.dict.dictionary && word) {
