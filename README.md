@@ -37,4 +37,4 @@ npm run lint
 
 ```
 
-**Medict is made by terasum with ❤️ **
+**Medict is made by terasum with ❤️**
