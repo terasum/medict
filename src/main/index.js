@@ -23,11 +23,16 @@ function createWindow () {
     height: 473,
     useContentSize: true,
     width: 743,
-    titleBarStyle: 'hidden'
+    titleBarStyle: 'hidden',
+    'auto-hide-menu-bar': true
   })
   mainWindow.setMaximizable(false)
   mainWindow.setResizable(false)
   mainWindow.setMinimizable(true)
+
+  // hide MenuBar
+  mainWindow.setMenu(null)
+  mainWindow.setAutoHideMenuBar(true)
 
   mainWindow.loadURL(winURL)
 
