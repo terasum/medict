@@ -1,0 +1,3 @@
+#!/usr/bin/env python
+#-*-utf-8-*-
+print('pre-commit hooks')
