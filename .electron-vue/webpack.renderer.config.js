@@ -70,6 +70,18 @@ let rendererConfig = {
       })
       },
       {
+        test: /\.less$/,
+        use: ExtractTextPlugin.extract({
+          use: [{
+              loader: "css-loader"
+          }, {
+              loader: "less-loader"
+          }],
+          // use style-loader in development
+          fallback: "style-loader"
+      })
+      },
+      {
         test: /\.html$/,
         use: 'vue-html-loader'
       },
