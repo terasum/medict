@@ -106,6 +106,7 @@
   "dependencies": {
     "axios": "^0.16.1",
     "cheerio": "^1.0.0-rc.2",
+    "electron-store": "^2.0.0",
     "font-awesome": "^4.7.0",
     "fs-extra-promise": "^1.0.1",
     "iview": "^2.14.0",

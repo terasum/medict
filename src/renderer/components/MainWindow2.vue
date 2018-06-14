@@ -5,7 +5,7 @@
             <Header>
                <div class="header-content">
                    <div class="header-logo header-item"></div>
-                   <Input class="header-item" v-model="value4" icon="search" placeholder="Enter something..." style="width: 200px"/>
+                   <Input class="header-item" :value="word" @input="searchWord" icon="search" placeholder="Enter something..." style="width: 200px"/>
                    <ButtonGroup>
                      <Button icon="arrow-left-b"></Button>
                      <Button icon="arrow-right-b"></Button>
@@ -13,16 +13,24 @@
                    <Select v-model="model1" style="width:200px">
                      <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                    </Select>
+                   <Dropdown trigger="click">
+                        <Button icon="settings"></Button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem>界面设置</DropdownItem>
+                            <DropdownItem>词典设置</DropdownItem>
+                            <DropdownItem divided>关于</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                </div> 
             </Header>
             <Layout :style="{ overflow: 'hidden', background: '#fff', height: '100%'}">
                 <Sider hide-trigger :style="{ overflow: 'hidden', background: '#fff', height: '100%'}">
                     
                 </Sider>
-                <Layout :style="{padding: '0 2px' , overflowY: 'auto', width:'100%',  overflowX:'hidden'}">
-                    <Content :id="content" :style="{padding: '2px', minHeight: '280px', height:'100%',width:'100%', maxWidth:'541px', background: '#fff', overflowWrap: 'break-word', overflowY:'auto', overflowX:'hidden'}">
-                        Header
-                        Conten 
+                <Layout>
+                    <Content class="dict-content">
+                        <!-- {{cwdpath}}  -->
+                        {{content}}
                     </Content>
                 </Layout>
             </Layout>
@@ -52,9 +60,8 @@
 .header-logo{
     width: 120px;
     height: 32px;
-    background: #5b6270;
+    background: #f9f7f5;
     border-radius: 3px;
-    float: left;
     position: relative;
     vertical-align: middle;
     line-height: normal;
@@ -65,6 +72,25 @@
     width: 420px;
     margin: 0 auto;
     margin-right: 20px;
+}
+
+.layout-content{
+padding: '0 2px' ;
+ overflowY: 'auto'; 
+ width:'100%';
+ overflowX:'hidden'
+}
+
+.dict-content{
+ padding: '2px';
+ minHeight: '280px'; 
+ height:'100%';
+ width:'100%';
+ maxWidth:'541px';
+ ackground: '#fff';
+ overflowWrap: 'break-word';
+ overflowY:'auto';
+ overflowX:'hidden';
 }
 
 #content::-webkit-scrollbar-track
@@ -102,26 +128,35 @@
             {
               value: 'London',
               label: 'London'
-            },
-            {
-              value: 'Sydney',
-              label: 'Sydney'
-            },
-            {
-              value: 'Ottawa',
-              label: 'Ottawa'
-            },
-            {
-              value: 'Paris',
-              label: 'Paris'
-            },
-            {
-              value: 'Canberra',
-              label: 'Canberra'
             }
           ],
           model1: ''
         }
+      },
+      computed: {
+        // 当前搜索词
+        word () {
+          return this.$store.state.medict.searchWord
+        },
+        cwdpath () {
+          return this.$store.state.medict
+        },
+        // 当前搜索解释
+        content () {
+          return this.$store.state.medict.content
+        }
+      },
+      methods: {
+        searchWord (word) {
+          console.log(word)
+          console.log(this)
+          this.$store.dispatch('init')
+          this.$store.dispatch('search', word)
+        }
+      },
+      watch: {
+        // 观察变化
+        // myvalue: (newVal, oldVal)=>  { }
       }
     }
 </script>
