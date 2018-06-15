@@ -7,9 +7,11 @@
 
 > medict a cross platform dictionary application,support *.mdx/*.mdd dictionary format
 
+**New UI System!! comming soon...**
+
 ## UI
 
-![main ui](./docs/images/medict_index.png)
+![main ui](./docs/images/medict-1.01.png)
 
 ![search ui](./docs/images/medict_search.png)
 
