@@ -11,7 +11,7 @@
 
 ## UI
 
-![main ui](./docs/images/medict-1.01.png)
+![cover](https://ws4.sinaimg.cn/large/006tNbRwgy1fujgarr1zrj30xc0l80tq.jpg)
 
 ![search ui](./docs/images/medict_search.png)
 
