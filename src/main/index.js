@@ -26,7 +26,7 @@ const bgURL = process.env.NODE_ENV === 'development'
  */
 function createBackgroundWin () {
   bgWindow = new BrowserWindow({
-    show: true,
+    show: false,
     height: 100,
     useContentSize: true,
     width: 200
@@ -53,6 +53,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     height: 473,
     useContentSize: true,
+    show: false,
     width: 743,
     titleBarStyle: 'hidden',
     'auto-hide-menu-bar': true,
@@ -73,6 +74,10 @@ function createWindow () {
   // console.log(__static + '/src/renderer/worker/worker.js')
 
   mainWindow.loadURL(winURL)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
 
   mainWindow.on('closed', () => {
     unsetMainBgBridge()
