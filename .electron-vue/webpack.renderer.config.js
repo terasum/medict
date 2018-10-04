@@ -32,7 +32,9 @@ const extractSass = new ExtractTextPlugin({
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    renderer: path.join(__dirname, '../src/renderer/main.js')
+    renderer: path.join(__dirname, '../src/renderer/main.js'),
+    // background task page
+    background: path.join(__dirname, '../src/background/main.js')
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
@@ -80,6 +82,11 @@ let rendererConfig = {
           // use style-loader in development
           fallback: "style-loader"
       })
+      },
+      // web worker
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
       },
       {
         test: /\.html$/,
@@ -151,6 +158,22 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      // exclude background.js
+      excludeChunks: [ 'background' ],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'background.html',
+      template: path.resolve(__dirname, '../src/background.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      // exclude renderer.js
+      excludeChunks: [ 'renderer' ],
       nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
