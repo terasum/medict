@@ -11,17 +11,6 @@ export default new Router({
       component: require('@/components/MainFrame').default
     },
     {
-      'path': 'content/',
-      name: 'content',
-      component: require('@/components/ContentFrame').default
-    },
-    {
-      'path': 'background/',
-      name: 'background',
-      component: require('@/components/Background').default
-    },
-
-    {
       path: '*',
       redirect: '/'
     }

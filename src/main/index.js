@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, BrowserWindow, ipcMain } from 'electron'
-import MsgType from '../util/constant'
+import mt from '../common/msgType'
 
 /**
  * Set `__static` path to static files in production
@@ -29,8 +29,11 @@ function createBackgroundWin () {
     show: false,
     height: 100,
     useContentSize: true,
-    width: 200
-
+    width: 200,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegrationInWorker: true
+    }
   })
 
   bgWindow.loadURL(bgURL)
@@ -63,7 +66,7 @@ function createWindow () {
     }
   })
   mainWindow.setMaximizable(false)
-  mainWindow.setResizable(false)
+  mainWindow.setResizable(true)
   mainWindow.setMinimizable(true)
 
   // hide MenuBar
@@ -124,26 +127,39 @@ app.on('activate', () => {
   }
 })
 
+/**
+ * send message to main window process
+ * @param {*} event: cause event
+ * @param {*} payload: the message payload
+ */
 function toMainListener (event, payload) {
-  mainWindow.webContents.send(MsgType.MsgToMain, payload)
-}
-
-function toBgListener (event, payload) {
-  bgWindow.webContents.send(MsgType.MsgToBackground, payload)
+  mainWindow.webContents.send(mt.MsgToMain, payload)
 }
 
 /**
- * mainWin <=> bgWin
+ * send messagt to background window process
+ * @param {*} event: cause event
+ * @param {*} payload: the passage event
+ */
+function toBgListener (event, payload) {
+  bgWindow.webContents.send(mt.MsgToBackground, payload)
+}
+
+/**
+ * set Main window process and background window process communications
  */
 function setMainBgBridge () {
   unsetMainBgBridge()
-  ipcMain.on(MsgType.MsgToMain, toMainListener)
-  ipcMain.on(MsgType.MsgToBackground, toBgListener)
+  ipcMain.on(mt.MsgToMain, toMainListener)
+  ipcMain.on(mt.MsgToBackground, toBgListener)
 }
 
+/**
+ * unset Main window process and background window process communications
+ */
 function unsetMainBgBridge () {
-  ipcMain.removeListener(MsgType.MsgToMain, toMainListener)
-  ipcMain.removeListener(MsgType.MsgToBackground, toBgListener)
+  ipcMain.removeListener(mt.MsgToMain, toMainListener)
+  ipcMain.removeListener(mt.MsgToBackground, toBgListener)
 }
 
 /**

@@ -6,16 +6,14 @@
     <div class="me-sidebar">
       <!-- me-search-container start -->
       <div class="me-select-container">
-        <Select v-model="selectedDict" style="width:175px">
-          <Option v-for="dict in dicts" :value="dict" :key="dict">{{ dict }}</Option>
-        </Select>
+        <img src="@/assets/images/medict.png" width="180" hegiht="40"/>
       </div>
       <!-- me-search-container ends -->
 
       <!-- me-search-words-list -->
       <div class="me-search-words-list">
         <ul class="words-list">
-          <li v-for="item in wordlist" :value="item" :key="item">
+          <li v-for="(item, index) in wordlist" :key="index" v-model="wordlist[index]" :value="item" @click="itemclick(item)">
             <!-- TODO -->
             {{ item }}
             <Divider dashed />            
@@ -32,7 +30,11 @@
       <div class="me-settings">
         <div class="me-setting-tool">
           <!-- <Input suffix="ios-search" placeholder="search.." style="width: 240px" /> -->
-          <AutoComplete v-model="word" :data="word_data" @on-search="autoComplete" placeholder="input here" icon="ios-search" style="width:200px"></AutoComplete>
+          <!-- <AutoComplete v-model="word" @keyup.enter.native="submit" :data="word_data" @on-search="autoComplete" popup placeholder="search..." icon="ios-search" style="width:350px"></AutoComplete> -->
+          <!-- <AutoComplete v-model="word" @keyup.enter.native="submit" :data="word_data" @on-search="autoComplete" popup placeholder="search..." icon="ios-search" style="width:350px"></AutoComplete> -->
+          <!-- <input v-model="word" @keyup.enter.native="submit" type="text"></input> -->
+          <Input v-model="word" @keyup.enter.native="submit" placeholder="Enter something..."  icon="ios-search" style="width: 300px" />
+
         </div>
         <!-- me-setting-menu starts -->
         <div class="me-setting-menu">
@@ -51,7 +53,8 @@
         <!-- me-setting-menu ends -->
       </div>
       <!-- me-settings ends -->
-      <webview id="foo" :src="contentUrl" style="display:inline-flex; width:640px; height:480px"></webview>
+      <webview id="mainContent" :src="contentData" disablewebsecurity nodeintegration style="display:inline-flex; width:557px; height:452px" webpreferences="javascript=yes" ></webview>
+      <!-- <iframe :src="contentData" width="640" height="480" style="border:0" ></iframe> -->
     </div>
     <!-- me-main ends -->
   </div>
@@ -168,8 +171,15 @@
 
 
 <script>
-import Medict from 'js-mdict'
 import Worker from '../../worker/main.worker.js'
+// import DOMBuilder from '../../util/dombuiler.js'
+import { ipcRenderer } from 'electron'
+import mt from '../../common/msgType'
+import CommuniMsg from '../../common/CommuiMsg'
+
+const {shell} = require('electron').remote
+
+// import path from 'path'
 
 let innerDicts = ['朗文中字', '新世纪英汉大字典']
 let defaultDict = innerDicts[0]
@@ -189,30 +199,41 @@ function multiThread () { // eslint-disable-line
   }
 }
 
-/**
- * load dictionary
- */
-function loadDict () { // eslint-disable-line
-  return new Promise((resolve, reject) => {
-    let _medict = new Medict(__static + '/dicts/oale8.mdx')
-    resolve(_medict)
-  })
-}
-
 export default {
   mounted () {
-    console.log('loading dictionary...')
-    // multiThread()
-    // mdict = loadDict()
-    // mdict.then(() => {
-    //   console.log('loaded.')
-    // })
-    // background...
+    window.addEventListener('keyup', (event) => {
+      // console.log(event)
+      if (event.key && event.key === 'Enter' && event.code === 'Enter') {
+        this.search()
+      }
+    }, true)
+
+    // query test
+    setTimeout(() => {
+      ipcRenderer.send(mt.MsgToBackground, new CommuniMsg(mt.SubMsgQueryBackground, 'hello'))
+      console.log(this.$store.state)
+    }, 2000)
+    // background tasks ...
     multiThread()
+
+    // for webview
+    const webview = document.getElementById('mainContent')
+    webview.addEventListener('new-window', (e) => {
+      console.log('new window event called')
+      const protocol = require('url').parse(e.url).protocol
+      if (protocol === 'http:' || protocol === 'https:') {
+        shell.openExternal(e.url)
+      }
+    })
+    if (process.env.NODE_ENV === 'development') {
+      webview.addEventListener('dom-ready', (e) => {
+        console.log('dom ready')
+        webview.openDevTools()
+      })
+    }
   },
   data () {
     return {
-      wordlist: ['word1', 'word2', 'word3', 'word4', 'word5', '2ord6', 'word7', 'word8', '2ord9', 'word19', '2ord13', 'word112', '2ord143'],
       // pre-setted dictionaries
       dicts: innerDicts,
       // current used dictionary name
@@ -221,16 +242,22 @@ export default {
       word_data: [],
       // currently actually query word
       word: '',
-      // contentUrl: 'http://www.baidu.com',
+      // to prevent too quick query
+      tempWord: '',
       // current word definitions
       wordDefinition: ''
     }
   },
   // 计算属性，渲染最终webview中的内容
   computed: {
-    contentUrl () {
-      // TODO word definition filter
-      return 'data:text/html, <html> ' + this.wordDefinition + '</html>'
+    contentData () {
+      return this.$store.state.Query.rawdef
+    },
+    wordlist () {
+      console.log('wordlist get')
+      // let samelist = this.$store.state.Query.samelist
+      return this.$store.state.Query.samelist
+      // return this.$store.state.Query.samelist
     }
   },
   methods: {
@@ -247,11 +274,37 @@ export default {
         })
     },
     autoComplete (value) {
-      this.word_data = !value ? [] : [
-        value,
-        value + value,
-        value + value + value
+      // todo prefix or simword service
+      this.word_data = !value ? ['a'] : [
+        value
       ]
+      // this.word_data = !value ? [] : [
+      //   value,
+      //   value + value,
+      //   value + value + value
+      // ]
+    },
+    search () {
+      console.log('search')
+      if (this.word === '' || this.word === this.tempWord) {
+        console.log('same do nothing')
+        return
+      }
+      this.tempWord = this.word
+      ipcRenderer.send(mt.MsgToBackground, new CommuniMsg(mt.SubMsgQueryBackground, this.word))
+      // console.log(this.$store.state)
+    },
+    submit () {
+      console.log('submit')
+      console.log(this.word)
+    },
+    itemclick (word) {
+      if (word === '' || word === this.tempWord) {
+        console.log('same do nothing')
+        return
+      }
+      this.tempWord = word
+      ipcRenderer.send(mt.MsgToBackground, new CommuniMsg(mt.SubMsgQueryBackground, word))
     },
     start () {
       this.$Loading.start()
@@ -267,6 +320,20 @@ export default {
         title: 'Notification title',
         desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
       })
+    }
+  },
+  // 侦听器
+  watch: {
+    // 如果 `word` 发生改变，这个函数就会运行
+    word: function (newWord, oldWord) {
+      // this.answer = 'Waiting for you to stop typing...'
+      // this.debouncedGetAnswer()
+      // if (this.tempWord === newWord){
+      // }
+      if (newWord === '') return
+      console.log('word changed..')
+      // ipcRenderer.send(mt.MsgToBackground, new mt.CommuniMsg(mt.SubMsgQueryBackground, newWord))
+      // console.log(this.$store.state)
     }
   }
 }
