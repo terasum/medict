@@ -24,6 +24,7 @@ let MDDDict = {
 
 registerPromiseWorker(function (message) {
   console.log('bgworker.js recevied message')
+
   if (!MDDDict.loaded) {
     console.debug('mdd not loaded..')
     return new CommuniMsg(msgType.BGWorkerSubMsgResponse, 'mdd not loaded yet', -1)
