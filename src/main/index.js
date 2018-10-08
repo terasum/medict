@@ -38,6 +38,7 @@ function createBackgroundWin () {
 
   bgWindow.loadURL(bgURL)
   // if bgwin Closed close main window too
+
   bgWindow.on('closed', () => {
     unsetMainBgBridge()
     // close the main window
