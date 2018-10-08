@@ -12,19 +12,16 @@ import YDQuery from './YDQuery'
 import PromiseWorker from 'promise-worker'
 import Worker from './bgworker/bg.worker.js'
 
-// console.dir(electron.remote)
-// console.log(process)
+import Store from 'electron-store'
 
-// const userDataPath = remote.app.getPath('userData')
-
-// create resoure directory
-// const resourceDirPath = path.join(userDataPath, 'resource')
-
-// import { FileStore, userDataPath } from '../util/FileStore'
+const store = new Store()
 
 console.log('========= backgound.js ==========')
+store.set('bgtest', 'bgtest')
+console.log(store.get('bgtest'))
 
 const youdao = new YDDict()
+
 // worker
 let worker = new Worker()
 let promiseWorker = new PromiseWorker(worker)
@@ -57,9 +54,11 @@ function sendQueryToWorker (res) {
  */
 ipcRenderer.on(mt.MsgToBackground, (event, payload) => {
   if (!payload || !payload.msgType) return
+  let word = payload.data
+
   switch (payload.msgType) {
     case mt.SubMsgQueryBackground: {
-      searchMdict(payload.data)
+      searchMdict(word)
       break
     }
     default: {
