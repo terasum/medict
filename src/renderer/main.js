@@ -4,10 +4,10 @@ import axios from 'axios'
 import App from './App'
 import router from './router'
 import store from './store'
-import Antd from 'vue-antd-ui'
-import 'vue-antd-ui/dist/antd.css'
+import iView from 'iview'
 
-Vue.use(Antd)
+// Vue.use(SuiVue)
+Vue.use(iView)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 
