@@ -18,6 +18,9 @@ export default {
     // if (process.env.NODE_ENV === 'development') {
     webview.addEventListener('dom-ready', (e) => {
       console.log('dom ready')
+      if (process.env.NODE_ENV === 'development') {
+        webview.openDevTools()
+      }
     })
     // }
   },

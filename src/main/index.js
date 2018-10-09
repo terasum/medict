@@ -36,15 +36,17 @@ function createBackgroundWin () {
   bgWindow.loadURL(bgURL)
   // if bgwin Closed close main window too
   bgWindow.on('ready-to-show', () => {
-    bgWindow.webContents.openDevTools({ mode: 'detach' })
+    if (process.env.NODE_ENV === 'development') {
+      bgWindow.webContents.openDevTools({ mode: 'detach' })
+    }
   })
 
   bgWindow.on('closed', () => {
     unsetMainBgBridge()
     // close the main window
-    if (mainWindow !== null) {
-      mainWindow.close()
-    }
+    // if (mainWindow !== null) {
+    //   mainWindow.close()
+    // }
 
     bgWindow = null
   })
@@ -81,7 +83,9 @@ function createWindow () {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
-    mainWindow.webContents.openDevTools({ mode: 'detach' })
+    if (process.env.NODE_ENV === 'development') {
+      mainWindow.webContents.openDevTools({ mode: 'detach' })
+    }
   })
 
   mainWindow.on('closed', () => {
@@ -149,9 +153,10 @@ function toBgListener (event, payload) {
 
 // restart bgmain
 ipcMain.on('restartBG', () => {
-  bgWindow = null
+  bgWindow.close()
   setTimeout(() => {
     createBackgroundWin()
+    setMainBgBridge()
   }, 20)
 })
 
