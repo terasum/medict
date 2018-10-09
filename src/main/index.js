@@ -1,6 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import mt from '../common/msgType'
 
 /**
  * Set `__static` path to static files in production
@@ -15,6 +16,42 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+let bgWindow
+const bgURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/background.html`
+  : `file://${__dirname}/background.html`
+
+/**
+ *
+ */
+function createBackgroundWin () {
+  bgWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegrationInWorker: true
+    }
+  })
+
+  bgWindow.loadURL(bgURL)
+  // if bgwin Closed close main window too
+  bgWindow.on('ready-to-show', () => {
+    if (process.env.NODE_ENV === 'development') {
+      bgWindow.webContents.openDevTools({ mode: 'detach' })
+    }
+  })
+
+  bgWindow.on('closed', () => {
+    unsetMainBgBridge()
+    // close the main window
+    // if (mainWindow !== null) {
+    //   mainWindow.close()
+    // }
+
+    bgWindow = null
+  })
+}
+
 function createWindow () {
   /**
    * Initial window options
@@ -22,9 +59,14 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     height: 473,
     useContentSize: true,
+    show: false,
     width: 743,
     titleBarStyle: 'hidden',
-    'auto-hide-menu-bar': true
+    'auto-hide-menu-bar': true,
+    // enable multi-worker
+    webPreferences: {
+      nodeIntegrationInWorker: true
+    }
   })
   mainWindow.setMaximizable(false)
   mainWindow.setResizable(false)
@@ -34,26 +76,106 @@ function createWindow () {
   mainWindow.setMenu(null)
   mainWindow.setAutoHideMenuBar(true)
 
+  // console.log(winURL)
+  // console.log(__static + '/src/renderer/worker/worker.js')
+
   mainWindow.loadURL(winURL)
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+    if (process.env.NODE_ENV === 'development') {
+      mainWindow.webContents.openDevTools({ mode: 'detach' })
+    }
+  })
+
   mainWindow.on('closed', () => {
+    unsetMainBgBridge()
     mainWindow = null
+    // bgWindow = null
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  // start communication
+  setMainBgBridge()
+
+  createWindow()
+  // create only once
+  createBackgroundWin()
+})
+
+app.on('activate-with-no-open-windows', () => {
+  if (!mainWindow) {
+    createWindow()
+    setMainBgBridge()
+  }
+})
 
 app.on('window-all-closed', () => {
+  // on macos, the app will still live on docker
+  // and will active again
   if (process.platform !== 'darwin') {
     app.quit()
+  } else {
+    // stop communication
+    unsetMainBgBridge()
   }
 })
 
 app.on('activate', () => {
   if (mainWindow === null) {
+    setMainBgBridge()
     createWindow()
   }
+  if (bgWindow === null) {
+    // TODO ?
+    createBackgroundWin()
+  }
 })
+
+/**
+ * send message to main window process
+ * @param {*} event: cause event
+ * @param {*} payload: the message payload
+ */
+function toMainListener (event, payload) {
+  mainWindow.webContents.send(mt.MsgToMain, payload)
+}
+
+/**
+ * send messagt to background window process
+ * @param {*} event: cause event
+ * @param {*} payload: the passage event
+ */
+function toBgListener (event, payload) {
+  bgWindow.webContents.send(mt.MsgToBackground, payload)
+}
+
+// restart bgmain
+ipcMain.on('restartBG', () => {
+  bgWindow.close()
+  setTimeout(() => {
+    createBackgroundWin()
+    setMainBgBridge()
+  }, 20)
+})
+
+/**
+ * set Main window process and background window process communications
+ */
+function setMainBgBridge () {
+  unsetMainBgBridge()
+  ipcMain.on(mt.MsgToMain, toMainListener)
+  ipcMain.on(mt.MsgToBackground, toBgListener)
+}
+
+/**
+ * unset Main window process and background window process communications
+ */
+function unsetMainBgBridge () {
+  ipcMain.removeListener(mt.MsgToMain, toMainListener)
+  ipcMain.removeListener(mt.MsgToBackground, toBgListener)
+}
 
 /**
  * Auto Updater
