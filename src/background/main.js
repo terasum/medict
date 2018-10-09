@@ -42,7 +42,11 @@ function sendQueryListRespToMain (list) {
 
 // eslint-disable-next-line
 function sendQueryToWorker (res) {
-  return promiseWorker.postMessage(new CommuniMsg(mt.BGWorkerMsgQuery, res))
+  return promiseWorker.postMessage(new CommuniMsg(mt.BGWorkerSubMsgQuery, res, 0))
+}
+
+function sendLoadToWorker (mddpath) {
+  return promiseWorker.postMessage(new CommuniMsg(mt.BGWorkerSubMsgLoad, mddpath, 0))
 }
 
 /*************************
@@ -53,6 +57,8 @@ function sendQueryToWorker (res) {
  * listening to message main send to background
  */
 ipcRenderer.on(mt.MsgToBackground, (event, payload) => {
+  console.log('bgmain receive from main ')
+  console.log(payload)
   if (!payload || !payload.msgType) return
   let word = payload.data
 
@@ -139,3 +145,8 @@ function multiThread () {
 }
 // start mutithread
 multiThread()
+// start load work
+const mddpath = store.get('mdd')
+if (mddpath && fs.existsSync(mddpath) && mddpath.endsWith('.mdd')) {
+  sendLoadToWorker(mddpath)
+}

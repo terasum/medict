@@ -26,19 +26,21 @@ class MdictQuery extends Query {
     // TODO change this url
     const csspath = store.get('css')
     const jspath = store.get('js')
+    console.log(csspath)
+    console.log(jspath)
     if (!fs.existsSync(csspath)) {
       console.log('css not exist:' + csspath)
       return
     }
     const oalecss = fs.readFileSync(csspath)
-    this.content.addStyleContent(oalecss.toString())
+    this.content.addStyleContent(oalecss.toString('utf8'))
 
     if (!fs.existsSync(jspath)) {
       console.log('js not exist:' + jspath)
       return
     }
     const oalejs = fs.readFileSync(jspath)
-    this.content.addScriptContent(oalejs.toString())
+    this.content.addScriptContent(oalejs.toString('utf8'))
   }
 
   filter () {
@@ -189,10 +191,9 @@ class MdictQuery extends Query {
         audio.appendChild(audioSource)
         ele.setAttribute('onclick', `javascript:(function(event){
           event.preventDefault(); 
-          console.log(event)
           if (event.target.parentNode && event.target.parentNode.tagName === 'A'){
             if(event.target.parentNode.lastChild && event.target.parentNode.lastChild.tagName === 'AUDIO'){
-              event.target.parentNode.lastChild.play()
+              event.target.parentNode.lastChild.play();
             }
           }
         })(event)`)
@@ -209,7 +210,7 @@ class MdictQuery extends Query {
 
   serialize () {
     this.filter()
-    return `data:text/html, ` + this.content.serialize().replace('\n', '')
+    return `data:text/html, ` + this.content.serialize()
   }
 }
 

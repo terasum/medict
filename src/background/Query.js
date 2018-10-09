@@ -37,11 +37,9 @@ class Query {
         padding-bottom:50px;
       }
     `)
-    this.content.addScript('https://code.jquery.com/jquery-2.2.4.js')
-    // content.addScript(__static + '/scripts/jquery-2.2.4.js')
+    // this.content.addScript('https://code.jquery.com/jquery-2.2.4.js')
+    this.content.addScript('file://' + __static + '/scripts/jquery-2.2.4.js')
     this.content.addScriptContent(`
-     //  window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
-     // set jquery
      window.jQuery = window.$ = module.exports;
      $('a').on('click', function(event) {
        console.log(event.target);
@@ -51,14 +49,13 @@ class Query {
         console.log('open in browser');
        }else{
         event.preventDefault();
-        // other actions
        }
      })
     `)
   }
 
   serialize () {
-    return `data:text/html, ` + this.content.serialize().replace('\n', '')
+    return `data:text/html, ` + this.content.serialize()
   }
 }
 export default Query

@@ -22,6 +22,7 @@ const BGWorkerMsgToWorker = 'bgWorkerMsgToWorker'
 const BGWorkerMsgToMain = 'bgWorkerMsgToMain'
 
 const BGWorkerSubMsgQuery = 'BGWorkerSubMsgQuery'
+const BGWorkerSubMsgLoad = 'BGWorkerSubMsgLoad'
 const BGWorkerSubMsgResponse = 'BGWorkerSubMsgResponse'
 
 export default {
@@ -36,5 +37,6 @@ export default {
   BGWorkerMsgToWorker,
   BGWorkerMsgToMain,
   BGWorkerSubMsgQuery,
+  BGWorkerSubMsgLoad,
   BGWorkerSubMsgResponse
 }

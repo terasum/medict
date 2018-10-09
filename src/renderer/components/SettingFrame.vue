@@ -72,8 +72,6 @@ export default {
       console.log(mddFilePath)
       if (mddFilePath && mddFilePath[0]) {
         this.formdata.mdd = mddFilePath[0]
-      } else {
-        this.formdata.mdd = ''
       }
     },
     selectJS () {
@@ -88,8 +86,6 @@ export default {
       console.log(jsFilePath)
       if (jsFilePath && jsFilePath[0]) {
         this.formdata.js = jsFilePath[0]
-      } else {
-        this.formdata.js = ''
       }
     },
     selectCSS () {
@@ -104,8 +100,6 @@ export default {
       console.log(cssFilePath)
       if (cssFilePath && cssFilePath[0]) {
         this.formdata.css = cssFilePath[0]
-      } else {
-        this.formdata.css = ''
       }
     },
     save () {
@@ -116,13 +110,13 @@ export default {
       console.log(this.formdata.mdd.endsWith('.mdx'))
       //  && fs.existsSync(this.formdata.mdd) && fs.existsSync(this.formdata.css) && fs.existsSync(this.formdata.js)
       //  && this.formdata.mdx.endsWith('.mdx') && this.formdata.js.endsWith('.js') && this.formdata.css.endsWith('.css')
-      if (!fs.existsSync(this.formdata.mdd) || !fs.formdata.mdd.endsWith('.mdd')) {
+      if (!fs.existsSync(this.formdata.mdd) || !this.formdata.mdd.endsWith('.mdd')) {
         this.info('mdd未生效', '未选择或者mdd文件非法')
       }
-      if (!fs.existsSync(this.formdata.js) || !fs.formdata.js.endsWith('.js')) {
+      if (!fs.existsSync(this.formdata.js) || !this.formdata.js.endsWith('.js')) {
         this.info('js未生效', '未选择或者js文件非法')
       }
-      if (!fs.existsSync(this.formdata.css) || !fs.formdata.css.endsWith('.css')) {
+      if (!fs.existsSync(this.formdata.css) || !this.formdata.css.endsWith('.css')) {
         this.info('css未生效', '未选择或者css文件非法')
       }
       if (this.formdata.mdx.endsWith('.mdx')) {
