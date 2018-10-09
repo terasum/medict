@@ -1,20 +1,22 @@
 # medict
 [![Build Status](https://travis-ci.org/terasum/medict.svg?branch=master)](https://travis-ci.org/terasum/medict)
 [![GitHub release](https://img.shields.io/github/release/terasum/medict.svg)](https://github.com/terasum/medict/releases)
-[![Github All Releases](https://img.shields.io/github/downloads/medict/atom/total.svg)](https://github.com/terasum/medict/releases)
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
-
 
 > medict a cross platform dictionary application,support *.mdx/*.mdd dictionary format
 
-**New UI System!! comming soon...**
-
 ## UI
 
-![cover](https://ws4.sinaimg.cn/large/006tNbRwgy1fujgarr1zrj30xc0l80tq.jpg)
+**ui is under adjusting**
 
-![search ui](./docs/images/medict_search.png)
+![main](./docs/images/medict_main.png)
 
+![setting](./docs/images/medict_setting.png)
+
+## Usage
+
+you should select mdx/mdd file when you first run medict,
+the app will reload automatically
 
 ## Build 
 
@@ -23,19 +25,13 @@ $ git clone https://github.com/terasum/medict.git
 
 $ cd medict
 # install dependencies
-npm install
+yarn install
 
 # serve with hot reload at localhost:9080
-npm run dev
+yarn run dev
 
 # build electron application for production
-npm run build
-
-# run unit & end-to-end tests
-npm test
-
-# lint all JS/Vue component files in `src/`
-npm run lint
+yarn run build
 
 ```
 
