@@ -27,9 +27,6 @@ const bgURL = process.env.NODE_ENV === 'development'
 function createBackgroundWin () {
   bgWindow = new BrowserWindow({
     show: false,
-    height: 100,
-    useContentSize: true,
-    width: 200,
     webPreferences: {
       webSecurity: false,
       nodeIntegrationInWorker: true
@@ -38,6 +35,9 @@ function createBackgroundWin () {
 
   bgWindow.loadURL(bgURL)
   // if bgwin Closed close main window too
+  bgWindow.on('ready-to-show', () => {
+    bgWindow.webContents.openDevTools({ mode: 'detach' })
+  })
 
   bgWindow.on('closed', () => {
     unsetMainBgBridge()
@@ -67,7 +67,7 @@ function createWindow () {
     }
   })
   mainWindow.setMaximizable(false)
-  mainWindow.setResizable(true)
+  mainWindow.setResizable(false)
   mainWindow.setMinimizable(true)
 
   // hide MenuBar
@@ -81,6 +81,7 @@ function createWindow () {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
   })
 
   mainWindow.on('closed', () => {
@@ -145,6 +146,14 @@ function toMainListener (event, payload) {
 function toBgListener (event, payload) {
   bgWindow.webContents.send(mt.MsgToBackground, payload)
 }
+
+// restart bgmain
+ipcMain.on('restartBG', () => {
+  bgWindow = null
+  setTimeout(() => {
+    createBackgroundWin()
+  }, 20)
+})
 
 /**
  * set Main window process and background window process communications
