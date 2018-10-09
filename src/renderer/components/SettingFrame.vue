@@ -125,7 +125,7 @@ export default {
       if (!fs.existsSync(this.formdata.css) || !fs.formdata.css.endsWith('.css')) {
         this.info('css未生效', '未选择或者css文件非法')
       }
-      if (this.formdata.mdd.endsWith('.mdd')) {
+      if (this.formdata.mdx.endsWith('.mdx')) {
         if (fs.existsSync(this.formdata.mdx)) {
           this.$store.dispatch('updateMDD', this.formdata.mdd)
           this.$store.dispatch('updateMDX', this.formdata.mdx)
