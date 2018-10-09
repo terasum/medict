@@ -11,6 +11,8 @@
 
 ![main](./docs/images/medict_main.png)
 
+![main2](./docs/images/medict_main2.png)
+
 ![setting](./docs/images/medict_setting.png)
 
 ## Usage
