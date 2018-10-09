@@ -62,7 +62,7 @@ function loadMDD () {
   // TODO change mdd file path
   if (!store) return
   const mddpath = store.get('mdd')
-  if (!fs.existsSync(mddpath)) {
+  if (!fs.existsSync(mddpath) || !mddpath.endsWith('.mdd')) {
     console.log('bgworker mdd file path not exist return')
     return
   }

@@ -72,6 +72,8 @@ export default {
       console.log(mddFilePath)
       if (mddFilePath && mddFilePath[0]) {
         this.formdata.mdd = mddFilePath[0]
+      } else {
+        this.formdata.mdd = ''
       }
     },
     selectJS () {
@@ -86,6 +88,8 @@ export default {
       console.log(jsFilePath)
       if (jsFilePath && jsFilePath[0]) {
         this.formdata.js = jsFilePath[0]
+      } else {
+        this.formdata.js = ''
       }
     },
     selectCSS () {
@@ -100,6 +104,8 @@ export default {
       console.log(cssFilePath)
       if (cssFilePath && cssFilePath[0]) {
         this.formdata.css = cssFilePath[0]
+      } else {
+        this.formdata.css = ''
       }
     },
     save () {
@@ -108,8 +114,19 @@ export default {
       console.log(this.formdata.mdd.endsWith('.mdd'))
       console.log(this.formdata.mdx)
       console.log(this.formdata.mdd.endsWith('.mdx'))
-      if (this.formdata.mdd.endsWith('.mdd') && this.formdata.mdx.endsWith('.mdx') && this.formdata.js.endsWith('.js') && this.formdata.css.endsWith('.css')) {
-        if (fs.existsSync(this.formdata.mdx) && fs.existsSync(this.formdata.mdd) && fs.existsSync(this.formdata.css) && fs.existsSync(this.formdata.js)) {
+      //  && fs.existsSync(this.formdata.mdd) && fs.existsSync(this.formdata.css) && fs.existsSync(this.formdata.js)
+      //  && this.formdata.mdx.endsWith('.mdx') && this.formdata.js.endsWith('.js') && this.formdata.css.endsWith('.css')
+      if (!fs.existsSync(this.formdata.mdd) || !fs.formdata.mdd.endsWith('.mdd')) {
+        this.info('mdd未生效', '未选择或者mdd文件非法')
+      }
+      if (!fs.existsSync(this.formdata.js) || !fs.formdata.js.endsWith('.js')) {
+        this.info('js未生效', '未选择或者js文件非法')
+      }
+      if (!fs.existsSync(this.formdata.css) || !fs.formdata.css.endsWith('.css')) {
+        this.info('css未生效', '未选择或者css文件非法')
+      }
+      if (this.formdata.mdd.endsWith('.mdd')) {
+        if (fs.existsSync(this.formdata.mdx)) {
           this.$store.dispatch('updateMDD', this.formdata.mdd)
           this.$store.dispatch('updateMDX', this.formdata.mdx)
           this.$store.dispatch('updateJS', this.formdata.js)
@@ -118,10 +135,10 @@ export default {
           // TODO restart bgwindow
           ipcRenderer.send('restartBG')
         } else {
-          this.failed('保存失败', '文件不存在')
+          this.failed('保存失败', 'mdx文件不存在')
         }
       } else {
-        this.failed('保存失败', '请检查文件路径')
+        this.failed('保存失败', '请检查mdx文件路径')
       }
     },
     reset () {
