@@ -4,10 +4,12 @@ import path from 'path'
 import electron from 'electron'
 import CommuniMsg from '../common/CommuiMsg'
 import msgType from '../common/msgType'
+import Store from 'electron-store'
 
 const userDataPath = electron.remote.app.getPath('userData')
 // const userDataPath = electron.remote.app.getPath('temp')
 const resourceDataPath = path.join(userDataPath, 'resources')
+const store = new Store()
 if (!fs.existsSync(resourceDataPath)) {
   fs.mkdirSync(resourceDataPath)
 }
@@ -22,15 +24,20 @@ class MdictQuery extends Query {
     super.decorate()
     // oalecss
     // TODO change this url
-    let csspath = path.join(__static, '/dicts/oalecd8e.css')
-    var oalecss = fs.readFileSync(csspath)
-
-    let jspath = path.join(__static, '/dicts/oalecd8e.js')
-    var oalejs = fs.readFileSync(jspath)
-
-    // console.log(oalecss)
-    // console.log(oalejs)
+    const csspath = store.get('css')
+    const jspath = store.get('js')
+    if (!fs.existsSync(csspath)) {
+      console.log('css not exist:' + csspath)
+      return
+    }
+    const oalecss = fs.readFileSync(csspath)
     this.content.addStyleContent(oalecss.toString())
+
+    if (!fs.existsSync(jspath)) {
+      console.log('js not exist:' + jspath)
+      return
+    }
+    const oalejs = fs.readFileSync(jspath)
     this.content.addScriptContent(oalejs.toString())
   }
 

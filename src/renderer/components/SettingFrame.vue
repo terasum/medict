@@ -1,59 +1,21 @@
 <template lang="html">
     <div class="me-setting">
-      <Form :model="formItem" :label-width="80">
-        <FormItem label="Input">
-            <Input v-model="formItem.input" placeholder="Enter something..."></Input>
+      <Form :model="formdata" :label-width="80">
+        <FormItem label="MDX文件">
+            <Input v-model="formdata.mdx" @on-search="selectMDX" search enter-button="选择MDX" placeholder="Select mdx..." />
         </FormItem>
-        <FormItem label="Select">
-            <Select v-model="formItem.select">
-                <Option value="beijing">New York</Option>
-                <Option value="shanghai">London</Option>
-                <Option value="shenzhen">Sydney</Option>
-            </Select>
+        <FormItem label="MDD文件">
+            <Input v-model="formdata.mdd" @on-search="selectMDD" search enter-button="选择MDD" placeholder="Select mdd ..." />
         </FormItem>
-        <FormItem label="DatePicker">
-            <Row>
-                <Col span="11">
-                    <DatePicker type="date" placeholder="Select date" v-model="formItem.date"></DatePicker>
-                </Col>
-                <Col span="2" style="text-align: center">-</Col>
-                <Col span="11">
-                    <TimePicker type="time" placeholder="Select time" v-model="formItem.time"></TimePicker>
-                </Col>
-            </Row>
+        <FormItem label="附加JS文件">
+            <Input v-model="formdata.js" @on-search="selectJS" search enter-button="选择JS" placeholder="Select js ..." />
         </FormItem>
-        <FormItem label="Radio">
-            <RadioGroup v-model="formItem.radio">
-                <Radio label="male">Male</Radio>
-                <Radio label="female">Female</Radio>
-            </RadioGroup>
+        <FormItem label="附加CSS文件">
+            <Input v-model="formdata.css" @on-search="selectCSS" search enter-button="选择CSS" placeholder="Select css ..." />
         </FormItem>
-        <FormItem label="Checkbox">
-            <CheckboxGroup v-model="formItem.checkbox">
-                <Checkbox label="Eat"></Checkbox>
-                <Checkbox label="Sleep"></Checkbox>
-                <Checkbox label="Run"></Checkbox>
-                <Checkbox label="Movie"></Checkbox>
-            </CheckboxGroup>
-        </FormItem>
-        <FormItem label="Switch">
-            <i-switch v-model="formItem.switch" size="large">
-                <span slot="open">On</span>
-                <span slot="close">Off</span>
-            </i-switch>
-        </FormItem>
-        <FormItem label="Slider">
-            <Slider v-model="formItem.slider" range></Slider>
-        </FormItem>
-        <FormItem label="Text">
-            <Input v-model="formItem.textarea" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
-        </FormItem>
-        <FormItem>
-            <Button type="primary">Submit</Button>
-            <Button style="margin-left: 8px">Cancel</Button>
-        </FormItem>
+        <Button @click="save" type="primary"> 保存 </Button>
+        <Button @click="reset"> 重置 </Button>
     </Form>
-    <Button @click="goBack"> Back </Button>
     </div>
 </template>
 
@@ -68,25 +30,125 @@
 </style>
 
 <script>
+import { remote, ipcRenderer } from 'electron'
+import fs from 'fs'
+const dialog = remote.dialog
+
 export default {
   data () {
     return {
-      formItem: {
-        input: '',
-        select: '',
-        radio: 'male',
-        checkbox: [],
-        switch: true,
-        date: '',
-        time: '',
-        slider: [20, 50],
-        textarea: ''
+      formdata: {
+        mdx: this.$store.state.Query.mdx,
+        mdd: this.$store.state.Query.mdd,
+        js: this.$store.state.Query.js,
+        css: this.$store.state.Query.css
       }
     }
   },
   methods: {
-    goBack () {
-      this.$router.push('/webview')
+    selectMDX () {
+      console.log('select mdx')
+      const mdxFilePath = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          {name: 'mdict', extensions: ['mdx']},
+          {name: 'All Files', extensions: ['*']}
+        ]
+      })
+      console.log(mdxFilePath)
+      if (mdxFilePath && mdxFilePath[0]) {
+        this.formdata.mdx = mdxFilePath[0]
+      }
+    },
+    selectMDD () {
+      console.log('select mdd')
+      const mddFilePath = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          {name: 'mdict', extensions: ['mdd']},
+          {name: 'All Files', extensions: ['*']}
+        ]
+      })
+      console.log(mddFilePath)
+      if (mddFilePath && mddFilePath[0]) {
+        this.formdata.mdd = mddFilePath[0]
+      }
+    },
+    selectJS () {
+      console.log('select js')
+      const jsFilePath = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          {name: 'mdict', extensions: ['js']},
+          {name: 'All Files', extensions: ['*']}
+        ]
+      })
+      console.log(jsFilePath)
+      if (jsFilePath && jsFilePath[0]) {
+        this.formdata.js = jsFilePath[0]
+      }
+    },
+    selectCSS () {
+      console.log('select css')
+      const cssFilePath = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          {name: 'mdict', extensions: ['css']},
+          {name: 'All Files', extensions: ['*']}
+        ]
+      })
+      console.log(cssFilePath)
+      if (cssFilePath && cssFilePath[0]) {
+        this.formdata.css = cssFilePath[0]
+      }
+    },
+    save () {
+      console.log('save')
+      console.log(this.formdata.mdd)
+      console.log(this.formdata.mdd.endsWith('.mdd'))
+      console.log(this.formdata.mdx)
+      console.log(this.formdata.mdd.endsWith('.mdx'))
+      if (this.formdata.mdd.endsWith('.mdd') && this.formdata.mdx.endsWith('.mdx') && this.formdata.js.endsWith('.js') && this.formdata.css.endsWith('.css')) {
+        if (fs.existsSync(this.formdata.mdx) && fs.existsSync(this.formdata.mdd) && fs.existsSync(this.formdata.css) && fs.existsSync(this.formdata.js)) {
+          this.$store.dispatch('updateMDD', this.formdata.mdd)
+          this.$store.dispatch('updateMDX', this.formdata.mdx)
+          this.$store.dispatch('updateJS', this.formdata.js)
+          this.$store.dispatch('updateCSS', this.formdata.css)
+          this.success('保存成功', '')
+          // TODO restart bgwindow
+          ipcRenderer.send('restartBG')
+        } else {
+          this.failed('保存失败', '文件不存在')
+        }
+      } else {
+        this.failed('保存失败', '请检查文件路径')
+      }
+    },
+    reset () {
+      console.log('reset')
+      this.formdata.mdx = this.$store.state.Query.mdx
+      this.formdata.mdd = this.$store.state.Query.mdd
+      this.formdata.js = this.$store.state.Query.js
+      this.formdata.css = this.$store.state.Query.css
+      this.info('重置为配置初始值', '')
+    },
+    success (title, info) {
+      this.$Notice.success({
+        title: title,
+        desc: info
+      })
+    },
+    info (title, info) {
+      this.$Notice.info({
+        title: title,
+        desc: info
+      })
+    },
+    failed (title, info) {
+      this.$Notice.error({
+        title: title,
+        desc: info
+      })
     }
   }
 }

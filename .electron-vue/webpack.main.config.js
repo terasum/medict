@@ -61,13 +61,13 @@ let mainConfig = {
 /**
  * Adjust mainConfig for development settings
  */
-// if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   mainConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
     })
   )
-// }
+}
 
 /**
  * Adjust mainConfig for production settings

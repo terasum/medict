@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import path from 'path'
+// import path from 'path'
 import fs from 'fs'
 import Mdict from 'mdict'
 import MdictQuery from './MdictQuery'
@@ -74,7 +74,12 @@ ipcRenderer.on(mt.MsgToBackground, (event, payload) => {
  * @param {*} cb callback function(definition)
  */
 function searchMdict (word) {
-  let spath = path.join(__static, '/dicts/oale8.mdx')
+  const spath = store.get('mdx')
+  if (!fs.existsSync(spath)) {
+    console.log('bg mdx not exist')
+    return
+  }
+  // let spath = path.join(__static, '/dicts/oale8.mdx')
   const stat = fs.statSync(spath)
   if (stat.isFile()) {
     Mdict.dictionary(spath).then((dictionary) => {

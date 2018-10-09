@@ -1,8 +1,9 @@
 import JSMdict from 'js-mdict'
-import path from 'path'
+import fs from 'fs-extra'
 import registerPromiseWorker from 'promise-worker/register'
 import CommuniMsg from '../../common/CommuiMsg'
 import msgType from '../../common/msgType'
+import Store from 'electron-store'
 
 // console.log('RESOURCE:' + resourceDirPath)
 // if (!fs.existsSync(resourceDirPath)) {
@@ -57,8 +58,15 @@ registerPromiseWorker(function (message) {
 })
 
 function loadMDD () {
+  const store = new Store()
   // TODO change mdd file path
-  const mddpath = path.join(__static, 'dicts/oale8.mdd')
+  if (!store) return
+  const mddpath = store.get('mdd')
+  if (!fs.existsSync(mddpath)) {
+    console.log('bgworker mdd file path not exist return')
+    return
+  }
+  // const mddpath = path.join(__static, 'dicts/oale8.mdd')
   console.log(mddpath)
   console.log(JSMdict)
   MDDDict.jsmdict = new JSMdict(mddpath)
