@@ -1,194 +1,102 @@
 {
   "name": "medict",
-  "version": "1.2.0",
-  "author": "chenquan <terasum@163.com>",
-  "description": "medict is a cross platform dictionary application,support *.mdx/*.mdd dictionary format",
-  "keywords": [
-    "mdict",
-    "mdd",
-    "mdx",
-    "dictionary",
-    "electron",
-    "cross-platform"
-  ],
-  "license": "MIT",
-  "repository": "https://github.com/terasum/medict.git",
-  "contributors": [
-    {
-      "name": "chenquan",
-      "email": "terasum@163.com"
-    }
-  ],
-  "main": "./dist/electron/main.js",
+  "productName": "medict",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": ".webpack/main",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
-    "build:dir": "node .electron-vue/build.js && electron-builder --dir",
-    "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
-    "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
-    "dev": "node .electron-vue/dev-runner.js",
-    "e2e": "npm run pack && mocha test/e2e",
-    "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
-    "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",
-    "pack": "npm run pack:main && npm run pack:renderer",
-    "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
-    "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "test": "npm run unit && npm run e2e",
-    "unit": "karma start test/unit/karma.conf.js",
-    "module": "npm run pack && mocha test/module",
-    "postinstall": "npm run lint:fix",
-    "release": "standard-version"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts ."
   },
-  "build": {
-    "productName": "medict",
-    "appId": "cn.medict.medict-desktop",
-    "directories": {
-      "output": "build"
-    },
-    "files": [
-      "dist/electron/**/*"
-    ],
-    "dmg": {
-      "contents": [
+  "keywords": [],
+  "author": {
+    "name": "terasum",
+    "email": "terasum@163.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
         {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "medict"
+          }
         },
         {
-          "x": 130,
-          "y": 150,
-          "type": "file"
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
         }
-      ]
-    },
-    "mac": {
-      "icon": "build/icons/icon.icns"
-    },
-    "win": {
-      "icon": "build/icons/icon.ico"
-    },
-    "linux": {
-      "icon": "build/icons"
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    },
-    "ghooks": {
-      "commit-msg": "validate-commit-msg",
-      "pre-commit": "./.githooks/pre-commit"
-    },
-    "validate-commit-msg": {
-      "types": [
-        "feat",
-        "fix",
-        "revert",
-        "chore",
-        "docs",
-        "style",
-        "refactor",
-        "perf",
-        "test",
-        "build",
-        "ci"
       ],
-      "warnOnFail": false,
-      "maxSubjectLength": 100,
-      "subjectPattern": ".+",
-      "subjectPatternErrorMsg": "subject does not match subject pattern, you should use one of [feat| fix| revert|chore| docs| style| refactor| perf| test| build| ci]",
-      "helpMessage": ""
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/renderer/renderer.html",
+                  "js": "./src/renderer/renderer.ts",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
     }
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "cheerio": "^1.0.0-rc.2",
-    "electron-open-link-in-browser": "^1.0.2",
-    "electron-store": "^2.0.0",
-    "fs-extra": "^7.0.0",
-    "fs-extra-promise": "^1.0.1",
-    "iview": "^3.1.3",
-    "jquery": "^3.3.1",
-    "js-mdict": "^3.1.2",
-    "jsdom": "^12.1.0",
-    "mdict": "^1.0.2",
-    "promise-worker": "^2.0.0",
-    "vue": "^2.5.17",
-    "vue-electron": "^1.0.6",
-    "vue-router": "^2.5.3",
-    "vue-select": "^2.5.1",
-    "vuex": "^2.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.2",
-    "@babel/register": "^7.0.0",
-    "ajv": "^5.5.2",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^7.2.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-istanbul": "^4.1.6",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.24.1",
-    "babili-webpack-plugin": "^0.1.2",
-    "cfonts": "^1.2.0",
-    "chai": "^4.2.0",
-    "chalk": "^2.4.1",
-    "copy-webpack-plugin": "^4.5.2",
-    "cross-env": "^5.2.0",
-    "css-loader": "^0.28.11",
-    "cz-conventional-changelog": "^2.1.0",
-    "del": "^3.0.0",
-    "devtron": "^1.4.0",
-    "electron": "^9.4.0",
-    "electron-builder": "^20.19.2",
-    "electron-debug": "^1.5.0",
-    "electron-devtools-installer": "^2.2.4",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^10.2.1",
-    "eslint-friendly-formatter": "^3.0.0",
-    "eslint-loader": "^2.1.1",
-    "eslint-plugin-html": "^3.1.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^5.1.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^0.11.2",
-    "ghooks": "^2.0.2",
-    "html-webpack-plugin": "^3.2.0",
-    "inject-loader": "^3.0.0",
-    "karma": "^3.0.0",
-    "karma-chai": "^0.1.0",
-    "karma-coverage": "^1.1.2",
-    "karma-electron": "^5.3.0",
-    "karma-mocha": "^1.2.0",
-    "karma-sourcemap-loader": "^0.3.7",
-    "karma-spec-reporter": "^0.0.31",
-    "karma-webpack": "^2.0.13",
-    "less": "^3.8.1",
-    "less-loader": "^4.1.0",
-    "mocha": "^5.2.0",
-    "multispinner": "^0.2.1",
-    "node-loader": "^0.6.0",
-    "node-sass": "^4.9.3",
-    "require-dir": "^0.3.0",
-    "sass-loader": "^6.0.7",
-    "spectron": "^3.7.1",
-    "standard-version": "^4.3.0",
-    "style-loader": "^0.18.2",
-    "url-loader": "^0.5.9",
-    "validate-commit-msg-smart": "^1.1.2",
-    "vue-html-loader": "^1.2.4",
-    "vue-loader": "^13.7.3",
-    "vue-style-loader": "^3.0.1",
-    "vue-template-compiler": "^2.5.17",
-    "webpack": "^3.12.0",
-    "webpack-dev-server": "^3.1.11",
-    "webpack-hot-middleware": "^2.24.2",
-    "webpack-merge": "^4.1.4",
-    "worker-loader": "^2.0.0"
+    "@electron-forge/cli": "^6.0.0-beta.57",
+    "@electron-forge/maker-deb": "^6.0.0-beta.57",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.57",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
+    "@electron-forge/maker-zip": "^6.0.0-beta.57",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.57",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "css-loader": "^5.0.0",
+    "electron": "13.1.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "eslint": "^7.6.0",
+    "eslint-plugin-import": "^2.20.0",
+    "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "node-loader": "^2.0.0",
+    "postcss-loader": "^6.1.0",
+    "sass": "^1.35.0",
+    "sass-loader": "^12.1.0",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^9.2.2",
+    "typescript": "^4.0.2",
+    "vue-loader": "^15.9.7"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.2.6",
+    "bootstrap": "^5.0.1",
+    "bootstrap-vue": "^2.21.2",
+    "js-mdict": "^4.0.8",
+    "postcss-pxtorem": "^6.0.0",
+    "vue": "^2.6.14",
+    "vue-class-component": "^7.2.6",
+    "vue-property-decorator": "^9.1.2",
+    "vue-router": "^3.5.1",
+    "vue-template-compiler": "^2.6.14"
   }
 }
