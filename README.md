@@ -1,9 +1,17 @@
 # medict
-[![Build Status](https://travis-ci.org/terasum/medict.svg?branch=master)](https://travis-ci.org/terasum/medict)
+[![Build Status](https://travis-ci.org/terasum/medict.svg?branch=develop)](https://travis-ci.org/terasum/medict)
 [![GitHub release](https://img.shields.io/github/release/terasum/medict.svg)](https://github.com/terasum/medict/releases)
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
 
 > medict a cross platform dictionary application,support *.mdx/*.mdd dictionary format
+
+**version 2.0 is under developing!!**
+
+## UI
+
+- preview
+![preview](docs/images/preview.png)
+
 
 ## Usage
 
