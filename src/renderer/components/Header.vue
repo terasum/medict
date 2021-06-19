@@ -12,31 +12,31 @@
               <b-dropdown-item>牛津大辞典</b-dropdown-item>
             </b-dropdown>
           </template>
-          <b-form-input></b-form-input>
+          <b-form-input :disabled='displaySearchBox' v-model="searchWord" ></b-form-input>
           <b-button variant="info"><b-icon-search /></b-button>
         </b-input-group>
       </div>
 
       <div class="header-functions">
-        <div class="fn-box fn-box-active">
+        <div class="fn-box" v-bind:class="{'fn-box-active':currentTab === '词典'}"  v-on:click='clickDictionary' >
           <span class="fn-box-icon">
             <b-icon-eye-fill />
           </span>
           <span class="fn-box-text">词典</span>
         </div>
 
-        <div class="fn-box">
+        <div class="fn-box" v-bind:class="{'fn-box-active':currentTab === '插件'}"  v-on:click='clickPlugins' >
           <span class="fn-box-icon">
             <b-icon-grid />
           </span>
           <span class="fn-box-text">插件</span>
         </div>
 
-        <div class="fn-box">
+        <div class="fn-box" v-bind:class="{'fn-box-active':currentTab === '设置'}" v-on:click='clickPreference' >
           <span class="fn-box-icon">
             <b-icon-gear-fill />
           </span>
-          <span class="fn-box-text">设置</span>
+          <span class="fn-box-text" >设置</span>
         </div>
       </div>
     </div>
@@ -45,9 +45,63 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Store from '../store/index';
+
+interface HeaderComponentData extends Vue {
+  searchWord: string,
+  currentTab: string,
+}
+
 export default Vue.extend({
-  props: {},
-  computed: {},
+  props: {
+    displaySearchBox: {
+      type: Boolean,
+      default: false,
+    }
+  },
+  data() {
+    return  {
+      searchWord: "",
+    }
+  },
+  computed: {
+   count () {
+      return (this.$store as typeof Store).state.count;
+    },
+    currentTab() {
+       return (this.$store as typeof Store).state.headerData.currentTab;
+    }
+  },
+  methods: {
+     clickDictionary(event: any) {
+      console.log(event);
+      this.$store.commit('changeTab', '词典');
+
+      if (this.$router.currentRoute.path !== '/') {
+        this.$router.replace({ path: '/' });
+      }
+    },
+    clickPlugins(event: any) {
+      console.log(event);
+      this.$store.commit('changeTab', '插件');
+
+      if (this.$router.currentRoute.path !== '/plugins') {
+        this.$router.replace({ path: '/plugins' });
+      }
+    },
+    clickPreference(event: any) {
+      console.log(event);
+      this.$store.commit('changeTab', '设置');
+
+      this.$store.commit('increment');
+      console.log(this.$store.state.count);
+      (this as HeaderComponentData).searchWord = this.$store.state.count  + "";
+      console.log("更新router!");
+      if (this.$router.currentRoute.path !== '/preference') {
+        this.$router.replace({ path: '/preference' });
+      }
+    }
+  }
 });
 </script>
 
@@ -142,6 +196,10 @@ export default Vue.extend({
         box-shadow: none;
         border: 1px solid #fff;
       }
+      .form-control:disabled, .form-control[readonly] {
+          background-color: #fff;
+      }
+
     }
   }
   .header-functions {

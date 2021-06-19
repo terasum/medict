@@ -28,9 +28,10 @@
 
 
 import Vue from 'vue';
-import VueRouter from 'vue-router'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import routes from './routes'
+import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import routes from './routes';
 
 // customer css
 import './renderer.scss';
@@ -39,14 +40,16 @@ import './renderer.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.min.css';
 
-// rpc test
-import './rpctest';
+// use vuex
+Vue.use(Vuex);
+
+// make sure this import after than use vuex
+import store from './store';
 
 // Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue)
+Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
-
+Vue.use(IconsPlugin);
 
 // Create the router instance and pass the `routes` option
 // You can pass in additional options here, but let's
@@ -60,13 +63,14 @@ Vue.use(VueRouter);
 
 
 console.log('👋 This message is being logged by "renderer.ts", included via webpack');
-
+// rpc test
+import './rpctest';
 
 
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
-const app = new Vue({router}).$mount('#app');
+const app = new Vue({router, store}).$mount('#app');
 
 
 
