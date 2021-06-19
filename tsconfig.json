@@ -13,6 +13,7 @@
     "strict": true,
     "resolveJsonModule": true,
     "experimentalDecorators":true,
+    "suppressImplicitAnyIndexErrors": true,
     "paths": {
       "*": ["node_modules/*"]
     }
