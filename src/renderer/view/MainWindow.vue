@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid" style="height: 100%">
-    <Header />
+    <Header :displaySearchBox=false />
     <div class="row" style="height: 100%">
       <div class="col col-2 left-sidebbar-container">
         <div class="left-sidebbar">

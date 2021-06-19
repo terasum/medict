@@ -12,7 +12,12 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 const createWindow = (): void => {
-  console.log("\n📃", app.getPath('userData'));
+  console.log("\n📃 userData path:", app.getPath('userData'));
+  console.log("📃 appData path:", app.getPath('appData'));
+  console.log("📃 temp path:", app.getPath('temp'));
+  console.log("📃 documents path:", app.getPath('documents'));
+  console.log("📃 logs path:", app.getPath('logs'));
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
