@@ -40,7 +40,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.min.css';
 
 // rpc test
-// import './rpctest';
+import './rpctest';
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

@@ -1,11 +1,8 @@
-import rpc from 'pauls-electron-rpc'
-import { API_SERVICE_NAME, manifest } from '../service/service.manifest'
-
-// import over the 'example-api' channel
-const api = rpc.importAPI(API_SERVICE_NAME, manifest, { timeout: 30e3 })
-
-// now use, as usual:
-// api.readFileSync('/etc/hosts') // => '...'
-api.sayHello().then((s:string) =>{
-    console.log(s);
-})
+import apis from '../service/service.renderer.register';
+for (const fn in apis) {
+    if (Object.prototype.hasOwnProperty.call(apis, fn)) {
+        console.log(`👨🏻 service renderer process avaliable: ${fn}`);
+    }
+}
+const ret = apis['syncMessage']("myhello");
+console.log(`[render-rpc]: syncMessage | ret: ${ret}`);

@@ -9,7 +9,8 @@
 
 ## UI
 
-- preview
+**preview**
+
 ![preview](docs/images/preview.png)
 
 
