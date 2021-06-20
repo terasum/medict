@@ -1,0 +1,1 @@
+console.log("this is console from dict-settings.window.ts");
