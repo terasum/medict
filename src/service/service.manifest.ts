@@ -1,6 +1,11 @@
+
+
 export const asyncfn = {
   asyncMessage: (event: any, arg: any) => {
     event.sender.send('asynchronous-reply', arg);
+  },
+  createSubWindow: (event: any, arg: any) => {
+    event.sender.send('createSubWindow', arg);
   }
 }
 

@@ -1,8 +1,9 @@
 import Vuex from 'vuex'
 const Store = new Vuex.Store({
   state: {
+    defaultWindow: '/preference',
     headerData:{
-      currentTab: '词典',
+      currentTab: '设置',
     },
     count: 0
   },

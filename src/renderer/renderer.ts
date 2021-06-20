@@ -58,7 +58,7 @@ const router = new VueRouter({
   routes // short for `routes: routes`
 })
 // default view as mainWindow
-router.push({ path: '/' });
+router.push({ path: store.state.defaultWindow });
 Vue.use(VueRouter);
 
 

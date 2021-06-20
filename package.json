@@ -54,6 +54,11 @@
                   "html": "./src/renderer/renderer.html",
                   "js": "./src/renderer/renderer.ts",
                   "name": "main_window"
+                },
+                {
+                  "html": "./src/renderer/subwin/dict-settings.window.html",
+                  "js": "./src/renderer/subwin/dict-settings.window.ts",
+                  "name": "dict_settings_window"
                 }
               ]
             }
@@ -90,6 +95,7 @@
   "dependencies": {
     "autoprefixer": "^10.2.6",
     "bootstrap": "^5.0.1",
+    "bootstrap-icons": "^1.5.0",
     "bootstrap-vue": "^2.21.2",
     "js-mdict": "^4.0.8",
     "postcss-pxtorem": "^6.0.0",
