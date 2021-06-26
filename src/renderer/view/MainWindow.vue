@@ -22,7 +22,7 @@
             :src="'data:text/html;charset=utf-8;base64,' + currentContent"
             webpreferences="allowRunningInsecureContent=yes"
             enableremotemodule="true"
-            style="height: 100%; width: 102%; overflow-y: scroll"
+            style="height: 100%; width: 100%; overflow-y: scroll"
           />
         </div>
       </div>
