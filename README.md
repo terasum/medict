@@ -11,7 +11,7 @@
 
 **preview**
 
-![preview](docs/images/preview.png)
+![preview](docs/images/medict-capture.gif)
 
 
 ## Usage
