@@ -72,6 +72,27 @@
         </div>
       </div>
 
+      <!-- modal start-->
+      <div class="dictionary-modal">
+        <b-modal
+          id="dictionary-item-modal"
+          title=""
+          hide-footer
+          scrollable
+          button-size="sm"
+          header-class="dictionary-modal-header"
+          footer-class="dictionary-modal-footer"
+        >
+          <p>{{ selectedModalDict.brief }}</p>
+          <p>{{ selectedModalDict.filename }}</p>
+          <p>{{ selectedModalDict.desc }}</p>
+          <p>{{ selectedModalDict.mddFilePath }}</p>
+          <p>{{ selectedModalDict.mdxFilePath }}</p>
+          <p>{{ selectedModalDict.cssFilePath }}</p>
+          <p>{{ selectedModalDict.jsFilePath }}</p>
+        </b-modal>
+      </div>
+      <!-- /modal start-->
       <!-- endof preference-->
     </div>
   </div>
@@ -80,72 +101,52 @@
 <script lang="ts">
 import Vue from "vue";
 import Header from "../components/Header.vue";
-import "../assets/css/photon.min.css";
-import path from "path";
-import apis from "../../service/service.renderer.register";
+import Store from "../store/index";
 
+import "../assets/css/photon.min.css";
+
+// import apis from "../../service/service.renderer.register";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
 export default Vue.extend({
   components: { Header },
+  computed: {
+    dictionaries() {
+      return (this.$store as typeof Store).state.dictionaries;
+    },
+  },
   data: () => {
     return {
-      dictionaries: [
-        {
-          id: 0,
-          brief: "英汉双解",
-          filename: "eng-chinese.mdx",
-          desc: "英汉双解词典",
-          mddFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx",
-          mdxFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd",
-          cssFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.css",
-          jsFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.js",
-        },
-        {
-          id: 1,
-          brief: "柯林斯",
-          filename: "collins.mdx",
-          desc: "柯林斯大辞典",
-          mddFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/collins.mdx",
-          mdxFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/collins.mdd",
-          cssFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/collins.css",
-          jsFilePath:
-            "/Users/chenquan/Workspace/nodejs/medict/resources/collins.js",
-        },
-      ],
+      selectedModalDict: {},
     };
   },
   methods: {
     openDictionary(id: number) {
-      const subwindow = path.resolve(
-        path.dirname(MAIN_WINDOW_WEBPACK_ENTRY),
-        "subwin/dict-settings.window.html"
-      );
       console.log(MAIN_WINDOW_WEBPACK_ENTRY);
       console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
-      apis["createSubWindow"]({
-        width: 200,
-        height: 300,
-        html: DICT_SETTINGS_WINDOW_WEBPACK_ENTRY,
-        titleBarStyle: "default",
-        nodeIntegration: true,
-        contextIsolation: false,
-      });
+      this.$bvModal.show("dictionary-item-modal");
+      this.selectedModalDict = this.dictionaries[id];
+
+      // show window
+      //   apis["createSubWindow"]({
+      //     width: 200,
+      //     height: 300,
+      //     html: DICT_SETTINGS_WINDOW_WEBPACK_ENTRY,
+      //     titleBarStyle: "default",
+      //     nodeIntegration: true,
+      //     contextIsolation: false,
+      //   });
     },
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.window-content {
+  height: 100%;
+}
 .toolbar {
   height: 26px;
   .toolbar-actions {
@@ -164,5 +165,25 @@ export default Vue.extend({
   .dictionary-table {
     overflow-x: scroll;
   }
+}
+</style>
+
+<style lang="scss">
+.dictionary-modal-header {
+  padding: 0.3rem 0.5rem !important;
+  button {
+    border: 1px solid #ddd;
+    outline: none;
+    width: 26px;
+    height: 26px;
+    color: #666;
+    text-align: center;
+    font-size: 14px;
+    padding: 0.1rem;
+    border-radius: 5px;
+  }
+}
+.dictionary-modal-footer {
+  padding: 0.3rem 0.5rem !important;
 }
 </style>
