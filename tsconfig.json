@@ -16,7 +16,9 @@
     "suppressImplicitAnyIndexErrors": true,
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "lib":["es2020","dom"],
+    "downlevelIteration": true,
   },
   "include": [
     "src/**/*"
