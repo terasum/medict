@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/terasum/medict.svg)](https://github.com/terasum/medict/releases)
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
 
-Medict 是一个跨平台的词典 APP , 主要支持 \*.mdx/\*.mdd 词典格式, 目前支持 v1.x和v2.0格式的词典
+Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式, 目前支持 v1.x和v2.0格式的词典
 
 **目前 Medict 正在开发当中，需要您的帮助！**
 
