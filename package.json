@@ -83,7 +83,7 @@
     "@types/koa-static": "^4.0.1",
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
-    "@typescript-eslint/parser": "^4.0.1",
+    "@typescript-eslint/parser": "^4.28.1",
     "chai": "^4.3.4",
     "css-loader": "^5.0.0",
     "electron": "13.1.4",
