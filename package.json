@@ -108,7 +108,7 @@
     "@popperjs/core": "^2.9.2",
     "@types/lodash": "^4.14.170",
     "autoprefixer": "^10.2.6",
-    "bootstrap": "^5.0.1",
+    "bootstrap": "^5.0.2",
     "bootstrap-icons": "^1.5.0",
     "bootstrap-vue": "^2.21.2",
     "cheerio": "^1.0.0-rc.10",
