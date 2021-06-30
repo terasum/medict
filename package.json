@@ -84,6 +84,7 @@
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
+    "chai": "^4.3.4",
     "css-loader": "^5.0.0",
     "electron": "13.1.2",
     "electron-squirrel-startup": "^1.0.0",

@@ -1,3 +1,5 @@
+import { BIconArrowReturnLeft } from 'bootstrap-vue';
+
 export class HistoryStack {
   first: HistoryStackNode;
   last: HistoryStackNode;
@@ -22,13 +24,22 @@ export class HistoryStack {
     return data;
   }
 
-  stackPop(): any {
-    if (this.size === 0) {
-      return undefined;
-    }
-    const last = this.last;
+  getSize(): number {
+    return this.size;
+  }
 
-    if (last.prev == null) {
+  top(): HistoryStackNode {
+    return this.last;
+  }
+
+  stackPop(): any {
+    if (this.size === 1) {
+      return this.last;
+    }
+
+    const last = this.last;
+    // unreachable case
+    if (last.prev === null) {
       // the last one, do nothing
       return last;
     }
@@ -48,8 +59,8 @@ export class HistoryStack {
     } else {
       this.last.next = node;
       this.last = node;
+      this.size++;
     }
-    this.size++;
   }
 }
 
