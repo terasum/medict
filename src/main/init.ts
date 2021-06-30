@@ -1,2 +1,3 @@
 import '../service/service.main.register';
-import './resource.server';
+import { startServer } from './resource.server';
+startServer();

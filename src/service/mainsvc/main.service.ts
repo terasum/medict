@@ -3,6 +3,7 @@ import { WordDefinition } from 'js-mdict'
 import path from 'path'
 import fs from 'fs'
 import { getResourceRootPath } from '../../config/config'
+import { resourceServerPort } from '../../main/resource.server'
 
 const dicts = new Map<string, Dictionary>()
 
@@ -95,7 +96,7 @@ function resourceRelativePath(dictid: string, resourceKey: string) {
   }
   const resourcePath = resourceKey.split('\\');
   const fullPath = path.join(dictid, ...resourcePath);
-  return 'http://localhost:9001/' + fullPath;
+  return 'http://localhost:' + resourceServerPort +'/' + fullPath;
 }
 
 

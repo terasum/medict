@@ -32,6 +32,7 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import routes from './routes';
+import { __RANDOM_KEY__ } from './utils/random_key';
 
 // customer css
 import './renderer.scss';
@@ -70,7 +71,13 @@ import './rpctest';
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
-const app = new Vue({router, store}).$mount('#app');
+const app = new Vue({ router, store }).$mount('#app');
+// window extended vue
+// @ts-ignore
+window[`$vue_${__RANDOM_KEY__}`] = app;
+window['DISPATCH_REFER_LINK_WORD'] = function (dictid:string, word:string) {
+  app['$state'].dispatch('DISPATCH_REFER_LINK_WORD', {dictid, word})
+}
 
 
 
