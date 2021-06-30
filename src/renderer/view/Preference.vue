@@ -34,7 +34,7 @@
             <div class="toolbar toolbar-header">
               <div class="toolbar-actions">
                 <div class="btn-group">
-                  <button class="btn btn-default">
+                  <button class="btn btn-default" v-on:click="addDictionary">
                     <span class="icon icon-plus-squared"></span>
                   </button>
                   <button class="btn btn-default">
@@ -80,8 +80,8 @@
           hide-footer
           scrollable
           button-size="sm"
-          header-class="dictionary-modal-header"
-          footer-class="dictionary-modal-footer"
+          header-class="modal-header"
+          footer-class="modal-footer"
         >
           <p>{{ selectedModalDict.brief }}</p>
           <p>{{ selectedModalDict.filename }}</p>
@@ -93,19 +93,61 @@
         </b-modal>
       </div>
       <!-- /modal start-->
+
+      <div class="add-dictionary-modal">
+        <b-modal
+          id="add-dictionary-modal"
+          title="新增词典"
+          scrollable
+          button-size="sm"
+          header-class="modal-header"
+          footer-class="modal-footer"
+        >
+          <form>
+            <div class="form-group">
+              <label>词典id(4英文字符)</label>
+              <input type="text" class="form-control" disabled />
+              <input
+                type="text"
+                class="form-control"
+                placeholder="用户自定义"
+              />
+            </div>
+            <div class="form-group">
+              <label>词典名称</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="英汉大辞典"
+              />
+            </div>
+            <div class="form-group">
+              <label>mdx词典文件</label>
+              <input type="file" class="form-control" placeholder="oale.mdx" />
+            </div>
+            <div class="form-group">
+              <label>mdd词典文件</label>
+              <input type="file" class="form-control" placeholder="oale.mdd" />
+            </div>
+            <div class="form-group">
+              <label>词典描述</label>
+              <textarea class="form-control" rows="2"></textarea>
+            </div>
+          </form>
+        </b-modal>
+      </div>
+
       <!-- endof preference-->
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Header from "../components/Header.vue";
-import Store from "../store/index";
+import Vue from 'vue';
+import Header from '../components/Header.vue';
+import Store from '../store/index';
 
-import "../assets/css/photon.min.css";
-
-// import apis from "../../service/service.renderer.register";
+import '../assets/css/photon.min.css';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
@@ -123,10 +165,15 @@ export default Vue.extend({
     };
   },
   methods: {
+    addDictionary() {
+      console.log(MAIN_WINDOW_WEBPACK_ENTRY);
+      console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
+      this.$bvModal.show('add-dictionary-modal');
+    },
     openDictionary(id: number) {
       console.log(MAIN_WINDOW_WEBPACK_ENTRY);
       console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
-      this.$bvModal.show("dictionary-item-modal");
+      this.$bvModal.show('dictionary-item-modal');
       this.selectedModalDict = this.dictionaries[id];
 
       // show window
@@ -169,7 +216,7 @@ export default Vue.extend({
 </style>
 
 <style lang="scss">
-.dictionary-modal-header {
+.modal-header {
   padding: 0.3rem 0.5rem !important;
   button {
     border: 1px solid #ddd;
@@ -182,8 +229,25 @@ export default Vue.extend({
     padding: 0.1rem;
     border-radius: 5px;
   }
+  .modal-title {
+    font-size: 16px;
+    font-weight: normal;
+    padding-left: 10px;
+  }
 }
-.dictionary-modal-footer {
+.form-control {
+  padding: 0.15rem 0.375rem !important;
+  font-weight: normal !important;
+  &:focus {
+    font-size: default !important;
+    padding: 0.15rem 0.375rem !important;
+    font-weight: default !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    font-weight: normal !important;
+  }
+}
+.modal-footer {
   padding: 0.3rem 0.5rem !important;
 }
 </style>
