@@ -49,13 +49,13 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 ### 克隆代码
 
 ``` bash
-$ git clone https://github.com/terasum/medict.git
+git clone https://github.com/terasum/medict.git
 ```
 
 ### 开发模式运行
 
 ```
-$ cd medict
+cd medict
 yarn install
 yarn start
 ```
