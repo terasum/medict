@@ -37,7 +37,10 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "production"){
+    mainWindow.webContents.openDevTools()
+
+  }
 
   // sub-windows
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

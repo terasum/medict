@@ -1,11 +1,8 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "module": "commonjs",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "esModuleInterop":true,
     "baseUrl": ".",
     "outDir": "dist",
     "moduleResolution": "node",

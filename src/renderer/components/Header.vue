@@ -19,6 +19,9 @@
         <b-form-input
           :disabled="displaySearchBox"
           v-model="searchWord"
+          @keyup.enter.native="confirmSelect"
+          @keyup.up.native="upSelect"
+          @keyup.down.native="downSelect"
         ></b-form-input>
         <b-button variant="info"><b-icon-search /></b-button>
       </b-input-group>
@@ -80,7 +83,7 @@ import Translate from "../components/icons/translate.icon.vue";
 import Search from "../components/icons/search.icon.vue";
 import Plugins from "../components/icons/plugins.icon.vue";
 import Settings from "../components/icons/settings.icon.vue";
-import {asyncfnListener} from '../../service/service.manifest';
+import { asyncfnListener } from "../../service/service.manifest";
 
 interface HeaderComponentData extends Vue {
   searchWord: string;
@@ -114,19 +117,36 @@ export default Vue.extend({
     },
   },
   watch: {
-    searchWord: function (word) {
+    searchWord(word) {
       console.log(word);
       //@ts-ignore async search word
-      this.$store.dispatch('ASYNC_SEARCH_WORD', {word});
-    }
+      this.$store.dispatch("ASYNC_SEARCH_WORD", { word });
+    },
   },
   methods: {
+    // keyup event methods
+    confirmSelect(event: any) {
+      const idx = (this.$store as typeof Store).state.sideBarData
+        .selectedWordIdx;
+      this.$store.dispatch("FIND_WORD_PRECISLY", idx);
+    },
+    upSelect(event: any) {
+      const idx = (this.$store as typeof Store).state.sideBarData
+        .selectedWordIdx;
+      this.$store.commit("updateSelectedWordIdx", idx - 1);
+    },
+    downSelect(event: any) {
+      const idx = (this.$store as typeof Store).state.sideBarData
+        .selectedWordIdx;
+      this.$store.commit("updateSelectedWordIdx", idx + 1);
+    },
     clickDictionary(event: any) {
       console.log(event);
       this.$store.commit("changeTab", "词典");
 
       if (this.$router.currentRoute.path !== "/") {
         this.$router.replace({ path: "/" });
+        this.$store.commit("suggestWords", []);
       }
     },
     clickTranslation(event: any) {
@@ -138,7 +158,6 @@ export default Vue.extend({
       }
     },
     clickPlugins(event: any) {
-      console.log(event);
       this.$store.commit("changeTab", "插件");
 
       if (this.$router.currentRoute.path !== "/plugins") {
@@ -146,7 +165,6 @@ export default Vue.extend({
       }
     },
     clickPreference(event: any) {
-      console.log(event);
       this.$store.commit("changeTab", "设置");
 
       this.$store.commit("increment");
@@ -158,14 +176,13 @@ export default Vue.extend({
     },
   },
   mounted() {
-    // register listening 
-    asyncfnListener['onAsyncSearchWord']((event: any, args: any) =>{
+    // register listening
+    asyncfnListener["onAsyncSearchWord"]((event: any, args: any) => {
       console.log(`[async:Header] response async search word ${args}`);
       console.log(event);
       console.log(args);
     });
-    
-  }
+  },
 });
 </script>
 
