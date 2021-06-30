@@ -86,7 +86,7 @@
     "@typescript-eslint/parser": "^4.0.1",
     "chai": "^4.3.4",
     "css-loader": "^5.0.0",
-    "electron": "13.1.2",
+    "electron": "13.1.4",
     "electron-squirrel-startup": "^1.0.0",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
