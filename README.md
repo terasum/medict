@@ -1,6 +1,5 @@
 # Medict
 [![Node CI](https://github.com/terasum/medict/workflows/Node%20CI/badge.svg?event=push)](https://github.com/terasum/medict/actions?query=workflow%3A%22Node+CI%22+branch%3Acanary+event%3Apush)
-[![Build Status](https://travis-ci.org/terasum/medict.svg?branch=develop)](https://travis-ci.org/terasum/medict)
 [![GitHub release](https://img.shields.io/github/release/terasum/medict.svg)](https://github.com/terasum/medict/releases)
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
 
