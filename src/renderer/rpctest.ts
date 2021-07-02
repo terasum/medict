@@ -1,3 +1,3 @@
-import { MainProcSyncAPI } from './service.renderer.manifest';
-const ret = MainProcSyncAPI.syncMessage('myhello');
+import { SyncMainAPI } from './service.renderer.manifest';
+const ret = SyncMainAPI.syncMessage('myhello');
 console.log(`[render-rpc]: syncMessage | ret: ${ret}`);

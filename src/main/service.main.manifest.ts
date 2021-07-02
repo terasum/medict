@@ -1,21 +1,26 @@
-import _ from 'lodash';
-import { WindowService } from './mainsvc/WindowService';
-import { MessageService } from './mainsvc/MessageService';
-import { WordService } from './mainsvc/WordService';
+import { StubWindow } from './mainsvc/StubWindow';
+import { StubMessage } from './mainsvc/StubMessage';
+import { StubWordQuery } from './mainsvc/StubWordQuery';
+import { StubDictAccessor } from './mainsvc/StubDictAccessor';
 
-const windowService = new WindowService();
-const messageService = new MessageService();
-const wordService = new WordService();
+const stubWindow = new StubWindow();
+const stubMessage = new StubMessage();
+const stubWordQuery = new StubWordQuery();
+const stubDictAccessor = new StubDictAccessor();
 
 export const asyncfn = {
-  asyncMessage: messageService.asyncMessage,
-  createSubWindow: windowService.createSubWindow,
-  entryLinkWord: wordService.entryLinkWord,
-  suggestWord: wordService.suggestWord,
-  findWordPrecisly: wordService.findWordPrecisly,
-  loadDictResource: wordService.loadDictResource,
+  asyncMessage: stubMessage.asyncMessage,
+  createSubWindow: stubWindow.createSubWindow,
+  entryLinkWord: stubWordQuery.entryLinkWord,
+  suggestWord: stubWordQuery.suggestWord,
+  findWordPrecisly: stubWordQuery.findWordPrecisly,
+  loadDictResource: stubWordQuery.loadDictResource,
 };
 
 export const syncfn = {
-  syncMessage: messageService.syncMessage,
+  syncMessage: stubMessage.syncMessage,
+  dictAddOne: stubDictAccessor.dictAddOne,
+  dictFindOne: stubDictAccessor.dictFindOne,
+  dictDeleteOne: stubDictAccessor.dictDeleteOne,
+  dictFindAll: stubDictAccessor.dictFindAll,
 };

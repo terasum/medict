@@ -1,17 +1,17 @@
 import Vuex from 'vuex';
-import { MainProcAsyncAPI } from '../service.renderer.manifest';
+import { AsyncMainAPI } from '../service.renderer.manifest';
 
 const Store = new Vuex.Store({
   state: {
-    // defaultWindow: '/preference',
-    defaultWindow: '/',
+    defaultWindow: '/preference',
+    // defaultWindow: '/',
 
     suggestWords: [],
     historyStack: [],
     currentWord: '',
     headerData: {
-      // currentTab: '设置',
-      currentTab: '词典',
+      currentTab: '设置',
+      // currentTab: '词典',
     },
     sideBarData: {
       selectedWordIdx: 0,
@@ -83,13 +83,13 @@ const Store = new Vuex.Store({
       // update current searching word
       commit('updateCurrentWord', payload);
       // associate
-      MainProcAsyncAPI.suggestWord(payload);
+      AsyncMainAPI.suggestWord(payload);
     },
     REFER_LINK_WORD({ commit, state }, word) {
       commit('updateSelectedWordIdx', 0);
       // update current searching word
       commit('updateCurrentWord', word);
-      MainProcAsyncAPI.findWordPrecisly(word);
+      AsyncMainAPI.findWordPrecisly(word);
     },
     ASYCN_UPDATE_SIDE_BAR(context, payload) {
       console.log(`async-dispatch ASYCN_UPDATE_SIDE_BAR ${payload}`);
@@ -98,7 +98,7 @@ const Store = new Vuex.Store({
     FIND_WORD_PRECISLY({ commit, state }, id) {
       if (state.suggestWords[id]) {
         commit('updateSelectedWordIdx', id);
-        MainProcAsyncAPI.findWordPrecisly(state.suggestWords[id]);
+        AsyncMainAPI.findWordPrecisly(state.suggestWords[id]);
       } else {
         console.error(`error on find word precisly ${state.suggestWords[id]}`);
       }

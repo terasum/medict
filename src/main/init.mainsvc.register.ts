@@ -10,10 +10,19 @@ export function registerServices() {
       const fn = syncfn[fnName];
       console.log('🔧 register main process sync  service:', fnName);
       ipcMain.on(fnName, function(event, args) {
-        console.log(`[main-rpc:sync]: ${fnName}| arg: ${args}`);
+        console.log(
+          `[main-rpc:sync]: ================= [${fnName}] =============== START`
+        );
+        console.log(`[main-rpc:sync]: ${fnName}| arg:`);
+        console.log(args);
+        console.log();
         const ret = fn(args);
-        console.log(`[main-rpc:sync]: ${fnName}| ret: ${ret}`);
+        console.log(`[main-rpc:sync]: ${fnName}| ret:`);
+        console.log(ret);
         event.returnValue = ret;
+        console.log(
+          `[main-rpc:sync]: ================= [${fnName}] =============== END`
+        );
       });
     }
   }
@@ -22,10 +31,16 @@ export function registerServices() {
       const fn = asyncfn[fnName];
       console.log('🔧 register main process async service:', fnName);
       ipcMain.on(fnName, function(event, args) {
+        console.log(
+          `[main-rpc:async]: ================= [${fnName}] =============== START`
+        );
         console.log(`[main-rpc:asyn](start): ${fnName} - args:`);
         console.log(args);
+        console.log();
         fn(event, args);
-        console.log(`[main-rpc:asyn](end): ${fnName}`);
+        console.log(
+          `[main-rpc:async]: ================= [${fnName}] =============== END`
+        );
       });
     }
   }
