@@ -3,7 +3,7 @@ import { ImageReplacer } from '../domain/ReplacerImage';
 import { SoundReplacer } from '../domain/ReplacerSound';
 import { CSSReplacer } from '../domain/ReplacerCSS';
 import { EntryReplacer } from '../domain/ReplacerEntry';
-import { JSReplacer } from '../domain/ReplacerJS';
+import { JSReplacer } from '../domain/ReplacerJs';
 
 import { ResourceFn, LookupFn } from '../domain/Replacer';
 

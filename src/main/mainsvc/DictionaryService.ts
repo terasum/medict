@@ -5,7 +5,7 @@ import { NullDef } from '../..//model/Definition';
 const dicts = new Map<string, Dictionary>();
 
 dicts.set(
-  'oxford',
+  'oale8',
   new Dictionary(
     'oale8',
     'oale8',
@@ -16,8 +16,8 @@ dicts.set(
 );
 
 export const dictService = {
-  findWordPrecisly: (dictid: string, keyText: string, roffset: number) => {
-    return dicts.get(dictid)?.findWordDefinition(keyText, roffset);
+  findWordPrecisly: (dictid: string, keyText: string, rofset: number) => {
+    return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
   },
 
   loadDictResource: (dictid: string, keyText: string) => {

@@ -9,7 +9,7 @@ export function registerServices() {
     if (Object.prototype.hasOwnProperty.call(syncfn, fnName)) {
       const fn = syncfn[fnName];
       console.log('🔧 register main process sync  service:', fnName);
-      ipcMain.on(fnName, function (event, args) {
+      ipcMain.on(fnName, function(event, args) {
         console.log(`[main-rpc:sync]: ${fnName}| arg: ${args}`);
         const ret = fn(args);
         console.log(`[main-rpc:sync]: ${fnName}| ret: ${ret}`);
@@ -21,10 +21,9 @@ export function registerServices() {
     if (Object.prototype.hasOwnProperty.call(asyncfn, fnName)) {
       const fn = asyncfn[fnName];
       console.log('🔧 register main process async service:', fnName);
-      ipcMain.on(fnName, function (event, args) {
+      ipcMain.on(fnName, function(event, args) {
         console.log(`[main-rpc:asyn](start): ${fnName} - args:`);
         console.log(args);
-        console.log(fn);
         fn(event, args);
         console.log(`[main-rpc:asyn](end): ${fnName}`);
       });

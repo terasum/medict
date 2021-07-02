@@ -32,6 +32,9 @@ import Vuex from 'vuex';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import routes from './routes';
 import { __RANDOM_KEY__ } from '../utils/random_key';
+import { cleanUpListeneres } from './init.renderersvc.register';
+// cleanup ipc listener
+cleanUpListeneres();
 
 // customer css
 import './renderer.scss';
@@ -65,8 +68,6 @@ console.log(
   '👋 This message is being logged by "renderer.ts", included via webpack'
 );
 
-import { cleanUpListeneres } from './init.renderersvc.register';
-
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
@@ -74,10 +75,9 @@ const app = new Vue({ router, store }).$mount('#app');
 // window extended vue
 // @ts-ignore
 window[`$vue_${__RANDOM_KEY__}`] = app;
-window['DISPATCH_REFER_LINK_WORD'] = function (dictid: string, word: string) {
+window['DISPATCH_REFER_LINK_WORD'] = function(dictid: string, word: string) {
   app['$state'].dispatch('DISPATCH_REFER_LINK_WORD', { dictid, word });
 };
-// cleanup ipc listener
-cleanUpListeneres();
+
 // rpc test TODO delete this
 import './rpctest';

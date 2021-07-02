@@ -45,8 +45,8 @@ export class EntryReplacer implements Replacer {
           window.postMessage({
             channel: "entryLinkWord",
             payload: {
-              keyText: "${dictid}",
-              word: "${newWord}",
+              dictid: "${dictid}",
+              keyText: "${newWord}",
             }
           });
         }
