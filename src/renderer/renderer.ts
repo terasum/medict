@@ -26,13 +26,12 @@
  * ```
  */
 
-
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import routes from './routes';
-import { __RANDOM_KEY__ } from './utils/random_key';
+import { __RANDOM_KEY__ } from '../utils/random_key';
 
 // customer css
 import './renderer.scss';
@@ -56,17 +55,17 @@ Vue.use(IconsPlugin);
 // You can pass in additional options here, but let's
 // keep it simple for now.
 const router = new VueRouter({
-  routes // short for `routes: routes`
-})
+  routes, // short for `routes: routes`
+});
 // default view as mainWindow
 router.push({ path: store.state.defaultWindow });
 Vue.use(VueRouter);
 
+console.log(
+  '👋 This message is being logged by "renderer.ts", included via webpack'
+);
 
-console.log('👋 This message is being logged by "renderer.ts", included via webpack');
-// rpc test
-import './rpctest';
-
+import { cleanUpListeneres } from './init.renderersvc.register';
 
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the
@@ -75,9 +74,10 @@ const app = new Vue({ router, store }).$mount('#app');
 // window extended vue
 // @ts-ignore
 window[`$vue_${__RANDOM_KEY__}`] = app;
-window['DISPATCH_REFER_LINK_WORD'] = function (dictid:string, word:string) {
-  app['$state'].dispatch('DISPATCH_REFER_LINK_WORD', {dictid, word})
-}
-
-
-
+window['DISPATCH_REFER_LINK_WORD'] = function (dictid: string, word: string) {
+  app['$state'].dispatch('DISPATCH_REFER_LINK_WORD', { dictid, word });
+};
+// cleanup ipc listener
+cleanUpListeneres();
+// rpc test TODO delete this
+import './rpctest';
