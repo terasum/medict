@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { getResourceRootPath } from '../../config/config';
-import { resourceServerPort } from '../resource.server';
+import { resourceServerPort } from '../init.resource.server';
 import { SuggestItem } from '../../model/SuggestItem';
 import { Definition, NullDef } from '../../model/Definition';
 import { StorabeDictionary } from '../../model/StorableDictionary';
@@ -41,7 +41,7 @@ export class Dictionary extends StorabeDictionary {
     if (!result) {
       return NullDef(keyText);
     }
-    return result as unknown as Definition;
+    return (result as unknown) as Definition;
   }
 
   findWordResource(keyText: string) {

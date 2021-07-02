@@ -8,7 +8,8 @@ dicts.set(
   'oxford',
   new Dictionary(
     'oale8',
-    'oale8.mdx',
+    'oale8',
+    'oale8',
     '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
     '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd'
   )

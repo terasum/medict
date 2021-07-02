@@ -1,6 +1,6 @@
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
 
-import { __RANDOM_KEY__ } from '../../renderer/preload/random_key';
+import { __RANDOM_KEY__ } from '../../utils/random_key';
 const LINK_REG = /^@@@LINK=([\s\S]+)$/i;
 const LINK_REG_IDX = 1;
 
