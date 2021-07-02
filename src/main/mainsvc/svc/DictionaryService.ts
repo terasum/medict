@@ -1,9 +1,9 @@
-import { Dictionary } from '../domain/Dictionary';
-import { SuggestItem } from '../../model/SuggestItem';
-import { NullDef } from '../..//model/Definition';
+import { Dictionary } from '../../domain/Dictionary';
+import { SuggestItem } from '../../../model/SuggestItem';
+import { NullDef } from '../../../model/Definition';
+import { StorabeDictionary } from '../../../model/StorableDictionary';
 
 const dicts = new Map<string, Dictionary>();
-
 dicts.set(
   'oale8',
   new Dictionary(
@@ -15,18 +15,38 @@ dicts.set(
   )
 );
 
-export const dictService = {
-  findWordPrecisly: (dictid: string, keyText: string, rofset: number) => {
-    return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
-  },
+export class DictService {
+  findOne(dictid: string) {
+    return dicts.get(dictid);
+  }
 
-  loadDictResource: (dictid: string, keyText: string) => {
+  findAll() {
+    const list: StorabeDictionary[] = [];
+    dicts.forEach(val => {
+      list.push(val);
+    });
+    return list;
+  }
+
+  addOne(dict: Dictionary) {
+    dicts.set(dict.id, dict);
+  }
+
+  deleteOne(dictid: string) {
+    dicts.delete(dictid);
+  }
+
+  findWordPrecisly(dictid: string, keyText: string, rofset: number) {
+    return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
+  }
+
+  loadDictResource(dictid: string, keyText: string) {
     return dicts.get(dictid)?.findWordResource(keyText) ?? NullDef(keyText);
-  },
-  lookup: (dictid: string, keyText: string) => {
+  }
+  lookup(dictid: string, keyText: string) {
     return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
-  },
-  associate: (word: string) => {
+  }
+  associate(word: string) {
     const result: SuggestItem[] = [];
     if (word.trim() == '' || word.length === 0) {
       return result;
@@ -61,5 +81,5 @@ export const dictService = {
       result.push(item);
     }
     return result;
-  },
-};
+  }
+}

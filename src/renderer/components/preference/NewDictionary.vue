@@ -2,21 +2,20 @@
   <form>
     <div class="form-group row">
       <div class="col-6">
-        <label>词典id(生成)</label>
+        <label>词典id<i v-if="!readOnly">(生成)</i></label>
         <input
           type="text"
           class="form-control"
           disabled
-          v-model="showDictData.dictIdGen"
+          v-model="showDictData.id"
         />
       </div>
-      <div class="col-6">
-        <label>词典id(4英文字符)</label>
+      <div class="col-6" v-if="!readOnly">
+        <label>词典id <i>(自定义,4-6字符)</i></label>
         <input
           type="text"
           class="form-control"
           placeholder="用户自定义"
-          v-model="showDictData.dictIdCustom"
           :disabled="readOnly"
         />
       </div>
@@ -28,7 +27,7 @@
         type="text"
         class="form-control"
         placeholder="英汉大辞典"
-        v-model="showDictData.dictName"
+        v-model="showDictData.name"
         :disabled="readOnly"
       />
     </div>
@@ -38,7 +37,7 @@
         v-if="readOnly"
         type="text"
         class="form-control"
-        :value="showDictData.dictMdxFilePath"
+        :value="showDictData.mdxpath"
         :disabled="readOnly"
       />
       <input v-else type="file" class="form-control" />
@@ -49,19 +48,14 @@
         v-if="readOnly"
         type="text"
         class="form-control"
-        :value="showDictData.dictMddFilePath"
+        :value="showDictData.mddpath"
         :disabled="readOnly"
       />
       <input v-else type="file" class="form-control" />
     </div>
     <div class="form-group">
       <label>词典描述</label>
-      <textarea
-        class="form-control"
-        rows="2"
-        v-model="showDictData.dictDescription"
-        :disabled="readOnly"
-      ></textarea>
+      <textarea class="form-control" rows="2" :disabled="readOnly"></textarea>
     </div>
     <div v-if="showResourceBtn" class="form-group">
       <div class="row">
@@ -104,25 +98,27 @@ export default Vue.extend({
     },
     dictData: {
       type: Object,
-      default: {
-        dictIdGen: '',
-        dictIdCustom: '',
-        dictName: '',
-        dictMdxFilePath: '',
-        dictMddFilePath: '',
-        dictDescription: '',
+      default: () => {
+        return {
+          id: 'undefined',
+          alias: 'undefined',
+          name: 'undefined',
+          mdxpath: 'undefined',
+          mddpath: 'undefined',
+          resourceBaseDir: 'undefined',
+        };
       },
     },
   },
   data() {
     return {
       showDictData: {
-        dictIdGen: '',
-        dictIdCustom: '',
-        dictName: '',
-        dictMdxFilePath: '',
-        dictMddFilePath: '',
-        dictDescription: '',
+        id: '',
+        alias: '',
+        name: '',
+        mdxpath: '',
+        mddpath: '',
+        resourceBaseDir: '',
       },
     };
   },

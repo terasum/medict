@@ -41,7 +41,7 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import { listeners } from '../service.renderer.listener';
-import { MainProcAsyncAPI } from '../service.renderer.manifest';
+import { AsyncMainAPI } from '../service.renderer.manifest';
 import Store from '../store/index';
 import fs from 'fs';
 import path from 'path';
@@ -92,7 +92,7 @@ export default Vue.extend({
       this.$store.dispatch('FIND_WORD_PRECISLY', item.id);
     },
     findResource(dictid: string, resourceKey: string) {
-      return MainProcAsyncAPI.loadDictResource({ dictid, resourceKey });
+      return AsyncMainAPI.loadDictResource({ dictid, resourceKey });
     },
     onDevtoolBtnClick() {
       // for webview

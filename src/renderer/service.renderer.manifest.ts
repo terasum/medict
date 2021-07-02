@@ -12,7 +12,7 @@ function asyncWrap(fnName: string) {
   };
 }
 
-export const MainProcAsyncAPI = {
+export const AsyncMainAPI = {
   asyncMessage: asyncWrap('asyncMessage'),
   createSubWindow: asyncWrap('createSubWindow'),
   entryLinkWord: asyncWrap('entryLinkWord'),
@@ -21,6 +21,10 @@ export const MainProcAsyncAPI = {
   loadDictResource: asyncWrap('loadDictResource'),
 };
 
-export const MainProcSyncAPI = {
+export const SyncMainAPI = {
   syncMessage: syncWrap('syncMessage'),
+  dictAddOne: syncWrap('dictAddOne'),
+  dictFindOne: syncWrap('dictFindOne'),
+  dictDeleteOne: syncWrap('dictDeleteOne'),
+  dictFindAll: syncWrap('dictFindAll'),
 };

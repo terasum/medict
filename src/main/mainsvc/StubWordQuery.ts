@@ -1,10 +1,17 @@
-import { dictService } from './DictionaryService';
-import { dictContentService } from './DictionaryContentService';
+import { DictService } from './svc/DictionaryService';
+import { DictContentService } from './svc/DictionaryContentService';
 
 /**
  * WordService 查词主要服务，依赖词典服务
  */
-export class WordService {
+export class StubWordQuery {
+  dictService: DictService;
+  dictContentService: DictContentService;
+  constructor() {
+    this.dictService = new DictService();
+    this.dictContentService = new DictContentService();
+  }
+
   /**
    * entryLinkWord 异步查询 Entry:// 指向的词
    * @param event 事件源
@@ -14,7 +21,7 @@ export class WordService {
   entryLinkWord(event: any, arg: { keyText: string; dictid: string }) {
     console.log('[main-process] WordService.entryLinkWord');
     console.log(arg);
-    const result = dictService.associate(arg.keyText);
+    const result = this.dictService.associate(arg.keyText);
     console.log('[main-process] WordService.entryLinkWord // result');
     console.log(result);
     // 先将建议词列表返回
@@ -26,7 +33,7 @@ export class WordService {
     console.log(
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
     );
-    const wordResult = dictService.findWordPrecisly(
+    const wordResult = this.dictService.findWordPrecisly(
       result[0].dictid,
       result[0].keyText,
       result[0].rofset
@@ -43,18 +50,18 @@ export class WordService {
 
     // 资源查询函数
     const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+      return this.dictService.loadDictResource(arg.dictid, resKey);
     };
 
     // 词查询函数
     const lookupFn = (word: string) => {
-      return dictService.lookup(arg.dictid, word);
+      return this.dictService.lookup(arg.dictid, word);
     };
     // 传入函数的目的是不让 DictionaryContectService 反向依赖 DictionaryService
     // 注意，事件必须是 onFindWordPrecisly
     event.sender.send('onFindWordPrecisly', {
       keyText: arg.keyText,
-      definition: dictContentService.definitionReplace(
+      definition: this.dictContentService.definitionReplace(
         arg.dictid,
         wordResult.keyText,
         wordResult.definition,
@@ -74,7 +81,7 @@ export class WordService {
     console.log(
       "[main-process] suggestWord event.sender.send('onSuggestWord')"
     );
-    const result = dictService.associate(arg.word);
+    const result = this.dictService.associate(arg.word);
     event.sender.send('onSuggestWord', result);
   }
 
@@ -88,7 +95,7 @@ export class WordService {
     arg: { keyText: string; dictid: string; rofset: number }
   ) {
     console.log('[main-process] WordService.findWordPrecisly');
-    const result = dictService.findWordPrecisly(
+    const result = this.dictService.findWordPrecisly(
       arg.dictid,
       arg.keyText,
       arg.rofset
@@ -104,12 +111,12 @@ export class WordService {
 
     // 资源查询函数
     const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+      return this.dictService.loadDictResource(arg.dictid, resKey);
     };
 
     // 词查询函数
     const lookupFn = (word: string) => {
-      return dictService.lookup(arg.dictid, word);
+      return this.dictService.lookup(arg.dictid, word);
     };
     console.log(
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
@@ -117,7 +124,7 @@ export class WordService {
 
     event.sender.send('onFindWordPrecisly', {
       keyText: arg.keyText,
-      definition: dictContentService.definitionReplace(
+      definition: this.dictContentService.definitionReplace(
         arg.dictid,
         result.keyText,
         result.definition,
@@ -132,7 +139,10 @@ export class WordService {
    * @param arg 资源 keyText
    */
   loadDictResource(event: any, arg: { dictid: string; resourceKey: string }) {
-    const result = dictService.loadDictResource(arg.dictid, arg.resourceKey);
+    const result = this.dictService.loadDictResource(
+      arg.dictid,
+      arg.resourceKey
+    );
     event.sender.send('onLoadDictResource', result);
   }
 }

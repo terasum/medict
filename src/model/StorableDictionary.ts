@@ -19,4 +19,15 @@ export class StorabeDictionary {
     this.mddpath = mddpath;
     this.resourceBaseDir = '';
   }
+  static clone(dict: StorabeDictionary) {
+    const newDict = new StorabeDictionary(
+      dict.id,
+      dict.alias,
+      dict.name,
+      dict.mdxpath,
+      dict.mddpath
+    );
+    newDict.resourceBaseDir = dict.resourceBaseDir;
+    return newDict;
+  }
 }

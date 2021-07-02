@@ -47,12 +47,11 @@
               <table class="table-striped">
                 <thead>
                   <tr>
-                    <th>词典简称</th>
-                    <th>词典文件名</th>
-                    <th>词典描述</th>
-                    <!-- <th>词典资源文件路径</th>
-                    <th>词典增强样式路径</th>
-                    <th>词典增强脚本路径</th> -->
+                    <th>ID</th>
+                    <th>词典别名</th>
+                    <th>词典全名</th>
+                    <th>mdx</th>
+                    <th>mdd</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -61,9 +60,11 @@
                     :key="item.id"
                     v-on:click="openDictionary(item.id)"
                   >
-                    <td>{{ item.dictIdGen }}</td>
-                    <td>{{ item.dictName }}</td>
-                    <td>{{ item.dictDescription }}</td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.alias }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.mdxpath }}</td>
+                    <td>{{ item.mddpath }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -119,6 +120,7 @@ import Vue from 'vue';
 import Header from '../components/Header.vue';
 import Store from '../store/index';
 import NewDictionary from '../components/preference/NewDictionary.vue';
+import { SyncMainAPI } from '../service.renderer.manifest';
 import '../assets/css/photon.min.css';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -128,20 +130,22 @@ export default Vue.extend({
   components: { Header, NewDictionary },
   computed: {
     dictionaries() {
-      return (this.$store as typeof Store).state.dictionaries;
+      return SyncMainAPI.dictFindAll(undefined);
     },
   },
   data: () => {
     return {
       selectedModalDict: {},
+      // dictionaries: [],
       newDictData: {
-        id: -1,
-        dictIdGen: 'XiS1',
-        dictIdCustom: 'oale7',
-        dictName: '测试词典',
-        dictMdxFilePath: 'workspade/oale.mdx',
-        dictMddFilePath: 'workspade/oale.mdd',
-        dictDescription: '测试描述',
+        id: 'oale8',
+        alias: 'oale8',
+        name: 'oale8',
+        mdxpath:
+          '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
+        mddpath:
+          '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd',
+        resourceBaseDir: '',
       },
     };
   },
@@ -151,11 +155,11 @@ export default Vue.extend({
       console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
       this.$bvModal.show('add-dictionary-modal');
     },
-    openDictionary(id: number) {
+    openDictionary(id: string) {
       // console.log(MAIN_WINDOW_WEBPACK_ENTRY);
       // console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
       this.$bvModal.show('dictionary-item-modal');
-      this.selectedModalDict = this.dictionaries[id];
+      this.selectedModalDict = SyncMainAPI.dictFindOne({ dictid: id });
 
       // show window
       //   apis["createSubWindow"]({
@@ -167,6 +171,9 @@ export default Vue.extend({
       //     contextIsolation: false,
       //   });
     },
+  },
+  mounted() {
+    // this.dictionaries = SyncMainAPI.dictFindAll(undefined);
   },
 });
 </script>

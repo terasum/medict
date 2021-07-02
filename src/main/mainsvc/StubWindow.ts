@@ -1,7 +1,7 @@
 /**
  * WindowService 创建新窗口服务
  */
-export class WindowService {
+export class StubWindow {
   /**
    * createSubWindow 创建新的子窗口
    * @param event 事件源
