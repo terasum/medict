@@ -1,13 +1,16 @@
 import Vuex from 'vuex';
-import apis from "../../service/service.renderer.register";
+import { MainProcAsyncAPI } from '../service.renderer.manifest';
 
 const Store = new Vuex.Store({
   state: {
+    // defaultWindow: '/preference',
     defaultWindow: '/',
+
     suggestWords: [],
     historyStack: [],
-    currentWord:"",
-    headerData:{
+    currentWord: '',
+    headerData: {
+      // currentTab: '设置',
       currentTab: '词典',
     },
     sideBarData: {
@@ -17,41 +20,35 @@ const Store = new Vuex.Store({
     dictionaries: [
       {
         id: 0,
-        brief: "英汉双解",
-        filename: "eng-chinese.mdx",
-        desc: "英汉双解词典",
-        mddFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx",
-        mdxFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd",
-        cssFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.css",
-        jsFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.js",
+        dictIdGen: 'XiS1',
+        dictIdCustom: 'eng-chinese',
+        dictName: '英汉双解',
+        dictMdxFilePath:
+          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx',
+        dictMddFilePath:
+          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd',
+        dictDescription: '英汉双解',
       },
       {
         id: 1,
-        brief: "柯林斯",
-        filename: "collins.mdx",
-        desc: "柯林斯大辞典",
-        mddFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/collins.mdx",
-        mdxFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/collins.mdd",
-        cssFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/collins.css",
-        jsFilePath:
-          "/Users/chenquan/Workspace/nodejs/medict/resources/collins.js",
+        dictIdGen: 'XiS1',
+        dictIdCustom: 'collins',
+        dictName: '柯林斯大辞典',
+        dictMdxFilePath:
+          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx',
+        dictMddFilePath:
+          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd',
+        dictDescription: '柯林斯大辞典',
       },
     ],
-    count: 0
+    count: 0,
   },
   mutations: {
     updateCurrentWord(state, word) {
       state.currentWord = word;
     },
-    increment (state) {
-      state.count++
+    increment(state) {
+      state.count++;
     },
     changeTab(state, tabName) {
       state.headerData.currentTab = tabName;
@@ -62,9 +59,10 @@ const Store = new Vuex.Store({
     updateSelectedWordIdx(state, idx) {
       if (idx >= 0 && idx < state.sideBarData.candidateWordNum) {
         state.sideBarData.selectedWordIdx = idx;
-      } else if(idx >= state.sideBarData.candidateWordNum) {
-        state.sideBarData.selectedWordIdx = state.sideBarData.candidateWordNum - 1;
-      } else if(idx < 0) {
+      } else if (idx >= state.sideBarData.candidateWordNum) {
+        state.sideBarData.selectedWordIdx =
+          state.sideBarData.candidateWordNum - 1;
+      } else if (idx < 0) {
         state.sideBarData.selectedWordIdx = 0;
       }
     },
@@ -76,10 +74,7 @@ const Store = new Vuex.Store({
       }
     },
 
-    popHistory(state, word) {
-      
-    }
-
+    popHistory(state, word) {},
   },
   actions: {
     ASYNC_SEARCH_WORD({ commit, state }, payload) {
@@ -87,16 +82,14 @@ const Store = new Vuex.Store({
       commit('updateSelectedWordIdx', 0);
       // update current searching word
       commit('updateCurrentWord', payload);
-      // do nothing
-      apis['asyncSearchWord'](payload);
       // associate
-      apis['suggestWord'](payload);
+      MainProcAsyncAPI.suggestWord(payload);
     },
     REFER_LINK_WORD({ commit, state }, word) {
       commit('updateSelectedWordIdx', 0);
       // update current searching word
       commit('updateCurrentWord', word);
-      apis["findWordPrecisly"](word);
+      MainProcAsyncAPI.findWordPrecisly(word);
     },
     ASYCN_UPDATE_SIDE_BAR(context, payload) {
       console.log(`async-dispatch ASYCN_UPDATE_SIDE_BAR ${payload}`);
@@ -104,13 +97,13 @@ const Store = new Vuex.Store({
     },
     FIND_WORD_PRECISLY({ commit, state }, id) {
       if (state.suggestWords[id]) {
-         commit('updateSelectedWordIdx', id);
-         apis["findWordPrecisly"](state.suggestWords[id]);
+        commit('updateSelectedWordIdx', id);
+        MainProcAsyncAPI.findWordPrecisly(state.suggestWords[id]);
       } else {
         console.error(`error on find word precisly ${state.suggestWords[id]}`);
       }
-    }
-  }
-})
+    },
+  },
+});
 
 export default Store;

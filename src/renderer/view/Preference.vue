@@ -34,7 +34,7 @@
             <div class="toolbar toolbar-header">
               <div class="toolbar-actions">
                 <div class="btn-group">
-                  <button class="btn btn-default">
+                  <button class="btn btn-default" v-on:click="addDictionary">
                     <span class="icon icon-plus-squared"></span>
                   </button>
                   <button class="btn btn-default">
@@ -61,9 +61,9 @@
                     :key="item.id"
                     v-on:click="openDictionary(item.id)"
                   >
-                    <td>{{ item.brief }}</td>
-                    <td>{{ item.filename }}</td>
-                    <td>{{ item.desc }}</td>
+                    <td>{{ item.dictIdGen }}</td>
+                    <td>{{ item.dictName }}</td>
+                    <td>{{ item.dictDescription }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -76,42 +76,56 @@
       <div class="dictionary-modal">
         <b-modal
           id="dictionary-item-modal"
-          title=""
+          title="词典详情"
           hide-footer
           scrollable
           button-size="sm"
-          header-class="dictionary-modal-header"
-          footer-class="dictionary-modal-footer"
+          header-class="modal-header"
+          footer-class="modal-footer"
         >
-          <p>{{ selectedModalDict.brief }}</p>
-          <p>{{ selectedModalDict.filename }}</p>
-          <p>{{ selectedModalDict.desc }}</p>
-          <p>{{ selectedModalDict.mddFilePath }}</p>
-          <p>{{ selectedModalDict.mdxFilePath }}</p>
-          <p>{{ selectedModalDict.cssFilePath }}</p>
-          <p>{{ selectedModalDict.jsFilePath }}</p>
+          <NewDictionary
+            :dictData="selectedModalDict"
+            :showResourceBtn="true"
+            :readOnly="true"
+          />
         </b-modal>
       </div>
       <!-- /modal start-->
+
+      <div class="add-dictionary-modal">
+        <b-modal
+          id="add-dictionary-modal"
+          title="新增词典"
+          scrollable
+          button-size="sm"
+          header-class="modal-header"
+          footer-class="modal-footer"
+        >
+          <NewDictionary
+            :dictData="newDictData"
+            :showResourceBtn="false"
+            :readOnly="false"
+          />
+        </b-modal>
+      </div>
+
       <!-- endof preference-->
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Header from "../components/Header.vue";
-import Store from "../store/index";
-
-import "../assets/css/photon.min.css";
-
-// import apis from "../../service/service.renderer.register";
+import Vue from 'vue';
+import Header from '../components/Header.vue';
+import Store from '../store/index';
+import NewDictionary from '../components/preference/NewDictionary.vue';
+import '../assets/css/photon.min.css';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
 export default Vue.extend({
-  components: { Header },
+  components: { Header, NewDictionary },
   computed: {
     dictionaries() {
       return (this.$store as typeof Store).state.dictionaries;
@@ -120,13 +134,27 @@ export default Vue.extend({
   data: () => {
     return {
       selectedModalDict: {},
+      newDictData: {
+        id: -1,
+        dictIdGen: 'XiS1',
+        dictIdCustom: 'oale7',
+        dictName: '测试词典',
+        dictMdxFilePath: 'workspade/oale.mdx',
+        dictMddFilePath: 'workspade/oale.mdd',
+        dictDescription: '测试描述',
+      },
     };
   },
   methods: {
-    openDictionary(id: number) {
+    addDictionary() {
       console.log(MAIN_WINDOW_WEBPACK_ENTRY);
       console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
-      this.$bvModal.show("dictionary-item-modal");
+      this.$bvModal.show('add-dictionary-modal');
+    },
+    openDictionary(id: number) {
+      // console.log(MAIN_WINDOW_WEBPACK_ENTRY);
+      // console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
+      this.$bvModal.show('dictionary-item-modal');
       this.selectedModalDict = this.dictionaries[id];
 
       // show window
@@ -169,21 +197,48 @@ export default Vue.extend({
 </style>
 
 <style lang="scss">
-.dictionary-modal-header {
+.modal-header {
   padding: 0.3rem 0.5rem !important;
   button {
-    border: 1px solid #ddd;
+    border: none;
     outline: none;
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     color: #666;
     text-align: center;
-    font-size: 14px;
+    font-size: 18px;
+    line-height: 18px;
     padding: 0.1rem;
     border-radius: 5px;
+    &:hover {
+      color: #999;
+      border: 1px solid #ddd;
+    }
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: normal;
+    padding-left: 10px;
   }
 }
-.dictionary-modal-footer {
+
+.form-control {
+  font-size: 13px !important;
+  padding: 0.15rem 0.375rem !important;
+  font-weight: normal !important;
+  &:focus {
+    font-size: 13px !important;
+    padding: 0.15rem 0.375rem !important;
+    font-weight: default !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    font-weight: normal !important;
+  }
+  input {
+    font-size: 13px !important;
+  }
+}
+.modal-footer {
   padding: 0.3rem 0.5rem !important;
 }
 </style>

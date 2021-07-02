@@ -1,5 +1,3 @@
-import { BIconArrowReturnLeft } from 'bootstrap-vue';
-
 export class HistoryStack {
   first: HistoryStackNode;
   last: HistoryStackNode;
