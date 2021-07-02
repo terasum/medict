@@ -1,4 +1,4 @@
-import { HistoryStack } from '../src/renderer/utils/history_stack';
+import { HistoryStack } from '../src/utils/history_stack';
 var chai = require('chai');
 var assert = chai.assert; // Using Assert style
 
