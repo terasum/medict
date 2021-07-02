@@ -2,8 +2,9 @@ import { LinkReplacer } from '../domain/ReplacerLink';
 import { ImageReplacer } from '../domain/ReplacerImage';
 import { SoundReplacer } from '../domain/ReplacerSound';
 import { CSSReplacer } from '../domain/ReplacerCSS';
-import { JSReplacer } from '../domain/ReplacerJS';
 import { EntryReplacer } from '../domain/ReplacerEntry';
+import { JSReplacer } from '../domain/ReplacerJS';
+
 import { ResourceFn, LookupFn } from '../domain/Replacer';
 
 const replacerChain = [
@@ -23,7 +24,7 @@ export const dictContentService = {
     lookupFn: LookupFn,
     resourceFn: ResourceFn
   ) => {
-    replacerChain.forEach((replacer) => {
+    replacerChain.forEach(replacer => {
       html = replacer.replace(dictid, keyText, html, lookupFn, resourceFn);
     });
     return html;

@@ -11,6 +11,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators":true,
     "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames":true,
     "paths": {
       "*": ["node_modules/*"]
     },
