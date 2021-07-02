@@ -77,13 +77,12 @@
 
 
 <script lang="ts">
-import Vue from "vue";
-import Store from "../store/index";
-import Translate from "../components/icons/translate.icon.vue";
-import Search from "../components/icons/search.icon.vue";
-import Plugins from "../components/icons/plugins.icon.vue";
-import Settings from "../components/icons/settings.icon.vue";
-import { asyncfnListener } from "../../service/service.manifest";
+import Vue from 'vue';
+import Store from '../store/index';
+import Translate from '../components/icons/translate.icon.vue';
+import Search from '../components/icons/search.icon.vue';
+import Plugins from '../components/icons/plugins.icon.vue';
+import Settings from '../components/icons/settings.icon.vue';
 
 interface HeaderComponentData extends Vue {
   searchWord: string;
@@ -105,7 +104,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      searchWord: "",
+      searchWord: '',
     };
   },
   computed: {
@@ -120,7 +119,7 @@ export default Vue.extend({
     searchWord(word) {
       console.log(word);
       //@ts-ignore async search word
-      this.$store.dispatch("ASYNC_SEARCH_WORD", { word });
+      this.$store.dispatch('ASYNC_SEARCH_WORD', { word });
     },
   },
   methods: {
@@ -128,61 +127,54 @@ export default Vue.extend({
     confirmSelect(event: any) {
       const idx = (this.$store as typeof Store).state.sideBarData
         .selectedWordIdx;
-      this.$store.dispatch("FIND_WORD_PRECISLY", idx);
+      this.$store.dispatch('FIND_WORD_PRECISLY', idx);
     },
     upSelect(event: any) {
       const idx = (this.$store as typeof Store).state.sideBarData
         .selectedWordIdx;
-      this.$store.commit("updateSelectedWordIdx", idx - 1);
+      this.$store.commit('updateSelectedWordIdx', idx - 1);
     },
     downSelect(event: any) {
       const idx = (this.$store as typeof Store).state.sideBarData
         .selectedWordIdx;
-      this.$store.commit("updateSelectedWordIdx", idx + 1);
+      this.$store.commit('updateSelectedWordIdx', idx + 1);
     },
     clickDictionary(event: any) {
       console.log(event);
-      this.$store.commit("changeTab", "词典");
+      this.$store.commit('changeTab', '词典');
 
-      if (this.$router.currentRoute.path !== "/") {
-        this.$router.replace({ path: "/" });
-        this.$store.commit("suggestWords", []);
+      if (this.$router.currentRoute.path !== '/') {
+        this.$router.replace({ path: '/' });
+        this.$store.commit('suggestWords', []);
       }
     },
     clickTranslation(event: any) {
       console.log(event);
-      this.$store.commit("changeTab", "翻译");
+      this.$store.commit('changeTab', '翻译');
 
-      if (this.$router.currentRoute.path !== "/translate") {
-        this.$router.replace({ path: "/translate" });
+      if (this.$router.currentRoute.path !== '/translate') {
+        this.$router.replace({ path: '/translate' });
       }
     },
     clickPlugins(event: any) {
-      this.$store.commit("changeTab", "插件");
+      this.$store.commit('changeTab', '插件');
 
-      if (this.$router.currentRoute.path !== "/plugins") {
-        this.$router.replace({ path: "/plugins" });
+      if (this.$router.currentRoute.path !== '/plugins') {
+        this.$router.replace({ path: '/plugins' });
       }
     },
     clickPreference(event: any) {
-      this.$store.commit("changeTab", "设置");
+      this.$store.commit('changeTab', '设置');
 
-      this.$store.commit("increment");
+      this.$store.commit('increment');
       console.log(this.$store.state.count);
-      (this as HeaderComponentData).searchWord = this.$store.state.count + "";
-      if (this.$router.currentRoute.path !== "/preference") {
-        this.$router.replace({ path: "/preference" });
+      (this as HeaderComponentData).searchWord = this.$store.state.count + '';
+      if (this.$router.currentRoute.path !== '/preference') {
+        this.$router.replace({ path: '/preference' });
       }
     },
   },
-  mounted() {
-    // register listening
-    asyncfnListener["onAsyncSearchWord"]((event: any, args: any) => {
-      console.log(`[async:Header] response async search word ${args}`);
-      console.log(event);
-      console.log(args);
-    });
-  },
+  mounted() {},
 });
 </script>
 
