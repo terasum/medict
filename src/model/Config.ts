@@ -1,6 +1,6 @@
 import { StorabeDictionary } from './StorableDictionary';
 
-declare class DictItem {
+export declare class DictItem {
   dictid: string;
   dictionary: StorabeDictionary;
 }

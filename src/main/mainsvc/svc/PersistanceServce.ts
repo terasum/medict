@@ -1,17 +1,15 @@
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import { StorageService } from './StorageServcice';
 import { getConfigJsonPath } from '../../../config/config';
+import { DictItem } from '../../../model/Config'
 
+const storageService = new StorageService(getConfigJsonPath());
 export class DictionaryAccessor {
-  storage: StorageService;
-
-  constructor() {
-    this.storage = new StorageService(getConfigJsonPath());
+  QueryAllDictonary() {
+    return storageService.db.data?.dicts
   }
-  async QueryAllDictonary() {
-    ((await this.storage.loadDataByKey(
-      'dicts'
-    )) as unknown) as StorabeDictionary[];
+  AddNewDictionary(dictID: string, dict: StorabeDictionary) {
+    storageService.db.data?.dicts.push({dictid: dictID, dictionary: dict});
+    storageService.db.write();
   }
-  async AddNewDictionary(dictID: string, dict: StorabeDictionary) {}
 }
