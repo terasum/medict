@@ -183,6 +183,7 @@ export default Vue.extend({
 .header {
   height: 60px;
   background-color: #d84042;
+  /* background-color: #f6f6f6; */
   padding-top: 6px;
   .header-navigate-btns {
     height: 54px;
