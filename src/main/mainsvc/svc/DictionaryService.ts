@@ -11,7 +11,8 @@ dicts.set(
     'oale8',
     'oale8',
     '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
-    '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd'
+    '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd',
+    'oale8默认描述'
   )
 );
 
@@ -29,11 +30,15 @@ export class DictService {
   }
 
   addOne(dict: Dictionary) {
+    if (dicts.has(dict.id)) {
+      return false;
+    }
     dicts.set(dict.id, dict);
+    return true;
   }
 
   deleteOne(dictid: string) {
-    dicts.delete(dictid);
+    return dicts.delete(dictid);
   }
 
   findWordPrecisly(dictid: string, keyText: string, rofset: number) {

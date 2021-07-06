@@ -24,16 +24,19 @@ const resourceRoot = getResourceRootPath();
 export class Dictionary extends StorabeDictionary {
   mdxDict: Mdict;
   mddDict: Mdict | undefined;
+  description: string;
   constructor(
     id: string,
     alias: string,
     name: string,
     mdxpath: string,
-    mddpath?: string
+    mddpath?: string,
+    description?: string
   ) {
     super(id, alias, name, mdxpath, mddpath);
     this.mdxDict = new Mdict(mdxpath);
     this.mddDict = mddpath ? new Mdict(mddpath) : undefined;
+    this.description = description || 'undefined';
   }
 
   findWordDefinition(keyText: string, roffset: number) {
