@@ -22,6 +22,7 @@ export const AsyncMainAPI = {
 };
 
 export const SyncMainAPI = {
+  syncShowOpenDialog: syncWrap('syncShowOpenDialog'),
   syncMessage: syncWrap('syncMessage'),
   dictAddOne: syncWrap('dictAddOne'),
   dictFindOne: syncWrap('dictFindOne'),

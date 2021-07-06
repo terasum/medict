@@ -37,7 +37,7 @@
                   <button class="btn btn-default" v-on:click="addDictionary">
                     <span class="icon icon-plus-squared"></span>
                   </button>
-                  <button class="btn btn-default">
+                  <button class="btn btn-default" v-on:click="refreshDicts">
                     <span class="icon icon-cw"></span>
                   </button>
                 </div>
@@ -97,6 +97,7 @@
         <b-modal
           id="add-dictionary-modal"
           title="新增词典"
+          hide-footer
           scrollable
           button-size="sm"
           header-class="modal-header"
@@ -118,41 +119,32 @@
 <script lang="ts">
 import Vue from 'vue';
 import Header from '../components/Header.vue';
-import Store from '../store/index';
 import NewDictionary from '../components/preference/NewDictionary.vue';
 import { SyncMainAPI } from '../service.renderer.manifest';
 import '../assets/css/photon.min.css';
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
+import { random_key } from '../../utils/random_key';
+import { StorabeDictionary } from '../../model/StorableDictionary';
+// declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+// declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
 export default Vue.extend({
   components: { Header, NewDictionary },
-  computed: {
-    dictionaries() {
-      return SyncMainAPI.dictFindAll(undefined);
-    },
-  },
+  computed: {},
   data: () => {
     return {
+      dictionaries: [],
       selectedModalDict: {},
-      // dictionaries: [],
       newDictData: {
-        id: 'oale8',
-        alias: 'oale8',
-        name: 'oale8',
-        mdxpath:
-          '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
-        mddpath:
-          '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd',
-        resourceBaseDir: '',
-      },
+        id: '',
+      } as StorabeDictionary,
     };
   },
   methods: {
+    refreshDicts() {
+      this.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    },
     addDictionary() {
-      console.log(MAIN_WINDOW_WEBPACK_ENTRY);
-      console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
+      this.newDictData.id = random_key(6);
       this.$bvModal.show('add-dictionary-modal');
     },
     openDictionary(id: string) {
@@ -173,6 +165,9 @@ export default Vue.extend({
     },
   },
   mounted() {
+    this.$nextTick(function () {
+      this.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    });
     // this.dictionaries = SyncMainAPI.dictFindAll(undefined);
   },
 });

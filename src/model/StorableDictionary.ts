@@ -3,20 +3,23 @@ export class StorabeDictionary {
   alias: string;
   name: string;
   mdxpath: string;
-  mddpath: string | undefined;
+  mddpath?: string;
   resourceBaseDir: string;
+  description?: string;
   constructor(
     id: string,
     alias: string,
     name: string,
     mdxpath: string,
-    mddpath?: string
+    mddpath?: string,
+    description?: string
   ) {
     this.id = id;
     this.alias = alias;
     this.name = name;
     this.mdxpath = mdxpath;
     this.mddpath = mddpath;
+    this.description = description;
     this.resourceBaseDir = '';
   }
   static clone(dict: StorabeDictionary) {
@@ -25,7 +28,8 @@ export class StorabeDictionary {
       dict.alias,
       dict.name,
       dict.mdxpath,
-      dict.mddpath
+      dict.mddpath,
+      dict.description
     );
     newDict.resourceBaseDir = dict.resourceBaseDir;
     return newDict;
