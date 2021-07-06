@@ -114,7 +114,7 @@
       <button class="btn btn-default" v-on:click="showAlert('info', '测试')">
         显示
       </button>
-      <button class="btn btn-default" v-on:click="cancelAdd">取消</button>
+      <button class="btn btn-default" v-on:click="closeModal">取消</button>
       <button class="btn btn-default btn-primary" v-on:click="confirmAdd">
         添加词典
       </button>
@@ -221,7 +221,7 @@ export default Vue.extend({
     hideAlert() {
       this.alertShow = false;
     },
-    cancelAdd() {
+    closeModal() {
       let closeBtn = document.getElementById(
         'add-dictionary-modal___BV_modal_title_'
       )?.nextSibling;
