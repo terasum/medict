@@ -50,7 +50,7 @@
             placeholder="mdx path"
             aria-label="mdx path"
             v-model="mdxpath"
-            :disabled="readOnly"
+            :disabled="true"
           />
           <button
             class="btn btn-default"
@@ -72,7 +72,7 @@
             placeholder="mdd path"
             aria-label="mdd path"
             v-model="mddpath"
-            :disabled="readOnly"
+            :disabled="true"
           />
           <button
             class="btn btn-default"
@@ -111,12 +111,12 @@
       ></button>
     </div>
     <div class="btn-group" v-if="!readOnly">
-      <button class="btn btn-default" v-on:click="showAlert('info', '测试')">
+      <!-- <button class="btn btn-default" v-on:click="showAlert('info', '测试')">
         显示
-      </button>
+      </button> -->
       <button class="btn btn-default" v-on:click="closeModal">取消</button>
       <button class="btn btn-default btn-primary" v-on:click="confirmAdd">
-        添加词典
+        添加
       </button>
     </div>
     <div v-if="showResourceBtn" class="btn-group">
@@ -141,10 +141,11 @@
 
 <script lang="ts">
 import { SyncMainAPI } from '../../service.renderer.manifest';
+import { random_key } from '../../../utils/random_key';
+import { StorabeDictionary } from '../../../model/StorableDictionary';
+
 import Folder from '../icons/folder.icon.vue';
 import Vue from 'vue';
-import { StorabeDictionary } from '../../../model/StorableDictionary';
-import { random_key } from '../../../utils/random_key';
 
 const validate = function (dictData: StorabeDictionary) {
   if (!dictData.id || dictData.id === '' || dictData.id.length > 6) {
@@ -225,9 +226,19 @@ export default Vue.extend({
       let closeBtn = document.getElementById(
         'add-dictionary-modal___BV_modal_title_'
       )?.nextSibling;
+
+      let closeBtn2 = document.getElementById(
+        'dictionary-item-modal___BV_modal_title_'
+      )?.nextSibling;
+
       if (closeBtn) {
         // @ts-ignore
         closeBtn.click();
+      }
+
+      if (closeBtn2) {
+        // @ts-ignore
+        closeBtn2.click();
       }
     },
     confirmAdd() {
@@ -283,6 +294,9 @@ export default Vue.extend({
     deleteDict(dictid: string) {
       const result = SyncMainAPI.dictDeleteOne({ dictid: dictid });
       console.log(result);
+      if (result) {
+        this.closeModal();
+      }
     },
   },
   mounted() {
@@ -331,7 +345,7 @@ export default Vue.extend({
 }
 
 .btn-danger {
-  background-color: red;
+  background-color: linear-gradient(to bottom, #bd3134 0, #d84042 100%);
   border: 1px solid #999;
   color: #fff;
   .icon {

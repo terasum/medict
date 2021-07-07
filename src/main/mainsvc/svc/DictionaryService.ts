@@ -9,7 +9,7 @@ dicts.set(
   new Dictionary(
     'oale8',
     'oale8',
-    'oale8',
+    'Oxford Advanced Leaner English 8',
     '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
     '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd',
     'oale8默认描述'
