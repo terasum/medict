@@ -2,19 +2,49 @@ import { Dictionary } from '../../domain/Dictionary';
 import { SuggestItem } from '../../../model/SuggestItem';
 import { NullDef } from '../../../model/Definition';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
+import { StorageService } from './StorageServcice';
+import { getConfigJsonPath } from '../../../config/config';
+
+const storageService = new StorageService(getConfigJsonPath());
 
 const dicts = new Map<string, Dictionary>();
-dicts.set(
-  'oale8',
-  new Dictionary(
-    'oale8',
-    'oale8',
-    'Oxford Advanced Leaner English 8',
-    '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdx',
-    '/Users/chenquan/Workspace/nodejs/js-mdict/mdx/testdict/oale8.mdd',
-    'oale8默认描述'
-  )
-);
+
+(function loadDicts() {
+  const dictLists = storageService.getDataByKey('dicts') as any[];
+
+  if (dictLists) {
+    dictLists.forEach(dict => {
+      dicts.set(
+        dict.id,
+        new Dictionary(
+          dict.id,
+          dict.alias,
+          dict.name,
+          dict.mdxpath,
+          dict.mddpath,
+          dict.description
+        )
+      );
+    });
+  }
+})();
+
+function saveToFile(dicts: Map<string, Dictionary>) {
+  const storageList = [];
+  for (let redict of dicts.values()) {
+    storageList.push({
+      id: redict.id,
+      alias: redict.alias,
+      name: redict.name,
+      mdxpath: redict.mdxpath,
+      mddpath: redict.mddpath,
+      description: redict.description,
+      resourceBaseDir: redict.resourceBaseDir,
+    } as StorabeDictionary);
+  }
+
+  storageService.setDataByKey('dicts', storageList);
+}
 
 export class DictService {
   findOne(dictid: string) {
@@ -34,11 +64,14 @@ export class DictService {
       return false;
     }
     dicts.set(dict.id, dict);
+    saveToFile(dicts);
     return true;
   }
 
   deleteOne(dictid: string) {
-    return dicts.delete(dictid);
+    dicts.delete(dictid);
+    saveToFile(dicts);
+    return true;
   }
 
   findWordPrecisly(dictid: string, keyText: string, rofset: number) {
@@ -81,6 +114,7 @@ export class DictService {
         counter++;
       }
     }
+
     // reassembe
     for (const item of tempMap.values()) {
       result.push(item);
