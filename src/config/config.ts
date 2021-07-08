@@ -14,13 +14,21 @@ export function getResourceRootPath() {
 
 export function getConfigJsonPath() {
   const userResourcePath = app.getPath('userData');
+  const userConfigDir = path.resolve(userResourcePath, 'config');
+  if (!fs.existsSync(userConfigDir)) {
+    console.log(`create new directory ${userConfigDir}`);
+    fs.mkdirSync(userConfigDir, { recursive: true });
+  }
+
   const configFilePath = path.resolve(
     userResourcePath,
     'config',
     'medict.json'
   );
+  console.log('configFilePath', configFilePath);
   if (!fs.existsSync(configFilePath)) {
-    fs.writeFileSync(configFilePath, '{}');
+    fs.writeFileSync(configFilePath, '{"dicts":[]}');
+    console.log('write configFilePath', configFilePath);
   }
   return configFilePath;
 }

@@ -168,7 +168,10 @@ export default Vue.extend({
     this.$nextTick(function () {
       this.dictionaries = SyncMainAPI.dictFindAll(undefined);
     });
-    // this.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    this.$root.$on('bv::modal::hide', (arg: any) => {
+      console.log(arg);
+      this.refreshDicts();
+    });
   },
 });
 </script>
