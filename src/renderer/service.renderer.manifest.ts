@@ -1,9 +1,11 @@
 import { ipcRenderer } from 'electron';
 
 // listen error
-window.onerror = function(error, url, line) {
-  ipcRenderer.send('errorInWindow', { error, url, line });
-};
+(function errorListen() {
+  window.onerror = function(error, url, line) {
+    ipcRenderer.send('errorInWindow', { error, url, line });
+  };
+})();
 
 function syncWrap(fnName: string) {
   return (args: any) => {

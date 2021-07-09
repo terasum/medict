@@ -72,12 +72,6 @@ console.log(
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
 const app = new Vue({ router, store }).$mount('#app');
-// window extended vue
-// @ts-ignore
-window[`$vue_${__RANDOM_KEY__}`] = app;
-window['DISPATCH_REFER_LINK_WORD'] = function(dictid: string, word: string) {
-  app['$state'].dispatch('DISPATCH_REFER_LINK_WORD', { dictid, word });
-};
 
 // rpc test TODO delete this
 import './rpctest';

@@ -40,7 +40,6 @@
 <script lang="ts">
 import Vue from 'vue';
 import Header from '../components/Header.vue';
-import { listeners } from '../service.renderer.listener';
 import { AsyncMainAPI } from '../service.renderer.manifest';
 import Store from '../store/index';
 import fs from 'fs';
@@ -74,7 +73,6 @@ export default Vue.extend({
   components: { Header },
   data: () => {
     return {
-      currentContent: '',
       preload: `file://${tempPreloadPath}`,
     };
   },
@@ -82,14 +80,16 @@ export default Vue.extend({
     currentWordIdx() {
       return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
     },
+    currentContent() {
+      return (this.$store as typeof Store).state.currentContent;
+    },
     suggestWords() {
       return (this.$store as typeof Store).state.suggestWords;
     },
   },
   methods: {
     lookupWord(item: any) {
-      // api["findWordPrecisly"](item);
-      this.$store.dispatch('FIND_WORD_PRECISLY', item.id);
+      this.$store.dispatch('asyncFindWordPrecisly', item.id);
     },
     findResource(dictid: string, resourceKey: string) {
       return AsyncMainAPI.loadDictResource({ dictid, resourceKey });
@@ -102,31 +102,8 @@ export default Vue.extend({
     },
   },
   mounted() {
-    listeners.onSuggestWord((event: any, args: any) => {
-      console.log(`[async:mainWindow] response suggest words:`);
-      console.log(event);
-      console.log(args);
-      this.$store.dispatch('ASYCN_UPDATE_SIDE_BAR', {
-        candidateWordNum: args.length,
-      });
-      this.$store.commit('suggestWords', args);
-    });
-
-    listeners.onFindWordPrecisly((event: any, args: any) => {
-      console.log(`[async:mainWindow] response onFindWordPrecisly:`);
-      console.log(args);
-      this.currentContent = Buffer.from(args.definition, 'utf8').toString(
-        'base64'
-      );
-      // this.currentContent = Buffer.from("中文测试", "utf8").toString("base64");
-    });
-
-    listeners.onLoadDictResource((event: any, args: any) => {
-      console.log(`[async:mainWindow] response onLoadDictResource:`);
-      console.log(args);
-      // this.currentContent = args.definition.trim("\r\n\u0000");
-    });
-    // for webview
+    // webview's content update, this listener
+    // designed for @@ENTRY_LINK==
     const webview = document.getElementsByTagName('webview')[0];
     webview.addEventListener('ipc-message', (event) => {
       // 通过event.channel的值来判断webview发送的事件名
@@ -134,11 +111,12 @@ export default Vue.extend({
       if (event.channel === 'onFindWordPrecisly') {
         console.log(`[async:mainWindow] response onFindWordPrecisly:`);
         console.log(event);
-        this.currentContent = Buffer.from(
+        const newContent = Buffer.from(
           // @ts-ignore
           event.args[0].definition,
           'utf8'
         ).toString('base64');
+        this.$store.commit('updateCurrentContent', newContent);
       }
     });
   },

@@ -2046,7 +2046,7 @@ bootstrap-vue@^2.21.2:
   resolved "https://registry.npmjs.org/bootstrap/-/bootstrap-4.6.0.tgz#97b9f29ac98f98dfa43bf7468262d84392552fd7"
   integrity sha512-Io55IuQY3kydzHtbGvQya3H+KorS/M9rSNyfCGCg9WZ4pyT/lCxIlpJgG1GXW/PswzC84Tr2fBYi+7+jFVQQBw==
 
-bootstrap@^5.0.16:
+bootstrap@^5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/bootstrap/-/bootstrap-5.0.2.tgz#aff23d5e0e03c31255ad437530ee6556e78e728e"
   integrity sha512-1Ge963tyEQWJJ+8qtXFU6wgmAVj9gweEjibUdbmcCEYsn38tVwRk8107rk2vzt6cfQcRr3SlZ8aQBqaD8aqf+Q==
@@ -5415,10 +5415,10 @@ js-bktree@^1.0.0:
   resolved "https://r.cnpmjs.org/js-bktree/download/js-bktree-1.0.0.tgz#4948156e81982fbf43b8c9245ff0e0409967bbef"
   integrity sha1-SUgVboGYL79DuMkkX/DgQJlnu+8=
 
-js-mdict@4.0.14:
-  version "4.0.14"
-  resolved "https://registry.npmjs.org/js-mdict/-/js-mdict-4.0.14.tgz#7d9cf32b8bb24170aa18c15f94130339ad902e5f"
-  integrity sha512-Rbq02cJBx9S4WXLEc1GJeY0HVQ6+ZekrPt28oi9hQfsv26AHNZjWJQf1g106WZJGRGIS408qTZ9af9IToMHvVQ==
+js-mdict@4.0.15:
+  version "4.0.15"
+  resolved "https://registry.npmjs.org/js-mdict/-/js-mdict-4.0.15.tgz#a49c5e6cbce6c1339ee5b82fd333704521656bc5"
+  integrity sha512-H4IcJGBLGn13pgCmHzoSQF5nDcC9Tsb4VBPnymZBMdP9QAV7UFGkew5RU9LJoJ+lHtR1Yn8DIikanNUhgeWh9w==
   dependencies:
     "@babel/runtime" "^7.14.6"
     bl "^2.2.1"

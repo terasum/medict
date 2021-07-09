@@ -1,56 +1,60 @@
 import Vuex from 'vuex';
-import { AsyncMainAPI } from '../service.renderer.manifest';
+import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
+import { StoreDataType } from './StoreDataType';
+import { listeners } from '../service.renderer.listener';
+
+function defaultSelectDict() {
+  const dicts = SyncMainAPI.dictFindAll(undefined);
+  if (!dicts || dicts.length < 0) {
+    return { id: '', alias: '', name: '' };
+  }
+  return {
+    id: dicts[0].id,
+    alias: dicts[0].alias,
+    name: dicts[0].name,
+  };
+}
+
+const state: StoreDataType = {
+  // defaultWindow: '/preference',
+  defaultWindow: '/',
+  headerData: {
+    // currentTab: '设置',
+    currentTab: '词典',
+  },
+
+  sideBarData: {
+    selectedWordIdx: 0,
+    candidateWordNum: 0,
+  },
+
+  dictionaries: SyncMainAPI.dictFindAll(undefined),
+  suggestWords: [],
+  historyStack: [],
+  currentWord: '',
+  currentContent: '',
+  currentSelectDict: defaultSelectDict(),
+};
 
 const Store = new Vuex.Store({
-  state: {
-    defaultWindow: '/preference',
-    // defaultWindow: '/',
-
-    suggestWords: [],
-    historyStack: [],
-    currentWord: '',
-    headerData: {
-      currentTab: '设置',
-      // currentTab: '词典',
-    },
-    sideBarData: {
-      selectedWordIdx: 0,
-      candidateWordNum: 0,
-    },
-    dictionaries: [
-      {
-        id: 0,
-        dictIdGen: 'XiS1',
-        dictIdCustom: 'eng-chinese',
-        dictName: '英汉双解',
-        dictMdxFilePath:
-          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx',
-        dictMddFilePath:
-          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd',
-        dictDescription: '英汉双解',
-      },
-      {
-        id: 1,
-        dictIdGen: 'XiS1',
-        dictIdCustom: 'collins',
-        dictName: '柯林斯大辞典',
-        dictMdxFilePath:
-          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdx',
-        dictMddFilePath:
-          '/Users/chenquan/Workspace/nodejs/medict/resources/eng-chinese.mdd',
-        dictDescription: '柯林斯大辞典',
-      },
-    ],
-    count: 0,
-  },
+  state,
   mutations: {
+    // update current word
     updateCurrentWord(state, word) {
       state.currentWord = word;
     },
-    increment(state) {
-      state.count++;
+    updateCurrentContent(state, content) {
+      state.currentContent = content;
     },
-    changeTab(state, tabName) {
+    updateCurrentSelectDict(state, dict) {
+      if (!dict || !dict.id || dict.id === '') {
+        return;
+      }
+      state.currentSelectDict.id = dict.id;
+      state.currentSelectDict.alias = dict.alias || '';
+      state.currentSelectDict.name = dict.name || '';
+    },
+    updateTab(state, tabName) {
       state.headerData.currentTab = tabName;
     },
     updateCandidateWordNum(state, num) {
@@ -66,36 +70,30 @@ const Store = new Vuex.Store({
         state.sideBarData.selectedWordIdx = 0;
       }
     },
-    suggestWords(state, words) {
+    updateSuggestWords(state, words) {
       state.suggestWords = words || [];
     },
-    pushHistory(state, word) {
+    updatePushHistory(state, word) {
       if (state.historyStack.length > 512) {
       }
     },
-
-    popHistory(state, word) {},
+    updatePopHistory(state, word) {},
   },
   actions: {
-    ASYNC_SEARCH_WORD({ commit, state }, payload) {
-      console.log(`async-dispatch ASYNC_SEARCH_WORD ${payload}`);
+    asyncSearchWord({ commit, state }, payload) {
+      console.log(`async-dispatch asyncSearchWord ${payload}`);
+      // update current select word index to 0
       commit('updateSelectedWordIdx', 0);
       // update current searching word
       commit('updateCurrentWord', payload);
-      // associate
+      // invoke associate
       AsyncMainAPI.suggestWord(payload);
     },
-    REFER_LINK_WORD({ commit, state }, word) {
-      commit('updateSelectedWordIdx', 0);
-      // update current searching word
-      commit('updateCurrentWord', word);
-      AsyncMainAPI.findWordPrecisly(word);
-    },
-    ASYCN_UPDATE_SIDE_BAR(context, payload) {
-      console.log(`async-dispatch ASYCN_UPDATE_SIDE_BAR ${payload}`);
+    asyncUpdateSideBar(context, payload) {
+      console.log(`async-dispatch asyncUpdateSideBar ${payload}`);
       context.commit('updateCandidateWordNum', payload.candidateWordNum);
     },
-    FIND_WORD_PRECISLY({ commit, state }, id) {
+    asyncFindWordPrecisly({ commit, state }, id) {
       if (state.suggestWords[id]) {
         commit('updateSelectedWordIdx', id);
         AsyncMainAPI.findWordPrecisly(state.suggestWords[id]);
@@ -105,5 +103,56 @@ const Store = new Vuex.Store({
     },
   },
 });
+
+(function setupListener() {
+  /**
+   * onSuggestWord catch main-process return suggest word response
+   * @param event: event source, main-process
+   * @param args: suggestion word payload,
+   * [{
+   *   dictid: "ar3e0x"
+   *   id: 0
+   *   keyText: "wack"
+   *   rofset: 156414748
+   * }]
+   */
+  listeners.onSuggestWord((event: any, args: any) => {
+    console.log(`[store/index/listener]{onSuggestWord}: resp:`);
+    console.log(args);
+    Store.dispatch('asyncUpdateSideBar', {
+      candidateWordNum: args.length,
+    });
+    Store.commit('updateSuggestWords', args);
+  });
+
+  /**
+   * onFindWordPrecisly catch onFindWordPrecisly event, render main definition of word
+   * @param event: event source, main-process
+   * @param args: word definition payload,
+   * {
+   *   definition: "<html>"
+   * }
+   */
+  listeners.onFindWordPrecisly((event: any, args: any) => {
+    console.log(`[store/index/listener]{onFindWordPrecisly}: resp:`);
+    console.log(args);
+    const newContent = Buffer.from(args.definition, 'utf8').toString('base64');
+    Store.commit('updateCurrentContent', newContent);
+  });
+
+  /**
+   * onLoadDictResource catch onLoadDictResource event, render resource definition
+   * @param event: event source, main-process
+   * @param args: word definition payload,
+   *                              * {
+   *   definition: "<bbn>"
+   * }
+   */
+  listeners.onLoadDictResource((event: any, args: any) => {
+    console.log(`[store/index/listener]{onLoadDictResource}: resp:`);
+    console.log(args);
+    // this.currentContent = args.definition.trim("\r\n\u0000");
+  });
+})();
 
 export default Store;
