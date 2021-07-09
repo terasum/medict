@@ -84,7 +84,7 @@ export class DictService {
   lookup(dictid: string, keyText: string) {
     return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
   }
-  associate(word: string) {
+  associate(dictid: string, word: string) {
     const result: SuggestItem[] = [];
     if (word.trim() == '' || word.length === 0) {
       return result;
@@ -94,27 +94,25 @@ export class DictService {
     // limits word result upto 50
     let counter = 0;
     const limit = 50;
-    for (const key of dicts.keys()) {
-      const words = dicts.get(key)?.associate(word);
-      if (!words) {
-        continue;
-      }
-      for (let i = 0; i < words?.length ?? 0; i++) {
-        if (counter >= limit) {
-          break;
-        }
-        const word = words[i];
-        // console.log(`set ${key}, ${word.keyText}`)
-        tempMap.set(word.keyText, {
-          id: counter,
-          dictid: word.dictid,
-          keyText: word.keyText,
-          rofset: word.rofset,
-        });
-        counter++;
-      }
+    const dict = dicts.get(dictid);
+    if (!dict) {
+      return [];
     }
-
+    const words = dict.associate(word);
+    for (let i = 0; i < words?.length ?? 0; i++) {
+      if (counter >= limit) {
+        break;
+      }
+      const word = words[i];
+      // console.log(`set ${key}, ${word.keyText}`)
+      tempMap.set(word.keyText, {
+        id: counter,
+        dictid: word.dictid,
+        keyText: word.keyText,
+        rofset: word.rofset,
+      });
+      counter++;
+    }
     // reassembe
     for (const item of tempMap.values()) {
       result.push(item);

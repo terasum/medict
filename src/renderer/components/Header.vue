@@ -11,9 +11,13 @@
     <div class="header-search-box">
       <b-input-group>
         <template v-slot:prepend>
-          <b-dropdown text="英汉双解" variant="info">
-            <b-dropdown-item>柯林斯大辞典</b-dropdown-item>
-            <b-dropdown-item>牛津大辞典</b-dropdown-item>
+          <b-dropdown :text="currentDict.alias" variant="info">
+            <b-dropdown-item
+              v-for="item in selectDicts"
+              :key="item.id"
+              @click="selectDictItem(item)"
+              >{{ item.alias }}</b-dropdown-item
+            >
           </b-dropdown>
         </template>
         <b-form-input
@@ -84,11 +88,11 @@ import Search from '../components/icons/search.icon.vue';
 import Plugins from '../components/icons/plugins.icon.vue';
 import Settings from '../components/icons/settings.icon.vue';
 
-interface HeaderComponentData extends Vue {
-  searchWord: string;
-  currentTab: string;
+interface DictItem {
+  id: string;
+  alias: string;
+  name: string;
 }
-
 export default Vue.extend({
   components: {
     Translate,
@@ -108,8 +112,15 @@ export default Vue.extend({
     };
   },
   computed: {
-    count() {
-      return (this.$store as typeof Store).state.count;
+    currentDict() {
+      return (this.$store as typeof Store).state.currentSelectDict;
+    },
+    selectDicts() {
+      let dicts: DictItem[] = [];
+      (this.$store as typeof Store).state.dictionaries.forEach((item) => {
+        dicts.push({ id: item.id, alias: item.alias, name: item.name });
+      });
+      return dicts;
     },
     currentTab() {
       return (this.$store as typeof Store).state.headerData.currentTab;
@@ -118,16 +129,29 @@ export default Vue.extend({
   watch: {
     searchWord(word) {
       console.log(word);
-      //@ts-ignore async search word
-      this.$store.dispatch('ASYNC_SEARCH_WORD', { word });
+
+      this.$store.dispatch('asyncSearchWord', {
+        dictid: this.currentDict.id,
+        word,
+      });
     },
   },
   methods: {
+    selectDictItem(item: DictItem) {
+      this.$store.commit('updateCurrentSelectDict', item);
+      if (this.searchWord && this.searchWord.length > 0) {
+        console.log(this.searchWord);
+        this.$store.dispatch('asyncSearchWord', {
+          dictid: item.id,
+          word: this.searchWord,
+        });
+      }
+    },
     // keyup event methods
     confirmSelect(event: any) {
       const idx = (this.$store as typeof Store).state.sideBarData
         .selectedWordIdx;
-      this.$store.dispatch('FIND_WORD_PRECISLY', idx);
+      this.$store.dispatch('asyncFindWordPrecisly', idx);
     },
     upSelect(event: any) {
       const idx = (this.$store as typeof Store).state.sideBarData
@@ -141,34 +165,30 @@ export default Vue.extend({
     },
     clickDictionary(event: any) {
       console.log(event);
-      this.$store.commit('changeTab', '词典');
+      this.$store.commit('updateTab', '词典');
 
       if (this.$router.currentRoute.path !== '/') {
         this.$router.replace({ path: '/' });
-        this.$store.commit('suggestWords', []);
+        this.$store.commit('updateSuggestWords', []);
       }
     },
     clickTranslation(event: any) {
       console.log(event);
-      this.$store.commit('changeTab', '翻译');
+      this.$store.commit('updateTab', '翻译');
 
       if (this.$router.currentRoute.path !== '/translate') {
         this.$router.replace({ path: '/translate' });
       }
     },
     clickPlugins(event: any) {
-      this.$store.commit('changeTab', '插件');
+      this.$store.commit('updateTab', '插件');
 
       if (this.$router.currentRoute.path !== '/plugins') {
         this.$router.replace({ path: '/plugins' });
       }
     },
     clickPreference(event: any) {
-      this.$store.commit('changeTab', '设置');
-
-      this.$store.commit('increment');
-      console.log(this.$store.state.count);
-      (this as HeaderComponentData).searchWord = this.$store.state.count + '';
+      this.$store.commit('updateTab', '设置');
       if (this.$router.currentRoute.path !== '/preference') {
         this.$router.replace({ path: '/preference' });
       }

@@ -17,7 +17,7 @@ export class StubWordQuery {
   entryLinkWord(event: any, arg: { keyText: string; dictid: string }) {
     console.log('[main-process] WordService.entryLinkWord');
     console.log(arg);
-    const result = dictService.associate(arg.keyText);
+    const result = dictService.associate(arg.dictid, arg.keyText);
     console.log('[main-process] WordService.entryLinkWord // result');
     console.log(result);
     // 先将建议词列表返回
@@ -73,11 +73,11 @@ export class StubWordQuery {
    * @param arg 目标词
    * @return 返回关联词列表
    */
-  suggestWord(event: any, arg: { word: string }) {
+  suggestWord(event: any, arg: { dictid: string; word: string }) {
     console.log(
       "[main-process] suggestWord event.sender.send('onSuggestWord')"
     );
-    const result = dictService.associate(arg.word);
+    const result = dictService.associate(arg.dictid, arg.word);
     event.sender.send('onSuggestWord', result);
   }
 

@@ -118,7 +118,7 @@
     "cheerio": "^1.0.0-rc.10",
     "get-port": "^5.1.1",
     "jquery": "1.9.1 - 3",
-    "js-mdict": "4.0.14",
+    "js-mdict": "4.0.15",
     "koa": "^2.13.1",
     "koa-error": "^3.2.0",
     "koa-logger": "^3.2.1",
