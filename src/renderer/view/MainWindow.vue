@@ -132,6 +132,21 @@ export default Vue.extend({
   height: -webkit-calc(100% - 60px);
   height: -moz-calc(100% - 60px);
   height: calc(100% - 60px);
+
+  ::-webkit-scrollbar-track {
+    // -webkit-box-shadow: inset 0 0 6px;
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #555;
+  }
   .left-sidebbar {
     overflow-y: scroll;
     padding-bottom: 10px;
