@@ -113,7 +113,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
-    "autoprefixer": "^10.2.6",
+    "autoprefixer": "^10.3.0",
     "bootstrap": "^5.0.2",
     "bootstrap-icons": "^1.5.0",
     "bootstrap-vue": "^2.21.2",
