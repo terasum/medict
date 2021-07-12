@@ -5,7 +5,7 @@ import { listeners } from '../service.renderer.listener';
 
 function defaultSelectDict() {
   const dicts = SyncMainAPI.dictFindAll(undefined);
-  if (!dicts || dicts.length < 0) {
+  if (!dicts || dicts.length <= 0) {
     return { id: '', alias: '', name: '' };
   }
   return {

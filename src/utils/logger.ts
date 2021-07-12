@@ -1,6 +1,7 @@
 import pino from 'pino';
 import prettifier from 'pino-pretty';
 
+
 export const logger = pino({
   prettyPrint: {
     levelFirst: true,
@@ -18,3 +19,4 @@ export const logger = pino({
   },
   prettifier: prettifier,
 });
+
