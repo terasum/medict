@@ -1,8 +1,6 @@
-import { Low, JSONFile } from 'lowdb';
-import lodash from 'lodash';
-
 import { LowSync, JSONFileSync } from 'lowdb';
 import { Config } from '../../../model/Config';
+import { logger } from '../../../utils/logger';
 
 import fs from 'fs';
 

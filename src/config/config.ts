@@ -1,12 +1,13 @@
 import { app } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import { logger } from '../utils/logger';
 
 export function getResourceRootPath() {
   const userResourcePath = app.getPath('userData');
   const resourceRootPath = path.resolve(userResourcePath, 'resources', 'cache');
   if (!fs.existsSync(resourceRootPath)) {
-    console.log(`create new directory ${resourceRootPath}`);
+    logger.info(`create new directory ${resourceRootPath}`);
     fs.mkdirSync(resourceRootPath, { recursive: true });
   }
   return resourceRootPath;
@@ -16,7 +17,7 @@ export function getConfigJsonPath() {
   const userResourcePath = app.getPath('userData');
   const userConfigDir = path.resolve(userResourcePath, 'config');
   if (!fs.existsSync(userConfigDir)) {
-    console.log(`create new directory ${userConfigDir}`);
+    logger.info(`create new directory ${userConfigDir}`);
     fs.mkdirSync(userConfigDir, { recursive: true });
   }
 
@@ -25,10 +26,10 @@ export function getConfigJsonPath() {
     'config',
     'medict.json'
   );
-  console.log('configFilePath', configFilePath);
+  logger.info('configFilePath %s', configFilePath);
   if (!fs.existsSync(configFilePath)) {
     fs.writeFileSync(configFilePath, '{"dicts":[]}');
-    console.log('write configFilePath', configFilePath);
+    logger.info('write configFilePath %s', configFilePath);
   }
   return configFilePath;
 }

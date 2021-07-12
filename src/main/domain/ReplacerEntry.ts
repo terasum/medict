@@ -1,6 +1,7 @@
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
 import cheerio from 'cheerio';
 import { __RANDOM_KEY__ } from '../../utils/random_key';
+import { logger } from '../../utils/logger';
 const ENTRY_REG = /href=\"entry:\/\/([\S\s]+?)\"/gi;
 const ENTRY_REG_IDX = 1;
 
@@ -13,7 +14,7 @@ export class EntryReplacer implements Replacer {
     resourceFn: ResourceFn
   ): string {
     /// <a href="entry://buzzword">buzzword</a>
-    console.log('***************  REPLACE @@@ENTRY [START] ****************');
+    logger.info('[REP @@@ENTRY]: REPLACE @@@ENTRY [START]');
     if (!html || !html.matchAll) {
       return html;
     }
@@ -30,7 +31,7 @@ export class EntryReplacer implements Replacer {
       const href = alist[i].attribs.href;
       if (isSupportURL(href)) {
         const newWord = href.slice('entry://'.length, href.length);
-        console.log(`entry url ${alist[i].attribs.href}, #${newWord}#`);
+        logger.info(`entry url ${alist[i].attribs.href}, #${newWord}#`);
 
         const el = $(alist[i]);
         el.attr('href', '#');
@@ -41,7 +42,7 @@ export class EntryReplacer implements Replacer {
           'onclick',
           `
         function entry_click__${i}__${__RANDOM_KEY__}() {
-          console.log({ dictid: "${dictid}", word: "${newWord}" });
+          logger.info({ dictid: "${dictid}", word: "${newWord}" });
           window.postMessage({
             channel: "entryLinkWord",
             payload: {
@@ -57,7 +58,7 @@ export class EntryReplacer implements Replacer {
       }
     }
 
-    console.log('***************  REPLACE @@@ENTRY [END] ****************');
+    logger.info('[REP @@@ENTRY]: REPLACE @@@ENTRY [END]');
     return $.html();
   }
 }

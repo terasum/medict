@@ -1,8 +1,9 @@
 import { dialog } from 'electron';
+import { logger } from '../../../utils/logger';
 
 export class FileOpenService {
   showOpenDialog(fileExtensions: string[] | undefined) {
-    console.log(fileExtensions);
+    logger.info({ fileExtensions });
     if (!fileExtensions) {
       fileExtensions = ['mdd', 'mdx'];
     }

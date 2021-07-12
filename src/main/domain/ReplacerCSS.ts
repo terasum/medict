@@ -1,5 +1,6 @@
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
 import { replaceAll } from '../../utils/stringutils';
+import { logger } from '../../utils/logger';
 const CSS_REG = /href=\"((\S+)\.css)\"/gi;
 const CSS_REG_IDX = 1;
 
@@ -15,7 +16,7 @@ export function extractKeys(html: string) {
     keySet.add(resourceKey);
     const keyStart = match.index;
     const keyEnd = (match.index || 0) + match[CSS_REG_IDX].length;
-    console.log(
+    logger.info(
       `[REP CSS]: matched raw key ${resourceKey} start=${keyStart} end=${keyEnd}.`
     );
   }
@@ -33,7 +34,7 @@ export class CSSReplacer implements Replacer {
     /**
         Found oalecd8e.css start=39 end=51.
      */
-    console.log('***************  REPLACE CSS [START] ****************');
+    logger.info('[REP CSS]: REPLACE CSS [START]');
     if (!html || !html.matchAll) {
       return html;
     }
@@ -43,18 +44,18 @@ export class CSSReplacer implements Replacer {
       const rawkey = rskey;
       let resourceKey = rskey;
       resourceKey = replaceAll(resourceKey, '/', '\\');
-      console.log(`[REP CSS]: query resource key ${resourceKey}`);
+      logger.info(`[REP CSS]: query resource key ${resourceKey}`);
       const queryResult = resourceFn(resourceKey);
-      console.log(`[REP CSS]: query resource result ${queryResult}`);
+      logger.info(queryResult, `[REP CSS]: query resource result`);
 
       if (queryResult && queryResult.definition) {
-        console.log(
+        logger.info(
           `[REP CSS]: replace css rawkey ${rawkey} => ${queryResult.definition}`
         );
         html = replaceAll(html, rawkey, queryResult.definition);
       }
     }
-    console.log('***************  REPLACE CSS [END] ****************');
+    logger.info('[REP CSS]: REPLACE CSS [END]');
     return html;
   }
 }

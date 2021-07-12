@@ -7,6 +7,7 @@ import { resourceServerPort } from '../init.resource.server';
 import { SuggestItem } from '../../model/SuggestItem';
 import { Definition, NullDef } from '../../model/Definition';
 import { StorabeDictionary } from '../../model/StorableDictionary';
+import { logger } from '../../utils/logger';
 
 const resourceRoot = getResourceRootPath();
 
@@ -49,11 +50,10 @@ export class Dictionary extends StorabeDictionary {
 
   findWordResource(keyText: string) {
     const result = this.mddDict?.lookup(keyText) ?? NullDef(keyText);
-    console.log(' ============= load resource =========== ');
     if (result && result.definition) {
       const filePath = rscCachePath(this.id, keyText);
       fs.writeFileSync(filePath, Buffer.from(result.definition, 'base64'));
-      console.log(`#### main write file ${filePath}`);
+      logger.info(`main-process write cache file: ${filePath}`);
     }
 
     return {
@@ -80,7 +80,7 @@ export class Dictionary extends StorabeDictionary {
         break;
       }
       const word = words[i];
-      // console.log(`set ${key}, ${word.keyText}`)
+      // logger.info(`set ${key}, ${word.keyText}`)
       result.push({ id: counter, dictid: this.id, ...word });
       counter++;
     }

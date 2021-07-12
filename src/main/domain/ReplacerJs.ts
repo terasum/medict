@@ -1,5 +1,6 @@
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
 import { replaceAll } from '../../utils/stringutils';
+import { logger } from '../../utils/logger';
 
 const JS_REG = /src=\"((\S+)\.js)\"/gi;
 const JS_REG_IDX = 1;
@@ -12,7 +13,7 @@ export function extractKeys(html: string) {
     keySet.add(resourceKey);
     const keyStart = match.index;
     const keyEnd = (match.index || 0) + match[JS_REG_IDX].length;
-    console.log(
+    logger.info(
       `[REP JS]: matched raw key ${resourceKey} start=${keyStart} end=${keyEnd}.`
     );
   }
@@ -30,7 +31,7 @@ export class JSReplacer implements Replacer {
     /**
         Found jquery.js start=67 end=76.
      */
-    console.log('***************  REPLACE JS [START] ****************');
+    logger.info('[REP JS]: REPLACE JS [START]');
     if (!html || !html.matchAll) {
       return html;
     }
@@ -41,19 +42,19 @@ export class JSReplacer implements Replacer {
       const rawkey = rskey;
       let resourceKey = rskey;
       resourceKey = replaceAll(resourceKey, '/', '\\');
-      console.log(`[REP JS]: query resource key ${resourceKey}`);
+      logger.info(`[REP JS]: query resource key ${resourceKey}`);
       const queryResult = resourceFn(resourceKey);
-      console.log(`[REP JS]: query resource result ${queryResult}`);
+      logger.info(queryResult, `[REP JS]: query resource result`);
 
       if (queryResult && queryResult.definition) {
-        console.log(
+        logger.info(
           `[REP JS]: replace javascript rawkey ${rawkey} => ${queryResult.definition}`
         );
         html = replaceAll(html, rawkey, queryResult.definition);
       }
     }
 
-    console.log('***************  REPLACE JS [END] ****************');
+    logger.info('[REP JS]: REPLACE JS [END]');
 
     return html;
   }

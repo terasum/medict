@@ -124,15 +124,19 @@ import { SyncMainAPI } from '../service.renderer.manifest';
 import '../assets/css/photon.min.css';
 import { random_key } from '../../utils/random_key';
 import { StorabeDictionary } from '../../model/StorableDictionary';
+import Store from '../store/index';
 // declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 // declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
 export default Vue.extend({
   components: { Header, NewDictionary },
-  computed: {},
+  computed: {
+    dictionaries() {
+      return (this.$store as typeof Store).state.dictionaries;
+    },
+  },
   data: () => {
     return {
-      dictionaries: [],
       selectedModalDict: {},
       newDictData: {
         id: '',
@@ -141,7 +145,7 @@ export default Vue.extend({
   },
   methods: {
     refreshDicts() {
-      this.dictionaries = SyncMainAPI.dictFindAll(undefined);
+      //this.dictionaries = SyncMainAPI.dictFindAll(undefined);
     },
     addDictionary() {
       this.newDictData.id = random_key(6);
@@ -165,13 +169,10 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.$nextTick(function () {
-      this.dictionaries = SyncMainAPI.dictFindAll(undefined);
-    });
-    this.$root.$on('bv::modal::hide', (arg: any) => {
-      console.log(arg);
-      this.refreshDicts();
-    });
+    // this.$root.$on('bv::modal::hide', (arg: any) => {
+    //   console.log(arg);
+    //   this.refreshDicts();
+    // });
   },
 });
 </script>
