@@ -13,6 +13,10 @@ const stubFileOpen = new StubFileOpen();
 export const asyncfn = {
   asyncMessage: stubMessage.asyncMessage,
   createSubWindow: stubWindow.createSubWindow,
+  openDevTool: stubWindow.openDevTool,
+  openResourceDir: stubWindow.openResourceDir,
+  openDictResourceDir: stubWindow.openDictResourceDir,
+  openMainProcessLog: stubWindow.openMainProcessLog,
   entryLinkWord: stubWordQuery.entryLinkWord,
   suggestWord: stubWordQuery.suggestWord,
   findWordPrecisly: stubWordQuery.findWordPrecisly,

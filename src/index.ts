@@ -38,14 +38,6 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'production'
-  ) {
-    mainWindow.webContents.openDevTools();
-  }
-
   // sub-windows
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     // if (url.startsWith('https://github.com/')) {
@@ -71,6 +63,10 @@ const createWindow = (): void => {
   ipcMain.on('createSubWindow', function(event: any, args: WindowOption) {
     logger.info(event);
     createSubWindow(mainWindow, args);
+  });
+  // special ipcmain
+  ipcMain.on('openDevTool', function(event: any, args: WindowOption) {
+    mainWindow.webContents.openDevTools();
   });
 
   ipcMain.on('errorInWindow', function(event, data) {
