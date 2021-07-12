@@ -1,3 +1,8 @@
+import { shell } from 'electron'; // deconstructing assignment
+import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
+import path from 'path';
+import fs from 'fs';
+
 /**
  * WindowService 创建新窗口服务
  */
@@ -19,5 +24,25 @@ export class StubWindow {
     }
   ) {
     event.sender.send('createSubWindow', arg);
+  }
+  openDevTool(event: any) {
+    event.sender.send('openDevTool');
+  }
+  openResourceDir(event: any) {
+    console.log(`openResourceDir ${getResourceRootPath()}`);
+    shell.openPath(getResourceRootPath()); // Open the given file in the desktop's default manner.
+  }
+  openDictResourceDir(event: any, dictid: string) {
+    const fpath = path.resolve(getResourceRootPath(), dictid);
+    if (fs.existsSync(fpath)) {
+      shell.openPath(fpath); // Open the given file in the desktop's default manner.
+    }
+  }
+  openMainProcessLog(event: any) {
+    console.log(`openMainProcessLog ${getLoggerFilePath()}`);
+    const logpath = getLoggerFilePath();
+    if (fs.existsSync(logpath)) {
+      shell.openPath(logpath); // Open the given file in the desktop's default manner.
+    }
   }
 }

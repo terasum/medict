@@ -42,6 +42,5 @@ export function getLoggerFilePath() {
   }
 
   const loggerFilePath = path.resolve(userResourcePath, 'logger', 'medict.log');
-  console.info('logfile path %s', loggerFilePath);
   return loggerFilePath;
 }
