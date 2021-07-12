@@ -52,17 +52,43 @@ let tempPreloadPath = '';
 (function init() {
   // preload 中定义了点击后处理的 message 逻辑
   // 以及 main-process 返回之后的监听逻辑
-  const rawPreloadScript = fs.readFileSync(
-    path.resolve('./src/renderer/preload/webview.preload.js')
-  );
-  const preloadScript = rawPreloadScript.toString('utf8');
+  // const rawPreloadScript = fs.readFileSync(
+  //   path.resolve('./src/renderer/preload/webview.preload.js')
+  // );
+
+  const rawPreloadScript = `
+const { ipcRenderer } = require('electron');
+console.warn('=== preload electron [sandbox] ===');
+
+// 监听 main-process 发回来的 结果，格式是 {keyText:"", definition:""}
+ipcRenderer.on('onFindWordPrecisly', (event, args) => {
+  console.log('------ webview listener[onFindWordPrecisly] -----');
+  console.log(args);
+  return ipcRenderer.sendToHost('onFindWordPrecisly', args);
+});
+
+// 主要处理点击 entry://之后的逻辑
+// 将会把需要查询的词发送到 main-process
+window.addEventListener('message', function (event) {
+  console.log('---- preload listenning message -----');
+  console.log(event.data);
+  if (event.data && event.data.channel && event.data.payload) {
+    console.log(
+      'send to main-process [\${event.data.channel}|\${event.data.payload}]'
+    );
+    ipcRenderer.send(event.data.channel, event.data.payload);
+  }
+});
+  `;
+
+  const preloadScript = rawPreloadScript;
   const tmpfile = tmp.fileSync({
     mode: 0o644,
     prefix: 'mdict',
     postfix: '.js',
   });
   tempPreloadPath = tmpfile.name;
-  console.log('File: ', tmpfile.name);
+  console.log('preload file: ', tmpfile.name);
   if (fs.existsSync(tempPreloadPath)) {
     fs.unlinkSync(tempPreloadPath);
   }
