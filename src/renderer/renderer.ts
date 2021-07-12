@@ -72,6 +72,3 @@ console.log(
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
 const app = new Vue({ router, store }).$mount('#app');
-
-// rpc test TODO delete this
-import './rpctest';

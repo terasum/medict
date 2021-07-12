@@ -4,6 +4,7 @@ import { NullDef } from '../../../model/Definition';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import { StorageService } from './StorageServcice';
 import { getConfigJsonPath } from '../../../config/config';
+import { logger } from '../../../utils/logger';
 
 const storageService = new StorageService(getConfigJsonPath());
 
@@ -104,7 +105,7 @@ export class DictService {
         break;
       }
       const word = words[i];
-      // console.log(`set ${key}, ${word.keyText}`)
+      // logger.info(`set ${key}, ${word.keyText}`)
       tempMap.set(word.keyText, {
         id: counter,
         dictid: word.dictid,

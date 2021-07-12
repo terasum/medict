@@ -60,6 +60,9 @@ const Store = new Vuex.Store({
     updateCandidateWordNum(state, num) {
       state.sideBarData.candidateWordNum = num;
     },
+    updateDictionaries(state) {
+      state.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    },
     updateSelectedWordIdx(state, idx) {
       if (idx >= 0 && idx < state.sideBarData.candidateWordNum) {
         state.sideBarData.selectedWordIdx = idx;
@@ -100,6 +103,16 @@ const Store = new Vuex.Store({
       } else {
         console.error(`error on find word precisly ${state.suggestWords[id]}`);
       }
+    },
+    asyncAddNewDict({ state, commit }, dict) {
+      const result = SyncMainAPI.dictAddOne({ dict: dict });
+      commit('updateDictionaries');
+      return result;
+    },
+    asyncDelNewDict({ state, commit }, dictid) {
+      const result = SyncMainAPI.dictDeleteOne({ dictid: dictid });
+      commit('updateDictionaries');
+      return result;
     },
   },
 });

@@ -1,6 +1,7 @@
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
 import cheerio from 'cheerio';
 import { replaceAll } from '../../utils/stringutils';
+import { logger } from '../../utils/logger';
 
 const SOUND_REG = /sound\:\/\/((\S+)\.(mp3|spx|ogg|wav))/gi;
 const SOUND_REG_IDX = 0;
@@ -13,7 +14,7 @@ export class SoundReplacer implements Replacer {
     lookupFn: LookupFn,
     resourceFn: ResourceFn
   ): string {
-    console.log('***************  REPLACE AUDIO [START] ****************');
+    logger.info('[REP MP3]: REPLACE AUDIO [START]');
     if (!html || !html.matchAll) {
       return html;
     }
@@ -25,7 +26,7 @@ export class SoundReplacer implements Replacer {
       keySet.add(resourceKey);
       const keyStart = match.index;
       const keyEnd = (match.index || 0) + match[SOUND_REG_IDX].length;
-      console.log(
+      logger.info(
         `[REP MP3]: matched raw key ${resourceKey} start=${keyStart} end=${keyEnd}.`
       );
     }
@@ -35,12 +36,14 @@ export class SoundReplacer implements Replacer {
       let resourceKey = rskey;
       resourceKey = resourceKey.slice('sound:/'.length, resourceKey.length);
       resourceKey = replaceAll(resourceKey, '/', '\\');
-      console.log(`[REP MP3]: query resource key ${resourceKey}`);
+      logger.info(`[REP MP3]: query resource key ${resourceKey}`);
       const queryResult = resourceFn(resourceKey);
-      console.log(`[REP MP3]: query resource result ${queryResult}`);
+      logger.info(
+        queryResult, `[REP MP3]: query resource result`
+      );
 
       if (queryResult && queryResult.definition) {
-        console.log(
+        logger.info(
           `[REP MP3]: replace html mp3 rawkey ${rawkey} => ${queryResult.definition}`
         );
         html = replaceAll(html, rawkey, queryResult.definition);
@@ -105,7 +108,7 @@ export class SoundReplacer implements Replacer {
       }
     }
 
-    console.log('***************  REPLACE AUDIO [END] ****************');
+    logger.info('[REP MP3]: EPLACE AUDIO [END]');
     return $.html();
   }
 }

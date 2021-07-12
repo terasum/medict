@@ -258,13 +258,20 @@ export default Vue.extend({
       }
 
       console.log(newDict);
-      const result = SyncMainAPI.dictAddOne({ dict: newDict });
-      if (result) {
-        this.showAlert('info', '添加成功');
-        this.resetForm();
-      } else {
-        this.showAlert('danger', '添加失败, ID 重复');
-      }
+
+      this.$store
+        .dispatch('asyncAddNewDict', newDict)
+        .then((result) => {
+          if (result) {
+            this.showAlert('info', '添加成功');
+            this.resetForm();
+          } else {
+            this.showAlert('danger', '添加失败, ID 重复');
+          }
+        })
+        .catch((err) => {
+          this.showAlert('danger', err);
+        });
     },
     openMddFile() {
       const resultPath = SyncMainAPI.syncShowOpenDialog(['mdd']);
@@ -292,11 +299,25 @@ export default Vue.extend({
       this.resourceBaseDir = '';
     },
     deleteDict(dictid: string) {
-      const result = SyncMainAPI.dictDeleteOne({ dictid: dictid });
-      console.log(result);
-      if (result) {
-        this.closeModal();
-      }
+      this.$store
+        .dispatch('asyncDelNewDict', dictid)
+        .then((result) => {
+          if (result) {
+            console.log(result);
+            if (result) {
+              this.showAlert('info', '删除成功');
+              let that = this;
+              setTimeout(() => {
+                that.closeModal();
+              }, 1000);
+            }
+          } else {
+            this.showAlert('danger', '删除失败');
+          }
+        })
+        .catch((err) => {
+          this.showAlert('danger', '删除失败,' + err);
+        });
     },
   },
   mounted() {

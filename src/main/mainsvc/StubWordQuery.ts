@@ -1,5 +1,6 @@
 import { DictService } from './svc/DictionaryService';
 import { DictContentService } from './svc/DictionaryContentService';
+import { logger } from '../../utils/logger';
 
 const dictService = new DictService();
 const dictContentService = new DictContentService();
@@ -15,18 +16,18 @@ export class StubWordQuery {
    * @returns
    */
   entryLinkWord(event: any, arg: { keyText: string; dictid: string }) {
-    console.log('[main-process] WordService.entryLinkWord');
-    console.log(arg);
+    logger.info('[main-process] WordService.entryLinkWord');
+    logger.info(arg);
     const result = dictService.associate(arg.dictid, arg.keyText);
-    console.log('[main-process] WordService.entryLinkWord // result');
-    console.log(result);
+    logger.info('[main-process] WordService.entryLinkWord // result');
+    logger.info(result);
     // 先将建议词列表返回
     event.sender.send('onSuggestWord', result);
     if (result.length < 1) {
       return;
     }
 
-    console.log(
+    logger.info(
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
     );
     const wordResult = dictService.findWordPrecisly(
@@ -74,7 +75,7 @@ export class StubWordQuery {
    * @return 返回关联词列表
    */
   suggestWord(event: any, arg: { dictid: string; word: string }) {
-    console.log(
+    logger.info(
       "[main-process] suggestWord event.sender.send('onSuggestWord')"
     );
     const result = dictService.associate(arg.dictid, arg.word);
@@ -90,7 +91,7 @@ export class StubWordQuery {
     event: any,
     arg: { keyText: string; dictid: string; rofset: number }
   ) {
-    console.log('[main-process] WordService.findWordPrecisly');
+    logger.info('[main-process] WordService.findWordPrecisly');
     const result = dictService.findWordPrecisly(
       arg.dictid,
       arg.keyText,
@@ -114,7 +115,7 @@ export class StubWordQuery {
     const lookupFn = (word: string) => {
       return dictService.lookup(arg.dictid, word);
     };
-    console.log(
+    logger.info(
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
     );
 

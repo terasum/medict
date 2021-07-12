@@ -1,5 +1,6 @@
 import { replaceAll } from '../../utils/stringutils';
 import { Replacer, ResourceFn, LookupFn } from './Replacer';
+import { logger } from '../../utils/logger';
 
 const IMAGE_REG = /src=\"((\S+)\.(png|jpg|gif|jpeg|svg))\"/gi;
 const IMAGE_REG_IDX = 1;
@@ -12,7 +13,7 @@ export class ImageReplacer implements Replacer {
     lookupFn: LookupFn,
     resourceFn: ResourceFn
   ): string {
-    console.log('***************  REPLACE IMAGES [START] ****************');
+    logger.info('[REP IMG]:REPLACE IMAGES [START]');
     if (!html || !html.matchAll) {
       return html;
     }
@@ -24,7 +25,7 @@ export class ImageReplacer implements Replacer {
       keySet.add(rawKey);
       const keyStart = match.index;
       const keyEnd = (match.index || 0) + match[IMAGE_REG_IDX].length;
-      console.log(
+      logger.info(
         `[REP IMG]: matched  raw key ${rawKey} start=${keyStart} end=${keyEnd}.`
       );
     }
@@ -37,18 +38,18 @@ export class ImageReplacer implements Replacer {
       }
 
       resourceKey = replaceAll(resourceKey, '/', '\\');
-      console.log(`[REP IMG]: query resource key ${resourceKey}`);
+      logger.info(`[REP IMG]: query resource key ${resourceKey}`);
       const queryResult = resourceFn(resourceKey);
-      console.log(`[REP IMG]: query resource return result ${queryResult}`);
+      logger.info(queryResult, `[REP IMG]: query resource return result:`);
 
       if (queryResult && queryResult.definition) {
-        console.log(
+        logger.info(
           `[REP IMG]: replace html rawkey ${rawkey} => ${queryResult.definition}`
         );
         html = replaceAll(html, rawkey, queryResult.definition);
       }
     }
-    console.log('***************  REPLACE IMAGES [END] ****************');
+    logger.info('[REP IMG]: REPLACE IMAGES [END]');
     return html;
   }
 }
