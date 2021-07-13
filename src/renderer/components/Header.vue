@@ -75,17 +75,6 @@
         </span>
         <span class="fn-box-text">设置</span>
       </div>
-
-      <div
-        class="fn-box"
-        v-bind:class="{ 'fn-box-active': currentTab === '调试' }"
-        v-on:click="clickDebug"
-      >
-        <span class="fn-box-icon">
-          <BugFill :width="22" :height="22" />
-        </span>
-        <span class="fn-box-text">调试</span>
-      </div>
     </div>
   </div>
 </template>
@@ -98,7 +87,6 @@ import Translate from '../components/icons/translate.icon.vue';
 import Search from '../components/icons/search.icon.vue';
 import Plugins from '../components/icons/plugins.icon.vue';
 import Settings from '../components/icons/settings.icon.vue';
-import BugFill from '../components/icons/bug-fill.icon.vue';
 
 interface DictItem {
   id: string;
@@ -111,7 +99,6 @@ export default Vue.extend({
     Search,
     Plugins,
     Settings,
-    BugFill,
   },
   props: {
     displaySearchBox: {
@@ -191,14 +178,6 @@ export default Vue.extend({
 
       if (this.$router.currentRoute.path !== '/translate') {
         this.$router.replace({ path: '/translate' });
-      }
-    },
-    clickDebug(event: any) {
-      console.log(event);
-      this.$store.commit('updateTab', '调试');
-
-      if (this.$router.currentRoute.path !== '/debug') {
-        this.$router.replace({ path: '/debug' });
       }
     },
     clickPlugins(event: any) {

@@ -4,7 +4,6 @@ import { NullDef } from '../../../model/Definition';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import { StorageService } from './StorageServcice';
 import { getConfigJsonPath } from '../../../config/config';
-import { logger } from '../../../utils/logger';
 
 const storageService = new StorageService(getConfigJsonPath());
 
