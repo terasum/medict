@@ -8,13 +8,13 @@ import { ipcRenderer } from 'electron';
 })();
 
 function syncWrap(fnName: string) {
-  return (args: any) => {
+  return (args?: any) => {
     return ipcRenderer.sendSync(fnName, args);
   };
 }
 
 function asyncWrap(fnName: string) {
-  return (args: any) => {
+  return (args?: any) => {
     ipcRenderer.send(fnName, args);
   };
 }
@@ -22,6 +22,11 @@ function asyncWrap(fnName: string) {
 export const AsyncMainAPI = {
   asyncMessage: asyncWrap('asyncMessage'),
   createSubWindow: asyncWrap('createSubWindow'),
+  openDevTool: asyncWrap('openDevTool'),
+  openDictResourceDir: asyncWrap('openDictResourceDir'),
+  openResourceDir: asyncWrap('openResourceDir'),
+  openMainProcessLog: asyncWrap('openMainProcessLog'),
+  openUrlOnBrowser: asyncWrap('openUrlOnBrowser'),
   entryLinkWord: asyncWrap('entryLinkWord'),
   suggestWord: asyncWrap('suggestWord'),
   findWordPrecisly: asyncWrap('findWordPrecisly'),
