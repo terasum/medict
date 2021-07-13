@@ -64,12 +64,15 @@ const createWindow = (): void => {
     logger.info(event);
     createSubWindow(mainWindow, args);
   });
-  if (
-    process.env.NODE_ENV == 'development' ||
-    process.env.NODE_ENV == 'production'
+
+  // remove first
+  ipcMain.removeListener('openDevTool', function(
+    event: any,
+    args: WindowOption
   ) {
     mainWindow.webContents.openDevTools();
-  }
+  });
+
   // special ipcmain
   ipcMain.on('openDevTool', function(event: any, args: WindowOption) {
     mainWindow.webContents.openDevTools();

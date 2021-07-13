@@ -40,4 +40,6 @@ export const SyncMainAPI = {
   dictFindOne: syncWrap('dictFindOne'),
   dictDeleteOne: syncWrap('dictDeleteOne'),
   dictFindAll: syncWrap('dictFindAll'),
+  syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
+  syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
 };

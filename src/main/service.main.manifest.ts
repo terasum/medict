@@ -27,6 +27,8 @@ export const asyncfn = {
 export const syncfn = {
   syncMessage: stubMessage.syncMessage,
   syncShowOpenDialog: stubFileOpen.syncShowOpenDialog,
+  syncShowMainLoggerPath: stubFileOpen.syncShowMainLoggerPath,
+  syncGetResourceRootPath: stubFileOpen.syncGetResourceRootPath,
   dictAddOne: stubDictAccessor.dictAddOne,
   dictFindOne: stubDictAccessor.dictFindOne,
   dictDeleteOne: stubDictAccessor.dictDeleteOne,
