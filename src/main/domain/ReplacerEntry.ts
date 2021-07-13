@@ -42,7 +42,7 @@ export class EntryReplacer implements Replacer {
           'onclick',
           `
         function entry_click__${i}__${__RANDOM_KEY__}() {
-          logger.info({ dictid: "${dictid}", word: "${newWord}" });
+          console.log({ dictid: "${dictid}", word: "${newWord}" });
           window.postMessage({
             channel: "entryLinkWord",
             payload: {
