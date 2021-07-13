@@ -26,6 +26,7 @@ export const AsyncMainAPI = {
   openDictResourceDir: asyncWrap('openDictResourceDir'),
   openResourceDir: asyncWrap('openResourceDir'),
   openMainProcessLog: asyncWrap('openMainProcessLog'),
+  openUrlOnBrowser: asyncWrap('openUrlOnBrowser'),
   entryLinkWord: asyncWrap('entryLinkWord'),
   suggestWord: asyncWrap('suggestWord'),
   findWordPrecisly: asyncWrap('findWordPrecisly'),

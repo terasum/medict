@@ -45,4 +45,10 @@ export class StubWindow {
       shell.openPath(logpath); // Open the given file in the desktop's default manner.
     }
   }
+  openUrlOnBrowser(event: any, url: string) {
+    console.log(`openurl ${url}`);
+    if (url && url.length > 0 && url.startsWith('https://')) {
+      shell.openExternal(url);
+    }
+  }
 }

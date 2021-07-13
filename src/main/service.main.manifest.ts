@@ -17,6 +17,7 @@ export const asyncfn = {
   openResourceDir: stubWindow.openResourceDir,
   openDictResourceDir: stubWindow.openDictResourceDir,
   openMainProcessLog: stubWindow.openMainProcessLog,
+  openUrlOnBrowser: stubWindow.openUrlOnBrowser,
   entryLinkWord: stubWordQuery.entryLinkWord,
   suggestWord: stubWordQuery.suggestWord,
   findWordPrecisly: stubWordQuery.findWordPrecisly,
