@@ -9,7 +9,7 @@ const storageService = new StorageService(getConfigJsonPath());
 
 const dicts = new Map<string, Dictionary>();
 
-(function loadDicts() {
+function loadDicts() {
   const dictLists = storageService.getDataByKey('dicts') as any[];
 
   if (dictLists) {
@@ -27,7 +27,9 @@ const dicts = new Map<string, Dictionary>();
       );
     });
   }
-})();
+}
+// init load
+loadDicts();
 
 function saveToFile(dicts: Map<string, Dictionary>) {
   const storageList = [];
@@ -65,12 +67,14 @@ export class DictService {
     }
     dicts.set(dict.id, dict);
     saveToFile(dicts);
+    loadDicts();
     return true;
   }
 
   deleteOne(dictid: string) {
     dicts.delete(dictid);
     saveToFile(dicts);
+    loadDicts();
     return true;
   }
 

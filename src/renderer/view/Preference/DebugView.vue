@@ -1,21 +1,21 @@
 <template>
   <div class="container-fluid debug-view">
     <div class="debug-section">
-      <h3>开发者工具</h3>
+      <h4>开发者工具</h4>
       <p>可以通过以下按钮打开 chrome-dev-tool 面板(用于调试渲染进程)</p>
       <b-button
         class="btn-sm"
         variant="outline-secondary"
         @click="onClickDevBtn"
-        >dev-tool</b-button
+        >打开 dev-tool</b-button
       >
     </div>
 
     <span class="split-line" />
 
     <div class="debug-section">
-      <h3>运行日志</h3>
-      <p>运行日志路径为:</p>
+      <h4>运行日志</h4>
+      <p>运行日志路径为: {{ loggerPath() }}</p>
       <b-button
         class="btn-sm"
         variant="outline-secondary"
@@ -25,8 +25,8 @@
     </div>
 
     <div class="debug-section">
-      <h3>词典资源</h3>
-      <p>词典资源路径为:</p>
+      <h4>词典资源</h4>
+      <p>词典资源路径为: {{ resourcePath() }}</p>
       <b-button class="btn-sm" variant="outline-success" @click="onClickRescDir"
         >打开资源文件夹</b-button
       >
@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { AsyncMainAPI } from '../../service.renderer.manifest';
+import { AsyncMainAPI, SyncMainAPI } from '../../service.renderer.manifest';
 import BugFill from '../../components/icons/bug-fill.icon.vue';
 export default Vue.extend({
   components: { BugFill },
@@ -49,6 +49,12 @@ export default Vue.extend({
     },
     onClickRescDir() {
       AsyncMainAPI.openResourceDir();
+    },
+    loggerPath() {
+      return SyncMainAPI.syncShowMainLoggerPath();
+    },
+    resourcePath() {
+      return SyncMainAPI.syncGetResourceRootPath();
     },
   },
 });
@@ -65,5 +71,9 @@ export default Vue.extend({
 .debug-section {
   margin-top: 20px;
   margin-bottom: 20px;
+
+  p {
+    font-size: 14px;
+  }
 }
 </style>
