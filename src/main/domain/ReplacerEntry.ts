@@ -30,7 +30,11 @@ export class EntryReplacer implements Replacer {
     for (let i = 0; i < alist.length; i++) {
       const href = alist[i].attribs.href;
       if (isSupportURL(href)) {
-        const newWord = href.slice('entry://'.length, href.length);
+        let newWord = href.slice('entry://'.length, href.length);
+
+        if (newWord && newWord.indexOf('#') > 0) {
+          newWord = newWord.substr(0, newWord.indexOf('#'));
+        }
         logger.info(`entry url ${alist[i].attribs.href}, #${newWord}#`);
 
         const el = $(alist[i]);

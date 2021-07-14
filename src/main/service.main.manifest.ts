@@ -29,6 +29,7 @@ export const syncfn = {
   syncShowOpenDialog: stubFileOpen.syncShowOpenDialog,
   syncShowMainLoggerPath: stubFileOpen.syncShowMainLoggerPath,
   syncGetResourceRootPath: stubFileOpen.syncGetResourceRootPath,
+  syncShowComfirmMessageBox: stubWindow.syncShowComfirmMessageBox,
   dictAddOne: stubDictAccessor.dictAddOne,
   dictFindOne: stubDictAccessor.dictFindOne,
   dictDeleteOne: stubDictAccessor.dictDeleteOne,

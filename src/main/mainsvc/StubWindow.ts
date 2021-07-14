@@ -1,4 +1,5 @@
-import { shell } from 'electron'; // deconstructing assignment
+import { shell, dialog, MessageBoxSyncOptions } from 'electron'; // deconstructing assignment
+
 import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
 import path from 'path';
 import fs from 'fs';
@@ -50,5 +51,10 @@ export class StubWindow {
     if (url && url.length > 0 && url.startsWith('https://')) {
       shell.openExternal(url);
     }
+  }
+  syncShowComfirmMessageBox(args: MessageBoxSyncOptions) {
+    console.log('showComfirmMessageBox args: ');
+    console.log(args);
+    return dialog.showMessageBoxSync(args);
   }
 }

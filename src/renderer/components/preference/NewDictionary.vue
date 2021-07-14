@@ -299,25 +299,39 @@ export default Vue.extend({
       this.resourceBaseDir = '';
     },
     deleteDict(dictid: string) {
-      this.$store
-        .dispatch('asyncDelNewDict', dictid)
-        .then((result) => {
-          if (result) {
-            console.log(result);
+      const response = SyncMainAPI.syncShowComfirmMessageBox({
+        message: '确认删除?',
+        type: 'warning',
+        buttons: ['取消', '确认'],
+        defaultId: 0,
+        cancelId: 0,
+      });
+      console.log(response);
+      // response.then((resp: { response: number; checkboxChecked: boolean }) => {
+      if (response === 1) {
+        this.$store
+          .dispatch('asyncDelNewDict', dictid)
+          .then((result) => {
             if (result) {
-              this.showAlert('info', '删除成功');
-              let that = this;
-              setTimeout(() => {
-                that.closeModal();
-              }, 1000);
+              console.log(result);
+              if (result) {
+                this.showAlert('info', '删除成功');
+                let that = this;
+                setTimeout(() => {
+                  that.closeModal();
+                }, 1000);
+              }
+            } else {
+              this.showAlert('danger', '删除失败');
             }
-          } else {
-            this.showAlert('danger', '删除失败');
-          }
-        })
-        .catch((err) => {
-          this.showAlert('danger', '删除失败,' + err);
-        });
+          })
+          .catch((err) => {
+            this.showAlert('danger', '删除失败,' + err);
+          });
+      } else {
+        console.log('canceled');
+      }
+      // });
     },
   },
   mounted() {

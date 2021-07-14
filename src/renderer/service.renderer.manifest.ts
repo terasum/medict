@@ -42,4 +42,5 @@ export const SyncMainAPI = {
   dictFindAll: syncWrap('dictFindAll'),
   syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
   syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
+  syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
 };

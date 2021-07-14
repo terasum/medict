@@ -16,11 +16,11 @@ function defaultSelectDict() {
 }
 
 const state: StoreDataType = {
-  defaultWindow: '/preference',
-  // defaultWindow: '/',
+  // defaultWindow: '/preference',
+  defaultWindow: '/',
   headerData: {
-    currentTab: '设置',
-    // currentTab: '词典',
+    // currentTab: '设置',
+    currentTab: '词典',
   },
 
   sideBarData: {
