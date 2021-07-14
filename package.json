@@ -83,7 +83,7 @@
     "@types/koa": "^2.13.3",
     "@types/koa-logger": "^3.1.1",
     "@types/koa-pino-logger": "^3.0.0",
-    "@types/koa-static": "^4.0.1",
+    "@types/koa-static": "^4.0.2",
     "@types/lodash": "^4.14.170",
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
