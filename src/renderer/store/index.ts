@@ -31,7 +31,8 @@ const state: StoreDataType = {
   dictionaries: SyncMainAPI.dictFindAll(undefined),
   suggestWords: [],
   historyStack: [],
-  currentWord: '',
+  currentWord: '', // current input word
+  currentLookupWord: '', // current actually search word
   currentContent: '',
   currentSelectDict: defaultSelectDict(),
 };
@@ -42,6 +43,9 @@ const Store = new Vuex.Store({
     // update current word
     updateCurrentWord(state, word) {
       state.currentWord = word;
+    },
+    updateCurrentLookupWord(state, word) {
+      state.currentLookupWord = word;
     },
     updateCurrentContent(state, content) {
       state.currentContent = content;
@@ -84,7 +88,6 @@ const Store = new Vuex.Store({
   },
   actions: {
     asyncSearchWord({ commit, state }, payload) {
-      console.log(`async-dispatch asyncSearchWord ${payload}`);
       // update current select word index to 0
       commit('updateSelectedWordIdx', 0);
       // update current searching word
@@ -93,7 +96,6 @@ const Store = new Vuex.Store({
       AsyncMainAPI.suggestWord(payload);
     },
     asyncUpdateSideBar(context, payload) {
-      console.log(`async-dispatch asyncUpdateSideBar ${payload}`);
       context.commit('updateCandidateWordNum', payload.candidateWordNum);
     },
     asyncFindWordPrecisly({ commit, state }, id) {
@@ -130,8 +132,8 @@ const Store = new Vuex.Store({
    * }]
    */
   listeners.onSuggestWord((event: any, args: any) => {
-    console.log(`[store/index/listener]{onSuggestWord}: resp:`);
-    console.log(args);
+    console.debug(`[store/index/listener]{onSuggestWord}: resp:`);
+    console.debug(args);
     Store.dispatch('asyncUpdateSideBar', {
       candidateWordNum: args.length,
     });
@@ -147,10 +149,11 @@ const Store = new Vuex.Store({
    * }
    */
   listeners.onFindWordPrecisly((event: any, args: any) => {
-    console.log(`[store/index/listener]{onFindWordPrecisly}: resp:`);
-    console.log(args);
+    console.debug(`[store/index/listener]{onFindWordPrecisly}: resp:`);
+    console.debug(args);
     const newContent = Buffer.from(args.definition, 'utf8').toString('base64');
     Store.commit('updateCurrentContent', newContent);
+    Store.commit('updateCurrentLookupWord', args.keyText);
   });
 
   /**
@@ -162,8 +165,8 @@ const Store = new Vuex.Store({
    * }
    */
   listeners.onLoadDictResource((event: any, args: any) => {
-    console.log(`[store/index/listener]{onLoadDictResource}: resp:`);
-    console.log(args);
+    console.debug(`[store/index/listener]{onLoadDictResource}: resp:`);
+    console.debug(args);
     // this.currentContent = args.definition.trim("\r\n\u0000");
   });
 })();
