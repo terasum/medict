@@ -22,6 +22,7 @@ export declare class StoreDataType {
   suggestWords: string[];
   historyStack: any[];
   currentWord: string;
+  currentLookupWord: string;
   currentContent: string;
   currentSelectDict: DictItem;
 }

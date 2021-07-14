@@ -128,8 +128,7 @@ export default Vue.extend({
   },
   watch: {
     searchWord(word) {
-      console.log(word);
-
+      console.debug(`asyncSearchWord ${word}`);
       this.$store.dispatch('asyncSearchWord', {
         dictid: this.currentDict.id,
         word,

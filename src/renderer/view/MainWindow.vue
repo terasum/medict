@@ -1,7 +1,14 @@
 <template>
   <div class="container-fluid" style="height: 100%">
     <Header :displaySearchBox="false" />
-    <div class="row" style="height: calc(100%-26px)">
+    <div
+      class="row"
+      style="
+        height: -webkit-calc(100% - 80px);
+        height: -moz-calc(100% - 80px);
+        height: calc(100% - 80px);
+      "
+    >
       <div class="col col-2 left-sidebbar-container">
         <div class="left-sidebbar">
           <ul class="left-sidebar-wordlist">
@@ -18,6 +25,16 @@
       </div>
       <div class="col word-content-continer">
         <div class="word-content-header">
+          <div
+            class="header-word-tab"
+            :class="
+              currentShowWord && currentShowWord.length > 0
+                ? 'header-word-tab-with-content'
+                : ''
+            "
+          >
+            {{ currentShowWord }}
+          </div>
           <div class="header-btn header-btn-devtool" @click="onDevtoolBtnClick">
             devtool
           </div>
@@ -28,19 +45,19 @@
             :src="'data:text/html;charset=utf-8;base64,' + currentContent"
             enableremotemodule="true"
             webpreferences="nodeIntegration=false,webSecurity=true,allowRunningInsecureContent=false,contextIsolation=true"
-            style="height: 100%; width: 100%; overflow-y: auto"
             :preload="preload"
           />
         </div>
       </div>
     </div>
-    <Footer />
+    <FooterBar />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import Header from '../components/Header.vue';
+import FooterBar from '../components/FooterBar.vue';
 import { AsyncMainAPI } from '../service.renderer.manifest';
 import Store from '../store/index';
 import fs from 'fs';
@@ -96,7 +113,7 @@ window.addEventListener('message', function (event) {
 })();
 
 export default Vue.extend({
-  components: { Header },
+  components: { Header, FooterBar },
   data: () => {
     return {
       preload: `file://${tempPreloadPath}`,
@@ -105,6 +122,9 @@ export default Vue.extend({
   computed: {
     currentWordIdx() {
       return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
+    },
+    currentShowWord() {
+      return (this.$store as typeof Store).state.currentLookupWord;
     },
     currentContent() {
       return (this.$store as typeof Store).state.currentContent;
@@ -143,6 +163,8 @@ export default Vue.extend({
           'utf8'
         ).toString('base64');
         this.$store.commit('updateCurrentContent', newContent);
+        // @ts-ignore
+        this.$store.commit('updateCurrentLookupWord', event.args[0].keyText);
       }
     });
   },
@@ -155,10 +177,8 @@ export default Vue.extend({
   background-color: #f0e8e9;
   padding-left: 0;
   padding-right: 0;
-  height: -webkit-calc(100% - 60px);
-  height: -moz-calc(100% - 60px);
-  height: calc(100% - 60px);
 
+  height: 100%;
   ::-webkit-scrollbar-track {
     // -webkit-box-shadow: inset 0 0 6px;
     background-color: #f5f5f5;
@@ -174,7 +194,7 @@ export default Vue.extend({
     background-color: #555;
   }
   .left-sidebbar {
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-bottom: 10px;
     height: 100%;
     .left-sidebar-wordlist {
@@ -201,8 +221,25 @@ export default Vue.extend({
 }
 .word-content-header {
   height: 26px;
-  background-color: #f0e8e9;
+  padding-left: 5px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #d1d1d1;
   // border-bottom: 1px solid #ccc;
+  .header-word-tab {
+    display: inline-block;
+  }
+  .header-word-tab-with-content {
+    padding-left: 3px;
+    padding-right: 3px;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    height: 24px;
+    margin-top: 2px;
+    background: #fff;
+    border-radius: 3px 3px 0px 0px;
+    border-bottom: #fff;
+  }
   .header-btn {
     float: right;
     display: block;
@@ -225,9 +262,8 @@ export default Vue.extend({
 }
 .word-content-continer {
   padding: 0;
-  height: -webkit-calc(100% - 86px);
-  height: -moz-calc(100% - 86px);
-  height: calc(100% - 86px);
+  height: 100%;
+  overflow-y: hidden;
   .word-content {
     padding: 0;
     padding-bottom: 10px;
@@ -239,6 +275,11 @@ export default Vue.extend({
   }
 }
 webview {
+  height: -webkit-calc(100% - 20px);
+  height: -moz-calc(100% - 20px);
+  height: calc(100% - 20px);
+  width: 100%;
+  overflow-y: auto;
   ::-webkit-scrollbar-track {
     // -webkit-box-shadow: inset 0 0 6px;
     background-color: #f5f5f5;
