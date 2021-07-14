@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid" style="height: 100%">
     <Header :displaySearchBox="false" />
-    <div class="row" style="height: 100%">
+    <div class="row" style="height: calc(100%-26px)">
       <div class="col col-2 left-sidebbar-container">
         <div class="left-sidebbar">
           <ul class="left-sidebar-wordlist">
@@ -28,12 +28,13 @@
             :src="'data:text/html;charset=utf-8;base64,' + currentContent"
             enableremotemodule="true"
             webpreferences="nodeIntegration=false,webSecurity=true,allowRunningInsecureContent=false,contextIsolation=true"
-            style="height: 100%; width: 100%; overflow-y: scroll"
+            style="height: 100%; width: 100%; overflow-y: auto"
             :preload="preload"
           />
         </div>
       </div>
     </div>
+    <Footer />
   </div>
 </template>
 
@@ -43,7 +44,6 @@ import Header from '../components/Header.vue';
 import { AsyncMainAPI } from '../service.renderer.manifest';
 import Store from '../store/index';
 import fs from 'fs';
-import path from 'path';
 // @ts-ignore
 import tmp from 'tmp';
 
@@ -236,6 +236,22 @@ export default Vue.extend({
       user-select: all;
       -webkit-user-select: all;
     }
+  }
+}
+webview {
+  ::-webkit-scrollbar-track {
+    // -webkit-box-shadow: inset 0 0 6px;
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    background-color: #f5f5f5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #555;
   }
 }
 </style>
