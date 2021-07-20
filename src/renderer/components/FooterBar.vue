@@ -53,11 +53,15 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   border-top: 1px solid #ccc;
   height: 20px;
   overflow: hidden;
   padding: 0;
   margin: 0;
+  background: #fff;
 
   margin-left: -12px;
   margin-right: -12px;

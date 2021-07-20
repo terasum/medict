@@ -52,14 +52,16 @@
 
       <!-- endof preference-->
     </div>
+    <FooterBar />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import Header from '../components/Header.vue';
+import FooterBar from '../components/FooterBar.vue';
 import NewDictionary from '../components/preference/NewDictionary.vue';
-import '../assets/css/photon.min.css';
+
 // declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 // declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
 
@@ -71,7 +73,7 @@ const routerMap = {
 };
 
 export default Vue.extend({
-  components: { Header, NewDictionary },
+  components: { Header, NewDictionary, FooterBar },
   computed: {},
   data: () => {
     return {
@@ -92,6 +94,8 @@ export default Vue.extend({
   mounted() {},
 });
 </script>
+
+ <style scoped lang="css" src="../assets/css/photon.min.css"></style>
 
 <style lang="scss" scoped>
 .window-content {
