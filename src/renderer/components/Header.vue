@@ -9,26 +9,28 @@
       </button>
     </div>
     <div class="header-search-box">
-      <b-input-group>
-        <template v-slot:prepend>
-          <b-dropdown :text="currentDict.alias" variant="info">
-            <b-dropdown-item
-              v-for="item in selectDicts"
-              :key="item.id"
-              @click="selectDictItem(item)"
-              >{{ item.alias }}</b-dropdown-item
-            >
-          </b-dropdown>
-        </template>
-        <b-form-input
-          :disabled="displaySearchBox"
-          v-model="searchWord"
-          @keyup.enter.native="confirmSelect"
-          @keyup.up.native="upSelect"
-          @keyup.down.native="downSelect"
-        ></b-form-input>
-        <b-button variant="info"><b-icon-search /></b-button>
-      </b-input-group>
+      <div :hidden="displaySearchBox">
+        <b-input-group>
+          <template v-slot:prepend>
+            <b-dropdown :text="currentDict.alias" variant="info">
+              <b-dropdown-item
+                v-for="item in selectDicts"
+                :key="item.id"
+                @click="selectDictItem(item)"
+                >{{ item.alias }}</b-dropdown-item
+              >
+            </b-dropdown>
+          </template>
+          <b-form-input
+            :disabled="displaySearchBox"
+            v-model="searchWord"
+            @keyup.enter.native="confirmSelect"
+            @keyup.up.native="upSelect"
+            @keyup.down.native="downSelect"
+          ></b-form-input>
+          <b-button variant="info"><b-icon-search /></b-button>
+        </b-input-group>
+      </div>
     </div>
 
     <div class="header-functions">

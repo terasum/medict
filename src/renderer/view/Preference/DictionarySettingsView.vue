@@ -88,7 +88,6 @@ import Vue from 'vue';
 import Header from '../../components/Header.vue';
 import NewDictionary from '../../components/preference/NewDictionary.vue';
 import { SyncMainAPI } from '../../service.renderer.manifest';
-import '../../assets/css/photon.min.css';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import Store from '../../store/index';
@@ -144,6 +143,7 @@ export default Vue.extend({
 });
 </script>
 
+ <style scoped lang="css" src="../../assets/css/photon.min.css"></style>
 <style lang="scss" scoped>
 .window-content {
   height: 100%;
