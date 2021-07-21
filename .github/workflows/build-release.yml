@@ -20,21 +20,31 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v1
         with:
-          node-version: 10
-          
-      - name: Electron Forge Action
-          # You may pin to the exact commit or the version.
-          # uses: yinxulai/actions-electron-forge@456a6517c5241e4d693507b99a30dac8fe622102
-        uses: yinxulai/actions-electron-forge@456a6517c5241e4d693507b99a30dac8fe622102
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Test
+        run: yarn run test
+
+      - name: Publish
+        run: yarn run publish
+      
+      - name: upload artifact
+      - uses: actions/upload-artifact@v2
         with:
-              # GitHub token, automatically provided to the action
+          name: medict-release-${{matrix.os}}-zip
+          path: out/make/zip/darwin/x64/medict*
+          # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
-            github_token: ${{ secrets.github_token }}
-               # If the commit is tagged with a version (e.g. "v1.0.0"),
+          github_token: ${{ secrets.github_token }}
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
-            release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+ 
