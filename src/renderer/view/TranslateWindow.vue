@@ -15,24 +15,40 @@
           </b-dropdown>
         </div>
         <div class="traslate-btn">
-          <b-dropdown id="src-lang" :text="sourceLang" variant="outline-primary">
-            <b-dropdown-item @click="changeSourceLang('EN')">英文</b-dropdown-item>
-            <b-dropdown-item @click="changeSourceLang('ZH_CN')">中文</b-dropdown-item>
-            <b-dropdown-item @click="changeSourceLang('JP')">日文</b-dropdown-item>
+          <b-dropdown
+            id="src-lang"
+            variant="outline-primary"
+            :text="sourceLang"
+          >
+            <b-dropdown-item @click="changeSourceLang('en')"
+              >英文</b-dropdown-item
+            >
+            <b-dropdown-item @click="changeSourceLang('zh')"
+              >中文</b-dropdown-item
+            >
+            <b-dropdown-item @click="changeSourceLang('jp')"
+              >日文</b-dropdown-item
+            >
           </b-dropdown>
         </div>
         <div class="traslate-btn transfer-icon">
           <b-icon-arrow-left-right> </b-icon-arrow-left-right>
         </div>
         <div class="traslate-btn">
-          <b-dropdown id="dest-lang" :text="destLang" variant="outline-primary">
-            <b-dropdown-item @click="changeDestLang('EN')">英文</b-dropdown-item>
-            <b-dropdown-item @click="changeDestLang('ZH_CN')">中文</b-dropdown-item>
-            <b-dropdown-item @click="changeDestLang('JP')">日文</b-dropdown-item>
+          <b-dropdown id="dest-lang" variant="outline-primary" :text="destLang">
+            <b-dropdown-item @click="changeDestLang('en')"
+              >英文</b-dropdown-item
+            >
+            <b-dropdown-item @click="changeDestLang('zh')"
+              >中文</b-dropdown-item
+            >
+            <b-dropdown-item @click="changeDestLang('jp')"
+              >日文</b-dropdown-item
+            >
           </b-dropdown>
         </div>
         <div class="traslate-btn">
-          <b-button id="do-translate" variant=""
+          <b-button id="do-translate" @click="doTranslate" variant=""
             >翻&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;译</b-button
           >
         </div>
@@ -40,14 +56,16 @@
 
       <div class="translate-box-label"><span>源文本</span></div>
       <div class="translate-box">
-        <textarea class="fullfill" type="" value="在此输入文本" multiple />
+        <textarea class="fullfill" type="" v-model="sourceText" multiple />
       </div>
-      <div class="translate-box-label"><span>翻译</span></div>
+      <div class="translate-box-label">
+        <span>翻译</span>
+      </div>
       <div class="translate-box">
         <textarea
           class="fullfill disable-input"
           type=""
-          value="翻译"
+          v-model="destText"
           multiple
           disabled
         />
@@ -62,6 +80,8 @@ import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
 import { BIconArrowLeftRight } from 'bootstrap-vue';
+import { listeners } from '../service.renderer.listener';
+import { AsyncMainAPI } from '../service.renderer.manifest';
 
 const engineMap = {
   baidu: '百度翻译',
@@ -69,9 +89,9 @@ const engineMap = {
   bing: '必应翻译',
 };
 const langMap = {
-  ZH_CN: '中文',
-  EN: '英文',
-  JP: '日语',
+  zh: '中文',
+  en: '英文',
+  jp: '日语',
 };
 
 export default Vue.extend({
@@ -80,22 +100,53 @@ export default Vue.extend({
     return {
       selectedEngine: '百度翻译',
       sourceLang: '中文',
+      sourceLangCode: 'zh',
       destLang: '英文',
+      destLangCode: 'en',
+      sourceText: '',
+      destText: '',
     };
   },
   methods: {
     useEngine(engine: string) {
+      if (engine !== 'baidu') {
+        alert('翻译引擎暂不支持');
+        return;
+      }
       console.log(engine, engineMap[engine]);
       this.selectedEngine = engineMap[engine];
     },
     changeSourceLang(lang: string) {
       console.log(lang, langMap[lang]);
-      this.selectedEngine = langMap[lang];
+      this.sourceLang = langMap[lang];
+      this.sourceLangCode = lang;
     },
     changeDestLang(lang: string) {
       console.log(lang, langMap[lang]);
-      this.selectedEngine = langMap[lang];
+      this.destLang = langMap[lang];
+      this.destLangCode = lang;
     },
+    doTranslate() {
+      if (!this.sourceText || this.sourceText == '') {
+        return;
+      }
+      AsyncMainAPI.asyncBaiduTranslate({
+        query: this.sourceText,
+        from: this.sourceLangCode,
+        to: this.destLangCode,
+      });
+    },
+  },
+  mounted() {
+    listeners.onAsyncBaiduTranslate((event, arg) => {
+      if (arg && arg.code === 0 && arg.data) {
+        if (arg.data.trans_result && arg.data.trans_result.length > 0) {
+          this.destText = arg.data.trans_result[0].dst;
+        }
+      } else {
+        this.destText = '翻译失败: ' + arg.code;
+      }
+    });
   },
 });
 </script>
@@ -127,9 +178,7 @@ export default Vue.extend({
     margin: 0;
   }
 }
-.transfer-icon {
-  border: 1px solid red;
-}
+
 #do-translate {
   background: #d84042;
   color: #fff;
@@ -143,15 +192,14 @@ export default Vue.extend({
   min-width: 120px;
   max-width: 120px;
 }
-
 #src-lang::v-deep button {
   width: 120px;
-  // text-align: left;
+  text-align: left;
 }
 
 #dest-lang::v-deep button {
   width: 120px;
-  // text-align: left;
+  text-align: left;
 }
 
 #dest-lang::v-deep .dropdown-menu {
@@ -180,7 +228,6 @@ export default Vue.extend({
 }
 
 .dropdown::v-deep button {
-  min-width: 120px;
   border: 1px solid #ccc;
   color: #333;
   &:hover {
@@ -226,15 +273,16 @@ export default Vue.extend({
     resize: none;
     border: none;
     border-radius: 3px;
+    border: 1px solid #ccc;
     &:focus {
       outline: none !important;
-      border: 1px solid #ccc;
+      border: 1px solid #999;
     }
     &:active {
-      border: 1px solid #ccc;
+      border: 1px solid #999;
     }
     &:hover {
-      border: 1px solid #ccc;
+      border: 1px solid #aaa;
     }
   }
 
