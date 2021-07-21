@@ -31,6 +31,7 @@ export const AsyncMainAPI = {
   suggestWord: asyncWrap('suggestWord'),
   findWordPrecisly: asyncWrap('findWordPrecisly'),
   loadDictResource: asyncWrap('loadDictResource'),
+  asyncBaiduTranslate: asyncWrap('asyncBaiduTranslate'),
 };
 
 export const SyncMainAPI = {
@@ -43,4 +44,6 @@ export const SyncMainAPI = {
   syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
   syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
   syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
+  loadTranslateApiConfig: syncWrap('loadTranslateApiConfig'),
+  saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
 };

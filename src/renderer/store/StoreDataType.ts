@@ -25,4 +25,10 @@ export declare class StoreDataType {
   currentLookupWord: string;
   currentContent: string;
   currentSelectDict: DictItem;
+  translateApi: {
+    baidu: {
+      appid: string;
+      appkey: string;
+    };
+  };
 }
