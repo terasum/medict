@@ -1,4 +1,4 @@
-name: "Build/release"
+name: "Release"
 on:
   push:
     branches: [ develop ]
@@ -37,7 +37,7 @@ jobs:
         run: yarn run publish
       
       - name: upload artifact
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: medict-release-${{matrix.os}}-zip
           path: out/make/zip/darwin/x64/medict*
