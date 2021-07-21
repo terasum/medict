@@ -6,6 +6,7 @@ import SettingsView from './view/Preference/AppSettings.vue';
 import PluginsWindow from './view/PluginsWindow.vue';
 import TranslateWindow from './view/TranslateWindow.vue';
 import AboutView from './view/Preference/AboutView.vue';
+import TranslateSettingView from './view/Preference/TranslateSettingView.vue';
 
 export default [
   { path: '/', component: MainWindow },
@@ -19,6 +20,10 @@ export default [
       {
         path: 'dictSettings',
         component: DictionaryView,
+      },
+      {
+        path: 'translateSettings',
+        component: TranslateSettingView,
       },
       {
         path: 'settings',

@@ -8,7 +8,7 @@
         <div class="pane-group">
           <div class="pane pane-sm sidebar">
             <nav class="nav-group">
-              <h5 class="nav-group-title">词典库配置</h5>
+              <h5 class="nav-group-title">词典配置</h5>
               <span
                 class="nav-group-item"
                 :class="currentMenu === 0 ? 'active' : ''"
@@ -17,27 +17,35 @@
                 <span class="icon icon-book"></span>
                 词典配置
               </span>
-              <h5 class="nav-group-title">系统设置</h5>
               <span
                 class="nav-group-item"
                 :class="currentMenu === 1 ? 'active' : ''"
                 @click="onClickPreferenceMenu(1)"
+              >
+                <span class="icon icon-language"></span>
+                翻译配置
+              </span>
+              <h5 class="nav-group-title">系统设置</h5>
+              <span
+                class="nav-group-item"
+                :class="currentMenu === 2 ? 'active' : ''"
+                @click="onClickPreferenceMenu(2)"
               >
                 <span class="icon icon-cog"></span>
                 偏好设置
               </span>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 2 ? 'active' : ''"
-                @click="onClickPreferenceMenu(2)"
+                :class="currentMenu === 3 ? 'active' : ''"
+                @click="onClickPreferenceMenu(3)"
               >
                 <span class="icon icon-tools"></span>
                 开发者工具
               </span>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 3 ? 'active' : ''"
-                @click="onClickPreferenceMenu(3)"
+                :class="currentMenu === 4 ? 'active' : ''"
+                @click="onClickPreferenceMenu(4)"
               >
                 <span class="icon icon-info-circled"></span>
                 关于信息
@@ -67,9 +75,10 @@ import NewDictionary from '../components/preference/NewDictionary.vue';
 
 const routerMap = {
   0: '/preference/dictSettings',
-  1: '/preference/settings',
-  2: '/preference/debug',
-  3: '/preference/about',
+  1: '/preference/translateSettings',
+  2: '/preference/settings',
+  3: '/preference/debug',
+  4: '/preference/about',
 };
 
 export default Vue.extend({

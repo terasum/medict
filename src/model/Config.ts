@@ -6,8 +6,15 @@ export declare class DictItem {
 }
 
 export class Config {
+  translateApis: {
+    baidu: {
+      appid: string;
+      appkey: string;
+    };
+  };
   dicts: DictItem[];
   constructor() {
     this.dicts = [];
+    this.translateApis = { baidu: { appid: '', appkey: '' } };
   }
 }

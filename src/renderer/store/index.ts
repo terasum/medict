@@ -16,7 +16,7 @@ function defaultSelectDict() {
 }
 
 const state: StoreDataType = {
-  // defaultWindow: '/preference',
+  // defaultWindow: '/preference/translateSettings',
   defaultWindow: '/translate',
   headerData: {
     // currentTab: '设置',
@@ -35,6 +35,12 @@ const state: StoreDataType = {
   currentLookupWord: '', // current actually search word
   currentContent: '',
   currentSelectDict: defaultSelectDict(),
+  translateApi: {
+    baidu: {
+      appid: '',
+      appkey: '',
+    },
+  },
 };
 
 const Store = new Vuex.Store({
