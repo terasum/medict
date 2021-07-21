@@ -17,10 +17,10 @@ function defaultSelectDict() {
 
 const state: StoreDataType = {
   // defaultWindow: '/preference/translateSettings',
-  defaultWindow: '/translate',
+  defaultWindow: '/',
   headerData: {
     // currentTab: '设置',
-    currentTab: '翻译',
+    currentTab: '词典',
   },
 
   sideBarData: {
