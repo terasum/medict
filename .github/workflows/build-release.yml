@@ -1,18 +1,22 @@
 name: "Build/release"
 on:
   push:
-    branches: [ master ]
+    branches: [ develop ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ master ]
+    branches: [ develop ]
 
 jobs:
   release:
     runs-on: ${{ matrix.os }}
+    env:
+      BAIDU_APPID: ${{ secrets.baidu_appid }}
+      BAIDU_APP_KEY: ${{ secrets.baidu_app_=key }}
 
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [12.x]
 
     steps:
       - name: Check out Git repository
