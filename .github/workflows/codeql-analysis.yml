@@ -25,8 +25,8 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     env:
-      BAIDU_APPID: ${{ secrets.baidu_appid }}
-      BAIDU_APP_KEY: ${{ secrets.baidu_appkey }}
+      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
+      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
 
     strategy:
       fail-fast: false
@@ -43,8 +43,8 @@ jobs:
     - name: Create env file
       run: |
           touch .env
-          echo BAIDU_APPID=${{ secrets.baidu_appid }} >> .env
-          echo BAIDU_APP_KEY=${{ secrets.baidu_appkey }} >> .env
+          echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
+          echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
