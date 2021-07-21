@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{matrix.os}}
     env:
       BAIDU_APPID: ${{ secrets.baidu_appid }}
-      BAIDU_APP_KEY: ${{ secrets.baidu_app_=key }}
+      BAIDU_APP_KEY: ${{ secrets.baidu_appkey }}
     strategy:
       matrix:
         node-version: [12.x]
