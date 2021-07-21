@@ -24,8 +24,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo BAIDU_APPID=${{ secrets.baidu_appid }} >> .env
+          echo BAIDU_APP_KEY=${{ secrets.baidu_appkey }} >> .env
+
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
