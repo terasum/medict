@@ -119,6 +119,7 @@
     "bootstrap-icons": "^1.5.0",
     "bootstrap-vue": "^2.21.2",
     "cheerio": "^1.0.0-rc.10",
+    "dotenv": "^10.0.0",
     "electron-log": "^4.3.5",
     "get-port": "^5.1.1",
     "jquery": "1.9.1 - 3",

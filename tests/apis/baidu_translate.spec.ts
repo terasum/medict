@@ -1,7 +1,10 @@
 import { translate } from '../../src/apis/baidu_translate';
+import './baidu_translate.api.key';
+
 import { assert } from 'chai';
 
-import { appid, appkey } from './baidu_translate.api.key';
+const appid = process.env.BAIDU_APPID || '';
+const appkey = process.env.BAIDU_APP_KEY || '';
 
 describe('百度翻译测试', () => {
   it('英文->中文', () => {
