@@ -3,12 +3,16 @@ import { StubMessage } from './mainsvc/StubMessage';
 import { StubWordQuery } from './mainsvc/StubWordQuery';
 import { StubDictAccessor } from './mainsvc/StubDictAccessor';
 import { StubFileOpen } from './mainsvc/StubFileOpen';
+import { StubConfigAccessor } from './mainsvc/StubConfigAccessor';
+import { StubTranslate } from './mainsvc/StubTranslate';
 
 const stubWindow = new StubWindow();
 const stubMessage = new StubMessage();
 const stubWordQuery = new StubWordQuery();
 const stubDictAccessor = new StubDictAccessor();
 const stubFileOpen = new StubFileOpen();
+const stubConfigAccessor = new StubConfigAccessor();
+const stubTranslate = new StubTranslate();
 
 export const asyncfn = {
   asyncMessage: stubMessage.asyncMessage,
@@ -22,6 +26,7 @@ export const asyncfn = {
   suggestWord: stubWordQuery.suggestWord,
   findWordPrecisly: stubWordQuery.findWordPrecisly,
   loadDictResource: stubWordQuery.loadDictResource,
+  asyncBaiduTranslate: stubTranslate.asyncBaiduTranslate,
 };
 
 export const syncfn = {
@@ -34,4 +39,6 @@ export const syncfn = {
   dictFindOne: stubDictAccessor.dictFindOne,
   dictDeleteOne: stubDictAccessor.dictDeleteOne,
   dictFindAll: stubDictAccessor.dictFindAll,
+  loadTranslateApiConfig: stubConfigAccessor.loadTranslateApiConfig,
+  saveTranslateBaiduApiConfig: stubConfigAccessor.saveTranslateBaiduApiConfig,
 };
