@@ -1,9 +1,12 @@
 import { Dictionary } from '../../domain/Dictionary';
 import { SuggestItem } from '../../../model/SuggestItem';
-import { NullDef } from '../../../model/Definition';
+import { Definition, NullDef } from '../../../model/Definition';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import { StorageService } from './StorageServcice';
-import { getConfigJsonPath } from '../../../config/config';
+import { getConfigJsonPath,getResourceRootPath } from '../../../config/config';
+import path from 'path';
+import fs from 'fs';
+
 
 const storageService = new StorageService(getConfigJsonPath());
 
@@ -25,6 +28,10 @@ function loadDicts() {
           dict.description
         )
       );
+      const fpath = path.resolve(getResourceRootPath(), dict.id);
+      if (!fs.existsSync(fpath)) {
+        fs.mkdirSync(fpath)
+      }
     });
   }
 }
@@ -75,6 +82,10 @@ export class DictService {
     dicts.delete(dictid);
     saveToFile(dicts);
     loadDicts();
+    const fpath = path.resolve(getResourceRootPath(), dictid);
+    if (fs.existsSync(fpath)) {
+      fs.rmdirSync(fpath)
+    }
     return true;
   }
 
@@ -83,10 +94,22 @@ export class DictService {
   }
 
   loadDictResource(dictid: string, keyText: string) {
-    return dicts.get(dictid)?.findWordResource(keyText) ?? NullDef(keyText);
+    const wordDef = dicts.get(dictid)?.findWordResource(keyText);
+    if (!wordDef || !wordDef.definition) {
+      return NullDef(keyText);
+    }
+    return wordDef;
   }
+  
   lookup(dictid: string, keyText: string) {
-    return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
+    // return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
+
+    const wordDef = dicts.get(dictid)?.lookup(keyText);
+    if (!wordDef || !wordDef.definition) {
+      return NullDef(keyText);
+    }
+    return wordDef as Definition;
+
   }
   associate(dictid: string, word: string) {
     const result: SuggestItem[] = [];

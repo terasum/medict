@@ -35,9 +35,11 @@ export class StubWindow {
   }
   openDictResourceDir(event: any, dictid: string) {
     const fpath = path.resolve(getResourceRootPath(), dictid);
-    if (fs.existsSync(fpath)) {
-      shell.openPath(fpath); // Open the given file in the desktop's default manner.
+    if (!fs.existsSync(fpath)) {
+      fs.mkdirSync(fpath)
     }
+    shell.openPath(fpath); // Open the given file in the desktop's default manner.
+    return true;
   }
   openMainProcessLog(event: any) {
     console.log(`openMainProcessLog ${getLoggerFilePath()}`);

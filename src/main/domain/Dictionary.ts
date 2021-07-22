@@ -59,12 +59,13 @@ export class Dictionary extends StorabeDictionary {
     return {
       keyText,
       definition: rscRelativePath(this.id, keyText),
+      contentSize: result.definition ? result.definition.length : 0,
     } as Definition;
   }
 
   lookup(word: string) {
     return this.mdxDict.lookup(word);
-  }
+}
 
   associate(word: string) {
     const result: SuggestItem[] = [];
