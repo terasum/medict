@@ -20,7 +20,7 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_file_path: out/make/zip/windows/x64/medict-linux-x64
-            asset_name: mything-windows-x64.zip
+            asset_name: mything-linux-x64.zip
           - os: windows-latest
             artifact_file_path: out/make/zip/windows/x64/medict-windows-x64
             asset_name: mything-windows-x64.zip
