@@ -25,7 +25,7 @@ jobs:
           #   artifact_file_path: medict
           #   asset_name: mything-windows-amd64
           - os: macos-latest
-            artifact_file_path: out/make/zip/darwin/x64/medict-darwin
+            artifact_file_path: out/make/zip/darwin/x64/medict-darwin-x64
             asset_name: medict-darwin-amd64
 
     steps:
@@ -66,21 +66,21 @@ jobs:
         id: extract_version
         uses: Saionaro/extract-package-version@v1.0.6
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          # tag_name: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
-          tag_name: release-${{github.sha}}
-          release_name: Release ${{github.sha}}
-          # release_name: Release ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
-          body: |
-            Changes in this Release
-            - TODO
-          draft: true
-          prerelease: todo
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     # tag_name: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
+      #     tag_name: release-${{github.sha}}
+      #     release_name: Release ${{github.sha}}
+      #     # release_name: Release ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
+      #     body: |
+      #       Changes in this Release
+      #       - TODO
+      #     draft: true
+      #     prerelease: todo
 
       - name: Upload release assets
         # if: ${{ github.event_name == 'pull_request' && github.event.action == 'unassigned' }}
@@ -90,4 +90,7 @@ jobs:
           file: ${{ matrix.artifact_file_path }}-${{ steps.extract_version.outputs.version }}.zip
           asset_name: ${{ matrix.asset_name }}
           # tag: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
-          tag: release-${{github.sha}}
+          tag: v${{ steps.extract_version.outputs.version }}-${{github.run_id	}}
+          release_name: Release ${{tag}}
+          prerelease: true
+
