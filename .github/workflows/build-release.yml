@@ -27,7 +27,7 @@ jobs:
             artifact_file_extension: -1.x86_64.rpm
             asset_name: medict-linux-x64.rpm
           - os: windows-latest
-            artifact_file_path: out/make/zip/windows/x64/medict-windows-x64-
+            artifact_file_path: out\make\zip\windows\x64\medict-windows-x64-
             artifact_file_extension: .exe
             asset_name: medict-windows-x64.zip
           - os: macos-latest
