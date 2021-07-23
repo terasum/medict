@@ -15,8 +15,25 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         node-version: [12.x]
+        include:
+          - os: ubuntu-latest
+            artifact_file_path: ./out/make/deb/x64/medict_
+            artifact_file_extension: _amd64.deb
+            asset_name: medict-linux-x64.deb
+          - os: ubuntu-latest
+            artifact_file_path: ./out/make/rpm/x64/medict-
+            artifact_file_extension: -1.x86_64.rpm
+            asset_name: medict-linux-x64.rpm
+          - os: windows-latest
+            artifact_file_path: out\make\squirrel.windows\x64\medict-
+            artifact_file_extension: " Setup.exe"
+            asset_name: medict-windows-setup.exe
+          - os: macos-latest
+            artifact_file_path: ./out/make/zip/darwin/x64/medict-darwin-x64-
+            artifact_file_extension: .zip
+            asset_name: medict-darwin-x64.zip
 
     steps:
       - name: Check out Git repository
@@ -42,22 +59,33 @@ jobs:
       - name: Publish
         run: yarn run publish
       
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: medict-release-${{matrix.os}}-zip
-          path: out/make/zip/darwin/x64/medict*
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-      - name: Update Release
+      - name: list artificats
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./out
+      - name: list artificats (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\make\squirrel.windows\x64
+      # - name: Update Release
         # You may pin to the exact commit or the version.
         # uses: johnwbyrd/update-release@1d5ec4791e40507e5eca3b4dbf90f0b27e7e4979
-        uses: johnwbyrd/update-release@v1.0.0
+        # uses: johnwbyrd/update-release@v1.0.0
+        # with:
+          # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
+          # files: medict-${{matrix.os}}-${{ startsWith(github.ref, 'refs/tags/v') }}.zip
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
+
+      - name: Upload release assets
+        # if: ${{ github.event_name == 'pull_request' && github.event.action == 'unassigned' }}
+        uses: svenstaro/upload-release-action@v2
         with:
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: medict-${{matrix.os}}-${{ startsWith(github.ref, 'refs/tags/v') }}.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ matrix.artifact_file_path }}${{ steps.extract_version.outputs.version }}${{ matrix.artifact_file_extension }}
+          asset_name: ${{ matrix.asset_name }}
+          # tag: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
+          tag: v${{ steps.extract_version.outputs.version }}-${{ github.run_id	}}
+          release_name: Release v${{ steps.extract_version.outputs.version }}-${{github.run_id	}}
+          prerelease: true
+
