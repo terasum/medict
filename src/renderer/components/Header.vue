@@ -9,7 +9,7 @@
       </button>
     </div>
     <div class="header-search-box">
-      <div :hidden="displaySearchBox">
+      <div>
         <b-input-group>
           <template v-slot:prepend>
             <b-dropdown :text="currentDict.alias" variant="info">
