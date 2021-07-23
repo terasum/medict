@@ -8569,10 +8569,10 @@ trim-repeated@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
-ts-jest@^27.0.3:
-  version "27.0.3"
-  resolved "https://registry.nlark.com/ts-jest/download/ts-jest-27.0.3.tgz#808492f022296cde19390bb6ad627c8126bf93f8"
-  integrity sha1-gISS8CIpbN4ZOQu2rWJ8gSa/k/g=
+ts-jest@^27.0.4:
+  version "27.0.4"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.4.tgz#df49683535831560ccb58f94c023d831b1b80df0"
+  integrity sha512-c4E1ECy9Xz2WGfTMyHbSaArlIva7Wi2p43QOMmCqjSSjHP06KXv+aT+eSY+yZMuqsMi3k7pyGsGj2q5oSl5WfQ==
   dependencies:
     bs-logger "0.x"
     buffer-from "1.x"
@@ -9228,7 +9228,7 @@ yaml@^1.10.0, yaml@^1.7.2:
   resolved "https://registry.npmjs.org/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
 
-yargs-parser@20.x:
+yargs-parser@20.x, yargs-parser@^20.0.0, yargs-parser@^20.2.2:
   version "20.2.9"
   resolved "https://registry.nlark.com/yargs-parser/download/yargs-parser-20.2.9.tgz?cache=0&sync_timestamp=1624233514145&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fyargs-parser%2Fdownload%2Fyargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
   integrity sha1-LrfcOwKJcY/ClfNidThFxBoMlO4=
@@ -9240,11 +9240,6 @@ yargs-parser@^18.1.2:
   dependencies:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
-
-yargs-parser@^20.0.0, yargs-parser@^20.2.2:
-  version "20.2.7"
-  resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-20.2.7.tgz#61df85c113edfb5a7a4e36eb8aa60ef423cbc90a"
-  integrity sha512-FiNkvbeHzB/syOjIUxFDCnhSfzAL8R5vs40MgLFBorXACCOAEaWu0gRZl14vG8MR9AOJIZbmkjhusqBYZ3HTHw==
 
 yargs@^15.0.1:
   version "15.4.1"
