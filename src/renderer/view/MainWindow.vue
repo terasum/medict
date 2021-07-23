@@ -115,14 +115,17 @@ window.addEventListener('message', function (event) {
   const tmpfile = tmp.fileSync({
     mode: 0o644,
     prefix: 'mdict',
-    postfix: '.js',
+    postfix: 'preload.js',
   });
   tempPreloadPath = tmpfile.name;
   console.log('preload file: ', tmpfile.name);
   if (fs.existsSync(tempPreloadPath)) {
-    fs.unlinkSync(tempPreloadPath);
+    return;
   }
-  fs.writeFileSync(tempPreloadPath, preloadScript);
+  setTimeout(() =>{
+    fs.writeFileSync(tempPreloadPath, preloadScript);
+    console.log('preload file written: ', tmpfile.name);
+  }, 1000)
 })();
 
 export default Vue.extend({
