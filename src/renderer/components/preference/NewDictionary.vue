@@ -95,6 +95,29 @@
         ></textarea>
       </div>
     </form>
+
+      <div class="form-group" v-if="readOnly">
+        <label>资源搜索</label>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="resource key"
+            aria-label="resource key"
+            v-model="resourceKey"
+          />
+          <button
+            class="btn btn-default"
+            type="button"
+            :disabled="!readOnly"
+            v-on:click="searchResource(id)"
+          >
+          搜索
+          </button>
+        </div>
+      </div>
+
+
     <div
       id="input-alert"
       class="alert-embbed alert alert-dismissible fade"
@@ -120,7 +143,7 @@
       </button>
     </div>
     <div v-if="showResourceBtn" class="btn-group">
-      <button class="btn-control btn btn-sm btn-default">
+      <button class="btn-control btn btn-sm btn-default" v-on:click="checkResource(id)">
         <span class="icon icon-archive"></span>
         <span class="btn-innertext"> 检视资源</span>
       </button>
@@ -140,7 +163,8 @@
 </template>
 
 <script lang="ts">
-import { SyncMainAPI } from '../../service.renderer.manifest';
+import { SyncMainAPI, AsyncMainAPI } from '../../service.renderer.manifest';
+import {listeners} from '../../service.renderer.listener';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 
@@ -209,6 +233,7 @@ export default Vue.extend({
       mdxpath: '',
       mddpath: '',
       resourceBaseDir: '',
+      resourceKey:'',
     };
   },
   computed: {},
@@ -299,26 +324,52 @@ export default Vue.extend({
       this.resourceBaseDir = '';
     },
     deleteDict(dictid: string) {
-      this.$store
-        .dispatch('asyncDelNewDict', dictid)
-        .then((result) => {
-          if (result) {
-            console.log(result);
+      const response = SyncMainAPI.syncShowComfirmMessageBox({
+        message: '确认删除?',
+        type: 'warning',
+        buttons: ['取消', '确认'],
+        defaultId: 0,
+        cancelId: 0,
+      });
+      console.log(response);
+      // response.then((resp: { response: number; checkboxChecked: boolean }) => {
+      if (response === 1) {
+        this.$store
+          .dispatch('asyncDelNewDict', dictid)
+          .then((result) => {
             if (result) {
-              this.showAlert('info', '删除成功');
-              let that = this;
-              setTimeout(() => {
-                that.closeModal();
-              }, 1000);
+              console.log(result);
+              if (result) {
+                this.showAlert('info', '删除成功');
+                let that = this;
+                setTimeout(() => {
+                  that.closeModal();
+                }, 1000);
+              }
+            } else {
+              this.showAlert('danger', '删除失败');
             }
-          } else {
-            this.showAlert('danger', '删除失败');
-          }
-        })
-        .catch((err) => {
-          this.showAlert('danger', '删除失败,' + err);
-        });
+          })
+          .catch((err) => {
+            this.showAlert('danger', '删除失败,' + err);
+          });
+      } else {
+        console.log('canceled');
+      }
+      // });
     },
+     checkResource(dictid: string) {
+      const response = AsyncMainAPI.openDictResourceDir(dictid);
+      console.log(response);
+    },
+    searchResource(dictid: string) {
+      this.hideAlert();
+      if(!this.resourceKey || this.resourceKey == '') {
+        this.showAlert('info', 'null');
+        return;
+      }
+     AsyncMainAPI.loadDictResource({ dictid: dictid, resourceKey: this.resourceKey } ); 
+    }
   },
   mounted() {
     this.$nextTick(function () {
@@ -329,6 +380,11 @@ export default Vue.extend({
       this.mdxpath = this.dictData.mdxpath;
       this.mddpath = this.dictData.mddpath;
       this.resourceBaseDir = this.dictData.resourceBaseDir;
+      // listener 
+      listeners.onLoadDictResource((event, arg) =>{
+         console.log(arg);
+         this.showAlert('info', `${arg.keyText} (${arg.contentSize}) [${arg.definition}]`);
+      })
     });
   },
 });

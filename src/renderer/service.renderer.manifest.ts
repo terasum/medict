@@ -8,13 +8,13 @@ import { ipcRenderer } from 'electron';
 })();
 
 function syncWrap(fnName: string) {
-  return (args: any) => {
+  return (args?: any) => {
     return ipcRenderer.sendSync(fnName, args);
   };
 }
 
 function asyncWrap(fnName: string) {
-  return (args: any) => {
+  return (args?: any) => {
     ipcRenderer.send(fnName, args);
   };
 }
@@ -22,10 +22,16 @@ function asyncWrap(fnName: string) {
 export const AsyncMainAPI = {
   asyncMessage: asyncWrap('asyncMessage'),
   createSubWindow: asyncWrap('createSubWindow'),
+  openDevTool: asyncWrap('openDevTool'),
+  openDictResourceDir: asyncWrap('openDictResourceDir'),
+  openResourceDir: asyncWrap('openResourceDir'),
+  openMainProcessLog: asyncWrap('openMainProcessLog'),
+  openUrlOnBrowser: asyncWrap('openUrlOnBrowser'),
   entryLinkWord: asyncWrap('entryLinkWord'),
   suggestWord: asyncWrap('suggestWord'),
   findWordPrecisly: asyncWrap('findWordPrecisly'),
   loadDictResource: asyncWrap('loadDictResource'),
+  asyncBaiduTranslate: asyncWrap('asyncBaiduTranslate'),
 };
 
 export const SyncMainAPI = {
@@ -35,4 +41,9 @@ export const SyncMainAPI = {
   dictFindOne: syncWrap('dictFindOne'),
   dictDeleteOne: syncWrap('dictDeleteOne'),
   dictFindAll: syncWrap('dictFindAll'),
+  syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
+  syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
+  syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
+  loadTranslateApiConfig: syncWrap('loadTranslateApiConfig'),
+  saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
 };

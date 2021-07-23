@@ -1,6 +1,5 @@
 import { LowSync, JSONFileSync } from 'lowdb';
 import { Config } from '../../../model/Config';
-import { logger } from '../../../utils/logger';
 
 import fs from 'fs';
 
@@ -15,7 +14,12 @@ export class StorageService {
     this.db = new LowSync(new JSONFileSync<Config>(dbpath));
     this.db.read();
 
-    this.db.data ||= { dicts: []}
+    this.db.data ||= {
+      dicts: [], translateApis: {
+        baidu: {
+          appkey: '',
+          appid:''
+    }}}
 
   }
 

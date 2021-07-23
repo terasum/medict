@@ -9,16 +9,18 @@ export function registerServices() {
   for (const fnName in syncfn) {
     if (Object.prototype.hasOwnProperty.call(syncfn, fnName)) {
       const fn = syncfn[fnName];
-      logger.info('🔧 register main process sync  service: %s', fnName);
+      logger.debug('🔧 register main process sync  service: %s', fnName);
       ipcMain.on(fnName, function(event, args) {
-        logger.info(
+        logger.debug(
           `[main-rpc:sync]: ================= [${fnName}] =============== START`
         );
-        logger.info(args, `[main-rpc:sync]: ${fnName}| arg:`);
+        logger.debug(`[main-rpc:sync]: ${fnName}| arg:`);
+        logger.debug(args);
         const ret = fn(args);
-        logger.info(ret, `[main-rpc:sync]: ${fnName}| ret:`);
+        logger.debug(`[main-rpc:sync]: ${fnName}| ret:`);
+        logger.debug(ret);
         event.returnValue = ret;
-        logger.info(
+        logger.debug(
           `[main-rpc:sync]: ================= [${fnName}] =============== END`
         );
       });
@@ -27,14 +29,15 @@ export function registerServices() {
   for (const fnName in asyncfn) {
     if (Object.prototype.hasOwnProperty.call(asyncfn, fnName)) {
       const fn = asyncfn[fnName];
-      logger.info('🔧 register main process async service: %s', fnName);
+      logger.debug('🔧 register main process async service: %s', fnName);
       ipcMain.on(fnName, function(event, args) {
-        logger.info(
+        logger.debug(
           `[main-rpc:async]: ================= [${fnName}] =============== START`
         );
-        logger.info(args, `[main-rpc:asyn](start): ${fnName} - args:`);
+        logger.debug(`[main-rpc:asyn](start): ${fnName} - args:`);
+        logger.debug(args);
         fn(event, args);
-        logger.info(
+        logger.debug(
           `[main-rpc:async]: ================= [${fnName}] =============== END`
         );
       });

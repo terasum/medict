@@ -1,16 +1,18 @@
 import { Dictionary } from '../../domain/Dictionary';
 import { SuggestItem } from '../../../model/SuggestItem';
-import { NullDef } from '../../../model/Definition';
+import { Definition, NullDef } from '../../../model/Definition';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import { StorageService } from './StorageServcice';
-import { getConfigJsonPath } from '../../../config/config';
-import { logger } from '../../../utils/logger';
+import { getConfigJsonPath,getResourceRootPath } from '../../../config/config';
+import path from 'path';
+import fs from 'fs';
+
 
 const storageService = new StorageService(getConfigJsonPath());
 
 const dicts = new Map<string, Dictionary>();
 
-(function loadDicts() {
+function loadDicts() {
   const dictLists = storageService.getDataByKey('dicts') as any[];
 
   if (dictLists) {
@@ -26,9 +28,15 @@ const dicts = new Map<string, Dictionary>();
           dict.description
         )
       );
+      const fpath = path.resolve(getResourceRootPath(), dict.id);
+      if (!fs.existsSync(fpath)) {
+        fs.mkdirSync(fpath)
+      }
     });
   }
-})();
+}
+// init load
+loadDicts();
 
 function saveToFile(dicts: Map<string, Dictionary>) {
   const storageList = [];
@@ -66,12 +74,18 @@ export class DictService {
     }
     dicts.set(dict.id, dict);
     saveToFile(dicts);
+    loadDicts();
     return true;
   }
 
   deleteOne(dictid: string) {
     dicts.delete(dictid);
     saveToFile(dicts);
+    loadDicts();
+    const fpath = path.resolve(getResourceRootPath(), dictid);
+    if (fs.existsSync(fpath)) {
+      fs.rmdirSync(fpath)
+    }
     return true;
   }
 
@@ -80,10 +94,22 @@ export class DictService {
   }
 
   loadDictResource(dictid: string, keyText: string) {
-    return dicts.get(dictid)?.findWordResource(keyText) ?? NullDef(keyText);
+    const wordDef = dicts.get(dictid)?.findWordResource(keyText);
+    if (!wordDef || !wordDef.definition) {
+      return NullDef(keyText);
+    }
+    return wordDef;
   }
+  
   lookup(dictid: string, keyText: string) {
-    return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
+    // return dicts.get(dictid)?.lookup(keyText) ?? NullDef(keyText);
+
+    const wordDef = dicts.get(dictid)?.lookup(keyText);
+    if (!wordDef || !wordDef.definition) {
+      return NullDef(keyText);
+    }
+    return wordDef as Definition;
+
   }
   associate(dictid: string, word: string) {
     const result: SuggestItem[] = [];

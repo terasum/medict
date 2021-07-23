@@ -11,8 +11,10 @@ function wrap(eventName: string) {
 
 export const listeners = {
   onCreateSubWindow: wrap('onCreateSubWindow'), // disabled
+  onOpenDevTool: wrap('onOpenDevTool'), // disabled
   onEntryLinkWord: wrap('onEntryLinkWord'),
   onSuggestWord: wrap('onSuggestWord'),
   onFindWordPrecisly: wrap('onFindWordPrecisly'),
   onLoadDictResource: wrap('onLoadDictResource'),
+  onAsyncBaiduTranslate: wrap('onAsyncBaiduTranslate'),
 };
