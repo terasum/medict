@@ -5,12 +5,17 @@ on:
       - master
       - develop
   pull_request:
+    
 defaults:
   run:
     shell: bash
+
 jobs:
   build:
     runs-on: ${{matrix.os}}
+    env:
+      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
+      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
     strategy:
       matrix:
         node-version: [12.x]
@@ -19,11 +24,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
+          echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
+
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Install
         run: yarn install
+
       - name: Test
         run: yarn run test
