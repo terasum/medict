@@ -24,7 +24,7 @@ jobs:
             asset_name: medict-linux-x64.deb
           - os: ubuntu-latest
             artifact_file_path: ./out/make/rpm/x64/medict-
-            artifact_file_extension: .x86_64.rpm
+            artifact_file_extension: -1.x86_64.rpm
             asset_name: medict-linux-x64.rpm
           - os: windows-latest
             artifact_file_path: out/make/zip/windows/x64/medict-windows-x64-
