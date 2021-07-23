@@ -25,8 +25,8 @@ jobs:
           #   artifact_file_path: medict
           #   asset_name: mything-windows-amd64
           - os: macos-latest
-            artifact_file_path: make/zip/darwin/x64/medict-darwin-${{ startsWith(github.ref, 'refs/tags/v') }}.zip
-            asset_name: medict-darwin-${{ startsWith(github.ref, 'refs/tags/v') }}.zip
+            artifact_file_path: out/make/zip/darwin/x64/medict-darwin
+            asset_name: medict-darwin-amd64
 
     steps:
       - name: Check out Git repository
@@ -53,7 +53,7 @@ jobs:
         run: yarn run publish
       
       - name: list artificats
-        run: find .
+        run: find . -path ./node_modules -prune -false -o -name '*.txt'
       # - name: Update Release
         # You may pin to the exact commit or the version.
         # uses: johnwbyrd/update-release@1d5ec4791e40507e5eca3b4dbf90f0b27e7e4979
@@ -62,11 +62,14 @@ jobs:
           # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
           # token: ${{ secrets.GITHUB_TOKEN }}
           # files: medict-${{matrix.os}}-${{ startsWith(github.ref, 'refs/tags/v') }}.zip
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
 
       - name: Upload release assets
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: out/zip/make/${{ matrix.artifact_file_path }}
+          file: ${{ matrix.artifact_file_path }}-${{ steps.package-version.outputs.current-version}}.zip
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ startsWith(github.ref, 'refs/tags/v') }}
