@@ -27,7 +27,7 @@ jobs:
             artifact_file_extension: -1.x86_64.rpm
             asset_name: medict-linux-x64.rpm
           - os: windows-latest
-            artifact_file_path: out\make\squirrel.windows\x64\medict-2.0.1
+            artifact_file_path: out\make\squirrel.windows\x64\medict-
             artifact_file_extension: " Setup.exe"
             asset_name: medict-windows-setup.exe
           - os: macos-latest
