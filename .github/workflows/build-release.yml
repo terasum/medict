@@ -22,7 +22,7 @@ jobs:
             artifact_file_path: ./out/make/deb/x64/medict_
             artifact_file_extension: _amd64.deb
             asset_name: medict-linux-x64.deb
-          - os: centos-latest
+          - os: ubuntu-latest
             artifact_file_path: ./out/make/rpm/x64/medict-
             artifact_file_extension: .x86_64.rpm
             asset_name: medict-linux-x64.rpm
