@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import { createSubWindow, WindowOption } from './subwindow';
 import { logger } from './utils/logger';
 
@@ -22,10 +22,13 @@ const createWindow = (): void => {
   logger.info('📃 documents path: %s', app.getPath('documents'));
   logger.info('📃 logs path: %s', app.getPath('logs'));
 
+  // hide menu
+  Menu.setApplicationMenu(null)
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
-    width: 768,
+    width: 800,
     titleBarStyle: 'hidden',
     // The lines below solved the issue
     webPreferences: {
