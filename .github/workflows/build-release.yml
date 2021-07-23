@@ -19,13 +19,20 @@ jobs:
         node-version: [12.x]
         include:
           - os: ubuntu-latest
-            artifact_file_path: out/make/zip/windows/x64/medict-linux-x64
-            asset_name: mything-linux-x64.zip
+            artifact_file_path: ./out/make/deb/x64/medict_
+            artifact_file_extension: _amd64.deb
+            asset_name: medict-linux-x64.deb
+          - os: centos-latest
+            artifact_file_path: ./out/make/rpm/x64/medict-
+            artifact_file_extension: .x86_64.rpm
+            asset_name: medict-linux-x64.rpm
           - os: windows-latest
-            artifact_file_path: out/make/zip/windows/x64/medict-windows-x64
-            asset_name: mything-windows-x64.zip
+            artifact_file_path: out/make/zip/windows/x64/medict-windows-x64-
+            artifact_file_extension: .exe
+            asset_name: medict-windows-x64.zip
           - os: macos-latest
-            artifact_file_path: out/make/zip/darwin/x64/medict-darwin-x64
+            artifact_file_path: ./out/make/zip/darwin/x64/medict-darwin-x64-
+            artifact_file_extension: .zip
             asset_name: medict-darwin-x64.zip
 
     steps:
@@ -71,7 +78,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ matrix.artifact_file_path }}-${{ steps.extract_version.outputs.version }}.zip
+          file: ${{ matrix.artifact_file_path }}${{ steps.extract_version.outputs.version }}${{ artifact_file_extension }}
           asset_name: ${{ matrix.asset_name }}
           # tag: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref}}
           tag: v${{ steps.extract_version.outputs.version }}-${{ github.run_id	}}
