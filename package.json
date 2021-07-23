@@ -1,7 +1,7 @@
 {
   "name": "medict",
   "productName": "medict",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Medict an elegant dictionary app",
   "main": ".webpack/main",
   "scripts": {
