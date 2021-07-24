@@ -68,9 +68,16 @@ jobs:
           files: out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
           dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: list artificats (windows)
+      - name: list artifcact (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\dist
+
+      - name: upload artifact
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-dist
+          path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
       - name: list artificats (macos/linux)
@@ -80,14 +87,20 @@ jobs:
       - name: artifact mkdir (macos/linux)
         if: ${{ matrix.os != 'windows-latest' }}
         run: mkdir -p out/dist
- 
 
       # ---------- macos part ------------
       - name: zip dist (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         uses: papeloto/action-zip@v1
         with:
-          files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip 
+          files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip
+          dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      - name: upload artifact
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-dist
           dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- linux part ------------
@@ -99,7 +112,36 @@ jobs:
           files: out/make/zip/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/zip/deb/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
           dest: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
+      - name: upload artifact
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-dist
+          path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+
       # ---------- macos/linux part ------------
+      - name: list artificats (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: dir out/dist
+
+  ## release jobs
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [12.x]
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: list artificats
+        run: find ./out
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
+
       - name: list artificats (macos/linux)
         if: ${{ matrix.os != 'windows-latest' }}
         run: dir out/dist
