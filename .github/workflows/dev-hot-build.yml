@@ -14,18 +14,9 @@ jobs:
       BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        # os: [windows-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         node-version: [12.x]
-        include:
-          - os: windows-latest
-            artifact_file_path: out\make\squirrel.windows\x64\medict-
-            artifact_file_extension: ' Setup.exe'
-            asset_name: medict-windows-setup.exe
-          - os: macos-latest
-            artifact_file_path: ./out/make/zip/darwin/x64/medict-darwin-x64-
-            artifact_file_extension: .zip
-            asset_name: medict-darwin-x64.zip
+
     steps:
       # checkout source code
       - name: Check out Git repository
@@ -83,7 +74,7 @@ jobs:
 
       # ---------- macos/linux part ------------
       - name: list artificats (macos/linux)
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os != 'windows-latest' }}
         run: find ./out
 
       - name: artifact mkdir (macos/linux)
