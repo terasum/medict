@@ -87,3 +87,13 @@ jobs:
       - name: list artificats(2) (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\dist
+      
+      - name: zip dist
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: TonyBogdanov/zip@1.0
+        with:
+          args: zip -qq -r medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip out\dist
+
+      - name: list artificats(3) (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\dist
