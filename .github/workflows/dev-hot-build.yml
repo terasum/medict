@@ -65,7 +65,7 @@ jobs:
 
       - name: rename artifact (windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: rename "out\\make\\squirrel.windows\\x64\\medict-${{ steps.extract_version.outputs.version }}\ Setup.exe" "out\\make\\squirrel.windows\\x64\\medict-${{ steps.extract_version.outputs.version }}-Setup.exe"
+        run: REN out\make\squirrel.windows\x64\*.exe out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }}-Setup.exe
 
       - name: Zip dist (windows)
         if: ${{ matrix.os == 'windows-latest' }}
