@@ -139,16 +139,21 @@ jobs:
       - name: List artificats (macos/linux)
         if: ${{ matrix.os != 'windows-latest' }}
         run: find ./out
-      - name: Set outputs
+
+      - name: Set outputs var
         id: gitvars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      
+
+      - name: Set date var
+        id: datevars
+        run: echo "::set-output name=date_var::$(date '+%Y%m%dT%H%M%S')"
+           
       - name: Release and upload
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: out/dist/${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
-          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}-${{ steps.gitvars.outputs.sha_short }}.zip
+          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}-${{ steps.gitvars.outputs.sha_short }}-${{ steps.datevars.outputs.date_var }}.zip
           tag: v${{ steps.extract_version.outputs.version }}-latest
           release_name: v${{ steps.extract_version.outputs.version }}-latest
           prerelease: true
