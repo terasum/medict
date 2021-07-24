@@ -142,7 +142,7 @@ jobs:
         run: find .
       
       - name: Create dist directory
-        run: mdir -p dist
+        run: mkdir -p dist
 
       - name: Extract version
         id: extract_version
