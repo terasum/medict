@@ -1,10 +1,10 @@
-name: 'Dev Hot Build'
+name: 'Release Latest'
 on:
   push:
-    branches: [develop]
+    branches: [master, develop]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [develop]
+    branches: [master, develop]
 
 jobs:
   build:
