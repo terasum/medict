@@ -1,0 +1,99 @@
+name: "Dev Hot Build"
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    env:
+      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
+      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
+
+  release:
+    runs-on: ${{ matrix.os }}
+    env:
+      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
+      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        node-version: [12.x]
+        include:
+          - os: ubuntu-latest
+            artifact_file_path: ./out/make/deb/x64/medict_
+            artifact_file_extension: _amd64.deb
+            asset_name: medict-linux-x64.deb
+          - os: ubuntu-latest
+            artifact_file_path: ./out/make/rpm/x64/medict-
+            artifact_file_extension: -1.x86_64.rpm
+            asset_name: medict-linux-x64.rpm
+          - os: windows-latest
+            artifact_file_path: out\make\squirrel.windows\x64\medict-
+            artifact_file_extension: " Setup.exe"
+            asset_name: medict-windows-setup.exe
+          - os: macos-latest
+            artifact_file_path: ./out/make/zip/darwin/x64/medict-darwin-x64-
+            artifact_file_extension: .zip
+            asset_name: medict-darwin-x64.zip
+    steps:
+          # checkout source code
+          - name: Check out Git repository
+            uses: actions/checkout@v2
+
+          # create env variables
+          - name: Create env file
+            run: |
+              touch .env
+              echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
+              echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
+
+          # setup nodejs environment
+          - name: Setup Node.js, NPM and Yarn
+            uses: actions/setup-node@v1
+            with:
+              node-version: ${{ matrix.node-version }}
+
+          # installation
+          - name: Install dependencies
+            run: yarn install
+          
+          # extract package.json version
+          - name: Extract version
+            id: extract_version
+            uses: Saionaro/extract-package-version@v1.0.6
+
+          # run test
+          - name: Test
+            run: yarn run test
+
+          # publish
+          - name: Publish
+            run: yarn run publish
+          
+          # list artifacts files
+          - name: list artificats
+            if: ${{ matrix.os != 'windows-latest' }}
+            run: find ./out
+
+          # windows part 
+          # list artifacts files (windows)
+          - name: list artificats (windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            run: dir out\make\squirrel.windows\x64
+          
+          - name: artifact mkdir (windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            run: mkdir out\dist
+
+          - name: copy artifact (windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            run: copy "out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe" out\dist
+
+          - name: list artificats(2) (windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            run: dir out\dist
+          
