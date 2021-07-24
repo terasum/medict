@@ -103,7 +103,7 @@
     "postcss-pxtorem": "^6.0.0",
     "sass": "^1.35.0",
     "sass-loader": "^12.1.0",
-    "style-loader": "^2.0.0",
+    "style-loader": "^3.2.1",
     "ts-jest": "^27.0.3",
     "ts-loader": "^9.2.2",
     "typescript": "^4.3.4",
