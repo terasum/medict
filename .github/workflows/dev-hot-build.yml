@@ -65,7 +65,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: papeloto/action-zip@v1
         with:
-          files: "out\\make\\squirrel.windows\\x64\\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
+          files: out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }}\ Setup.exe
           dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       - name: List artifcact (windows)
@@ -76,7 +76,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: windows-dist
+          name: medict-windows-x64-${{ steps.extract_version.outputs.version }}
           path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
@@ -100,7 +100,7 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: macos-dist
+          name: medict-macos-x64-${{ steps.extract_version.outputs.version }}
           path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- linux part ------------
@@ -109,14 +109,14 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: papeloto/action-zip@v1
         with:
-          files: out/make/zip/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/zip/deb/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
+          files: out/make/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/rpm/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
           dest: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       - name: Upload artifact (linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: linux-dist
+          name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}
           path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
@@ -136,11 +136,34 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
 
-      - name: list artificats
+      - name: List artificats
         run: find .
+      
+      - name: Create dist directory
+        run: mdir -p dist
 
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@v1.0.6
+
+      - name: download artifacts 
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+      
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: dist
+
+      # - name: Upload to Release
+      #   if: github.event.inputs.version == ''
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: build/*
+      #     tag: ${{ env.WGGO_VERSION }}
+      #     overwrite: true
+      #     file_glob: true
+      #     prerelease: false
 
 
