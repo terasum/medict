@@ -140,12 +140,13 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         run: find ./out
       
-      - name: Upload binaries to release
+      - name: Release and upload
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: out/dist/${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
           asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
-          overwrite: true
           tag: v${{ steps.extract_version.outputs.version }}-latest
           release_name: v${{ steps.extract_version.outputs.version }}-latest
+          prerelease: true
+          overwrite: true
