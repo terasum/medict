@@ -42,51 +42,51 @@
       </div>
 
       <div class="form-group">
-        <label>mdx词典文件</label>
-        <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="mdx path"
-            aria-label="mdx path"
-            v-model="mdxpath"
-            :disabled="true"
-          />
+        <div class="select-file-header">
+          <span>mdx词典文件<i v-if="!readOnly">(必选一个)</i></span>
           <button
-            class="btn btn-default"
+            class="btn btn-default btn-open"
             type="button"
             :disabled="readOnly"
             v-on:click="openMdxFile"
           >
+          打开
             <Folder :width="16" :height="16" />
           </button>
+        </div>
+
+        <div class="select-file-body">
+          <p>{{mdxpath}}</p>
         </div>
       </div>
 
       <div class="form-group">
-        <label>mdd词典文件</label>
-        <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="mdd path"
-            aria-label="mdd path"
-            v-model="mddpath"
-            :disabled="true"
-          />
+        <div class="select-file-header">
+        <span>mdd词典文件<i v-if="!readOnly">(零至多个)</i></span>
+
           <button
             class="btn btn-default"
             type="button"
             :disabled="readOnly"
             v-on:click="openMddFile"
           >
+          打开
             <Folder :width="16" :height="16" />
           </button>
         </div>
+
+        <div class="select-file-body">
+            <ul class="">
+              <li v-for="path_item in mddpath" :key="path_item">
+                {{ path_item }}
+              </li>
+            </ul>
+        </div>
+
       </div>
 
       <div class="form-group">
-        <label>词典描述</label>
+        <label>词典描述<i v-if="!readOnly">(可选)</i></label>
         <textarea
           class="form-control"
           rows="2"
@@ -195,8 +195,11 @@ const validate = function (dictData: StorabeDictionary) {
     return { ok: false, msg: `词典 mdxpath 非法: ${dictData.mdxpath}` };
   }
 
+  // if (!dictData.mddpath || dictData.mddpath === '') {
+  //   return { ok: false, msg: `词典 mddpath 非法: ${dictData.mddpath}` };
+  // }
   if (!dictData.mddpath || dictData.mddpath === '') {
-    return { ok: false, msg: `词典 mddpath 非法: ${dictData.mddpath}` };
+      dictData.mddpath = undefined;
   }
 
   return { ok: true, msg: '' };
@@ -231,7 +234,7 @@ export default Vue.extend({
       dictName: '',
       description: '',
       mdxpath: '',
-      mddpath: '',
+      mddpath: '' as string|string[],
       resourceBaseDir: '',
       resourceKey:'',
     };
@@ -299,15 +302,15 @@ export default Vue.extend({
         });
     },
     openMddFile() {
-      const resultPath = SyncMainAPI.syncShowOpenDialog(['mdd']);
+      const resultPath = SyncMainAPI.syncShowOpenDialog({fileExtensions: ['mdd'], multiFile: true});
       console.log(resultPath);
       if (resultPath && resultPath.length > 0) {
-        console.log(resultPath[0]);
-        this.mddpath = resultPath[0];
+        console.log(resultPath);
+        this.mddpath = resultPath;
       }
     },
     openMdxFile() {
-      const resultPath = SyncMainAPI.syncShowOpenDialog(['mdx']);
+      const resultPath = SyncMainAPI.syncShowOpenDialog({fileExtensions: ['mdx'], multiFile: false});
       console.log(resultPath);
       if (resultPath && resultPath.length > 0) {
         console.log(resultPath[0]);
@@ -395,17 +398,27 @@ export default Vue.extend({
   label {
     color: #737475;
     margin-bottom: 0;
+    font-size: 0.875rem;
   }
 }
 .btn-group {
   float: right;
 }
 
+.btn-open {
+  height: 26px;
+
+}  
+
 .btn-default {
-  background-color: #ccc;
+  background-color: #fff;
+  color: #666;
   border: 1px solid #999;
   padding: 0rem 0.475rem;
-  min-height: 26px;
+  min-height: 22px;
+  line-height: 22px;
+  font-size:0.875rem;
+
   .icon {
     color: #737475;
   }
@@ -457,6 +470,46 @@ export default Vue.extend({
     padding: 0 3px 0 5px;
   }
 }
+
+.select-file-header {
+  height: 26px;
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 10px;;
+  span{
+      display: inline-block;
+      margin-right: 5px;;
+      height: 20px;
+      line-height: 20px;
+      padding-top:1px;
+  }
+  button{
+    float:right;
+    height: 20px;
+    line-height: 20px;
+  }
+}
+
+.select-file-body {
+  font-size:0.875rem;
+  color:#666;
+  border: 1px solid #ccc;
+  min-height: 30px;
+  border-radius: 2px;
+  background: #f1f1f1;
+  padding-left: 3px;
+  ul{
+    list-style: none;
+    padding:0;
+    margin:0;
+    li{
+      padding:0;
+      margin:0; 
+    }
+  }
+}
+
+
 .alert-embbed {
   app-region: no-drag;
   -webkit-app-region: no-drag;

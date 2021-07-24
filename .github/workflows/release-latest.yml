@@ -153,7 +153,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: out/dist/${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
-          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}-${{ steps.gitvars.outputs.sha_short }}-${{ steps.datevars.outputs.date_var }}.zip
+          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}-${{ steps.gitvars.outputs.sha_short }}-${{ steps.datevars.outputs.date_var }}UTC.zip
           tag: v${{ steps.extract_version.outputs.version }}-latest
           release_name: v${{ steps.extract_version.outputs.version }}-latest
           prerelease: true
