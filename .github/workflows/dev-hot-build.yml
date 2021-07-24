@@ -81,15 +81,17 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\dist
 
-      # ---------- macos part ------------
-      - name: list artificats (macos)
-        if: ${{ matrix.os == 'macos-latest' }}
+      # ---------- macos/linux part ------------
+      - name: list artificats (macos/linux)
+        if: ${{ matrix.os == 'windows-latest' }}
         run: find ./out
 
-      - name: artifact mkdir (macos)
-        if: ${{ matrix.os == 'macos-latest' }}
+      - name: artifact mkdir (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
         run: mkdir -p out/dist
-     
+ 
+
+      # ---------- macos part ------------
       - name: zip dist (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         uses: papeloto/action-zip@v1
@@ -97,8 +99,16 @@ jobs:
           files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip 
           dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: list artificats (macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: dir out/dist
-
       # ---------- linux part ------------
+
+      - name: zip dist (macos)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: papeloto/action-zip@v1
+        with:
+          files: out/make/zip/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/zip/deb/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
+          dest: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      # ---------- macos/linux part ------------
+      - name: list artificats (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: dir out/dist
