@@ -14,7 +14,8 @@ jobs:
       BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        # os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [windows-latest]
         node-version: [12.x]
         include:
           - os: ubuntu-latest
