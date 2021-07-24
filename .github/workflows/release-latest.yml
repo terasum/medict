@@ -167,9 +167,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            dist/medict-linux-amd64-2.0.1.zip
-            dist/medict-macos-x64-2.0.1.zip
-            dist/medict-windows-x64-2.0.1.zip
+            dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+            dist/medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
+            dist/medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
           release: ${{ steps.extract_version.outputs.version }}-latest
           prerelease: true
           draft: false
