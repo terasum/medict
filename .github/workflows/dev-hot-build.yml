@@ -161,15 +161,18 @@ jobs:
         run: ls -R
         working-directory: dist
 
-      - name: Upload to Release
+      - name: Release New Version
         if: github.event.inputs.version == ''
-        uses: svenstaro/upload-release-action@v2
+        uses: johnwbyrd/update-release@v1.0.0
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
-          tag: ${{ steps.extract_version.outputs.version }}-latest
-          overwrite: true
-          file_glob: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            dist/medict-linux-amd64-2.0.1/medict-linux-amd64-2.0.1.zip
+            dist/medict-macos-x64-2.0.1/medict-macos-x64-2.0.1.zip
+            dist/medict-windows-x64-2.0.1/medict-windows-x64-2.0.1.zip
+          release: ${{ steps.extract_version.outputs.version }}-latest
           prerelease: true
-
+          draft: false
+          body: |
+            This is a pre-release version of the Medict. TODO
 
