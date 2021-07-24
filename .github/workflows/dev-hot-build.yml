@@ -161,15 +161,15 @@ jobs:
         run: ls -R
         working-directory: dist
 
-      # - name: Upload to Release
-      #   if: github.event.inputs.version == ''
-      #   uses: svenstaro/upload-release-action@v2
-      #   with:
-      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-      #     file: build/*
-      #     tag: ${{ env.WGGO_VERSION }}
-      #     overwrite: true
-      #     file_glob: true
-      #     prerelease: false
+      - name: Upload to Release
+        if: github.event.inputs.version == ''
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/*
+          tag: ${{ steps.extract_version.outputs.version }}-latest
+          overwrite: true
+          file_glob: true
+          prerelease: true
 
 
