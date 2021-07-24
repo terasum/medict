@@ -61,13 +61,7 @@ jobs:
       - name: Publish
         run: yarn run publish
 
-      # list artifacts files
-      - name: list artificats
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: find ./out
-
-      # windows part
-      # list artifacts files (windows)
+      # ---------- windows part ------------
       - name: list artificats (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\make\squirrel.windows\x64
@@ -83,12 +77,11 @@ jobs:
           files: out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
           dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: list artificats(3) (windows)
+      - name: list artificats (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\dist
 
-      # macos part
-      # list artifacts files (windows)
+      # ---------- macos part ------------
       - name: list artificats (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         run: find ./out
@@ -99,16 +92,13 @@ jobs:
      
       - name: zip dist (macos)
         if: ${{ matrix.os == 'macos-latest' }}
-        uses: TonyBogdanov/zip@1.0
-        with:
-          args: zip -qq -r medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip out/dist
-      - name: zip dist (macos)
-        if: ${{ matrix.os == 'windows-latest' }}
         uses: papeloto/action-zip@v1
         with:
           files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip 
           dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: list artificats(3) (macos)
+      - name: list artificats (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         run: dir out/dist
+
+      # ---------- linux part ------------
