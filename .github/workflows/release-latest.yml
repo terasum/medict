@@ -27,7 +27,7 @@ jobs:
             asset_prefix: medict-windows-x64
           - name: macos
             os: macos-latest
-            asset_prefix: medict-macos-x64
+            asset_prefix: medict-macos-amd64
 
     steps:
       # checkout source code
