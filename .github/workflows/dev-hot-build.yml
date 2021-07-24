@@ -76,19 +76,12 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: mkdir out\dist
 
-      - name: copy artifact (windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: copy "out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe" out\dist
-
-      - name: list artificats(2) (windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: dir out\dist
-      
       - name: zip dist (windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: TonyBogdanov/zip@1.0
+        uses: papeloto/action-zip@v1
         with:
-          args: zip -qq -r medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip out\dist
+          files: out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
+          dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       - name: list artificats(3) (windows)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -103,20 +96,18 @@ jobs:
       - name: artifact mkdir (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         run: mkdir -p out/dist
-
-      - name: copy artifact (macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: cp "out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip" out/dist
-
-      - name: list artificats(2) (macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: dir out/dist
-      
+     
       - name: zip dist (macos)
         if: ${{ matrix.os == 'macos-latest' }}
         uses: TonyBogdanov/zip@1.0
         with:
           args: zip -qq -r medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip out/dist
+      - name: zip dist (macos)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: papeloto/action-zip@v1
+        with:
+          files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip 
+          dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       - name: list artificats(3) (macos)
         if: ${{ matrix.os == 'macos-latest' }}
