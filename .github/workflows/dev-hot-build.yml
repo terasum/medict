@@ -65,7 +65,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: papeloto/action-zip@v1
         with:
-          files: "out\make\squirrel.windows\\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
+          files: "out\\make\\squirrel.windows\\x64\\medict-${{ steps.extract_version.outputs.version }} Setup.exe"
           dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       - name: list artifcact (windows)
