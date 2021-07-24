@@ -96,6 +96,7 @@
     "eslint-plugin-import": "^2.20.0",
     "fork-ts-checker-webpack-plugin": "^6.2.12",
     "jest": "^27.0.6",
+    "jest-mock-axios": "^4.4.0",
     "node-loader": "^2.0.0",
     "postcss": "^8.1.0",
     "postcss-loader": "^6.1.0",
