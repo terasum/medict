@@ -148,3 +148,4 @@ jobs:
           asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
           overwrite: true
           tag: v${{ steps.extract_version.outputs.version }}-latest
+          release_name: v${{ steps.extract_version.outputs.version }}-latest
