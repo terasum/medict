@@ -63,7 +63,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: mkdir out\dist
 
-      - name: rename artifact (windows)
+      - name: Rename artifact (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: REN out\make\squirrel.windows\x64\*.exe medict-${{ steps.extract_version.outputs.version }}-Setup.exe
 
@@ -82,7 +82,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: medict-windows-x64-${{ steps.extract_version.outputs.version }}
+          name: medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
           path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
@@ -106,7 +106,7 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: medict-macos-x64-${{ steps.extract_version.outputs.version }}
+          name: medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
           path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- linux part ------------
@@ -122,7 +122,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v2
         with:
-          name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}
+          name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
           path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
@@ -152,7 +152,7 @@ jobs:
         id: extract_version
         uses: Saionaro/extract-package-version@v1.0.6
 
-      - name: download artifacts 
+      - name: Download artifacts 
         uses: actions/download-artifact@v2
         with:
           path: dist
@@ -167,9 +167,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            dist/medict-linux-amd64-2.0.1/medict-linux-amd64-2.0.1.zip
-            dist/medict-macos-x64-2.0.1/medict-macos-x64-2.0.1.zip
-            dist/medict-windows-x64-2.0.1/medict-windows-x64-2.0.1.zip
+            dist/medict-linux-amd64-2.0.1.zip
+            dist/medict-macos-x64-2.0.1.zip
+            dist/medict-windows-x64-2.0.1.zip
           release: ${{ steps.extract_version.outputs.version }}-latest
           prerelease: true
           draft: false
