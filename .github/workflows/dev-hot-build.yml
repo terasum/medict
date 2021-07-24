@@ -1,19 +1,13 @@
-name: "Dev Hot Build"
+name: 'Dev Hot Build'
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    env:
-      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
-      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
-
-  release:
     runs-on: ${{ matrix.os }}
     env:
       BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
@@ -33,67 +27,66 @@ jobs:
             asset_name: medict-linux-x64.rpm
           - os: windows-latest
             artifact_file_path: out\make\squirrel.windows\x64\medict-
-            artifact_file_extension: " Setup.exe"
+            artifact_file_extension: ' Setup.exe'
             asset_name: medict-windows-setup.exe
           - os: macos-latest
             artifact_file_path: ./out/make/zip/darwin/x64/medict-darwin-x64-
             artifact_file_extension: .zip
             asset_name: medict-darwin-x64.zip
     steps:
-          # checkout source code
-          - name: Check out Git repository
-            uses: actions/checkout@v2
+      # checkout source code
+      - name: Check out Git repository
+        uses: actions/checkout@v2
 
-          # create env variables
-          - name: Create env file
-            run: |
-              touch .env
-              echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
-              echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
+      # create env variables
+      - name: Create env file
+        run: |
+          touch .env
+          echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
+          echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
 
-          # setup nodejs environment
-          - name: Setup Node.js, NPM and Yarn
-            uses: actions/setup-node@v1
-            with:
-              node-version: ${{ matrix.node-version }}
+      # setup nodejs environment
+      - name: Setup Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
-          # installation
-          - name: Install dependencies
-            run: yarn install
-          
-          # extract package.json version
-          - name: Extract version
-            id: extract_version
-            uses: Saionaro/extract-package-version@v1.0.6
+      # installation
+      - name: Install dependencies
+        run: yarn install
 
-          # run test
-          - name: Test
-            run: yarn run test
+      # extract package.json version
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
 
-          # publish
-          - name: Publish
-            run: yarn run publish
-          
-          # list artifacts files
-          - name: list artificats
-            if: ${{ matrix.os != 'windows-latest' }}
-            run: find ./out
+      # run test
+      - name: Test
+        run: yarn run test
 
-          # windows part 
-          # list artifacts files (windows)
-          - name: list artificats (windows)
-            if: ${{ matrix.os == 'windows-latest' }}
-            run: dir out\make\squirrel.windows\x64
-          
-          - name: artifact mkdir (windows)
-            if: ${{ matrix.os == 'windows-latest' }}
-            run: mkdir out\dist
+      # publish
+      - name: Publish
+        run: yarn run publish
 
-          - name: copy artifact (windows)
-            if: ${{ matrix.os == 'windows-latest' }}
-            run: copy "out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe" out\dist
+      # list artifacts files
+      - name: list artificats
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./out
 
-          - name: list artificats(2) (windows)
-            if: ${{ matrix.os == 'windows-latest' }}
-            run: dir out\dist
-          
+      # windows part
+      # list artifacts files (windows)
+      - name: list artificats (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\make\squirrel.windows\x64
+
+      - name: artifact mkdir (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: mkdir out\dist
+
+      - name: copy artifact (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: copy "out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }} Setup.exe" out\dist
+
+      - name: list artificats(2) (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\dist
