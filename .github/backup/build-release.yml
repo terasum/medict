@@ -88,4 +88,3 @@ jobs:
           tag: v${{ steps.extract_version.outputs.version }}-${{ github.run_id	}}
           release_name: Release v${{ steps.extract_version.outputs.version }}-${{github.run_id	}}
           prerelease: true
-

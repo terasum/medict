@@ -14,10 +14,20 @@ jobs:
       BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
       BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
     strategy:
+      fail-fast: false   
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         node-version: [12.x]
-      fail-fast: false   
+        include:
+          - name: linux
+            os: ubuntu-latest
+            asset_prefix: medict-linux-amd64
+          - name: windows
+            os: windows-latest
+            asset_prefix: medict-windows-x64
+          - name: macos
+            os: macos-latest
+            asset_prefix: medict-macos-x64
 
     steps:
       # checkout source code
@@ -78,12 +88,12 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: dir out\dist
 
-      - name: Upload artifact (windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
-          path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
+      # - name: Upload artifact (windows)
+      #   if: ${{ matrix.os == 'windows-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
       - name: List artificats (macos/linux)
@@ -102,12 +112,12 @@ jobs:
           files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip
           dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: Upload artifact
-        if: ${{ matrix.os == 'macos-latest' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
-          path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
+      # - name: Upload artifact
+      #   if: ${{ matrix.os == 'macos-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- linux part ------------
 
@@ -118,61 +128,23 @@ jobs:
           files: out/make/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/rpm/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
           dest: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
-      - name: Upload artifact (linux)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
-          path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+      # - name: Upload artifact (linux)
+      #   if: ${{ matrix.os == 'ubuntu-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- macos/linux part ------------
       - name: List artificats (macos/linux)
         if: ${{ matrix.os != 'windows-latest' }}
         run: find ./out
-
-  ## release jobs
-  release:
-    needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [12.x]
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
-
-      - name: List artificats
-        run: find .
       
-      - name: Create dist directory
-        run: mkdir -p dist
-
-      - name: Extract version
-        id: extract_version
-        uses: Saionaro/extract-package-version@v1.0.6
-
-      - name: Download artifacts 
-        uses: actions/download-artifact@v2
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          path: dist
-      
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: dist
-
-      - name: Release New Version
-        if: github.event.inputs.version == ''
-        uses: johnwbyrd/update-release@v1.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
-            dist/medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
-            dist/medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
-          release: ${{ steps.extract_version.outputs.version }}-latest
-          prerelease: true
-          draft: false
-          body: |
-            This is a pre-release version of the Medict. TODO
-
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
+          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
+          overwrite: true
+          tag: v${{ steps.extract_version.outputs.version }}-latest
