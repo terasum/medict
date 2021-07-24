@@ -122,7 +122,7 @@ jobs:
       # ---------- macos/linux part ------------
       - name: list artificats (macos/linux)
         if: ${{ matrix.os != 'windows-latest' }}
-        run: dir out/dist
+        run: find ./out
 
   ## release jobs
   release:
@@ -142,6 +142,4 @@ jobs:
         id: extract_version
         uses: Saionaro/extract-package-version@v1.0.6
 
-      - name: list artificats (macos/linux)
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: dir out/dist
+
