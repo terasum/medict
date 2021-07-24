@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: macos-dist
-          dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
+          path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
 
       # ---------- linux part ------------
 
