@@ -59,7 +59,7 @@ jobs:
       - name: Publish
         run: yarn run publish
       
-      - name: list artificats
+      - name: List artificats
         if: ${{ matrix.os != 'windows-latest' }}
         run: find ./out
       - name: list artificats (windows)
