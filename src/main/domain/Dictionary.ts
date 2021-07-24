@@ -8,8 +8,13 @@ import { SuggestItem } from '../../model/SuggestItem';
 import { Definition, NullDef } from '../../model/Definition';
 import { StorabeDictionary } from '../../model/StorableDictionary';
 import { logger } from '../../utils/logger';
+import { is } from 'cheerio/lib/api/traversing';
 
 const resourceRoot = getResourceRootPath();
+
+function isArray(o:any){
+  return Object.prototype.toString.call(o)=='[object Array]';
+}
 
 /**
  * Dictionary 词典实体类
@@ -24,19 +29,27 @@ const resourceRoot = getResourceRootPath();
  */
 export class Dictionary extends StorabeDictionary {
   mdxDict: Mdict;
-  mddDict: Mdict | undefined;
+  mddDicts: Mdict[];
   description: string;
   constructor(
     id: string,
     alias: string,
     name: string,
     mdxpath: string,
-    mddpath?: string,
+    mddpath?: string|string[],
     description?: string
   ) {
     super(id, alias, name, mdxpath, mddpath);
     this.mdxDict = new Mdict(mdxpath);
-    this.mddDict = mddpath ? new Mdict(mddpath) : undefined;
+    this.mddDicts = [];
+    if(mddpath && typeof mddpath === 'string' && mddpath != '' && mddpath.length > 0) {
+      this.mddDicts.push(new Mdict(mddpath)); 
+    }
+    if(mddpath && isArray(mddpath) && mddpath.length > 0) {
+      for(let i = 0; i < mddpath.length; i++) {
+        this.mddDicts.push(new Mdict(mddpath[i])); 
+      }
+    }
     this.description = description || 'undefined';
   }
 
@@ -49,17 +62,29 @@ export class Dictionary extends StorabeDictionary {
   }
 
   findWordResource(keyText: string) {
-    const result = this.mddDict?.lookup(keyText) ?? NullDef(keyText);
+    let result = undefined;
+    for(let i = 0; i < this.mddDicts.length; i++) {
+      const tempMdd = this.mddDicts[i];
+      if(!tempMdd){
+        continue;
+      }
+      result = tempMdd.lookup(keyText) ?? NullDef(keyText);
+    }
     if (result && result.definition) {
       const filePath = rscCachePath(this.id, keyText);
       fs.writeFileSync(filePath, Buffer.from(result.definition, 'base64'));
       logger.info(`main-process write cache file: ${filePath}`);
+      return {
+        keyText,
+        definition: rscRelativePath(this.id, keyText),
+        contentSize: result.definition ? result.definition.length : 0,
+      } as Definition;
     }
 
     return {
       keyText,
       definition: rscRelativePath(this.id, keyText),
-      contentSize: result.definition ? result.definition.length : 0,
+      contentSize: 0,
     } as Definition;
   }
 

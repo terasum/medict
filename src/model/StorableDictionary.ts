@@ -3,7 +3,7 @@ export class StorabeDictionary {
   alias: string;
   name: string;
   mdxpath: string;
-  mddpath?: string;
+  mddpath?: string|string[];
   resourceBaseDir: string;
   description?: string;
   constructor(
@@ -11,7 +11,7 @@ export class StorabeDictionary {
     alias: string,
     name: string,
     mdxpath: string,
-    mddpath?: string,
+    mddpath?: string|string[],
     description?: string
   ) {
     this.id = id;

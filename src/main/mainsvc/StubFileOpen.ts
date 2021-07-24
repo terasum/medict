@@ -5,7 +5,7 @@ import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
 const fileOpenService = new FileOpenService();
 
 export class StubFileOpen {
-  syncShowOpenDialog(arg: string[]) {
+  syncShowOpenDialog(arg: {fileExtensions: string[] | undefined, multiFile: boolean}) {
     logger.info('syncShowOpenDialog - arg');
     logger.info(arg);
     return fileOpenService.showOpenDialog(arg);

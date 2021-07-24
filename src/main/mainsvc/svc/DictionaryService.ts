@@ -6,6 +6,7 @@ import { StorageService } from './StorageServcice';
 import { getConfigJsonPath,getResourceRootPath } from '../../../config/config';
 import path from 'path';
 import fs from 'fs';
+import rimraf from "rimraf";
 
 
 const storageService = new StorageService(getConfigJsonPath());
@@ -84,7 +85,7 @@ export class DictService {
     loadDicts();
     const fpath = path.resolve(getResourceRootPath(), dictid);
     if (fs.existsSync(fpath)) {
-      fs.rmdirSync(fpath)
+      rimraf(fpath, function () { console.log("delete directory done", fpath); });
     }
     return true;
   }
