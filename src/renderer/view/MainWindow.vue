@@ -33,13 +33,18 @@
                 : ''
             "
           >
-            {{ currentShowWord }}
+            {{ tabWord }}
           </div>
           <div class="header-search">
-          <input class="header-search-input" type="text" placeholder="resource key..." v-model="lookupResourceKey"/>
-          <div class="header-search-btn" @click="onLookupResource">
-            <b-icon icon="search"></b-icon>
-          </div>
+            <input
+              class="header-search-input"
+              type="text"
+              placeholder="resource key..."
+              v-model="lookupResourceKey"
+            />
+            <div class="header-search-btn" @click="onLookupResource">
+              <b-icon icon="search"></b-icon>
+            </div>
           </div>
           <div class="header-btn header-btn-devtool" @click="onDevtoolBtnClick">
             <b-icon icon="bug"></b-icon>
@@ -48,7 +53,7 @@
             <b-icon icon="folder"></b-icon>
           </div>
           <div class="header-dict-info">
-            <span>{{currentDict.name}}</span>
+            <span>{{ currentDict.name }}</span>
           </div>
         </div>
         <div class="word-content">
@@ -70,78 +75,43 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-import { AsyncMainAPI } from '../service.renderer.manifest';
-import {listeners} from '../service.renderer.listener';
+import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
+import { listeners } from '../service.renderer.listener';
 import Store from '../store/index';
-import fs from 'fs';
-// @ts-ignore
-import tmp from 'tmp';
-
-let tempPreloadPath = '';
-
-(function init() {
-  // preload 中定义了点击后处理的 message 逻辑
-  // 以及 main-process 返回之后的监听逻辑
-  // const rawPreloadScript = fs.readFileSync(
-  //   path.resolve('./src/renderer/preload/webview.preload.js')
-  // );
-
-  const rawPreloadScript = `
-const { ipcRenderer } = require('electron');
-console.warn('=== preload electron [sandbox] ===');
-
-// 监听 main-process 发回来的 结果，格式是 {keyText:"", definition:""}
-ipcRenderer.on('onFindWordPrecisly', (event, args) => {
-  console.log('------ webview listener[onFindWordPrecisly] -----');
-  console.log(args);
-  return ipcRenderer.sendToHost('onFindWordPrecisly', args);
-});
-
-// 主要处理点击 entry://之后的逻辑
-// 将会把需要查询的词发送到 main-process
-window.addEventListener('message', function (event) {
-  console.log('---- preload listenning message -----');
-  console.log(event.data);
-  if (event.data && event.data.channel && event.data.payload) {
-    console.log(
-      'send to main-process [\${event.data.channel}|\${event.data.payload}]'
-    );
-    ipcRenderer.send(event.data.channel, event.data.payload);
-  }
-});
-  `;
-
-  const preloadScript = rawPreloadScript;
-  const tmpfile = tmp.fileSync({
-    mode: 0o644,
-    prefix: 'mdict',
-    postfix: 'preload.js',
-  });
-  tempPreloadPath = tmpfile.name;
-  console.log('preload file: ', tmpfile.name);
-  if (fs.existsSync(tempPreloadPath)) {
-    return;
-  }
-  setTimeout(() =>{
-    fs.writeFileSync(tempPreloadPath, preloadScript);
-    console.log('preload file written: ', tmpfile.name);
-  }, 1000)
-})();
 
 export default Vue.extend({
   components: { Header, FooterBar },
-  data: () => {
+  data() {
     return {
-      preload: `file://${tempPreloadPath}`,
-      lookupResourceKey:'',
+      lookupResourceKey: '',
     };
   },
   computed: {
+    preload() {
+      return `file://${SyncMainAPI.syncGetWebviewPreliadFilePath()}`;
+    },
     currentWordIdx() {
       return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
     },
     currentShowWord() {
       return (this.$store as typeof Store).state.currentLookupWord;
+    },
+    tabWord() {
+      const searchWord = (this.$store as typeof Store).state.currentLookupWord;
+      if (!searchWord) {
+        return '';
+      }
+
+      const actualWord = (this.$store as typeof Store).state.currentActualWord;
+      if (!actualWord || actualWord === '') {
+        return '';
+      }
+
+      if (actualWord === searchWord) {
+        return actualWord;
+      }
+
+      return searchWord + ' › ' + actualWord;
     },
     currentContent() {
       return (this.$store as typeof Store).state.currentContent;
@@ -167,24 +137,32 @@ export default Vue.extend({
       webview.openDevTools();
     },
     onLookupResource() {
-      if(!this.lookupResourceKey || this.lookupResourceKey == '') {
+      if (!this.lookupResourceKey || this.lookupResourceKey == '') {
         return;
       }
-      if (!this.currentDict || !this.currentDict.id || this.currentDict.id === ''){
+      if (
+        !this.currentDict ||
+        !this.currentDict.id ||
+        this.currentDict.id === ''
+      ) {
         return;
       }
 
-      AsyncMainAPI.loadDictResource({dictid:this.currentDict.id, resourceKey: this.lookupResourceKey})
+      AsyncMainAPI.loadDictResource({
+        dictid: this.currentDict.id,
+        resourceKey: this.lookupResourceKey,
+      });
     },
     onResourceDir() {
-      AsyncMainAPI.openDictResourceDir(this.currentDict.id)
-    }
+      AsyncMainAPI.openDictResourceDir(this.currentDict.id);
+    },
   },
   mounted() {
     // webview's content update, this listener
     // designed for @@ENTRY_LINK==
     const webview = document.getElementsByTagName('webview')[0];
     webview.addEventListener('ipc-message', (event) => {
+      console.log('====== webview post event ========');
       // 通过event.channel的值来判断webview发送的事件名
       // @ts-ignore
       if (event.channel === 'onFindWordPrecisly') {
@@ -199,12 +177,18 @@ export default Vue.extend({
         // @ts-ignore
         this.$store.commit('updateCurrentLookupWord', event.args[0].keyText);
       }
+
+      // @ts-ignore
+      if (event.channel === 'entryLinkWord') {
+        console.log(`[async:mainWindow] webview entryLinkWord clicked`);
+        console.log(event);
+      }
     });
 
     // onloadDictResource listener
-    listeners.onLoadDictResource((event, arg) =>{
-        console.log(arg);
-      })
+    listeners.onLoadDictResource((event, arg) => {
+      console.log(arg);
+    });
   },
   destroyed() {},
 });
@@ -279,35 +263,35 @@ export default Vue.extend({
     border-bottom: #fff;
   }
 
-  .header-search{
-   float: right;
-   display: flex;
-   font-size: 12px;
-
-   .header-search-input{
-     display:flex;
-     height: 20px;
-     margin: 3px 5px;
-   }
-
-   .header-search-btn{
-    display:block;
+  .header-search {
+    float: right;
+    display: flex;
     font-size: 12px;
-    border: 1px solid #aaa;
-    padding: 0 3px 0 3px;
-    border-radius: 2px;
-    height: 20px;
-    line-height: 20px;
-    background-color: #f1f1f1;
-    margin: 3px 5px;
-    text-align: center;
-    &:hover {
-      border: 1px solid #666;
+
+    .header-search-input {
+      display: flex;
+      height: 20px;
+      margin: 3px 5px;
     }
-    &:active {
-      background-color: #919191;
+
+    .header-search-btn {
+      display: block;
+      font-size: 12px;
+      border: 1px solid #aaa;
+      padding: 0 3px 0 3px;
+      border-radius: 2px;
+      height: 20px;
+      line-height: 20px;
+      background-color: #f1f1f1;
+      margin: 3px 5px;
+      text-align: center;
+      &:hover {
+        border: 1px solid #666;
+      }
+      &:active {
+        background-color: #919191;
+      }
     }
-   }
   }
   .header-btn {
     float: right;
@@ -330,23 +314,22 @@ export default Vue.extend({
   }
 }
 
-.header-dict-info{
+.header-dict-info {
   float: right;
-  display:flex;
-  height:20px;
+  display: flex;
+  height: 20px;
   margin: 3px 5px;
   min-width: 50px;
   background: #e9e9e9;
   justify-content: center;
   border-radius: 2px;
-  span{
+  span {
     font-weight: 400;
     padding: 0 4px;
-    color:#666;
+    color: #666;
     font-size: 12px;
     line-height: 20px;
     -webkit-user-select: none;
-
   }
 }
 

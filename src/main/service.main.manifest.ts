@@ -34,6 +34,7 @@ export const syncfn = {
   syncShowOpenDialog: stubFileOpen.syncShowOpenDialog,
   syncShowMainLoggerPath: stubFileOpen.syncShowMainLoggerPath,
   syncGetResourceRootPath: stubFileOpen.syncGetResourceRootPath,
+  syncGetWebviewPreliadFilePath: stubFileOpen.syncGetWebviewPreliadFilePath,
   syncShowComfirmMessageBox: stubWindow.syncShowComfirmMessageBox,
   dictAddOne: stubDictAccessor.dictAddOne,
   dictFindOne: stubDictAccessor.dictFindOne,

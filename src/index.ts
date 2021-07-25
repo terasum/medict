@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import { createSubWindow, WindowOption } from './subwindow';
+import {writePreloadFile} from './config/config';
 import { logger } from './utils/logger';
 
 import './main/init';
@@ -21,6 +22,9 @@ const createWindow = (): void => {
   logger.info('📃 temp path: %s', app.getPath('temp'));
   logger.info('📃 documents path: %s', app.getPath('documents'));
   logger.info('📃 logs path: %s', app.getPath('logs'));
+  logger.info('📃 write preload file');
+
+  writePreloadFile();
 
   // hide menu
   Menu.setApplicationMenu(null)

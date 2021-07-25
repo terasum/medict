@@ -1,11 +1,11 @@
 import { FileOpenService } from './svc/FileOpenService';
 import { logger } from '../../utils/logger';
-import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
+import { getResourceRootPath, getLoggerFilePath, webviewPreloadFilePath } from '../../config/config';
 
 const fileOpenService = new FileOpenService();
 
 export class StubFileOpen {
-  syncShowOpenDialog(arg: string[]) {
+  syncShowOpenDialog(arg: {fileExtensions: string[] | undefined, multiFile: boolean}) {
     logger.info('syncShowOpenDialog - arg');
     logger.info(arg);
     return fileOpenService.showOpenDialog(arg);
@@ -15,5 +15,9 @@ export class StubFileOpen {
   }
   syncGetResourceRootPath(arg?: any) {
     return getResourceRootPath();
+  }
+
+  syncGetWebviewPreliadFilePath(arg?:any) {
+    return webviewPreloadFilePath();
   }
 }
