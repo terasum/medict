@@ -56,15 +56,17 @@ export class StubWordQuery {
     };
     // 传入函数的目的是不让 DictionaryContectService 反向依赖 DictionaryService
     // 注意，事件必须是 onFindWordPrecisly
-    event.sender.send('onFindWordPrecisly', {
-      keyText: arg.keyText,
-      definition: dictContentService.definitionReplace(
+    const replaceResult = dictContentService.definitionReplace(
         arg.dictid,
         wordResult.keyText,
         wordResult.definition,
         lookupFn,
         resFn
-      ),
+      )
+    event.sender.send('onFindWordPrecisly', {
+      keyText: replaceResult.keyText,
+      sourceKeyText: replaceResult.sourceKeyText,
+      definition: replaceResult.definition,
     });
   }
 
@@ -119,15 +121,18 @@ export class StubWordQuery {
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
     );
 
-    event.sender.send('onFindWordPrecisly', {
-      keyText: arg.keyText,
-      definition: dictContentService.definitionReplace(
+    const replaceResult = dictContentService.definitionReplace(
         arg.dictid,
         result.keyText,
         result.definition,
         lookupFn,
         resFn
-      ),
+    )
+
+    event.sender.send('onFindWordPrecisly', {
+      keyText: replaceResult.keyText,
+      sourceKey: replaceResult.sourceKeyText,
+      definition: replaceResult.definition,
     });
   }
   /**

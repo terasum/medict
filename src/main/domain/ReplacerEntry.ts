@@ -12,11 +12,11 @@ export class EntryReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText:string, definition:string} {
     /// <a href="entry://buzzword">buzzword</a>
     logger.info('[REP @@@ENTRY]: REPLACE @@@ENTRY [START]');
     if (!html || !html.matchAll) {
-      return html;
+      return {keyText, definition:html}
     }
     const $ = cheerio.load(html);
     const alist = $('a');
@@ -63,6 +63,7 @@ export class EntryReplacer implements Replacer {
     }
 
     logger.info('[REP @@@ENTRY]: REPLACE @@@ENTRY [END]');
-    return $.html();
+
+    return {keyText, definition:$.html()};
   }
 }

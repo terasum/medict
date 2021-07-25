@@ -33,7 +33,7 @@
                 : ''
             "
           >
-            {{ currentShowWord }}
+            {{ tabWord }}
           </div>
           <div class="header-search">
           <input class="header-search-input" type="text" placeholder="resource key..." v-model="lookupResourceKey"/>
@@ -142,6 +142,23 @@ export default Vue.extend({
     },
     currentShowWord() {
       return (this.$store as typeof Store).state.currentLookupWord;
+    },
+    tabWord() {
+      const searchWord =  (this.$store as typeof Store).state.currentLookupWord;
+      if (!searchWord) {
+         return '';
+      }
+
+      const actualWord =  (this.$store as typeof Store).state.currentActualWord;
+       if (!actualWord || actualWord === '') {
+          return '';
+       }
+       
+       if (actualWord === searchWord) {
+         return actualWord;
+       }
+
+       return  searchWord + ' › ' + actualWord;
     },
     currentContent() {
       return (this.$store as typeof Store).state.currentContent;

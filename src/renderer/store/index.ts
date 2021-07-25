@@ -31,8 +31,9 @@ const state: StoreDataType = {
   dictionaries: SyncMainAPI.dictFindAll(undefined),
   suggestWords: [],
   historyStack: [],
-  currentWord: '', // current input word
+  currentWord: {dictid:'', word:''}, // current user input word (in the search input box)
   currentLookupWord: '', // current actually search word
+  currentActualWord: '', // current actually return word
   currentContent: '',
   currentSelectDict: defaultSelectDict(),
   translateApi: {
@@ -52,6 +53,9 @@ const Store = new Vuex.Store({
     },
     updateCurrentLookupWord(state, word) {
       state.currentLookupWord = word;
+    },
+    updateCurrentActualWord(state, word) {
+      state.currentActualWord = word;
     },
     updateCurrentContent(state, content) {
       state.currentContent = content;
@@ -159,7 +163,9 @@ const Store = new Vuex.Store({
     console.debug(args);
     const newContent = Buffer.from(args.definition, 'utf8').toString('base64');
     Store.commit('updateCurrentContent', newContent);
-    Store.commit('updateCurrentLookupWord', args.keyText);
+    Store.commit('updateCurrentLookupWord', args.sourceKey);
+    Store.commit('updateCurrentActualWord', args.keyText);
+
   });
 
   /**

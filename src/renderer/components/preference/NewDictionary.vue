@@ -347,7 +347,7 @@ export default Vue.extend({
                 let that = this;
                 setTimeout(() => {
                   that.closeModal();
-                }, 1000);
+                }, 300);
               }
             } else {
               this.showAlert('danger', '删除失败');

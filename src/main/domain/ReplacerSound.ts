@@ -13,10 +13,10 @@ export class SoundReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText: string, definition: string} {
     logger.info('[REP MP3]: REPLACE AUDIO [START]');
     if (!html || !html.matchAll) {
-      return html;
+     return {keyText, definition: html}
     }
 
     const keySet = new Set<string>();
@@ -109,6 +109,6 @@ export class SoundReplacer implements Replacer {
     }
 
     logger.info('[REP MP3]: EPLACE AUDIO [END]');
-    return $.html();
+     return {keyText, definition:$.html()}
   }
 }
