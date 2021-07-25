@@ -37,8 +37,8 @@ export class LinkReplacer implements Replacer {
       if (!result) {
         return  {keyText, definition:'null'};
       }
-      if(result.definition && LINK_REG.test(html)) {
-      logger.info(`[REP @@@LINK]: resursive ${newWord} @@@LINK`);
+      if(result.definition && LINK_REG.test(html) && newWord != keyText) {
+      logger.info(`[REP @@@LINK]: recursive ${newWord} @@@LINK`);
         return this.replace(dictid, newWord, result?.definition, lookupFn, resourceFn)
       }
 
