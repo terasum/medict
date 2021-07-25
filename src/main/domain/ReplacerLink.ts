@@ -12,17 +12,17 @@ export class LinkReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText:string, definition:string} {
     /// @@@LINK=wordy
     logger.info('[REP @@@LINK]: REPLACE @@@LINK [START]')
     if (!html || !html.matchAll) {
-      return html;
+      return  {keyText, definition:html};
     }
     if (LINK_REG.test(html)) {
       let matches = html.match(LINK_REG);
       logger.info({ matches });
       if (matches == null || matches.length < 2) {
-        return html;
+        return  {keyText, definition:html};
       }
       const oldWord = matches[LINK_REG_IDX];
       let newWord = oldWord;
@@ -35,12 +35,17 @@ export class LinkReplacer implements Replacer {
 
       const result = lookupFn(newWord);
       if (!result) {
-        return 'null';
+        return  {keyText, definition:'null'};
       }
+      if(result.definition && LINK_REG.test(html) && newWord != keyText) {
+      logger.info(`[REP @@@LINK]: recursive ${newWord} @@@LINK`);
+        return this.replace(dictid, newWord, result?.definition, lookupFn, resourceFn)
+      }
+
       logger.info('[REP @@@LINK]: REPLACE @@@LINK [END1]');
-      return result?.definition;
+        return  {keyText:newWord, definition:result?.definition};
     }
     logger.info('[REP @@@LINK]: REPLACE @@@LINK [END2]');
-    return html;
+    return  {keyText, definition: html};
   }
 }

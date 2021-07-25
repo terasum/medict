@@ -1,0 +1,160 @@
+name: 'Release Latest'
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master, develop]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-failure || true}}
+    env:
+      BAIDU_APPID: ${{ secrets.BAIDU_APPID }}
+      BAIDU_APP_KEY: ${{ secrets.BAIDU_APP_KEY }}
+    strategy:
+      fail-fast: false   
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        node-version: [12.x]
+        include:
+          - name: linux
+            os: ubuntu-latest
+            asset_prefix: medict-linux-amd64
+          - name: windows
+            os: windows-latest
+            asset_prefix: medict-windows-x64
+          - name: macos
+            os: macos-latest
+            asset_prefix: medict-macos-amd64
+
+    steps:
+      # checkout source code
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      # create env variables
+      - name: Create env file
+        run: |
+          touch .env
+          echo BAIDU_APPID=${{ secrets.BAIDU_APPID }} >> .env
+          echo BAIDU_APP_KEY=${{ secrets.BAIDU_APP_KEY }} >> .env
+
+      # setup nodejs environment
+      - name: Setup Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # installation
+      - name: Install dependencies
+        run: yarn install
+
+      # extract package.json version
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.0.6
+
+      # run test
+      - name: Test
+        run: yarn run test
+
+      # publish
+      - name: Publish
+        run: yarn run publish
+
+      # ---------- windows part ------------
+      - name: List artificats (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\make\squirrel.windows\x64
+
+      - name: Artifact mkdir (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: mkdir out\dist
+
+      - name: Rename artifact (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: REN out\make\squirrel.windows\x64\*.exe medict-${{ steps.extract_version.outputs.version }}-Setup.exe
+
+      - name: Zip dist (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: papeloto/action-zip@v1
+        with:
+          files: out\make\squirrel.windows\x64\medict-${{ steps.extract_version.outputs.version }}-Setup.exe
+          dest: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
+
+      - name: List artifcact (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dir out\dist
+
+      # - name: Upload artifact (windows)
+      #   if: ${{ matrix.os == 'windows-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out\dist\medict-windows-x64-${{ steps.extract_version.outputs.version }}.zip
+
+      # ---------- macos/linux part ------------
+      - name: List artificats (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./out
+
+      - name: Artifact mkdir (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: mkdir -p out/dist
+
+      # ---------- macos part ------------
+      - name: Zip dist (macos)
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: papeloto/action-zip@v1
+        with:
+          files: out/make/zip/darwin/x64/medict-darwin-x64-${{ steps.extract_version.outputs.version }}.zip
+          dest: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      # - name: Upload artifact
+      #   if: ${{ matrix.os == 'macos-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-macos-x64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out/dist/medict-macos-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      # ---------- linux part ------------
+
+      - name: Zip dist (linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: papeloto/action-zip@v1
+        with:
+          files: out/make/deb/x64/medict_${{ steps.extract_version.outputs.version }}_amd64.deb out/make/rpm/x64/medict-${{ steps.extract_version.outputs.version }}-1.x86_64.rpm
+          dest: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      # - name: Upload artifact (linux)
+      #   if: ${{ matrix.os == 'ubuntu-latest' }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+      #     path: out/dist/medict-linux-amd64-${{ steps.extract_version.outputs.version }}.zip
+
+      # ---------- macos/linux part ------------
+      - name: List artificats (macos/linux)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./out
+
+      - name: Set outputs var
+        id: gitvars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Set date var
+        id: datevars
+        run: echo "::set-output name=date_var::$(date '+%Y%m%dT%H%M%S')"
+           
+      - name: Release and upload
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: out/dist/${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}.zip
+          asset_name: ${{ matrix.asset_prefix }}-${{ steps.extract_version.outputs.version }}-${{ steps.gitvars.outputs.sha_short }}-${{ steps.datevars.outputs.date_var }}UTC.zip
+          tag: v${{ steps.extract_version.outputs.version }}-latest
+          release_name: v${{ steps.extract_version.outputs.version }}-latest
+          prerelease: true
+          overwrite: true

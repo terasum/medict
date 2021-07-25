@@ -10,5 +10,5 @@ export interface Replacer {
     html: string,
     lookfn: LookupFn,
     resourceFn: ResourceFn
-  ): string;
+  ): {keyText: string, definition: string};
 }

@@ -21,8 +21,9 @@ export declare class StoreDataType {
   dictionaries: Dictionary[];
   suggestWords: string[];
   historyStack: any[];
-  currentWord: string;
+  currentWord: { dictid: string, word:string };
   currentLookupWord: string;
+  currentActualWord: string;
   currentContent: string;
   currentSelectDict: DictItem;
   translateApi: {

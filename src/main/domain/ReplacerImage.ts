@@ -12,10 +12,10 @@ export class ImageReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText: string, definition:string} {
     logger.info('[REP IMG]:REPLACE IMAGES [START]');
     if (!html || !html.matchAll) {
-      return html;
+      return  {keyText, definition:html};
     }
 
     let matches = html.matchAll(IMAGE_REG);
@@ -50,6 +50,6 @@ export class ImageReplacer implements Replacer {
       }
     }
     logger.info('[REP IMG]: REPLACE IMAGES [END]');
-    return html;
+    return  {keyText, definition:html};
   }
 }

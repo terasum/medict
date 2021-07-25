@@ -30,13 +30,13 @@ export class CSSReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText: string, definition:string} {
     /**
         Found oalecd8e.css start=39 end=51.
      */
     logger.info('[REP CSS]: REPLACE CSS [START]');
     if (!html || !html.matchAll) {
-      return html;
+      return {keyText, definition:html}
     }
     const keySet = extractKeys(html);
 
@@ -56,6 +56,6 @@ export class CSSReplacer implements Replacer {
       }
     }
     logger.info('[REP CSS]: REPLACE CSS [END]');
-    return html;
+      return {keyText, definition:html}
   }
 }

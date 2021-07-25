@@ -32,6 +32,7 @@ export const AsyncMainAPI = {
   findWordPrecisly: asyncWrap('findWordPrecisly'),
   loadDictResource: asyncWrap('loadDictResource'),
   asyncBaiduTranslate: asyncWrap('asyncBaiduTranslate'),
+  
 };
 
 export const SyncMainAPI = {
@@ -46,4 +47,5 @@ export const SyncMainAPI = {
   syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
   loadTranslateApiConfig: syncWrap('loadTranslateApiConfig'),
   saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
+  syncGetWebviewPreliadFilePath: syncWrap('syncGetWebviewPreliadFilePath'),
 };
