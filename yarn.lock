@@ -5531,10 +5531,10 @@ js-bktree@^1.0.0:
   resolved "https://registry.yarnpkg.com/js-bktree/-/js-bktree-1.0.0.tgz#4948156e81982fbf43b8c9245ff0e0409967bbef"
   integrity sha512-5BjNX4B7AFiTNn1e4iyslZ5gOen1ZRaeOHqtymXt4Ovj0zaIzcN3Hg+IpT7wQsJQ8DWVxR7pyMsUs6O8BK5/6g==
 
-js-mdict@4.0.15:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.15.tgz#a49c5e6cbce6c1339ee5b82fd333704521656bc5"
-  integrity sha512-H4IcJGBLGn13pgCmHzoSQF5nDcC9Tsb4VBPnymZBMdP9QAV7UFGkew5RU9LJoJ+lHtR1Yn8DIikanNUhgeWh9w==
+js-mdict@4.0.16:
+  version "4.0.16"
+  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.16.tgz#5fb1d5cc1f21d3fe6450b2cca49b631c694680fe"
+  integrity sha512-JIBRgnamiu4MTcg9TNuJj8IM+gdhGXKDc4bwLXryNhh/kkyM86rNKWqmIY2ODkl9HDAubxACFEbqqbNBBZri6g==
   dependencies:
     "@babel/runtime" "^7.14.6"
     bl "^2.2.1"
