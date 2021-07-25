@@ -19,14 +19,19 @@ const replacerChain = [
 export class DictContentService {
   definitionReplace(
     dictid: string,
-    keyText: string,
-    html: string,
+    originKeyText: string,
+    originHtml: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
   ) {
+    let keyText = originKeyText;
+    let definition = originHtml;
     replacerChain.forEach(replacer => {
-      html = replacer.replace(dictid, keyText, html, lookupFn, resourceFn);
+      let result = replacer.replace(dictid, keyText, definition, lookupFn, resourceFn);
+      keyText = result.keyText;
+      definition  = result.definition;
     });
-    return html;
+    console.log(`replace end, sourcekey: ${originKeyText} newkey: ${keyText}`)
+    return {sourceKeyText: originKeyText, keyText, definition};
   }
 }

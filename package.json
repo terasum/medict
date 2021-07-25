@@ -140,6 +140,7 @@
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.5.2",
     "vue-template-compiler": "^2.6.14",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "walkdir": "^0.4.1"
   }
 }

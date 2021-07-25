@@ -27,13 +27,13 @@ export class JSReplacer implements Replacer {
     html: string,
     lookupFn: LookupFn,
     resourceFn: ResourceFn
-  ): string {
+  ): {keyText:string, definition: string} {
     /**
         Found jquery.js start=67 end=76.
      */
     logger.info('[REP JS]: REPLACE JS [START]');
     if (!html || !html.matchAll) {
-      return html;
+      return {keyText, definition:html}
     }
 
     const keySet = extractKeys(html);
@@ -56,6 +56,6 @@ export class JSReplacer implements Replacer {
 
     logger.info('[REP JS]: REPLACE JS [END]');
 
-    return html;
+    return {keyText, definition:html}
   }
 }
