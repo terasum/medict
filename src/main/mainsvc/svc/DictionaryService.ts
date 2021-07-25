@@ -142,6 +142,7 @@ export class DictService {
   }
 
   findWordPrecisly(dictid: string, keyText: string, rofset: number) {
+    logger.debug(`findWordPrecisly, dict: [${dictid}] keyText: ${keyText}, roffset: ${rofset}`)
     return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
   }
 

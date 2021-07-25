@@ -4,6 +4,7 @@ import { SoundReplacer } from '../../domain/ReplacerSound';
 import { CSSReplacer } from '../../domain/ReplacerCSS';
 import { EntryReplacer } from '../../domain/ReplacerEntry';
 import { JSReplacer } from '../../domain/ReplacerJs';
+import { logger } from '../../../utils/logger';
 
 import { ResourceFn, LookupFn } from '../../domain/Replacer';
 
@@ -31,7 +32,7 @@ export class DictContentService {
       keyText = result.keyText;
       definition  = result.definition;
     });
-    console.log(`replace end, sourcekey: ${originKeyText} newkey: ${keyText}`)
+    logger.debug(`replace end, sourcekey: ${originKeyText} newkey: ${keyText}`)
     return {sourceKeyText: originKeyText, keyText, definition};
   }
 }
