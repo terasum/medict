@@ -1,6 +1,6 @@
 import { FileOpenService } from './svc/FileOpenService';
 import { logger } from '../../utils/logger';
-import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
+import { getResourceRootPath, getLoggerFilePath, webviewPreloadFilePath } from '../../config/config';
 
 const fileOpenService = new FileOpenService();
 
@@ -15,5 +15,9 @@ export class StubFileOpen {
   }
   syncGetResourceRootPath(arg?: any) {
     return getResourceRootPath();
+  }
+
+  syncGetWebviewPreliadFilePath(arg?:any) {
+    return webviewPreloadFilePath();
   }
 }

@@ -1,3 +1,4 @@
+export const preloadContent = `
 const { ipcRenderer } = require('electron');
 
 console.warn('=== preload electron [sandbox] ===');
@@ -16,8 +17,9 @@ window.addEventListener('message', function (event) {
   console.log(event.data);
   if (event.data && event.data.channel && event.data.payload) {
     console.log(
-      `send to main-process [${event.data.channel}|${event.data.payload}]`
+      'send to main-process [\${event.data.channel}|\${event.data.payload}]'
     );
     ipcRenderer.send(event.data.channel, event.data.payload);
   }
 });
+`;

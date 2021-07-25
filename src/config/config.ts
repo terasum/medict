@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import { preloadContent } from './preload/webview.preload';
 
 export function getResourceRootPath() {
   const userResourcePath = app.getPath('userData');
@@ -43,4 +44,26 @@ export function getLoggerFilePath() {
 
   const loggerFilePath = path.resolve(userResourcePath, 'logger', 'medict.log');
   return loggerFilePath;
+}
+
+export function webviewPreloadFilePath() {
+  const userResourcePath = app.getPath('userData');
+  const preloadDir = path.resolve(userResourcePath, 'preload');
+  if (!fs.existsSync(preloadDir)) {
+    console.info(`create new directory ${preloadDir}`);
+    fs.mkdirSync(preloadDir, { recursive: true });
+  }
+  const preloadFilePath = path.resolve(
+    userResourcePath,
+    'preload',
+    'medict-webview.preload.js'
+  );
+  return preloadFilePath;
+}
+
+export function writePreloadFile() {
+  fs.writeFileSync(webviewPreloadFilePath(), preloadContent);
+  console.log(
+    `write ${webviewPreloadFilePath()} successfully`
+  );
 }
