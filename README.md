@@ -154,4 +154,4 @@ yarn install
 yarn start
 ```
 
-**Medict is made by terasum with ❤️**
+**Medict is made by terasum and xing with ❤️**
