@@ -14,11 +14,97 @@ const storageService = new StorageService(getConfigJsonPath());
 
 const dicts = new Map<string, Dictionary>();
 
+// detect mdd/mdx file exists or not
+function detectExists(dict: any) {
+  // detect mdx path
+  if (!dict.mdxpath || fs.existsSync(dict.mdxpath)) {
+    return false;
+  }
+
+  if (typeof dict.mddpath === 'string') {
+    if (!fs.existsSync(dict.mddpath)) {
+      return false;
+    }
+  }
+  // detect dict.mddpath
+  else if (dict.mddpath instanceof Array && dict.mddpath.length > 0) {
+    let flag = false;
+    dict.mddpath.forEach((mddpath: string) => {
+      if (!fs.existsSync(mddpath)) {
+        flag = true;
+        return;
+      }
+    });
+    // if flag == true, means there are some mddpath is invalid
+    if (flag) {
+      return false;
+    }
+  } else {
+    return false;
+  }
+  return true;
+}
+
+function copyResources(mdxDir: string, dictid: string) {
+  // walk-through the directory, and copy css/js/font/png files
+  walk(mdxDir, function (fpath, stat) {
+    // if resource cache dir not exists this file, copy it
+    const fileBasename = path.basename(fpath);
+    const resourceFilePath = path.resolve(
+      getResourceRootPath(),
+      dictid,
+      fileBasename
+    );
+
+    if (!fileBasename && fileBasename == '') {
+      return;
+    }
+    if (
+      !fileBasename.endsWith('css') &&
+      !fileBasename.endsWith('js') &&
+      !fileBasename.endsWith('ttf') &&
+      !fileBasename.endsWith('otf') &&
+      !fileBasename.endsWith('png') &&
+      !fileBasename.endsWith('jpg')
+    ) {
+      return;
+    }
+
+    logger.info(`[RES-DETECT] base:[${fileBasename}] source: [${fpath}]`);
+    logger.info(
+      `[RES-DETECT] base:[${fileBasename}] dest:   [${resourceFilePath}]`
+    );
+    if (fs.existsSync(resourceFilePath)) {
+      logger.info(`[RES-DETECT] base:[${fileBasename}] exists skipped`);
+      return;
+    }
+
+    fs.copyFile(fpath, resourceFilePath, (err) => {
+      if (err) {
+        logger.error(
+          `[RES-DETECT] base:[${fileBasename}] copy file failed, ${err}`
+        );
+        return;
+      }
+      logger.info(`[RES-DETECT] base:[${fileBasename}] copy file success`);
+    });
+  });
+}
+
+// refresh dictionaries
 function loadDicts() {
+  logger.info('reload all dictionaries');
   const dictLists = storageService.getDataByKey('dicts') as any[];
 
   if (dictLists) {
     dictLists.forEach((dict) => {
+      // detect file exists or not
+      if (!detectExists(dict)) {
+        logger.error(`file resource load error, mdxpath: ${dict.mdxpath}`)
+        logger.error(`file resource load error, mddpath: ${dict.mddpath}`)
+        return;
+      }
+
       dicts.set(
         dict.id,
         new Dictionary(
@@ -30,63 +116,31 @@ function loadDicts() {
           dict.description
         )
       );
+
       const fpath = path.resolve(getResourceRootPath(), dict.id);
       if (!fs.existsSync(fpath)) {
         fs.mkdirSync(fpath);
       }
+
       // copy css/js/fonts files from mdx source directory
       // remender: if the mdx file's directory contains a lot of
       // css/js/fonts, this may cause performance issue
       const mdxPath = dict.mdxpath;
       const mdxDir = path.dirname(mdxPath);
-      // walk-through the directory, and copy css/js/font/png files
-      walk(mdxDir, function (fpath, stat) {
-        // if resource cache dir not exists this file, copy it
-        const fileBasename = path.basename(fpath);
-        const resourceFilePath = path.resolve(
-          getResourceRootPath(),
-          dict.id,
-          fileBasename
-        );
-
-        if (!fileBasename && fileBasename == '') {
-          return;
-        }
-        if (
-          !fileBasename.endsWith('css') &&
-          !fileBasename.endsWith('js') &&
-          !fileBasename.endsWith('ttf') &&
-          !fileBasename.endsWith('otf') &&
-          !fileBasename.endsWith('png') &&
-          !fileBasename.endsWith('jpg')
-        ) {
-          return;
-        }
-
-        logger.info(`[RES-DETECT] base:[${fileBasename}] source: [${fpath}]`);
-        logger.info(
-          `[RES-DETECT] base:[${fileBasename}] dest:   [${resourceFilePath}]`
-        );
-        if (fs.existsSync(resourceFilePath)) {
-          logger.info(`[RES-DETECT] base:[${fileBasename}] exists skipped`);
-          return;
-        }
-
-        fs.copyFile(fpath, resourceFilePath, (err) => {
-          if (err) {
-            logger.error(
-              `[RES-DETECT] base:[${fileBasename}] copy file failed, ${err}`
-            );
-            return;
-          }
-          logger.info(`[RES-DETECT] base:[${fileBasename}] copy file success`);
-        });
-      });
+      // copy resource from mdx.directionary to resource.cache.dictionary
+      copyResources(mdxDir, dict.id);
     });
   }
 }
-// init load
-loadDicts();
+
+// init load, this function will load during startup process (main-process)
+// so, if load dictionary failed, it will block main-process
+// we should try-catch the errors
+try {
+  loadDicts();
+} catch (error) {
+  logger.error(`raise error durring load dictionaries, ${error}`);
+}
 
 function saveToFile(dicts: Map<string, Dictionary>) {
   const storageList = [];
@@ -142,7 +196,9 @@ export class DictService {
   }
 
   findWordPrecisly(dictid: string, keyText: string, rofset: number) {
-    logger.debug(`findWordPrecisly, dict: [${dictid}] keyText: ${keyText}, roffset: ${rofset}`)
+    logger.debug(
+      `findWordPrecisly, dict: [${dictid}] keyText: ${keyText}, roffset: ${rofset}`
+    );
     return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
   }
 
