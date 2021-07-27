@@ -24,10 +24,7 @@ function isMdxValid(dict: any) {
 
 function isMddValid(dict: any) {
   if (typeof dict.mddpath === 'string') {
-    if (!fs.existsSync(dict.mddpath)) {
-      return false;
-    }
-    return true;
+    return fs.existsSync(dict.mddpath)
   }
 
   // detect dict.mddpath
@@ -39,9 +36,11 @@ function isMddValid(dict: any) {
     if (dict.mddpath.length > 0) {
       let flag = false;
       dict.mddpath.forEach((mddpath: string) => {
-          if (!fs.existsSync(mddpath)) {
-            flag = true;
+          if (flag) {
             return;
+          }
+          if (!mddpath || !fs.existsSync(mddpath)) {
+            flag = true;
           }
       });
       // if flag == true, means there are some mddpath is invalid
@@ -49,7 +48,7 @@ function isMddValid(dict: any) {
     }
   }
 
-  if(dict.mddpaath == undefined){
+  if(dict.mddpath == undefined){
     return true;
   }
 
