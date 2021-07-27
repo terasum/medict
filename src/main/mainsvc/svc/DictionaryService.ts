@@ -14,35 +14,53 @@ const storageService = new StorageService(getConfigJsonPath());
 
 const dicts = new Map<string, Dictionary>();
 
-// detect mdd/mdx file exists or not
-function detectExists(dict: any) {
-  // detect mdx path
-  if (!dict.mdxpath || fs.existsSync(dict.mdxpath)) {
+function isMdxValid(dict: any) {
+  // detects mdx path
+  if (!dict.mdxpath || !fs.existsSync(dict.mdxpath)) {
     return false;
   }
+  return true;
+}
 
+function isMddValid(dict: any) {
   if (typeof dict.mddpath === 'string') {
     if (!fs.existsSync(dict.mddpath)) {
       return false;
     }
+    return true;
   }
+
   // detect dict.mddpath
-  else if (dict.mddpath instanceof Array && dict.mddpath.length > 0) {
-    let flag = false;
-    dict.mddpath.forEach((mddpath: string) => {
-      if (!fs.existsSync(mddpath)) {
-        flag = true;
-        return;
-      }
-    });
-    // if flag == true, means there are some mddpath is invalid
-    if (flag) {
-      return false;
+  if (dict.mddpath instanceof Array) {
+    if (dict.mddpath.length == 0){
+      return true;
     }
-  } else {
-    return false;
+
+    if (dict.mddpath.length > 0) {
+      let flag = false;
+      dict.mddpath.forEach((mddpath: string) => {
+          if (!fs.existsSync(mddpath)) {
+            flag = true;
+            return;
+          }
+      });
+      // if flag == true, means there are some mddpath is invalid
+      return !flag;
+    }
   }
-  return true;
+
+  if(dict.mddpaath == undefined){
+    return true;
+  }
+
+  return false;
+
+}
+
+// detect mdd/mdx file exists or not
+// if exists return true, else return false
+function detectValid(dict: any) {
+  return isMdxValid(dict) && isMddValid(dict);
 }
 
 function copyResources(mdxDir: string, dictid: string) {
@@ -99,9 +117,10 @@ function loadDicts() {
   if (dictLists) {
     dictLists.forEach((dict) => {
       // detect file exists or not
-      if (!detectExists(dict)) {
-        logger.error(`file resource load error, mdxpath: ${dict.mdxpath}`)
-        logger.error(`file resource load error, mddpath: ${dict.mddpath}`)
+      if (!detectValid(dict)) {
+        dicts.delete(dict.id);
+        saveToFile(dicts);
+        logger.error(`file resource load error, mdxpath: ${dict.mdxpath}, mddpath: ${dict.mddpath}`);
         return;
       }
 
@@ -182,10 +201,12 @@ export class DictService {
     return true;
   }
 
-  deleteOne(dictid: string) {
+  deleteOne(dictid: string, reload: boolean = true) {
     dicts.delete(dictid);
     saveToFile(dicts);
-    loadDicts();
+    if (reload) {
+      loadDicts();
+    }
     const fpath = path.resolve(getResourceRootPath(), dictid);
     if (fs.existsSync(fpath)) {
       rimraf(fpath, function () {
