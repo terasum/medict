@@ -222,8 +222,8 @@ export class DictService {
     return dicts.get(dictid)?.findWordDefinition(keyText, rofset);
   }
 
-  loadDictResource(dictid: string, keyText: string) {
-    const wordDef = dicts.get(dictid)?.findWordResource(keyText);
+  loadDictResource(dictid: string, keyText: string, withPayload=false) {
+    const wordDef = dicts.get(dictid)?.findWordResource(keyText, withPayload);
     if (!wordDef || !wordDef.definition) {
       return NullDef(keyText);
     }

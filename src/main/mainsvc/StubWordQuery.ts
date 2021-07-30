@@ -51,8 +51,8 @@ export class StubWordQuery {
     }
 
     // 资源查询函数
-    const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+    const resFn = (resKey: string, withPayload=false) => {
+      return dictService.loadDictResource(arg.dictid, resKey, withPayload);
     };
 
     // 词查询函数
@@ -114,8 +114,8 @@ export class StubWordQuery {
     }
 
     // 资源查询函数
-    const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+    const resFn = (resKey: string, withPayload=false) => {
+      return dictService.loadDictResource(arg.dictid, resKey, withPayload);
     };
 
     // 词查询函数
