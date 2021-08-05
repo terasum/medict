@@ -4,6 +4,7 @@ import { SoundReplacer } from '../../domain/ReplacerSound';
 import { CSSReplacer } from '../../domain/ReplacerCSS';
 import { EntryReplacer } from '../../domain/ReplacerEntry';
 import { JSReplacer } from '../../domain/ReplacerJs';
+import { INIReplacer } from '../../domain/ReplacerIni';
 import { logger } from '../../../utils/logger';
 
 import { ResourceFn, LookupFn } from '../../domain/Replacer';
@@ -11,6 +12,7 @@ import { ResourceFn, LookupFn } from '../../domain/Replacer';
 const replacerChain = [
   new LinkReplacer(),
   new ImageReplacer(),
+  new INIReplacer(),
   new SoundReplacer(),
   new CSSReplacer(),
   new JSReplacer(),

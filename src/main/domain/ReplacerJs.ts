@@ -41,6 +41,9 @@ export class JSReplacer implements Replacer {
     for (let rskey of keySet) {
       const rawkey = rskey;
       let resourceKey = rskey;
+      if (!resourceKey.startsWith('\\') && !resourceKey.startsWith('/')) {
+        resourceKey = '\\' + resourceKey;
+      }
       resourceKey = replaceAll(resourceKey, '/', '\\');
       logger.info(`[REP JS]: query resource key ${resourceKey}`);
       const queryResult = resourceFn(resourceKey);

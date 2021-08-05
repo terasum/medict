@@ -1156,6 +1156,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/ini@^1.3.30":
+  version "1.3.30"
+  resolved "https://registry.yarnpkg.com/@types/ini/-/ini-1.3.30.tgz#d1485459c9fad84e937414b832a2adb649eab379"
+  integrity sha512-2+iF8zPSbpU83UKE+PNd4r/MhwNAdyGpk3H+VMgEH3EhjFZq1kouLgRoZrmIcmoGX97xFvqdS44DkICR5Nz3tQ==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.3.tgz#4ba8ddb720221f432e443bd5f9117fd22cfd4762"
@@ -4737,6 +4742,11 @@ ini@^1.3.4, ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
+ini@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-2.0.0.tgz#e5fd556ecdd5726be978fa1001862eacb0a94bc5"
+  integrity sha512-7PnF4oN3CvZF23ADhA5wRaYEQpJ8qygSkbtTXWBeXWXmEVRXK+1ITciHWwHhsjv1TmW0MgacIv6hEi5pX5NQdA==
+
 inquirer@^8.0.0:
   version "8.1.2"
   resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.1.2.tgz#65b204d2cd7fb63400edd925dfe428bafd422e3d"
@@ -5531,10 +5541,10 @@ js-bktree@^1.0.0:
   resolved "https://registry.yarnpkg.com/js-bktree/-/js-bktree-1.0.0.tgz#4948156e81982fbf43b8c9245ff0e0409967bbef"
   integrity sha512-5BjNX4B7AFiTNn1e4iyslZ5gOen1ZRaeOHqtymXt4Ovj0zaIzcN3Hg+IpT7wQsJQ8DWVxR7pyMsUs6O8BK5/6g==
 
-js-mdict@4.0.16:
-  version "4.0.16"
-  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.16.tgz#5fb1d5cc1f21d3fe6450b2cca49b631c694680fe"
-  integrity sha512-JIBRgnamiu4MTcg9TNuJj8IM+gdhGXKDc4bwLXryNhh/kkyM86rNKWqmIY2ODkl9HDAubxACFEbqqbNBBZri6g==
+js-mdict@4.0.17:
+  version "4.0.17"
+  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.17.tgz#d9c311731b0947288f5dd5d69b1ba5da17721593"
+  integrity sha512-9DzGGyIwWQI73BunM/hGVvTGz21CdCOThCCc+jzLEssS5/JMeassQWt5OiIKIDU/YEALz6eQs5ZE6SAEWUkP0g==
   dependencies:
     "@babel/runtime" "^7.14.6"
     bl "^2.2.1"

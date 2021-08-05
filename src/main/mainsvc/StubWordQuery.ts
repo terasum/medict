@@ -26,15 +26,20 @@ export class StubWordQuery {
     if (result.length < 1) {
       return;
     }
+    // 建议词列表返回之后，再精确检索keyText
 
     logger.info(
       "[main-process] suggestWord event.sender.send('onFindWordPrecisly')"
     );
-    const wordResult = dictService.findWordPrecisly(
-      result[0].dictid,
-      result[0].keyText,
-      result[0].rofset
-    );
+
+    const wordResult =  dictService.lookup(arg.dictid, arg.keyText);
+
+    // const wordResult = dictService.findWordPrecisly(
+    //   result[0].dictid,
+    //   result[0].keyText,
+    //   result[0].rofset
+    // );
+
     // 如果查询不到精确结果，就返回空值
     // 注意，事件必须是 onFindWordPrecisly
     if (!wordResult) {
@@ -46,8 +51,8 @@ export class StubWordQuery {
     }
 
     // 资源查询函数
-    const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+    const resFn = (resKey: string, withPayload=false) => {
+      return dictService.loadDictResource(arg.dictid, resKey, withPayload);
     };
 
     // 词查询函数
@@ -109,8 +114,8 @@ export class StubWordQuery {
     }
 
     // 资源查询函数
-    const resFn = (resKey: string) => {
-      return dictService.loadDictResource(arg.dictid, resKey);
+    const resFn = (resKey: string, withPayload=false) => {
+      return dictService.loadDictResource(arg.dictid, resKey, withPayload);
     };
 
     // 词查询函数
