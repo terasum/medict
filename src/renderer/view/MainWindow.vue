@@ -102,16 +102,17 @@ export default Vue.extend({
         return '';
       }
 
-      const actualWord = (this.$store as typeof Store).state.currentActualWord;
-      if (!actualWord || actualWord === '') {
-        return '';
-      }
+      // const actualWord = (this.$store as typeof Store).state.currentActualWord;
+      // if (!actualWord || actualWord === '') {
+      //   return '';
+      // }
 
-      if (actualWord === searchWord) {
-        return actualWord;
-      }
+      // if (actualWord === searchWord) {
+      //   return actualWord;
+      // }
 
-      return searchWord + ' › ' + actualWord;
+      // return searchWord + ' › ' + actualWord;
+      return searchWord;
     },
     currentContent() {
       return (this.$store as typeof Store).state.currentContent;

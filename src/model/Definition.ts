@@ -2,6 +2,7 @@ export declare class Definition {
   keyText: string;
   definition: string;
   contentSize: number;
+  payload?: string
 }
 
 export function NullDef(keyText: string) {
