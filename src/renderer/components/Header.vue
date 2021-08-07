@@ -40,7 +40,7 @@
         v-on:click="clickDictionary"
       >
         <span class="fn-box-icon">
-          <Search :width="22" :height="22" />
+          <Search :width="16" :height="16" />
         </span>
         <span class="fn-box-text">词典</span>
       </div>
@@ -51,7 +51,7 @@
         v-on:click="clickTranslation"
       >
         <span class="fn-box-icon">
-          <Translate :width="22" :height="22" />
+          <Translate :width="16" :height="16" />
         </span>
         <span class="fn-box-text">翻译</span>
       </div>
@@ -62,7 +62,7 @@
         v-on:click="clickPlugins"
       >
         <span class="fn-box-icon">
-          <Plugins :width="22" :height="22" />
+          <Plugins :width="16" :height="16" />
         </span>
         <span class="fn-box-text">插件</span>
       </div>
@@ -73,7 +73,7 @@
         v-on:click="clickPreference"
       >
         <span class="fn-box-icon">
-          <Settings :width="22" :height="22" />
+          <Settings :width="16" :height="16" />
         </span>
         <span class="fn-box-text">设置</span>
       </div>
@@ -203,14 +203,17 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .header {
   height: 60px;
-  background-color: #d84042;
+  // background-color: #d84042;
+  background-color: #fbfbfb;
   /* background-color: #f6f6f6; */
   padding-top: 6px;
+  border-bottom: 1px solid #d1d1d1;
+  -webkit-app-region: drag;
   .header-navigate-btns {
     height: 54px;
     max-width: 80px;
     padding: 0;
-    margin: 0;
+    margin-left: 56px;
     .btn-nav {
       height: 26px;
       width: 26px;
@@ -218,24 +221,28 @@ export default Vue.extend({
       padding: 0;
       text-align: center;
       font-size: 12px;
-      color: #fff;
+      color: #333;
       outline: none;
-      border: #a63230 1px solid;
-      background-color: #d84042;
+      // border: #a63230 1px solid;
+      border: 1px solid #c1c1c1;
+      // background-color: #d84042;
+      background-color: #efefef;
       box-shadow: none;
 
       &:active {
         box-shadow: none;
         border: #333 1px solid;
-        background-color: #d80034;
+        // background-color: #d80034;
+        background-color: #c1c1c1;
       }
 
       // release
       &:focus {
         outline: none;
         box-shadow: none;
-        border: #a63230 1px solid;
-        background-color: #d84042;
+        // border: #a63230 1px solid;
+        // background-color: #d84042;
+        background-color: #c3c3c3;
       }
     }
     .btn-nav-left {
@@ -259,8 +266,12 @@ export default Vue.extend({
       }
       // toggle button
       button:nth-child(1) {
-        background-color: #fff;
-        border: 1px solid #fff;
+        // background-color: #fff;
+        // border: 1px solid #fff;
+
+        border: 1px solid #c1c1c1;
+        background-color: #efefef;
+
         border-radius: 20px 0px 0px 20px;
         height: 26px;
         font-size: 12px;
@@ -273,8 +284,12 @@ export default Vue.extend({
       }
       // search button
       button:nth-child(3) {
-        background-color: #fff;
-        border: 1px solid #fff;
+        // background-color: #fff;
+        // border: 1px solid #fff;
+
+        border: 1px solid #c1c1c1;
+        background-color: #efefef;
+
         border-radius: 0px 20px 20px 0px;
         height: 26px;
         padding: 0;
@@ -290,7 +305,10 @@ export default Vue.extend({
         padding: 0;
         margin: 0;
         box-shadow: none;
-        border: 1px solid #fff;
+        // border: 1px solid #fff;
+
+        border: 1px solid #c1c1c1;
+        background-color: #fff;
       }
       .form-control:disabled,
       .form-control[readonly] {
@@ -304,34 +322,41 @@ export default Vue.extend({
     padding: 0;
     margin: 0;
     margin-left: 20px;
+    margin-top:12px;
     display: flex;
     flex-direction: row;
     .fn-box-active {
-      background-color: #bd3134;
+      // background-color: #bd3134;
+      background-color: #e1e1e1;
     }
     .fn-box {
-      width: 59px;
-      height: 53px;
+      width: 52px;
+      height: 44px;
       margin-top: -6px;
-      padding-top: 6px;
+      padding-top: 4px;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: 4px;
+      margin-left: 2px;
 
       &:hover {
-        background-color: #c73639;
+        // background-color: #c73639;
+        background-color: #e1e1e1;
       }
+
       .fn-box-icon {
-        width: 26px;
-        height: 26px;
-        color: #f9dad9;
+        width: 20px;
+        height: 20px;
+        // color: #f9dad9;
+        color: #9f9f9f;
         display: block;
-        font-size: 22px;
-        line-height: 26px;
+        font-size: 16px;
+        line-height: 18px;
         margin-left: auto;
         margin-right: auto;
       }
       .fn-box-text {
-        color: #f9dad9;
+        // color: #f9dad9;
+        color: #9f9f9f;
         margin-left: auto;
         margin-right: auto;
         text-align: center;
