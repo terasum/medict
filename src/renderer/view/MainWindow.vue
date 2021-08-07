@@ -197,9 +197,12 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .left-sidebbar-container {
-  background-color: #f0e8e9;
+  // background-color: #f0e8e9;
+  background-color: #fdfdfd;
   padding-left: 0;
   padding-right: 0;
+
+  border-right: 1px solid #d1d1d1;
 
   height: 100%;
   ::-webkit-scrollbar-track {

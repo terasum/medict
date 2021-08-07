@@ -17,10 +17,12 @@ body {
   width: 100%;
 }
 #app {
-  height: calc(100% - 20px);
+  // height: calc(100% - 20px);
+  height:100%;
   width: 100%;
   position: absolute;
   left: 0;
-  top: 20px;
+  // top: 20px;
+  top: 0px;
   overflow: hidden;
 }
