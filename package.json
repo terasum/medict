@@ -5,6 +5,7 @@
   "description": "Medict an elegant dictionary app",
   "main": ".webpack/main",
   "scripts": {
+    "debug":"electron-forge start --inspect-electron",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -20,7 +21,12 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "arch":["x64", "arm64"],
+        "icon": "icons/Medict",
+        "asar": false,
+        "platform": "all"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",

@@ -154,11 +154,16 @@ function loadDicts() {
 // init load, this function will load during startup process (main-process)
 // so, if load dictionary failed, it will block main-process
 // we should try-catch the errors
-try {
-  loadDicts();
-} catch (error) {
+// synchronized load dictionaries  process
+new Promise((resolve) => {
+  let dict = loadDicts();
+  resolve(dict);
+}).then(() =>{
+  logger.info("dictionary reloaded")
+}).catch(error =>{
   logger.error(`raise error durring load dictionaries, ${error}`);
-}
+})
+
 
 function saveToFile(dicts: Map<string, Dictionary>) {
   const storageList = [];

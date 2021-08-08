@@ -2,6 +2,7 @@ import { app } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { preloadContent } from './preload/webview.preload';
+import {logger} from '../utils/logger';
 
 export function getResourceRootPath() {
   const userResourcePath = app.getPath('userData');
@@ -62,8 +63,9 @@ export function webviewPreloadFilePath() {
 }
 
 export function writePreloadFile() {
-  fs.writeFileSync(webviewPreloadFilePath(), preloadContent);
-  console.log(
-    `write ${webviewPreloadFilePath()} successfully`
-  );
+  fs.writeFile(webviewPreloadFilePath(), preloadContent, () => {
+    logger.info(
+        `write ${webviewPreloadFilePath()} successfully`
+      );
+    })
 }
