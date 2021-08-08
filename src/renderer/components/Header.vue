@@ -204,8 +204,10 @@ export default Vue.extend({
 .header {
   height: 60px;
   // background-color: #d84042;
-  background-color: #fbfbfb;
+  // background-color: #fbfbfb;
   /* background-color: #f6f6f6; */
+  background-image: linear-gradient(135deg , #325DFF , #529EFF);
+
   padding-top: 6px;
   border-bottom: 1px solid #d1d1d1;
   -webkit-app-region: drag;
@@ -213,27 +215,27 @@ export default Vue.extend({
     height: 54px;
     max-width: 80px;
     padding: 0;
-    margin-left: 56px;
+    margin-left: 16px;
     .btn-nav {
       height: 26px;
       width: 26px;
-      margin-top: 12px;
+      margin-top: 18px;
       padding: 0;
       text-align: center;
       font-size: 12px;
       color: #333;
       outline: none;
-      // border: #a63230 1px solid;
-      border: 1px solid #c1c1c1;
-      // background-color: #d84042;
-      background-color: #efefef;
+
+      border: 1px solid #fefefe;
+      background-color: #fff;
+
       box-shadow: none;
 
       &:active {
         box-shadow: none;
         border: #333 1px solid;
         // background-color: #d80034;
-        background-color: #c1c1c1;
+        background-color: #325DFF;
       }
 
       // release
@@ -242,7 +244,7 @@ export default Vue.extend({
         box-shadow: none;
         // border: #a63230 1px solid;
         // background-color: #d84042;
-        background-color: #c3c3c3;
+        background-color: #416affbe;
       }
     }
     .btn-nav-left {
@@ -258,7 +260,7 @@ export default Vue.extend({
     height: 54px;
     padding: 0;
     margin: 0;
-    padding-top: 12px;
+       margin-top: 18px;
     &::v-deep {
       .btn-group,
       .btn-group-vertical {
@@ -266,11 +268,8 @@ export default Vue.extend({
       }
       // toggle button
       button:nth-child(1) {
-        // background-color: #fff;
-        // border: 1px solid #fff;
-
-        border: 1px solid #c1c1c1;
-        background-color: #efefef;
+        border: 1px solid #f1f1f1;
+        background-color: #fff;
 
         border-radius: 20px 0px 0px 20px;
         height: 26px;
@@ -287,8 +286,8 @@ export default Vue.extend({
         // background-color: #fff;
         // border: 1px solid #fff;
 
-        border: 1px solid #c1c1c1;
-        background-color: #efefef;
+        border: 1px solid #f1f1f1;
+        background-color: #fff;
 
         border-radius: 0px 20px 20px 0px;
         height: 26px;
@@ -307,8 +306,10 @@ export default Vue.extend({
         box-shadow: none;
         // border: 1px solid #fff;
 
-        border: 1px solid #c1c1c1;
+        border: 1px solid #f1f1f1;
         background-color: #fff;
+
+
       }
       .form-control:disabled,
       .form-control[readonly] {
@@ -316,6 +317,7 @@ export default Vue.extend({
       }
     }
   }
+  
   .header-functions {
     max-width: 306px;
     height: auto;
@@ -327,7 +329,8 @@ export default Vue.extend({
     flex-direction: row;
     .fn-box-active {
       // background-color: #bd3134;
-      background-color: #e1e1e1;
+      // background-color: #e1e1e1;
+      background-color: #325effa6;
     }
     .fn-box {
       width: 52px;
@@ -340,14 +343,14 @@ export default Vue.extend({
 
       &:hover {
         // background-color: #c73639;
-        background-color: #e1e1e1;
+        background-color: #325eff60;
       }
 
       .fn-box-icon {
         width: 20px;
         height: 20px;
         // color: #f9dad9;
-        color: #9f9f9f;
+        color: #fff;
         display: block;
         font-size: 16px;
         line-height: 18px;
@@ -356,7 +359,7 @@ export default Vue.extend({
       }
       .fn-box-text {
         // color: #f9dad9;
-        color: #9f9f9f;
+        color: #fff;
         margin-left: auto;
         margin-right: auto;
         text-align: center;
