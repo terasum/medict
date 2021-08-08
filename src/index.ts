@@ -16,6 +16,8 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+let currentMainWindow : BrowserWindow|null = null;
+
 const createWindow = (): void => {
   logger.info('📃 userData path: %s', app.getPath('userData'));
   logger.info('📃 appData path: %s', app.getPath('appData'));
@@ -24,6 +26,7 @@ const createWindow = (): void => {
   logger.info('📃 logs path: %s', app.getPath('logs'));
   logger.info('📃 write preload file');
 
+  // async write preload.js
   writePreloadFile();
 
   // hide menu
@@ -34,6 +37,8 @@ const createWindow = (): void => {
     height: 600,
     width: 800,
     titleBarStyle: 'hidden',
+    // when ready-to-show, that the window will appear, prevent white screen
+    show: false,
     // The lines below solved the issue
     webPreferences: {
       nodeIntegration: true,
@@ -45,16 +50,20 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
+  if(mainWindow){
+    currentMainWindow = mainWindow;
+  }
+
   // sub-windows
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    // if (url.startsWith('https://github.com/')) {
-    //   return { action: 'allow' }
-    // }
-    return { action: 'allow' };
+    return { action: 'deny' };
   });
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
   mainWindow.webContents.on('did-create-window', childWindow => {
-    // For example...
     // childWindow.webContents('will-navigate', (e) => {
     //   e.preventDefault()
     // })
@@ -66,6 +75,7 @@ const createWindow = (): void => {
   mainWindow.webContents.on('did-fail-load', function() {
     logger.error('window failed load');
   });
+
   // special ipcmain
   ipcMain.on('createSubWindow', function(event: any, args: WindowOption) {
     logger.info(event);
@@ -73,16 +83,15 @@ const createWindow = (): void => {
   });
 
   // remove first
-  ipcMain.removeListener('openDevTool', function(
-    event: any,
-    args: WindowOption
-  ) {
+  ipcMain.removeListener('openDevTool', function(event: any, args: WindowOption) {
     mainWindow.webContents.openDevTools();
   });
 
   // special ipcmain
   ipcMain.on('openDevTool', function(event: any, args: WindowOption) {
-    mainWindow.webContents.openDevTools();
+    if (currentMainWindow) {
+      currentMainWindow.webContents.openDevTools();
+    }
   });
 
   ipcMain.on('errorInWindow', function(event, data) {
@@ -120,6 +129,3 @@ process.on('uncaughtException', function(error) {
   // Handle the error
   logger.error(error);
 });
-
-// for logger
-import './utils/logger';

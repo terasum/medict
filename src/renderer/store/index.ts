@@ -2,18 +2,9 @@ import Vuex from 'vuex';
 import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 import { StoreDataType } from './StoreDataType';
 import { listeners } from '../service.renderer.listener';
+import logger from 'koa-pino-logger';
 
-function defaultSelectDict() {
-  const dicts = SyncMainAPI.dictFindAll(undefined);
-  if (!dicts || dicts.length <= 0) {
-    return { id: '', alias: '', name: '' };
-  }
-  return {
-    id: dicts[0].id,
-    alias: dicts[0].alias,
-    name: dicts[0].name,
-  };
-}
+
 
 const state: StoreDataType = {
   // defaultWindow: '/preference/translateSettings',
@@ -28,14 +19,18 @@ const state: StoreDataType = {
     candidateWordNum: 0,
   },
 
-  dictionaries: SyncMainAPI.dictFindAll(undefined),
+  dictionaries: [],
   suggestWords: [],
   historyStack: [],
   currentWord: {dictid:'', word:''}, // current user input word (in the search input box)
   currentLookupWord: '', // current actually search word
   currentActualWord: '', // current actually return word
   currentContent: '',
-  currentSelectDict: defaultSelectDict(),
+  currentSelectDict: {
+    id: "",
+    alias: "",
+    name: "",
+  },
   translateApi: {
     baidu: {
       appid: '',
@@ -74,8 +69,8 @@ const Store = new Vuex.Store({
     updateCandidateWordNum(state, num) {
       state.sideBarData.candidateWordNum = num;
     },
-    updateDictionaries(state) {
-      state.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    updateDictionaries(state, dicts) {
+      state.dictionaries = dicts;
     },
     updateSelectedWordIdx(state, idx) {
       if (idx >= 0 && idx < state.sideBarData.candidateWordNum) {
@@ -118,16 +113,54 @@ const Store = new Vuex.Store({
     },
     asyncAddNewDict({ state, commit }, dict) {
       const result = SyncMainAPI.dictAddOne({ dict: dict });
-      commit('updateDictionaries');
+      const dicts = SyncMainAPI.dictFindAll();
+      commit('updateDictionaries', dicts);
       return result;
     },
     asyncDelNewDict({ state, commit }, dictid) {
       const result = SyncMainAPI.dictDeleteOne({ dictid: dictid });
-      commit('updateDictionaries');
+      const dicts = SyncMainAPI.dictFindAll();
+      commit('updateDictionaries', dicts);
       return result;
     },
   },
 });
+
+function defaultSelectDict() {
+  const dicts = SyncMainAPI.dictFindAll(undefined);
+  if (!dicts || dicts.length <= 0) {
+    return { id: '', alias: '', name: '' };
+  }
+  return {
+    id: dicts[0].id,
+    alias: dicts[0].alias,
+    name: dicts[0].name,
+  };
+}
+
+// setup default data asynchronizly
+(function setupDefaultData(){
+
+  let loadDicts = new Promise((resolve) =>{
+    // load all dictories first
+  let dicts = SyncMainAPI.dictFindAll(undefined);
+    resolve(dicts);
+  }).then(dicts =>{
+    Store.commit("updateDictionaries", dicts);
+  }).catch(err =>{
+   
+  });
+
+  // current select dict
+  let loadCurrentSelect = new Promise((resolve) => {
+    resolve(defaultSelectDict());
+  }).then(dict =>{
+    Store.commit('updateCurrentSelectDict', dict);
+  });
+
+})();
+
+
 
 (function setupListener() {
   /**
