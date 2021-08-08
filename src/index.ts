@@ -32,7 +32,7 @@ const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
-    width: 856,
+    width: 800,
     titleBarStyle: 'hidden',
     // The lines below solved the issue
     webPreferences: {

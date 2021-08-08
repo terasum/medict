@@ -20,7 +20,12 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "arch":["x64", "arm64"],
+        "icon": "icons/Medict",
+        "asar": false,
+        "platform": "all"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
