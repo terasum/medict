@@ -6,11 +6,11 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
       "windows": {
-        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge.cmd"
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
       },
-      "args" : ["start"]
+      "args" : [""]
     }
   ]
 }

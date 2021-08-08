@@ -229,18 +229,21 @@ export default Vue.extend({
       padding: 0;
       height: auto;
       li {
-        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
-        border-bottom: 1px solid #c1c1c1;
+        padding: 0.5rem 0.2rem 0.5rem 0.4rem;
+        border-bottom: 1px solid #e1e1e1;
         font-size: 0.9rem;
         &:hover {
-          background: #dbdbdb;
+          background: #4A8EFF;
+          color: #fff;
         }
         &:active {
-          background: #c0c0c0;
+          background: #4A8EFF;
+          color: #fff;
         }
       }
       .word-item-active {
-        background: #dbdbdb;
+        color: #fff;
+        background: #4A8EFF;
       }
     }
   }

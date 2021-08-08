@@ -215,9 +215,10 @@ export default Vue.extend({
     height: 54px;
     max-width: 80px;
     padding: 0;
-    margin-left: 16px;
+    margin-left: 34px;
+
     .btn-nav {
-      height: 26px;
+      height: 24px;
       width: 26px;
       margin-top: 18px;
       padding: 0;
@@ -225,27 +226,17 @@ export default Vue.extend({
       font-size: 12px;
       color: #333;
       outline: none;
-
       border: 1px solid #fefefe;
       background-color: #fff;
-
       box-shadow: none;
 
       &:active {
         box-shadow: none;
-        border: #333 1px solid;
+        border: rgba(63, 80, 236, 0.452) 1px solid;
         // background-color: #d80034;
-        background-color: #325DFF;
+        background-color: #fff;
       }
 
-      // release
-      &:focus {
-        outline: none;
-        box-shadow: none;
-        // border: #a63230 1px solid;
-        // background-color: #d84042;
-        background-color: #416affbe;
-      }
     }
     .btn-nav-left {
       border-radius: 10px 0px 0px 10px;
@@ -253,6 +244,7 @@ export default Vue.extend({
     }
     .btn-nav-right {
       border-radius: 0px 10px 10px 0px;
+      margin-left: 0px;
     }
   }
   .header-search-box {
@@ -270,7 +262,6 @@ export default Vue.extend({
       button:nth-child(1) {
         border: 1px solid #f1f1f1;
         background-color: #fff;
-
         border-radius: 20px 0px 0px 20px;
         height: 26px;
         font-size: 12px;
@@ -366,6 +357,7 @@ export default Vue.extend({
         width: 100%;
         display: block;
         font-size: 12px;
+        font-weight: lighter;
         user-select: none;
       }
     }
