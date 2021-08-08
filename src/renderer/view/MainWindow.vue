@@ -197,9 +197,12 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .left-sidebbar-container {
-  background-color: #f0e8e9;
+  // background-color: #f0e8e9;
+  background-color: #fdfdfd;
   padding-left: 0;
   padding-right: 0;
+
+  border-right: 1px solid #d1d1d1;
 
   height: 100%;
   ::-webkit-scrollbar-track {
@@ -226,18 +229,21 @@ export default Vue.extend({
       padding: 0;
       height: auto;
       li {
-        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
-        border-bottom: 1px solid #c1c1c1;
+        padding: 0.5rem 0.2rem 0.5rem 0.4rem;
+        border-bottom: 1px solid #e1e1e1;
         font-size: 0.9rem;
         &:hover {
-          background: #dbdbdb;
+          background: #4A8EFF;
+          color: #fff;
         }
         &:active {
-          background: #c0c0c0;
+          background: #4A8EFF;
+          color: #fff;
         }
       }
       .word-item-active {
-        background: #dbdbdb;
+        color: #fff;
+        background: #4A8EFF;
       }
     }
   }
