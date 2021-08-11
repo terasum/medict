@@ -2,16 +2,15 @@ import Vuex from 'vuex';
 import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 import { StoreDataType } from './StoreDataType';
 import { listeners } from '../service.renderer.listener';
-import logger from 'koa-pino-logger';
 
 
 
 const state: StoreDataType = {
   // defaultWindow: '/preference/translateSettings',
-  defaultWindow: '/',
+  defaultWindow: '/translate',
   headerData: {
     // currentTab: '设置',
-    currentTab: '词典',
+    currentTab: '翻译',
   },
 
   sideBarData: {
