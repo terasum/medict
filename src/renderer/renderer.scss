@@ -26,3 +26,14 @@ body {
   top: 0px;
   overflow: hidden;
 }
+
+.btn{
+  padding: .275rem .65rem;
+  font-size: 0.875rem;
+}
+
+.btn-group-sm>.btn, .btn-sm {
+  padding: .125rem .25rem;
+  font-size: .775rem;
+  border-radius: .2rem;
+}
