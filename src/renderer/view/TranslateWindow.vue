@@ -2,7 +2,7 @@
   <div class="container-fluid" style="height: 100%">
     <Header :displaySearchBox="true" />
     <div class="translate-container" style="height: 100%">
-      <div class="row translate-btns">
+      <div class="translate-btns">
         <div class="traslate-btn translator-engine">
           <b-dropdown
             id="translator-engine"
@@ -14,6 +14,7 @@
             <b-dropdown-item @click="useEngine('bing')">必应</b-dropdown-item>
           </b-dropdown>
         </div>
+
         <div class="traslate-btn">
           <b-dropdown
             id="src-lang"
@@ -30,9 +31,6 @@
               >日文</b-dropdown-item
             >
           </b-dropdown>
-        </div>
-        <div class="traslate-btn transfer-icon">
-          <b-icon-arrow-left-right> </b-icon-arrow-left-right>
         </div>
         <div class="traslate-btn">
           <b-dropdown id="dest-lang" variant="outline-primary" :text="destLang">
@@ -54,21 +52,23 @@
         </div>
       </div>
 
-      <div class="translate-box-label"><span>源文本</span></div>
-      <div class="translate-box">
-        <textarea class="fullfill" type="" v-model="sourceText" multiple />
-      </div>
-      <div class="translate-box-label">
-        <span>翻译</span>
-      </div>
-      <div class="translate-box">
-        <textarea
-          class="fullfill disable-input"
-          type=""
-          v-model="destText"
-          multiple
-          disabled
-        />
+      <div class="translate-box-container">
+        <div class="translate-box-label"><span>源文本</span></div>
+        <div class="translate-box">
+          <textarea class="fullfill" type="" v-model="sourceText" multiple />
+        </div>
+        <div class="translate-box-label">
+          <span>翻译</span>
+        </div>
+        <div class="translate-box">
+          <textarea
+            class="fullfill disable-input"
+            type=""
+            v-model="destText"
+            multiple
+            disabled
+          />
+        </div>
       </div>
       <FooterBar />
     </div>
@@ -153,145 +153,197 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .translate-container {
-  display: block;
+  display: flex;
+  padding: 0;
+  margin: 0;
 }
 
 .translate-btns {
   padding: 0;
   margin: 0;
-  margin-top: 15px;
-  height: 45px;
-  width: 100%;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-}
+  margin-left: -12px;
+  height: 100%;
+  width: 180px;
+  margin-right: 20px;
+  display: block;
+  border-right: 1px solid #ccc;
 
-.traslate-btn {
-  display: inline-block;
-  height: 45px;
-  width: auto;
-  line-height: 45px;
-  padding-top: 0;
-  .dropdown {
-    padding: 0;
-    margin: 0;
+  .traslate-btn {
+    display: inline-block;
+    height: 45px;
+    width: 100%;
+    line-height: 45px;
+    padding-top: 0;
+    .dropdown {
+      padding: 0;
+      margin: 0;
+    }
   }
-}
-
-#do-translate {
-  background: #d84042;
-  color: #fff;
-  &:active {
-    background: #c73a3c;
-    color: #f1f1f1;
-  }
-}
-
-.dropdown::v-deep .dropdown-menu {
-  min-width: 120px;
-  max-width: 120px;
-}
-#src-lang::v-deep button {
-  width: 120px;
-  text-align: left;
-}
-
-#dest-lang::v-deep button {
-  width: 120px;
-  text-align: left;
-}
-
-#dest-lang::v-deep .dropdown-menu {
-  min-width: 120px;
-  max-width: 120px;
-}
-
-#src-lang::v-deep .dropdown-menu {
-  min-width: 120px;
-  max-width: 120px;
-}
 
 .traslate-btn::v-deep button {
-  min-width: 120px;
-  border: 1px solid #ccc;
-  color: #333;
-  background: #fff;
-  line-height: 1rem;
-  &:hover {
-    background: #f1f1f1;
-  }
-  &:focus {
+    min-width: 120px;
     outline: none;
-    box-shadow: none;
-  }
-}
-
-.dropdown::v-deep button {
-  border: 1px solid #ccc;
-  color: #333;
-  &:hover {
-    background: #f1f1f1;
-  }
-  &:focus {
-    outline: none;
-    box-shadow: none;
-  }
-}
-
-.dropdown::v-deep ul {
-  margin: 0;
-  padding: 0;
-}
-.dropdown::v-deep ul > li {
-  line-height: 2rem;
-}
-.dropdown::v-deep ul > li > a {
-  margin: 0;
-  padding: 0;
-  padding-left: 0.5rem;
-}
-
-.translate-box-label {
-  text-align: center;
-  margin-top: 1rem;
-  color: #6c6c6c;
-}
-
-.translate-box {
-  height: 160px;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-
-  textarea {
-    margin: 0;
-    padding-left: 10px;
-    text-align: left;
-    width: 100%;
-    height: 100%;
-    resize: none;
     border: none;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    &:focus {
-      outline: none !important;
-      border: 1px solid #999;
-    }
-    &:active {
-      border: 1px solid #999;
-    }
+    background: #fff;
+    line-height: 1rem;
     &:hover {
-      border: 1px solid #aaa;
+      background: #f1f1f1;
+    }
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+  .dropdown::v-deep button {
+    border: 1px solid #ccc;
+    color: #333;
+    &:hover {
+      background: #f1f1f1;
+    }
+    &:focus {
+      outline: none;
+      box-shadow: none;
     }
   }
 
-  .fullfill {
-    width: 100%;
-    height: 100%;
+  .dropdown::v-deep ul {
+    margin: 0;
+    padding: 0;
   }
-  .disable-input {
-    background: #f1f1f1;
+  .dropdown::v-deep ul > li {
+    line-height: 2rem;
+  }
+  .dropdown::v-deep ul > li > a {
+    margin: 0;
+    padding: 0;
+    padding-left: 0.5rem;
+  }
+
+  .translator-engine {
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    #translator-engine{
+     display: block; 
+     margin-top: 10px;
+     margin-bottom: 10px;
+    }
+    #translator-engine::v-deep button {
+      width:100%;
+      border:none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      &:hover{
+        background:#fff;
+      }
+    }
+    &>ul{
+      width:100%;
+    }
+  }
+
+  #do-translate {
+    background: #3a6bc7;
+    color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top: 20px;
+    &:active {
+      background: #2953a1;
+      color: #f1f1f1;
+    }
+  }
+
+  .dropdown::v-deep .dropdown-menu {
+    min-width: 120px;
+    max-width: 120px;
+  }
+  #src-lang{
+    display: block;
+  }
+  #src-lang::v-deep button {
+    width: 120px;
+    text-align: center;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top: 15px;
+    display: block;
+  }
+  #dest-lang{
+    display: block;
+  }
+  #dest-lang::v-deep button {
+    width: 120px;
+    text-align: center;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top: 15px;
+    display: block;
+  }
+
+  #dest-lang::v-deep .dropdown-menu {
+    min-width: 120px;
+    max-width: 120px;
+  }
+
+  #src-lang::v-deep .dropdown-menu {
+    min-width: 120px;
+    max-width: 120px;
+    margin:0;
+  }
+
+  
+
+  
+}
+
+.translate-box-container {
+  width: calc(100% - 200px);
+  position: relative;
+
+  .translate-box-label {
+    text-align: center;
+    margin-top: 1rem;
+    color: #6c6c6c;
+  }
+
+  .translate-box {
+    height: 160px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    textarea {
+      margin: 0;
+      padding-left: 10px;
+      text-align: left;
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: none;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      &:focus {
+        outline: none !important;
+        border: 1px solid #999;
+      }
+      &:active {
+        border: 1px solid #999;
+      }
+      &:hover {
+        border: 1px solid #aaa;
+      }
+    }
+
+    .fullfill {
+      width: 100%;
+      height: 100%;
+    }
+    .disable-input {
+      background: #f1f1f1;
+    }
   }
 }
 </style>
