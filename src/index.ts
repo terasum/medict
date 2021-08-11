@@ -35,7 +35,9 @@ const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 600,
-    width: 800,
+    width: 864,
+    minHeight: 600,
+    minWidth: 864,
     titleBarStyle: 'hidden',
     // when ready-to-show, that the window will appear, prevent white screen
     show: false,

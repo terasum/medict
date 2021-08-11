@@ -36,12 +36,14 @@ import { cleanUpListeneres } from './init.renderersvc.register';
 // cleanup ipc listener
 cleanUpListeneres();
 
-// customer css
-import './renderer.scss';
-
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.min.css';
+
+// customer css
+import './renderer.scss';
+
+
 
 // use vuex
 Vue.use(Vuex);
