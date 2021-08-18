@@ -173,21 +173,21 @@ import Vue from 'vue';
 
 const validate = function (dictData: StorabeDictionary) {
   if (!dictData.id || dictData.id === '' || dictData.id.length > 6) {
-    return { ok: false, msg: `词典id非法: ${dictData.id}` };
+    return { ok: false, msg: `词典id非法: ${dictData.id} (长度<6/${dictData.id.length})` };
   }
 
   if (!dictData.alias || dictData.alias === '' || dictData.alias.length > 12) {
-    return { ok: false, msg: `词典 alias 非法: ${dictData.alias}` };
+    return { ok: false, msg: `词典别名非法: ${dictData.alias} (长度<12/${dictData.alias.length}) ` };
   }
 
   if (!dictData.name || dictData.name === '' || dictData.name.length > 64) {
-    return { ok: false, msg: `词典 name 非法: ${dictData.name}` };
+    return { ok: false, msg: `词典名称非法: ${dictData.name} (长度<64/${dictData.name.length})` };
   }
 
   if (dictData.description && dictData.description.length > 512) {
     return {
       ok: false,
-      msg: `词典 description 长度 非法: ${dictData.description}`,
+      msg: `词典描述长度非法: ${dictData.description} (长度<512/${dictData.description.length})`,
     };
   }
 
