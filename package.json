@@ -112,7 +112,7 @@
     "postcss": "^8.1.0",
     "postcss-loader": "^6.1.0",
     "postcss-pxtorem": "^6.0.0",
-    "sass": "^1.35.0",
+    "sass": "^1.39.2",
     "sass-loader": "^12.1.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^27.0.3",
