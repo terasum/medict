@@ -126,7 +126,7 @@
     "@popperjs/core": "^2.9.2",
     "@shuaninfo/random": "^5.1.1",
     "autoprefixer": "^10.2.6",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "bootstrap": "^5.0.2",
     "bootstrap-icons": "^1.5.0",
     "bootstrap-vue": "^2.21.2",
