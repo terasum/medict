@@ -620,10 +620,10 @@
     xterm-addon-fit "^0.5.0"
     xterm-addon-search "^0.8.0"
 
-"@electron/get@^1.0.1", "@electron/get@^1.6.0", "@electron/get@^1.9.0":
-  version "1.12.4"
-  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.12.4.tgz#a5971113fc1bf8fa12a8789dc20152a7359f06ab"
-  integrity sha512-6nr9DbJPUR9Xujw6zD3y+rS95TyItEVM0NVjt1EehY2vUWfIgPiIPVHxCvaTS0xr2B+DRxovYVKbuOWqC35kjg==
+"@electron/get@^1.13.0", "@electron/get@^1.6.0", "@electron/get@^1.9.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.13.0.tgz#95c6bcaff4f9a505ea46792424f451efea89228c"
+  integrity sha512-+SjZhRuRo+STTO1Fdhzqnv9D2ZhjxXP6egsJ9kiO8dtP68cDx7dFCwWi64dlMQV7sWcfW1OYCW4wviEBzmRsfQ==
   dependencies:
     debug "^4.1.1"
     env-paths "^2.2.0"
@@ -3347,12 +3347,12 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@13.1.2:
-  version "13.1.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-13.1.2.tgz#8c9abf9015766c9cbc16f10c99282d00d6ae1b90"
-  integrity sha512-aNT9t+LgdQaZ7FgN36pN7MjSEoj+EWc2T9yuOqBApbmR4HavGRadSz7u9N2Erw2ojdIXtei2RVIAvVm8mbDZ0g==
+electron@15.0.0:
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-15.0.0.tgz#b1b6244b1cffddf348c27c54b1310b3a3680246e"
+  integrity sha512-LlBjN5nCJoC7EDrgfDQwEGSGSAo/o08nSP5uJxN2m+ZtNA69SxpnWv4yPgo1K08X/iQPoGhoZu6C8LYYlk1Dtg==
   dependencies:
-    "@electron/get" "^1.0.1"
+    "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
     extract-zip "^1.0.3"
 
