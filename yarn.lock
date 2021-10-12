@@ -1656,6 +1656,11 @@
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
 
+"@xmldom/xmldom@^0.7.5":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.7.5.tgz#09fa51e356d07d0be200642b0e4f91d8e6dd408d"
+  integrity sha512-V3BIhmY36fXZ1OtVcI9W+FxQqxVLsPKcNjWigIaa81dLC9IolJl5Mt4Cvhmr0flUnjSpTdrbMTSbXqYqV5dT6A==
+
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz#eef014a3145ae477a1cbc00cd1e552336dceb790"
@@ -5548,12 +5553,13 @@ js-bktree@^1.0.0:
   resolved "https://registry.yarnpkg.com/js-bktree/-/js-bktree-1.0.0.tgz#4948156e81982fbf43b8c9245ff0e0409967bbef"
   integrity sha512-5BjNX4B7AFiTNn1e4iyslZ5gOen1ZRaeOHqtymXt4Ovj0zaIzcN3Hg+IpT7wQsJQ8DWVxR7pyMsUs6O8BK5/6g==
 
-js-mdict@4.0.17:
-  version "4.0.17"
-  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.17.tgz#d9c311731b0947288f5dd5d69b1ba5da17721593"
-  integrity sha512-9DzGGyIwWQI73BunM/hGVvTGz21CdCOThCCc+jzLEssS5/JMeassQWt5OiIKIDU/YEALz6eQs5ZE6SAEWUkP0g==
+js-mdict@4.0.20:
+  version "4.0.20"
+  resolved "https://registry.yarnpkg.com/js-mdict/-/js-mdict-4.0.20.tgz#9a593cfcb94ba53427c3545d952a4f7603f0fbe0"
+  integrity sha512-WsrScUB4hEQwckJg5KAUUfACodgntAGLlw51RLO3OX/f5SkUr99r+mSJVBR8nObVGMCPHt2BXB+zgScsMup07w==
   dependencies:
     "@babel/runtime" "^7.14.6"
+    "@xmldom/xmldom" "^0.7.5"
     bl "^2.2.1"
     blob-to-buffer "^1.2.6"
     buffer "^5.0.7"
@@ -5571,7 +5577,6 @@ js-mdict@4.0.17:
     read-chunk "^2.1.0"
     string-to-arraybuffer "^1.0.0"
     text-encoding "^0.6.4"
-    xmldom "^0.5.0"
 
 js-tokens@^4.0.0:
   version "4.0.0"
