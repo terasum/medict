@@ -79,7 +79,7 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-import { BIconArrowLeftRight } from 'bootstrap-vue';
+// import { BIconArrowLeftRight } from 'bootstrap-vue';
 import { listeners } from '../service.renderer.listener';
 import { AsyncMainAPI } from '../service.renderer.manifest';
 
@@ -95,7 +95,7 @@ const langMap = {
 };
 
 export default Vue.extend({
-  components: { Header, BIconArrowLeftRight, FooterBar },
+  components: { Header, FooterBar },
   data() {
     return {
       selectedEngine: '百度翻译',

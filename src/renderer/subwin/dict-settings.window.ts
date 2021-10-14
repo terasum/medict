@@ -1,18 +1,18 @@
  import Vue from 'vue';
  import VueRouter from 'vue-router';
  import Vuex from 'vuex';
- import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+//  import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
  import routes from '../routes';
  
  // Import Bootstrap an BootstrapVue CSS files (order is important)
- import 'bootstrap/dist/css/bootstrap.min.css';
- import 'bootstrap-vue/dist/bootstrap-vue.min.css';
+//  import 'bootstrap/dist/css/bootstrap.min.css';
+//  import 'bootstrap-vue/dist/bootstrap-vue.min.css';
  // use vuex
  Vue.use(Vuex);
  // Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue);
+// Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
+// Vue.use(IconsPlugin);
 
  
  // make sure this import after than use vuex

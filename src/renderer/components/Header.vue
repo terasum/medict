@@ -1,36 +1,53 @@
 <template>
-  <div class="row header">
+  <div class="header">
     <div class="header-navigate-btns">
-      <button type="button" class="btn btn-light btn-nav btn-nav-left">
-        <b-icon-chevron-compact-left />
+      <button type="button" class="button btn btn-light btn-nav btn-nav-left">
+        <i class="fas fa-chevron-left"></i>
       </button>
-      <button type="button" class="btn btn-light btn-nav btn-nav-right">
-        <b-icon-chevron-compact-right />
+
+      <button type="button" class="button btn btn-light btn-nav btn-nav-right">
+        <i class="fas fa-chevron-right"></i>
       </button>
     </div>
     <div class="header-search-box">
-      <div>
-        <b-input-group>
-          <template v-slot:prepend>
-            <b-dropdown :text="currentDict.alias" variant="info">
+        <b-dropdown aria-role="list">
+            <template #trigger="{ active }">
+                <b-button icon-pack="fas"
+                    :icon-right="active ? 'chevron-up' : 'chevron-down'" />
+            </template>
+
+            <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
+            <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
+        </b-dropdown>
+
+         <b-field>
+            <b-input placeholder="Search..."
+                type="search"
+                icon-pack="fas"
+                icon="search">
+            </b-input>
+        </b-field>
+        <!-- <b-input-group> -->
+          <!-- <template v-slot:prepend> -->
+            <!-- <b-dropdown :text="currentDict.alias" variant="info">
               <b-dropdown-item
                 v-for="item in selectDicts"
                 :key="item.id"
                 @click="selectDictItem(item)"
                 >{{ item.alias }}</b-dropdown-item
               >
-            </b-dropdown>
-          </template>
-          <b-form-input
+            </b-dropdown> -->
+          <!-- </template> -->
+          <!-- <b-form-input
             :disabled="displaySearchBox"
             v-model="searchWord"
             @keyup.enter.native="confirmSelect"
             @keyup.up.native="upSelect"
             @keyup.down.native="downSelect"
-          ></b-form-input>
-          <b-button variant="info"><b-icon-search /></b-button>
-        </b-input-group>
-      </div>
+          ></b-form-input> -->
+          <!-- <b-button variant="info"><b-icon-search /></b-button> -->
+        <!-- </b-input-group> -->
     </div>
 
     <div class="header-functions">
@@ -203,11 +220,11 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .header {
   height: 60px;
+  display:flex;
   // background-color: #d84042;
   // background-color: #fbfbfb;
   /* background-color: #f6f6f6; */
   background-image: linear-gradient(135deg , #325DFF , #529EFF);
-
   padding-top: 6px;
   border-bottom: 1px solid #d1d1d1;
   -webkit-app-region: drag;
@@ -216,6 +233,7 @@ export default Vue.extend({
     max-width: 80px;
     padding: 0;
     margin-left: 34px;
+    margin-right: 14px;
 
     .btn-nav {
       height: 24px;
@@ -248,11 +266,11 @@ export default Vue.extend({
     }
   }
   .header-search-box {
-    max-width: 360px;
+    display: flex;
     height: 54px;
     padding: 0;
     margin: 0;
-       margin-top: 18px;
+    margin-top: 18px;
     &::v-deep {
       .btn-group,
       .btn-group-vertical {
