@@ -127,7 +127,7 @@
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@popperjs/core": "^2.9.2",
     "@shuaninfo/random": "^5.1.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "buefy": "^0.9.10",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^10.0.0",
