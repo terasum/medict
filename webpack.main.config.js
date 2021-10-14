@@ -9,6 +9,6 @@ module.exports = {
     rules: require('./webpack.rules'),
   },
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json','scss',  '.vue']
-  },                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json', 'scss', '.vue'],
+  },
 };

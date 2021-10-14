@@ -7,10 +7,11 @@ import { listeners } from '../service.renderer.listener';
 
 const state: StoreDataType = {
   // defaultWindow: '/preference/translateSettings',
-  defaultWindow: '/preference/about',
+  // defaultWindow: '/preference/about',
+  defaultWindow: '/',
   headerData: {
     // currentTab: '设置',
-    currentTab: '设置',
+    currentTab: '词典',
   },
 
   sideBarData: {

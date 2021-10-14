@@ -1,3 +1,5 @@
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 module.exports = [
   // Add support for native node modules
   {
@@ -20,9 +22,9 @@ module.exports = [
     use: {
       loader: 'ts-loader',
       options: {
-        transpileOnly: true
-      }
-    }
+        transpileOnly: true,
+      },
+    },
   },
   // Add support for vue modules
   {
@@ -37,10 +39,35 @@ module.exports = [
     test: /\.(woff|woff2|eot|ttf|otf)$/i,
     type: 'asset/resource',
   },
-   // 它会应用到普通的 `.js` 文件
-   // 以及 `.vue` 文件中的 `<script>` 块
-    // {
-    //   test: /\.js$/,
-    //   loader: 'babel-loader'
-    // },
+  // 它会应用到普通的 `.js` 文件
+  // 以及 `.vue` 文件中的 `<script>` 块
+  // {
+  //   test: /\.js$/,
+  //   loader: 'babel-loader'
+  // },
+   // SASS and CSS files from Vue Single File Components:
+  {
+    test: /\.s[ac]ss$/i,
+    use: [
+      MiniCssExtractPlugin.loader,
+      // { loader: 'vue-style-loader' },
+      { loader: 'css-loader' },
+      { loader: 'sass-loader' },
+    ],
+  },
+  // normal css files
+  {
+    test: /\.css$/,
+    use: [
+      MiniCssExtractPlugin.loader,
+      {
+        loader: 'css-loader',
+        options: {
+          importLoaders: 1,
+          modules: true,
+          sourceMap: true,
+        },
+      },
+    ],
+  },
 ];

@@ -29,21 +29,22 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import Buefy from 'buefy'
+
 import routes from './routes';
 import { __RANDOM_KEY__ } from '../utils/random_key';
 import { cleanUpListeneres } from './init.renderersvc.register';
-// cleanup ipc listener
-cleanUpListeneres();
 
-// Import Bootstrap an BootstrapVue CSS files (order is important)
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-vue/dist/bootstrap-vue.min.css';
+import 'normalize.css/normalize.css';
+// import '@fortawesome/fontawesome-free/js/brands.min.js';
+import '@fortawesome/fontawesome-free/js/solid.min.js';
+import '@fortawesome/fontawesome-free/js/fontawesome.min.js';
+import 'buefy/dist/buefy.min.css';
 
 // customer css
 import './renderer.scss';
 
-
+Vue.config.productionTip = false
 
 // use vuex
 Vue.use(Vuex);
@@ -51,10 +52,7 @@ Vue.use(Vuex);
 // make sure this import after than use vuex
 import store from './store';
 
-// Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
+Vue.use(Buefy);
 
 // Create the router instance and pass the `routes` option
 // You can pass in additional options here, but let's
@@ -70,7 +68,18 @@ console.log(
   '👋 This message is being logged by "renderer.ts", included via webpack'
 );
 
+// cleanup ipc listener
+cleanUpListeneres();
+
+
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the
 // whole app router-aware.
-const app = new Vue({ router, store }).$mount('#app');
+const app = new Vue({ router, store });
+// remove skeleton
+let skeleton = document.querySelector('#skeleton-wrapper')
+if (skeleton) {
+  skeleton.innerHTML = ''
+}
+
+app.$mount('#app');

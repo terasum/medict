@@ -1,15 +1,8 @@
 <template>
-  <div class="container-fluid" style="height: 100%">
+  <div class="container" style="height: 100%">
     <Header :displaySearchBox="false" />
-    <div
-      class="row"
-      style="
-        height: -webkit-calc(100% - 80px);
-        height: -moz-calc(100% - 80px);
-        height: calc(100% - 80px);
-      "
-    >
-      <div class="col col-2 left-sidebbar-container">
+    <div class="main-content-container">
+      <div class="left-sidebbar-container">
         <div class="left-sidebbar">
           <ul class="left-sidebar-wordlist">
             <li
@@ -23,7 +16,8 @@
           </ul>
         </div>
       </div>
-      <div class="col word-content-continer">
+
+      <div class="word-content-continer">
         <div class="word-content-header">
           <div
             class="header-word-tab"
@@ -42,15 +36,23 @@
               placeholder="resource key..."
               v-model="lookupResourceKey"
             />
-            <div class="header-search-btn" @click="onLookupResource">
-              <b-icon icon="search"></b-icon>
-            </div>
+            <button class="button header-search-btn" @click="onLookupResource">
+              <span class="icon">
+                <i class="fas fa-search"></i>
+              </span>
+            </button>
           </div>
-          <div class="header-btn header-btn-devtool" @click="onDevtoolBtnClick">
-            <b-icon icon="bug"></b-icon>
-          </div>
+
+          <button class="button header-btn header-btn-devtool" @click="onDevtoolBtnClick">
+            <span class="icon">
+              <i class="fas fa-bug"></i>
+            </span>
+          </button>
+
           <div class="header-btn header-btn-devtool" @click="onResourceDir">
-            <b-icon icon="folder"></b-icon>
+            <span class="icon">
+              <i class="fas fa-folder"></i>
+            </span>
           </div>
           <div class="header-dict-info">
             <span>{{ currentDict.name }}</span>
@@ -196,14 +198,20 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+.main-content-container {
+  display: flex;
+  height: -webkit-calc(100% - 80px);
+  height: -moz-calc(100% - 80px);
+  height: calc(100% - 80px);
+  width: 100%;
+}
+
 .left-sidebbar-container {
-  // background-color: #f0e8e9;
+  width: 160px;
   background-color: #fdfdfd;
   padding-left: 0;
   padding-right: 0;
-
   border-right: 1px solid #d1d1d1;
-
   height: 100%;
   ::-webkit-scrollbar-track {
     // -webkit-box-shadow: inset 0 0 6px;
@@ -248,6 +256,23 @@ export default Vue.extend({
     }
   }
 }
+
+.word-content-continer {
+  padding: 0;
+  height: 100%;
+  width: calc(100% - 160px);
+  overflow-y: hidden;
+  .word-content {
+    padding: 0;
+    padding-bottom: 10px;
+    height: 100%;
+    * {
+      user-select: all;
+      -webkit-user-select: all;
+    }
+  }
+}
+
 .word-content-header {
   height: 26px;
   padding-left: 5px;
@@ -340,20 +365,7 @@ export default Vue.extend({
   }
 }
 
-.word-content-continer {
-  padding: 0;
-  height: 100%;
-  overflow-y: hidden;
-  .word-content {
-    padding: 0;
-    padding-bottom: 10px;
-    height: 100%;
-    * {
-      user-select: all;
-      -webkit-user-select: all;
-    }
-  }
-}
+
 webview {
   height: -webkit-calc(100% - 20px);
   height: -moz-calc(100% - 20px);
