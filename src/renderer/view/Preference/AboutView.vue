@@ -25,7 +25,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>软件版本</label>
-              <p>v2.1.0</p>
+              <p>v2.0.5</p>
             </div>
             <div class="input-container">
             </div>
@@ -44,12 +44,6 @@
               <p>
                 medict: 
                 <a href="javascript:void(0);" @click="onClickGithub('https://github.com/terasum')">陈权</a>
-              </p>
-              <p>
-                js-mdict: 
-                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/terasum')">陈权</a>,
-                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/songxiaocheng')">Xiaocheng Song</a>,
-                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/Danjame')">Danjun Xie</a>
               </p>
             </div>
             <div class="input-container">

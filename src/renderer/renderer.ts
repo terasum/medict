@@ -36,7 +36,7 @@ import { __RANDOM_KEY__ } from '../utils/random_key';
 import { cleanUpListeneres } from './init.renderersvc.register';
 
 import 'normalize.css/normalize.css';
-import '@fortawesome/fontawesome-free/js/brands.min.js';
+// import '@fortawesome/fontawesome-free/js/brands.min.js';
 import '@fortawesome/fontawesome-free/js/solid.min.js';
 import '@fortawesome/fontawesome-free/js/fontawesome.min.js';
 import 'buefy/dist/buefy.min.css';
@@ -48,6 +48,10 @@ Vue.config.productionTip = false
 
 // use vuex
 Vue.use(Vuex);
+
+
+// cleanup ipc listener, make sure this invoke before import store
+cleanUpListeneres();
 
 // make sure this import after than use vuex
 import store from './store';
@@ -68,8 +72,7 @@ console.log(
   '👋 This message is being logged by "renderer.ts", included via webpack'
 );
 
-// cleanup ipc listener
-cleanUpListeneres();
+
 
 
 // Create and mount the root instance.

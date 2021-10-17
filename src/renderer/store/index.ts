@@ -175,8 +175,8 @@ function defaultSelectDict() {
    * }]
    */
   listeners.onSuggestWord((event: any, args: any) => {
-    console.debug(`[store/index/listener]{onSuggestWord}: resp:`);
-    console.debug(args);
+    console.log(`[store/index/listener]{onSuggestWord}: resp:`);
+    console.log(args);
     Store.dispatch('asyncUpdateSideBar', {
       candidateWordNum: args.length,
     });
