@@ -7,14 +7,15 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import "../assets/css/photon.min.css"
 
 export default Vue.extend({
   components: {},
   methods: {},
 });
+//  <style scoped lang="css" src="../assets/css/photon.min.css"></style>
 </script>
 
- <style scoped lang="css" src="../assets/css/photon.min.css"></style>
 <style lang="scss" scoped>
 .parent-window {
   height: 100%;
