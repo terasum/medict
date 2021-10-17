@@ -208,7 +208,7 @@ export default Vue.extend({
 
 .left-sidebbar-container {
   width: 160px;
-  background-color: #fdfdfd;
+  background-color: #f2f4f5;
   padding-left: 0;
   padding-right: 0;
   border-right: 1px solid #d1d1d1;
