@@ -39,7 +39,7 @@
       </section>
 
       <section class="settings-section">
-        <div class="section-title"><h4> <i class="fab fa-google"></i> google 翻译</h4></div>
+        <div class="section-title"><h4> <i class="fab fa-lightbulb"></i> google 翻译</h4></div>
         <div class="section-body">
           <div class="input-group">
             <div class="input-info">
