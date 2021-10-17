@@ -7,50 +7,50 @@
       <div class="window-content">
         <div class="pane-group">
           <div class="pane pane-sm sidebar">
-            <nav class="nav-group">
+            <div class="nav-group">
               <h5 class="nav-group-title">词典配置</h5>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 0 ? 'active' : ''"
+                :class="currentMenu === 0 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(0)"
               >
-                <span class="icon icon-book"></span>
+                <span class="icon"><i class="fas fa-book"></i></span>
                 词典配置
               </span>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 1 ? 'active' : ''"
+                :class="currentMenu === 1 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(1)"
               >
-                <span class="icon icon-language"></span>
+                <span class="icon"><i class="fas fa-language"></i></span>
                 翻译配置
               </span>
               <h5 class="nav-group-title">系统设置</h5>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 2 ? 'active' : ''"
+                :class="currentMenu === 2 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(2)"
               >
-                <span class="icon icon-cog"></span>
+                <span class="icon"><i class="fas fa-cog"></i></span>
                 偏好设置
               </span>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 3 ? 'active' : ''"
+                :class="currentMenu === 3 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(3)"
               >
-                <span class="icon icon-tools"></span>
-                开发者工具
+                <span class="icon"><i class="fas fa-bug"></i></span>
+                开发设置
               </span>
               <span
                 class="nav-group-item"
-                :class="currentMenu === 4 ? 'active' : ''"
+                :class="currentMenu === 4 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(4)"
               >
-                <span class="icon icon-info-circled"></span>
+                <span class="icon"><i class="fas fa-info-circle"></i></span>
                 关于信息
               </span>
-            </nav>
+            </div>
           </div>
           <div class="pane-body">
             <router-view></router-view>
@@ -104,15 +104,74 @@ export default Vue.extend({
 });
 </script>
 
- <style scoped lang="css" src="../assets/css/photon.min.css"></style>
 
 <style lang="scss" scoped>
 .window-content {
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  .pane-group {
+    width: 100%;
+    display: flex;
+  }
+  .sidebar {
+    width: 160px;
+    height: 100%;
+    border-right: 1px solid #e8e8e8;
+    background: #f2f4f5;
+    .nav-group {
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 6px;
+
+      .nav-group-title {
+        display: none;
+        width: 100%;
+        margin: 0;
+        padding-left:6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #999;
+        border-bottom: 1px solid #c1c1c1;
+        margin-bottom: 5px;
+      }
+
+      .nav-group-item {
+        height: 32px;
+        width: 100%;
+        display: flex;
+        color: #777;
+        text-decoration: none;
+        font-size: 14px;
+        line-height: 32px;
+        cursor: pointer;
+
+        &:active {
+          background-color: #e8eaec;
+        }
+
+        .icon {
+          height: 30px;
+          width: 30px;
+          display: inline-block;
+          font-size: 14px;
+          line-height: 30px;
+          text-align: center;
+          color: #777;
+        }
+      }
+      .item-active {
+        border-radius: 3px;
+        background-color: #e8eaec;
+        color: #222;
+      }
+    }
+  }
 }
 .pane-body {
-  width: 100%;
+  width: calc(100% - 161px);
   height: 100%;
   overflow-y: auto;
 }

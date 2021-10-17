@@ -6,11 +6,12 @@ import { listeners } from '../service.renderer.listener';
 
 
 const state: StoreDataType = {
-  // defaultWindow: '/preference/translateSettings',
-  defaultWindow: '/translate',
+  // defaultWindow: '/preference',
+  // defaultWindow: '/preference/dictSettings',
+  defaultWindow: '/',
   headerData: {
     // currentTab: '设置',
-    currentTab: '翻译',
+    currentTab: '词典',
   },
 
   sideBarData: {
@@ -174,8 +175,8 @@ function defaultSelectDict() {
    * }]
    */
   listeners.onSuggestWord((event: any, args: any) => {
-    console.debug(`[store/index/listener]{onSuggestWord}: resp:`);
-    console.debug(args);
+    console.log(`[store/index/listener]{onSuggestWord}: resp:`);
+    console.log(args);
     Store.dispatch('asyncUpdateSideBar', {
       candidateWordNum: args.length,
     });

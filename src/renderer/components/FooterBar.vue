@@ -63,8 +63,6 @@ export default Vue.extend({
   margin: 0;
   background: #fff;
 
-  margin-left: -12px;
-  margin-right: -12px;
   padding-left: 20px;
   color: #666;
   font-size: 12px;

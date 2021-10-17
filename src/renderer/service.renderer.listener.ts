@@ -4,6 +4,7 @@ function wrap(eventName: string) {
   return (callback: (event: any, arg: any) => any) => {
     console.log(`🔧 register listener [${eventName}]`);
     ipcRenderer.on(eventName, (e: any, a: any) => {
+      console.log(`ipcRenerer triggered, ${eventName}`)
       return callback(e, a);
     });
   };
