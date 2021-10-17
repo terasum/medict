@@ -8,11 +8,16 @@
     >
       <div class="dictionaries-container">
         <ul class="dictionaries">
-          <li 
+          <li
             v-for="item in selectDicts"
             :key="item.id"
             @click="selectDictItem(item)"
-            :class="item.id === currentDict.id ? 'dictionary-item dict-active' : 'dictionary-item'">
+            :class="
+              item.id === currentDict.id
+                ? 'dictionary-item dict-active'
+                : 'dictionary-item'
+            "
+          >
             <span class="dict-icon"><i class="fas fa-book"></i></span>
             <div class="dict-info">
               <span class="dict-name">{{ item.alias }}</span>
@@ -41,15 +46,17 @@
           icon-pack="fas"
           :label="currentDict != undefined ? currentDict.alias : 'NULL'"
           icon-left="book"
-          @click="isDictSelectModalActive = true"
+          @click="onSelectDictBtnClick"
         />
-        <b-input placeholder="search..." 
-           :disabled="displaySearchBox"
-            v-model="searchWord"
-            @keyup.enter.native="confirmSelect"
-            @keyup.up.native="upSelect"
-            @keyup.down.native="downSelect"
-        type="search"></b-input>
+        <b-input
+          placeholder="search..."
+          :disabled="displaySearchBox"
+          v-model="searchWord"
+          @keyup.enter.native="confirmSelect"
+          @keyup.up.native="upSelect"
+          @keyup.down.native="downSelect"
+          type="search"
+        ></b-input>
         <b-button icon-pack="fas" icon-right="search" />
       </div>
 
@@ -135,7 +142,12 @@ export default Vue.extend({
       isDictSelectModalActive: false,
     };
   },
+
   computed: {
+    avaliableDictCount() {
+      let dicts = (this.$store as typeof Store).state.dictionaries;
+      return !dicts ? 0 : dicts.length;
+    },
     currentDict() {
       return (this.$store as typeof Store).state.currentSelectDict;
     },
@@ -144,9 +156,6 @@ export default Vue.extend({
       (this.$store as typeof Store).state.dictionaries.forEach((item) => {
         dicts.push({ id: item.id, alias: item.alias, name: item.name });
       });
-      dicts.push({ id: "1", alias: "CN_ENA", name:"大英汉词典 v2.0" })
-      dicts.push({ id: "2", alias: "OALE8", name:" 牛津高阶 v8" })
-      dicts.push({ id: "3", alias: "NEWCENT", name:"新世纪大辞典 v2.0" })
       return dicts;
     },
     currentTab() {
@@ -163,6 +172,11 @@ export default Vue.extend({
     },
   },
   methods: {
+    onSelectDictBtnClick() {
+      if (this.avaliableDictCount > 0) {
+        this.isDictSelectModalActive = true;
+      }
+    },
     selectDictItem(item: DictItem) {
       this.$store.commit('updateCurrentSelectDict', item);
       // async search
@@ -176,7 +190,7 @@ export default Vue.extend({
       }
 
       this.isDictSelectModalActive = false;
-      this.$emit('close'); 
+      this.$emit('close');
     },
     // keyup event methods
     confirmSelect(event: any) {
@@ -271,7 +285,7 @@ export default Vue.extend({
     margin-bottom: 20px;
     min-height: 100px;
     height: 100%;
-    overflow-y:auto;
+    overflow-y: auto;
     /* Works on Chrome, Edge, and Safari */
     &::-webkit-scrollbar {
       width: 5px;
@@ -290,7 +304,7 @@ export default Vue.extend({
 
   &::v-deep .dict-active {
     background: #ddeef580;
-    &:hover{
+    &:hover {
       background: #ddeef580 !important;
     }
   }
@@ -312,7 +326,7 @@ export default Vue.extend({
       font-size: 26px;
       text-align: center;
     }
-    .dict-info{
+    .dict-info {
       display: flex;
       flex-direction: column;
       height: 45px;
@@ -321,7 +335,6 @@ export default Vue.extend({
       height: 20px;
       font-size: 16px;
       line-height: 20px;
-
     }
     .dict-desc {
       height: 18px;
@@ -401,9 +414,20 @@ export default Vue.extend({
         padding-left: 10px;
         padding-right: 10px;
         box-shadow: none;
-        span {
+        width: 100px;
+        display: flex;
+        justify-content: space-between;
+        span:nth-child(1) {
           padding-left: 3px;
           padding-right: 5px;
+          width: 26px;
+        }
+        span:nth-child(2) {
+          padding-left: 3px;
+          padding-right: 5px;
+          width: 58px;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
       }
       // search button

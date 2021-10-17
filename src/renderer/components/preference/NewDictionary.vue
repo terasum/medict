@@ -438,7 +438,7 @@ export default Vue.extend({
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 4px;
+  padding: 1px;
 }
 
 .dict-settings label {
