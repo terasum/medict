@@ -4,11 +4,15 @@
     <div class="translate-container" style="height: 100%">
       <div class="translate-btns">
         <div class="traslate-btn translator-engine">
-          <b-dropdown
+          <b-dropdown aria-role="list"
             id="translator-engine"
-            :text="selectedEngine"
-            variant="outline-primary"
           >
+            <template #trigger="{ active }">
+                <b-button
+                    :label="selectedEngine"
+                    type="is-primary"
+                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+            </template>
             <b-dropdown-item @click="useEngine('baidu')">百度</b-dropdown-item>
             <b-dropdown-item @click="useEngine('google')">谷歌</b-dropdown-item>
             <b-dropdown-item @click="useEngine('bing')">必应</b-dropdown-item>
@@ -17,11 +21,14 @@
         </div>
 
         <div class="traslate-btn">
-          <b-dropdown
-            id="src-lang"
-            variant="outline-primary"
-            :text="sourceLang"
-          >
+          <b-dropdown aria-role="list" id="src-lang">
+             <template #trigger="{ active }">
+                <b-button
+                    :label="sourceLang"
+                    type="is-primary"
+                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+            </template>
+
             <b-dropdown-item @click="changeSourceLang('en')"
               >英文</b-dropdown-item
             >
@@ -34,7 +41,15 @@
           </b-dropdown>
         </div>
         <div class="traslate-btn">
-          <b-dropdown id="dest-lang" variant="outline-primary" :text="destLang">
+
+          <b-dropdown aria-role="list" id="dest-lang">
+             <template #trigger="{ active }">
+                <b-button
+                    :label="destLang"
+                    type="is-primary"
+                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+            </template>
+
             <b-dropdown-item @click="changeDestLang('en')"
               >英文</b-dropdown-item
             >
@@ -47,7 +62,7 @@
           </b-dropdown>
         </div>
         <div class="traslate-btn">
-          <b-button id="do-translate" @click="doTranslate" variant=""
+          <b-button class="button" id="do-translate" @click="doTranslate" variant=""
             >翻&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;译</b-button
           >
         </div>
@@ -162,12 +177,12 @@ export default Vue.extend({
 .translate-btns {
   padding: 0;
   margin: 0;
-  margin-left: -12px;
   height: 100%;
-  width: 180px;
-  margin-right: 20px;
+  width: 160px;
+  // margin-right: 20px;
   display: block;
   border-right: 1px solid #ccc;
+  background: #f2f4f5;
 
   .traslate-btn {
     display: inline-block;
