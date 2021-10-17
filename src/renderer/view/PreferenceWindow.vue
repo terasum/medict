@@ -47,7 +47,7 @@
                 :class="currentMenu === 4 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(4)"
               >
-                <span class="icon"><i class="fas fa-info"></i></span>
+                <span class="icon"><i class="fas fa-info-circle"></i></span>
                 关于信息
               </span>
             </div>

@@ -36,7 +36,7 @@ import { __RANDOM_KEY__ } from '../utils/random_key';
 import { cleanUpListeneres } from './init.renderersvc.register';
 
 import 'normalize.css/normalize.css';
-// import '@fortawesome/fontawesome-free/js/brands.min.js';
+import '@fortawesome/fontawesome-free/js/brands.min.js';
 import '@fortawesome/fontawesome-free/js/solid.min.js';
 import '@fortawesome/fontawesome-free/js/fontawesome.min.js';
 import 'buefy/dist/buefy.min.css';
