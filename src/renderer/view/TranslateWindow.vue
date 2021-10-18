@@ -85,7 +85,9 @@
             multiple
           />
           <div class="translate-toolbar">
-            <button class="toolbar-btn"><i class="fas fa-copy"></i></button>
+            <button class="toolbar-btn" @click="copySrc">
+              <i class="fas fa-copy"></i>
+            </button>
             <span class="toolbar-info">{{ srcWordCount }} / 2000 </span>
           </div>
         </div>
@@ -100,11 +102,19 @@
             disabled
           />
           <div class="translate-toolbar">
-            <button class="toolbar-btn"><i class="fas fa-copy"></i></button>
+            <button class="toolbar-btn" @click="copyDest">
+              <i class="fas fa-copy"></i>
+            </button>
+            
           </div>
         </div>
       </div>
-
+<div
+              class="translate-tooltip"
+              :class="isTooltipActive ? 'show' : 'hide'"
+            >
+              <span class="tooltip-text">{{ tooltipText }} </span>
+            </div>
       <!-- footer -->
       <FooterBar />
     </div>
@@ -115,9 +125,8 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-// import { BIconArrowLeftRight } from 'bootstrap-vue';
 import { listeners } from '../service.renderer.listener';
-import { AsyncMainAPI } from '../service.renderer.manifest';
+import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 
 const engineMap = {
   baidu: '百度翻译',
@@ -155,9 +164,30 @@ export default Vue.extend({
       destLangPlaceHolder: placeHolderMap['en'],
       sourceText: '',
       destText: '',
+      tooltipText: '',
+      isTooltipActive: false,
     };
   },
   methods: {
+    showTooltip(text: string) {
+      this.tooltipText = text;
+      this.isTooltipActive = true;
+      setTimeout(() => {
+        this.isTooltipActive = false
+      }, 1000)
+    },
+    copyDest() {
+      let result = SyncMainAPI.clipboardWriteText({ text: this.destText });
+      if (result) {
+        this.showTooltip('目标文本已复制');
+      }
+    },
+    copySrc() {
+      let result = SyncMainAPI.clipboardWriteText({ text: this.sourceText });
+      if (result) {
+        this.showTooltip('原始文本已复制');
+      }
+    },
     useEngine(engine: string) {
       if (engine !== 'baidu' && engine !== 'google' && engine != 'youdao') {
         alert('翻译引擎暂不支持');
@@ -206,7 +236,7 @@ export default Vue.extend({
   },
   mounted() {
     listeners.onAsyncTranslate((event, arg) => {
-      console.log('===== translate result ====')
+      console.log('===== translate result ====');
       console.log(arg);
       if (arg && arg.engine === 'baidu') {
         if (arg.code === 0 && arg.data) {
@@ -274,7 +304,7 @@ export default Vue.extend({
         margin: 0 auto;
         padding: 15px 0;
         background: #fff;
-        font-size: 22px;
+        font-size: 20px;
         color: #535353;
         cursor: pointer;
 
@@ -464,7 +494,6 @@ export default Vue.extend({
   width: calc(100% - 160px);
   position: relative;
   background: #4080eb;
-
   .translate-box {
     height: 220px;
     width: calc(100% - 60px);
@@ -543,5 +572,28 @@ export default Vue.extend({
       }
     }
   }
+}
+
+.translate-tooltip {
+  position: fixed;
+  right: 4px;
+  top: 65px;
+  height: 26px;
+  line-height: 26px;
+  background: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  border-radius: 4px;
+  box-shadow: 1px 1px 1px #b1afaf;
+  cursor: default;
+  animation: ease-out 2000ms;
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.show {
+  display: block;
+}
+.hide {
+  display: none;
 }
 </style>

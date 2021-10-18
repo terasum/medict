@@ -5,6 +5,7 @@ import { StubDictAccessor } from './mainsvc/StubDictAccessor';
 import { StubFileOpen } from './mainsvc/StubFileOpen';
 import { StubConfigAccessor } from './mainsvc/StubConfigAccessor';
 import { StubTranslate } from './mainsvc/StubTranslate';
+import { StubClipboard } from './mainsvc/StubClipboard';
 
 const stubWindow = new StubWindow();
 const stubMessage = new StubMessage();
@@ -13,6 +14,7 @@ const stubDictAccessor = new StubDictAccessor();
 const stubFileOpen = new StubFileOpen();
 const stubConfigAccessor = new StubConfigAccessor();
 const stubTranslate = new StubTranslate();
+const stubClipboard = new StubClipboard();
 
 export const asyncfn = {
   asyncMessage: stubMessage.asyncMessage,
@@ -45,4 +47,5 @@ export const syncfn = {
   loadTranslateApiConfig: stubConfigAccessor.loadTranslateApiConfig,
   saveTranslateBaiduApiConfig: stubConfigAccessor.saveTranslateBaiduApiConfig,
   saveTranslateYoudaoApiConfig: stubConfigAccessor.saveTranslateYoudaoApiConfig,
+  clipboardWriteText: stubClipboard.syncClipboardWriteText,
 };

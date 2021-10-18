@@ -51,4 +51,5 @@ export const SyncMainAPI = {
   saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
   saveTranslateYoudaoApiConfig: syncWrap('saveTranslateYoudaoApiConfig'),
   syncGetWebviewPreliadFilePath: syncWrap('syncGetWebviewPreliadFilePath'),
+  clipboardWriteText:syncWrap('clipboardWriteText'),
 };
