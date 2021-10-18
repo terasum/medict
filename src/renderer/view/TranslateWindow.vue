@@ -1,32 +1,28 @@
 <template>
-  <div class="container-fluid" style="height: 100%">
+  <div class="container" style="height: 100%">
     <Header :displaySearchBox="true" />
     <div class="translate-container" style="height: 100%">
-      <div class="translate-btns">
-        <div class="traslate-btn translator-engine">
-          <b-dropdown aria-role="list"
-            id="translator-engine"
-          >
-            <template #trigger="{ active }">
-                <b-button
-                    :label="selectedEngine"
-                    type="is-primary"
-                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+      <div class="sidebar">
+        <!-- translate engines selection -->
+        <div class="translator-engine">
+          <b-dropdown aria-role="list" id="translator-engine">
+            <template #trigger="{}">
+              <b-button><span class="lang-icon"><i class="fas fa-language"></i></span> {{selectedEngine}}</b-button>
             </template>
             <b-dropdown-item @click="useEngine('baidu')">百度</b-dropdown-item>
             <b-dropdown-item @click="useEngine('google')">谷歌</b-dropdown-item>
             <b-dropdown-item @click="useEngine('bing')">必应</b-dropdown-item>
           </b-dropdown>
-
         </div>
 
-        <div class="traslate-btn">
+        <!-- source language selection -->
+        <div class="translator-src-lang">
           <b-dropdown aria-role="list" id="src-lang">
-             <template #trigger="{ active }">
-                <b-button
-                    :label="sourceLang"
-                    type="is-primary"
-                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+            <template #trigger="{}">
+              <b-button
+                :label="sourceLang"
+                type="is-primary"
+              />
             </template>
 
             <b-dropdown-item @click="changeSourceLang('en')"
@@ -40,14 +36,21 @@
             >
           </b-dropdown>
         </div>
-        <div class="traslate-btn">
 
+        <div class="translator-icon-container">
+          <span>
+              <i class="fas fa-exchange-alt"></i>
+          </span>
+        </div>
+
+        <!-- destination language selection -->
+        <div class="translator-dest-lang">
           <b-dropdown aria-role="list" id="dest-lang">
-             <template #trigger="{ active }">
-                <b-button
-                    :label="destLang"
-                    type="is-primary"
-                    :icon-right="active ? 'menu-up' : 'menu-down'" />
+            <template #trigger="{}">
+              <b-button
+                :label="destLang"
+                type="is-primary"
+              />
             </template>
 
             <b-dropdown-item @click="changeDestLang('en')"
@@ -61,31 +64,51 @@
             >
           </b-dropdown>
         </div>
-        <div class="traslate-btn">
-          <b-button class="button" id="do-translate" @click="doTranslate" variant=""
-            >翻&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;译</b-button
+
+        <!-- "translate" button -->
+        <div class="translator-btn">
+          <b-button
+            class="button"
+            id="do-translate"
+            @click="doTranslate"
+            variant=""
+            >翻&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;译</b-button
           >
         </div>
       </div>
 
+      <!-- main translation container -->
       <div class="translate-box-container">
-        <div class="translate-box-label"><span>源文本</span></div>
-        <div class="translate-box">
-          <textarea class="fullfill" type="" v-model="sourceText" multiple />
-        </div>
-        <div class="translate-box-label">
-          <span>翻译</span>
-        </div>
         <div class="translate-box">
           <textarea
-            class="fullfill disable-input"
+            class=""
+            type=""
+            v-model="sourceText"
+            :placeholder="sourceLangPlaceHolder" 
+            multiple
+          />
+          <div class="translate-toolbar">
+            <button class="toolbar-btn"><i class="fas fa-copy"></i></button>
+            <span class="toolbar-info">{{ srcWordCount }} / 2000 </span>
+          </div>
+        </div>
+
+        <div class="translate-box disable-input">
+          <textarea
+            class=""
             type=""
             v-model="destText"
             multiple
+            :placeholder="destLangPlaceHolder" 
             disabled
           />
+          <div class="translate-toolbar">
+            <button class="toolbar-btn"><i class="fas fa-copy"></i></button>
+          </div>
         </div>
       </div>
+
+      <!-- footer -->
       <FooterBar />
     </div>
   </div>
@@ -104,14 +127,25 @@ const engineMap = {
   google: '谷歌翻译',
   bing: '必应翻译',
 };
+
 const langMap = {
   zh: '中文',
   en: '英文',
   jp: '日语',
 };
+const placeHolderMap = {
+  zh: '你好，很高兴认识你！',
+  en: 'Hello, nice to meet you!',
+  jp: 'こんにちは、はじめまして！',
+};
 
 export default Vue.extend({
   components: { Header, FooterBar },
+  computed: {
+    srcWordCount(): Number {
+      return !this.sourceText ? 0 : this.sourceText.length;
+    },
+  },
   data() {
     return {
       selectedEngine: '百度翻译',
@@ -119,6 +153,8 @@ export default Vue.extend({
       sourceLangCode: 'zh',
       destLang: '英文',
       destLangCode: 'en',
+      sourceLangPlaceHolder: placeHolderMap['zh'] ,
+      destLangPlaceHolder: placeHolderMap['en'],
       sourceText: '',
       destText: '',
     };
@@ -136,11 +172,13 @@ export default Vue.extend({
       console.log(lang, langMap[lang]);
       this.sourceLang = langMap[lang];
       this.sourceLangCode = lang;
+      this.sourceLangPlaceHolder = placeHolderMap[lang];
     },
     changeDestLang(lang: string) {
       console.log(lang, langMap[lang]);
       this.destLang = langMap[lang];
       this.destLangCode = lang;
+      this.destLangPlaceHolder = placeHolderMap[lang];
     },
     doTranslate() {
       if (!this.sourceText || this.sourceText == '') {
@@ -174,191 +212,304 @@ export default Vue.extend({
   margin: 0;
 }
 
-.translate-btns {
+.sidebar {
   padding: 0;
   margin: 0;
   height: 100%;
   width: 160px;
   // margin-right: 20px;
   display: block;
-  border-right: 1px solid #ccc;
-  background: #f2f4f5;
+  // border-right: 1px solid #ccc;
+  background: #ffffff;
 
-  .traslate-btn {
-    display: inline-block;
-    height: 45px;
-    width: 100%;
-    line-height: 45px;
-    padding-top: 0;
-    .dropdown {
-      padding: 0;
-      margin: 0;
-    }
-  }
-
-.traslate-btn::v-deep button {
-    min-width: 120px;
-    outline: none;
-    border: none;
-    background: #fff;
-    line-height: 1rem;
-    &:hover {
-      background: #f1f1f1;
-    }
-    &:focus {
-      outline: none;
-      box-shadow: none;
-    }
-  }
-  .dropdown::v-deep button {
-    border: 1px solid #ccc;
-    color: #333;
-    &:hover {
-      background: #f1f1f1;
-    }
-    &:focus {
-      outline: none;
-      box-shadow: none;
-    }
-  }
-
-  .dropdown::v-deep ul {
-    margin: 0;
-    padding: 0;
-  }
-  .dropdown::v-deep ul > li {
-    line-height: 2rem;
-  }
-  .dropdown::v-deep ul > li > a {
-    margin: 0;
-    padding: 0;
-    padding-left: 0.5rem;
-  }
-
+  // 翻译引擎
   .translator-engine {
     width: 100%;
-    border-bottom: 1px solid #ccc;
     display: block;
-    #translator-engine{
-     display: block; 
-     margin-top: 10px;
-     margin-bottom: 10px;
-    }
-    #translator-engine::v-deep button {
-      width:100%;
-      border:none;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      &:hover{
-        background:#fff;
+    background: #fff;
+    border-bottom: 1px solid #f1f1f1;
+    margin-bottom: 10px;
+
+    &::v-deep .dropdown {
+     .lang-icon{
+       color: #4080EB;
+     } 
+      .button {
+        width: 100%;
+        border: none;
+        outline: none;
+        display: block;
+        margin: 0 auto;
+        padding: 15px 0;
+        background: #fff;
+        font-size: 22px;
+        color: #535353;
+        cursor: pointer;
+
+        &:hover {
+          background: #fff;
+        }
+      }
+      .background {
+        display: none;
+      }
+
+      .dropdown-menu {
+        width: 159px;
+        background: #fff;
+        position: fixed;
+        .dropdown-content {
+          display: flex;
+          flex-direction: column;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          min-height: 200px;
+          border-bottom: 1px solid #f1f1f1;
+
+          .dropdown-item {
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: #666;
+            cursor: pointer;
+            &:hover{
+            color: #333;
+            }
+            &:active{
+            color: #111;
+            }
+          }
+        }
       }
     }
-    &>ul{
-      width:100%;
+  }
+
+  .translator-src-lang {
+    &::v-deep .dropdown {
+      .button {
+        width: 100%;
+        border: none;
+        outline: none;
+        display: block;
+        margin: 0 auto;
+        padding: 10px 0;
+        background: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+
+        &:hover {
+          background: #fff;
+        }
+      }
+      .background {
+        display: none;
+      }
+
+      .dropdown-menu {
+        width: 159px;
+        background: #fff;
+        position: fixed;
+        .dropdown-content {
+          display: flex;
+          flex-direction: column;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          min-height: 200px;
+          border-bottom: 1px solid #f1f1f1;
+          .dropdown-item {
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: #666;
+            cursor: pointer;
+            &:hover{
+            color: #333;
+            }
+            &:active{
+            color: #111;
+            }
+          }
+        }
+      }
+    }
+  }
+  .translator-icon-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    span{
+      font-size: 18px;
+      color: #4080EB;
     }
   }
 
-  #do-translate {
-    background: #3a6bc7;
-    color: #fff;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    margin-top: 20px;
-    &:active {
-      background: #2953a1;
-      color: #f1f1f1;
+  .translator-dest-lang {
+    &::v-deep .dropdown {
+      .button {
+        width: 100%;
+        border: none;
+        outline: none;
+        display: block;
+        margin: 0 auto;
+        padding: 10px 0;
+        background: #fff;
+        font-size: 18px;
+        font-weight: 700;;
+        cursor: pointer;
+
+        &:hover {
+          background: #fff;
+        }
+      }
+      .background {
+        display: none;
+      }
+
+      .dropdown-menu {
+        width: 159px;
+        background: #fff;
+        position: fixed;
+        .dropdown-content {
+          display: flex;
+          flex-direction: column;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          min-height: 200px;
+          border-bottom: 1px solid #f1f1f1;
+          .dropdown-item {
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: #666;
+            cursor: pointer;
+            &:hover{
+            color: #333;
+            }
+            &:active{
+            color: #111;
+            }
+          }
+        }
+      }
     }
   }
 
-  .dropdown::v-deep .dropdown-menu {
-    min-width: 120px;
-    max-width: 120px;
+  // 翻译按钮
+  .translator-btn {
+    margin: 20px auto;
+    .button {
+      border: none;
+      outline: none;
+      display: block;
+      margin: 0 auto;
+      padding: 8px 26px;
+      background: #4080EB;
+      border-radius: 4px;
+      box-shadow: 0 1px 6px 0 rgb(32 33 36 / 28%);
+      font-size: 18px;
+      color: #fff;
+      cursor: pointer;
+      &:hover {
+        background: #2d65c7;
+      }
+      &:active {
+        background: rgb(32, 83, 172);
+      }
+    }
   }
-  #src-lang{
-    display: block;
-  }
-  #src-lang::v-deep button {
-    width: 120px;
-    text-align: center;
-    margin-left:auto;
-    margin-right:auto;
-    margin-top: 15px;
-    display: block;
-  }
-  #dest-lang{
-    display: block;
-  }
-  #dest-lang::v-deep button {
-    width: 120px;
-    text-align: center;
-    margin-left:auto;
-    margin-right:auto;
-    margin-top: 15px;
-    display: block;
-  }
-
-  #dest-lang::v-deep .dropdown-menu {
-    min-width: 120px;
-    max-width: 120px;
-  }
-
-  #src-lang::v-deep .dropdown-menu {
-    min-width: 120px;
-    max-width: 120px;
-    margin:0;
-  }
-
-  
-
-  
 }
 
+// 翻译内容区域
 .translate-box-container {
-  width: calc(100% - 200px);
+  width: calc(100% - 160px);
   position: relative;
-
-  .translate-box-label {
-    text-align: center;
-    margin-top: 1rem;
-    color: #6c6c6c;
-  }
+  background: #4080EB;
 
   .translate-box {
-    height: 160px;
-    width: 100%;
-    padding: 0;
-    margin: 0;
+    height: 220px;
+    width: calc(100% - 60px);
+    margin: 20px 30px;
+    border-radius: 12px;
+    // border: 1px solid #ccc;
+    padding: 6px;
+    padding-top: 12px;
+    background: #fff;
+    box-shadow: 0 1px 6px 0 rgb(32 33 36 / 28%);
 
     textarea {
       margin: 0;
       padding-left: 10px;
       text-align: left;
       width: 100%;
-      height: 100%;
+      height: calc(100% - 38px);
       resize: none;
       border: none;
-      border-radius: 3px;
-      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 18px;
+      color: #464646;
+
       &:focus {
         outline: none !important;
-        border: 1px solid #999;
+        border: none !important;
       }
       &:active {
-        border: 1px solid #999;
+        outline: none !important;
+        border: none !important;
       }
       &:hover {
-        border: 1px solid #aaa;
+        outline: none !important;
+        border: none !important;
+      }
+    }
+    .translate-toolbar {
+      height: 30px;
+      width: 100%;
+      display: flex;
+      flex-direction: row-reverse;
+      margin-bottom: 8px;
+      .toolbar-btn {
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 26px;
+        height: 26px;
+        margin: 2px 10px;
+        font-size: 16px;
+        line-height: 26px;
+        color: #999;
+        cursor: pointer;
+        &:hover{
+          color: #666;
+        }
+        &:active{
+          color: #333;
+        }
+      }
+
+      .toolbar-info {
+        margin: 2px 10px;
+        font-size: 14px;
+        line-height: 22px;
+        height: 26px;
+        padding: 4px 2px;
+        color: #999;
+        
       }
     }
 
-    .fullfill {
-      width: 100%;
-      height: 100%;
-    }
     .disable-input {
-      background: #f1f1f1;
+      background: #f9f9f9;
+      textarea {
+        background: #f9f9f9;
+      }
     }
   }
 }

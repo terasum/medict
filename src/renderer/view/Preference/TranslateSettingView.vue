@@ -39,7 +39,7 @@
       </section>
 
       <section class="settings-section">
-        <div class="section-title"><h4> <i class="fab fa-lightbulb"></i> google 翻译</h4></div>
+        <div class="section-title"><h4> <i class="fas fa-lightbulb"></i> google 翻译</h4></div>
         <div class="section-body">
           <div class="input-group">
             <div class="input-info">
@@ -58,7 +58,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>APPKEY</label>
-              <p>在 google 开放平台申请的 APPKEY</p>
+              <p>在 Google 开放平台申请的 APPKEY</p>
             </div>
             <div class="input-container">
               <input
