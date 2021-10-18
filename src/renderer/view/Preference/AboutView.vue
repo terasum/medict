@@ -25,7 +25,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>软件版本</label>
-              <p>v2.0.5</p>
+              <p>v2.0.6</p>
             </div>
             <div class="input-container">
             </div>
@@ -42,8 +42,7 @@
             <div class="input-info">
               <label>开发人员</label>
               <p>
-                medict: 
-                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/terasum')">陈权</a>
+                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/terasum')">Chen, Quan</a>
               </p>
             </div>
             <div class="input-container">
@@ -53,7 +52,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>设计人员</label>
-              <p>张明娇</p>
+              <p>Zhang, Mingjiao</p>
             </div>
             <div class="input-container">
             </div>
@@ -61,7 +60,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>特别鸣谢</label>
-              <p>宋星</p>
+              <p>Song, Xing</p>
             </div>
             <div class="input-container">
             </div>

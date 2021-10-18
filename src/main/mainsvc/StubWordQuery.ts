@@ -87,16 +87,6 @@ export class StubWordQuery {
     );
     const result = dictService.associate(arg.dictid, arg.word);
 
-    logger.info(
-      `[main-process] suggestWord event.sender.send('onSuggestWord') result size ${result.length}`
-    );
-
-    logger.info(result);
-
-    logger.info(
-      `[main-process] suggestWord event.sender.send('onSuggestWord') result size ${result.length}`
-    );
-
     event.sender.send('onSuggestWord', result);
   }
 

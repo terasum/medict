@@ -115,7 +115,7 @@ import Vue from 'vue';
 import Store from '../store/index';
 import Translate from '../components/icons/translate.icon.vue';
 import Search from '../components/icons/search.icon.vue';
-import Plugins from '../components/icons/plugins.icon.vue';
+import Plugins from '../components/icons/plugins2.icon.vue';
 import Settings from '../components/icons/settings.icon.vue';
 
 interface DictItem {
@@ -251,6 +251,7 @@ export default Vue.extend({
   width: 100%;
   height: 100%;
   top: 60px;
+  z-index: 999;
 
   &::v-deep .modal-background {
     display: none;
@@ -521,7 +522,6 @@ export default Vue.extend({
         width: 100%;
         display: block;
         font-size: 12px;
-        font-weight: lighter;
         user-select: none;
       }
     }
