@@ -263,8 +263,7 @@ export default Vue.extend({
   width: calc(100% - 160px);
   overflow-y: hidden;
   .word-content {
-    padding: 0;
-    padding-bottom: 10px;
+    padding: 0 4px 0 4px;
     height: 100%;
     * {
       user-select: all;

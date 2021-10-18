@@ -424,9 +424,10 @@ export default Vue.extend({
           width: 26px;
         }
         span:nth-child(2) {
-          padding-left: 3px;
-          padding-right: 5px;
+          padding-left: 2px;
+          padding-right: 1px;
           width: 58px;
+          height: 100%;
           text-overflow: ellipsis;
           overflow: hidden;
         }

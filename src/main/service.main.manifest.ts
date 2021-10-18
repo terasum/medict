@@ -27,6 +27,8 @@ export const asyncfn = {
   findWordPrecisly: stubWordQuery.findWordPrecisly,
   loadDictResource: stubWordQuery.loadDictResource,
   asyncBaiduTranslate: stubTranslate.asyncBaiduTranslate,
+  asyncGoogleTranslate: stubTranslate.asyncGoogleTranslate,
+  asyncYoudaoTranslate: stubTranslate.asyncYoudaoTranslate,
 };
 
 export const syncfn = {
@@ -42,4 +44,5 @@ export const syncfn = {
   dictFindAll: stubDictAccessor.dictFindAll,
   loadTranslateApiConfig: stubConfigAccessor.loadTranslateApiConfig,
   saveTranslateBaiduApiConfig: stubConfigAccessor.saveTranslateBaiduApiConfig,
+  saveTranslateYoudaoApiConfig: stubConfigAccessor.saveTranslateYoudaoApiConfig,
 };

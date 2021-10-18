@@ -7,11 +7,14 @@
         <div class="translator-engine">
           <b-dropdown aria-role="list" id="translator-engine">
             <template #trigger="{}">
-              <b-button><span class="lang-icon"><i class="fas fa-language"></i></span> {{selectedEngine}}</b-button>
+              <b-button
+                ><span class="lang-icon"><i class="fas fa-language"></i></span>
+                {{ selectedEngine }}</b-button
+              >
             </template>
-            <b-dropdown-item @click="useEngine('baidu')">百度</b-dropdown-item>
             <b-dropdown-item @click="useEngine('google')">谷歌</b-dropdown-item>
-            <b-dropdown-item @click="useEngine('bing')">必应</b-dropdown-item>
+            <b-dropdown-item @click="useEngine('baidu')">百度</b-dropdown-item>
+            <b-dropdown-item @click="useEngine('youdao')">有道</b-dropdown-item>
           </b-dropdown>
         </div>
 
@@ -19,10 +22,7 @@
         <div class="translator-src-lang">
           <b-dropdown aria-role="list" id="src-lang">
             <template #trigger="{}">
-              <b-button
-                :label="sourceLang"
-                type="is-primary"
-              />
+              <b-button :label="sourceLang" type="is-primary" />
             </template>
 
             <b-dropdown-item @click="changeSourceLang('en')"
@@ -39,7 +39,7 @@
 
         <div class="translator-icon-container">
           <span>
-              <i class="fas fa-exchange-alt"></i>
+            <i class="fas fa-exchange-alt"></i>
           </span>
         </div>
 
@@ -47,10 +47,7 @@
         <div class="translator-dest-lang">
           <b-dropdown aria-role="list" id="dest-lang">
             <template #trigger="{}">
-              <b-button
-                :label="destLang"
-                type="is-primary"
-              />
+              <b-button :label="destLang" type="is-primary" />
             </template>
 
             <b-dropdown-item @click="changeDestLang('en')"
@@ -84,7 +81,7 @@
             class=""
             type=""
             v-model="sourceText"
-            :placeholder="sourceLangPlaceHolder" 
+            :placeholder="sourceLangPlaceHolder"
             multiple
           />
           <div class="translate-toolbar">
@@ -99,7 +96,7 @@
             type=""
             v-model="destText"
             multiple
-            :placeholder="destLangPlaceHolder" 
+            :placeholder="destLangPlaceHolder"
             disabled
           />
           <div class="translate-toolbar">
@@ -125,7 +122,7 @@ import { AsyncMainAPI } from '../service.renderer.manifest';
 const engineMap = {
   baidu: '百度翻译',
   google: '谷歌翻译',
-  bing: '必应翻译',
+  youdao: '有道翻译',
 };
 
 const langMap = {
@@ -148,12 +145,13 @@ export default Vue.extend({
   },
   data() {
     return {
-      selectedEngine: '百度翻译',
+      selectedEngine: '谷歌翻译',
+      engine: 'google',
       sourceLang: '中文',
       sourceLangCode: 'zh',
       destLang: '英文',
       destLangCode: 'en',
-      sourceLangPlaceHolder: placeHolderMap['zh'] ,
+      sourceLangPlaceHolder: placeHolderMap['zh'],
       destLangPlaceHolder: placeHolderMap['en'],
       sourceText: '',
       destText: '',
@@ -161,12 +159,13 @@ export default Vue.extend({
   },
   methods: {
     useEngine(engine: string) {
-      if (engine !== 'baidu') {
+      if (engine !== 'baidu' && engine !== 'google' && engine != 'youdao') {
         alert('翻译引擎暂不支持');
         return;
       }
       console.log(engine, engineMap[engine]);
       this.selectedEngine = engineMap[engine];
+      this.engine = engine;
     },
     changeSourceLang(lang: string) {
       console.log(lang, langMap[lang]);
@@ -184,21 +183,54 @@ export default Vue.extend({
       if (!this.sourceText || this.sourceText == '') {
         return;
       }
-      AsyncMainAPI.asyncBaiduTranslate({
-        query: this.sourceText,
-        from: this.sourceLangCode,
-        to: this.destLangCode,
-      });
+      if (this.engine === 'baidu') {
+        AsyncMainAPI.asyncBaiduTranslate({
+          query: this.sourceText,
+          from: this.sourceLangCode,
+          to: this.destLangCode,
+        });
+      } else if (this.engine === 'google') {
+        AsyncMainAPI.asyncGoogleTranslate({
+          query: this.sourceText,
+          from: this.sourceLangCode,
+          to: this.destLangCode,
+        });
+      } else if (this.engine === 'youdao') {
+        AsyncMainAPI.asyncYoudaoTranslate({
+          query: this.sourceText,
+          from: this.sourceLangCode,
+          to: this.destLangCode,
+        });
+      }
     },
   },
   mounted() {
-    listeners.onAsyncBaiduTranslate((event, arg) => {
-      if (arg && arg.code === 0 && arg.data) {
-        if (arg.data.trans_result && arg.data.trans_result.length > 0) {
-          this.destText = arg.data.trans_result[0].dst;
+    listeners.onAsyncTranslate((event, arg) => {
+      console.log('===== translate result ====')
+      console.log(arg);
+      if (arg && arg.engine === 'baidu') {
+        if (arg.code === 0 && arg.data) {
+          if (arg.data.trans_result && arg.data.trans_result.length > 0) {
+            this.destText = arg.data.trans_result[0].dst;
+          } else {
+            this.destText = 'failed (' + arg.code + '): ' + arg.message;
+          }
+        }
+      } else if (arg && arg.engine === 'google') {
+        if (arg.data && arg.data.length > 0) {
+          this.destText = arg.data;
+        } else {
+          this.destText = 'failed (' + arg.code + '): ' + arg.message;
+        }
+      } else if (arg && arg.engine === 'youdao') {
+        if (arg.data && arg.data.length > 0) {
+          this.destText = arg.data;
+        } else {
+          this.destText = 'failed (' + arg.code + '): ' + arg.message;
         }
       } else {
-        this.destText = '翻译失败: ' + arg.code;
+        // do nothing
+        this.destText = 'engine not recognized';
       }
     });
   },
@@ -231,9 +263,9 @@ export default Vue.extend({
     margin-bottom: 10px;
 
     &::v-deep .dropdown {
-     .lang-icon{
-       color: #4080EB;
-     } 
+      .lang-icon {
+        color: #4080eb;
+      }
       .button {
         width: 100%;
         border: none;
@@ -274,11 +306,11 @@ export default Vue.extend({
             padding-bottom: 2px;
             color: #666;
             cursor: pointer;
-            &:hover{
-            color: #333;
+            &:hover {
+              color: #333;
             }
-            &:active{
-            color: #111;
+            &:active {
+              color: #111;
             }
           }
         }
@@ -327,25 +359,25 @@ export default Vue.extend({
             padding-bottom: 2px;
             color: #666;
             cursor: pointer;
-            &:hover{
-            color: #333;
+            &:hover {
+              color: #333;
             }
-            &:active{
-            color: #111;
+            &:active {
+              color: #111;
             }
           }
         }
       }
     }
   }
-  .translator-icon-container{
+  .translator-icon-container {
     width: 100%;
     display: flex;
     justify-content: center;
     padding: 10px 0;
-    span{
+    span {
       font-size: 18px;
-      color: #4080EB;
+      color: #4080eb;
     }
   }
 
@@ -360,7 +392,7 @@ export default Vue.extend({
         padding: 10px 0;
         background: #fff;
         font-size: 18px;
-        font-weight: 700;;
+        font-weight: 700;
         cursor: pointer;
 
         &:hover {
@@ -390,11 +422,11 @@ export default Vue.extend({
             padding-bottom: 2px;
             color: #666;
             cursor: pointer;
-            &:hover{
-            color: #333;
+            &:hover {
+              color: #333;
             }
-            &:active{
-            color: #111;
+            &:active {
+              color: #111;
             }
           }
         }
@@ -411,7 +443,7 @@ export default Vue.extend({
       display: block;
       margin: 0 auto;
       padding: 8px 26px;
-      background: #4080EB;
+      background: #4080eb;
       border-radius: 4px;
       box-shadow: 0 1px 6px 0 rgb(32 33 36 / 28%);
       font-size: 18px;
@@ -431,7 +463,7 @@ export default Vue.extend({
 .translate-box-container {
   width: calc(100% - 160px);
   position: relative;
-  background: #4080EB;
+  background: #4080eb;
 
   .translate-box {
     height: 220px;
@@ -440,7 +472,7 @@ export default Vue.extend({
     border-radius: 12px;
     // border: 1px solid #ccc;
     padding: 6px;
-    padding-top: 12px;
+    padding-top: 18px;
     background: #fff;
     box-shadow: 0 1px 6px 0 rgb(32 33 36 / 28%);
 
@@ -486,10 +518,10 @@ export default Vue.extend({
         line-height: 26px;
         color: #999;
         cursor: pointer;
-        &:hover{
+        &:hover {
           color: #666;
         }
-        &:active{
+        &:active {
           color: #333;
         }
       }
@@ -501,7 +533,6 @@ export default Vue.extend({
         height: 26px;
         padding: 4px 2px;
         color: #999;
-        
       }
     }
 
