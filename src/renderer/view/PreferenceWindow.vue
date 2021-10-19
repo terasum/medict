@@ -8,14 +8,14 @@
         <div class="pane-group">
           <div class="pane pane-sm sidebar">
             <div class="nav-group">
-              <h5 class="nav-group-title">词典配置</h5>
+              <h5 class="nav-group-title">词典设置</h5>
               <span
                 class="nav-group-item"
                 :class="currentMenu === 0 ? 'item-active' : ''"
                 @click="onClickPreferenceMenu(0)"
               >
                 <span class="icon"><i class="fas fa-book"></i></span>
-                词典配置
+                词典设置
               </span>
               <span
                 class="nav-group-item"
@@ -23,7 +23,7 @@
                 @click="onClickPreferenceMenu(1)"
               >
                 <span class="icon"><i class="fas fa-language"></i></span>
-                翻译配置
+                翻译设置
               </span>
               <h5 class="nav-group-title">系统设置</h5>
               <span

@@ -3,7 +3,7 @@
     <span
       class="hyperlink"
       data-href="https://github.com/terasum/medict/"
-      @click="onclickHyperlink"
+      @click="onClickHyperLink"
       >star项目</span
     >
 
@@ -11,14 +11,14 @@
     <span
       class="hyperlink"
       data-href="https://github.com/terasum/medict/issues"
-      @click="onclickHyperlink"
+      @click="onClickHyperLink"
       >问题反馈与建议</span
     >
     <span class="split-line"></span>
     <span
       class="hyperlink"
-      data-href="https://github.com/terasum/medict"
-      @click="onclickHyperlink"
+      data-href="/docs"
+      @click="onClickInternalLink"
       >使用说明</span
     >
   </div>
@@ -36,11 +36,18 @@ export default Vue.extend({
   computed: {},
   watch: {},
   methods: {
-    onclickHyperlink(event: any) {
+    onClickHyperLink(event: any) {
       if (event && event.target) {
         if (event.target.dataset && event.target.dataset.href) {
-          console.log(`clicked ${event.target.dataset.href}`);
           AsyncMainAPI.openUrlOnBrowser(event.target.dataset.href);
+        }
+      }
+      console.log(event);
+    },
+    onClickInternalLink(event: any) {
+      if (event && event.target) {
+        if (event.target.dataset && event.target.dataset.href) {
+        this.$router.replace({ path: event.target.dataset.href });
         }
       }
       console.log(event);
