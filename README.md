@@ -28,26 +28,12 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 <img src="src/renderer/assets/docs/pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
 
 
-## 步骤 2: 查词
-
-1. 选择词典并输入目标词（模糊）
-
-<img src="src/renderer/assets/docs/pic_usage_step1.jpg" alt="pic_usage_step1.jpg" style="zoom:23%;" />
-
-2. 在左边栏选择你想要查的具体词汇, 如果该词汇和其他词汇同一个意思（即@@Link==） 则直接展示该同意义词汇
-
-<img src="src/renderer/assets/docs/pic_usage_step2.jpg" alt="pic_usage_step2.jpg" style="zoom:23%;" />
-
-
 ## 下载
 
 目前Medict正在紧张开发阶段，版本为自动打包滚动发布，请自行到 [release](https://github.com/terasum/medict/releases) 页面寻找最新开发版本, 所有版本均有打包日期，选择最新版本即可。
 
 
 ## 使用步骤
-
-## 选择添加并使用词典
-
 ### 步骤1: 添加词典
 
 1. 点击右上角设置
@@ -64,6 +50,17 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 **注意:** mdx文件所在的文件夹中的js/css/font文件均会被拷贝到缓存文件夹中，请把一个独立词典放在一个独立的文件夹中，并将相关资源放在一起。
 
 **注意:** mdx/mdd 本身不会被拷贝，删除之后，词典将无法找到该mdx文件
+
+## 步骤 2: 查词
+
+1. 选择词典并输入目标词（模糊）
+
+<img src="src/renderer/assets/docs/pic_usage_step1.jpg" alt="pic_usage_step1.jpg" style="zoom:23%;" />
+
+2. 在左边栏选择你想要查的具体词汇, 如果该词汇和其他词汇同一个意思（即@@Link==） 则直接展示该同意义词汇
+
+<img src="src/renderer/assets/docs/pic_usage_step2.jpg" alt="pic_usage_step2.jpg" style="zoom:23%;" />
+
 
 
 ## Q&A
