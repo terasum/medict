@@ -1,5 +1,6 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+
 module.exports = [
   // Add support for native node modules
   {
@@ -70,4 +71,19 @@ module.exports = [
       },
     ],
   },
+  // markdown
+  {
+    test: /\.md$/,
+    use: [
+      {
+        loader: "html-loader",
+      },
+      {
+        loader: "markdown-loader",
+                        options: {
+                            /* your options here */
+          },
+      },
+    ]
+}
 ];
