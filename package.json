@@ -130,7 +130,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
-    "@popperjs/core": "^2.9.2",
+    "@popperjs/core": "^2.10.2",
     "@shuaninfo/random": "^5.1.1",
     "@vitalets/google-translate-api": "^7.0.0",
     "axios": "^0.21.1",
