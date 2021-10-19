@@ -32,6 +32,8 @@ export const AsyncMainAPI = {
   findWordPrecisly: asyncWrap('findWordPrecisly'),
   loadDictResource: asyncWrap('loadDictResource'),
   asyncBaiduTranslate: asyncWrap('asyncBaiduTranslate'),
+  asyncGoogleTranslate: asyncWrap('asyncGoogleTranslate'),
+  asyncYoudaoTranslate: asyncWrap('asyncYoudaoTranslate'),
   
 };
 
@@ -47,5 +49,7 @@ export const SyncMainAPI = {
   syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
   loadTranslateApiConfig: syncWrap('loadTranslateApiConfig'),
   saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
+  saveTranslateYoudaoApiConfig: syncWrap('saveTranslateYoudaoApiConfig'),
   syncGetWebviewPreliadFilePath: syncWrap('syncGetWebviewPreliadFilePath'),
+  clipboardWriteText:syncWrap('clipboardWriteText'),
 };

@@ -17,5 +17,5 @@ export const listeners = {
   onSuggestWord: wrap('onSuggestWord'),
   onFindWordPrecisly: wrap('onFindWordPrecisly'),
   onLoadDictResource: wrap('onLoadDictResource'),
-  onAsyncBaiduTranslate: wrap('onAsyncBaiduTranslate'),
+  onAsyncTranslate: wrap('onAsyncTranslate'),
 };
