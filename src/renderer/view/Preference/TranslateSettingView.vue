@@ -5,7 +5,7 @@
     </div>
     <div class="settings-body">
       <section class="settings-section">
-        <div class="section-title"><h4><i class="fas fa-lightbulb"></i> 百度翻译</h4></div>
+        <div class="section-title"><h4><i class="fas fa-binoculars"></i> 百度翻译</h4></div>
         <div class="section-body">
           <div class="input-group">
             <div class="input-info">
@@ -38,67 +38,103 @@
         </div>
       </section>
 
-      <section class="settings-section">
-        <div class="section-title"><h4> <i class="fas fa-lightbulb"></i> google 翻译</h4></div>
+<section class="settings-section">
+        <div class="section-title"><h4><i class="fas fa-lightbulb"></i> 有道翻译</h4></div>
         <div class="section-body">
           <div class="input-group">
             <div class="input-info">
               <label>APPID</label>
-              <p>在 google 开放平台申请的 APPKID</p>
+              <p> 有道智云申请的 APPKID</p>
             </div>
             <div class="input-container">
               <input
                 type="text"
                 class="form-control"
                 placeholder="appid"
-                v-model="google_appid"
+                v-model="youdao_appid"
               />
             </div>
           </div>
           <div class="input-group">
             <div class="input-info">
               <label>APPKEY</label>
-              <p>在 Google 开放平台申请的 APPKEY</p>
+              <p>在有道智云申请的 APPKEY</p>
             </div>
             <div class="input-container">
               <input
                 type="password"
                 class="form-control"
                 placeholder="appkey"
-                v-model="google_appkey"
+                v-model="youdao_appkey"
               />
             </div>
           </div>
         </div>
       </section>
+
     </div>
     <div class="settings-footer">
       <button class="btn" @click="saveConfig()">确认</button>
     </div>
+    <div class="row">
+        <Alert 
+        :message="alertMessage" 
+        :status="alertStatus" 
+        :alertActive="alertShow"
+        v-on:close-alert="closeAlert"></Alert>
+      </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { SyncMainAPI } from '../../service.renderer.manifest';
+import Alert from '../../components/default/Alert.vue'
 
 export default Vue.extend({
-  components: {},
+  components: {Alert},
   data() {
     return {
       baidu_appkey: '',
       baidu_appid: '',
-      google_appkey: '',
-      google_appid: '',
+      youdao_appkey: '',
+      youdao_appid: '',
+
+      alertMessage: '测试信息',
+      alertStatus: 'info',
+      alertShow: false,
     };
   },
   methods: {
+    closeAlert() {
+      this.alertShow = false;
+      this.$emit('alert-closed');
+    },
+    showAlert(status: string, msg: string, callback?: ()=>any) {
+      this.alertMessage = msg;
+      this.alertStatus = status;
+      this.alertShow = true;
+      if(callback) {
+        let _this = this;
+        let _handler = function() {
+          callback();
+          _this.$off('alert-closed', _handler);
+        }
+        this.$on('alert-closed', _handler);
+      }
+    },
     saveConfig() {
-      const result = SyncMainAPI.saveTranslateBaiduApiConfig({
+      const baiduResult = SyncMainAPI.saveTranslateBaiduApiConfig({
         appid: this.baidu_appid,
         appkey: this.baidu_appkey,
       });
-      console.log(`save result ${result}`);
+      console.log(`save result ${baiduResult}`);
+      const youdaoResult = SyncMainAPI.saveTranslateYoudaoApiConfig({
+        appid: this.youdao_appid,
+        appkey: this.youdao_appkey,
+      });
+      console.log(`save result ${youdaoResult}`);
+      this.showAlert('info', '保存成功!');
     },
   },
   mounted() {
@@ -107,6 +143,10 @@ export default Vue.extend({
       if (config && config.hasOwnProperty('baidu')) {
         this.baidu_appkey = config.baidu.appkey;
         this.baidu_appid = config.baidu.appid;
+      }
+      if (config && config.hasOwnProperty('youdao')) {
+        this.youdao_appid = config.youdao.appid;
+        this.youdao_appkey = config.youdao.appkey;
       }
     });
   },
