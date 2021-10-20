@@ -22,14 +22,3 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 
 <img src="pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
 
-
-## 步骤 2: 查词
-
-1. 选择词典并输入目标词（模糊）
-
-<img src="pic_usage_step1.jpg" alt="pic_usage_step1.jpg" style="zoom:23%;" />
-
-2. 在左边栏选择你想要查的具体词汇, 如果该词汇和其他词汇同一个意思（即@@Link==） 则直接展示该同意义词汇
-
-<img src="pic_usage_step2.jpg" alt="pic_usage_step2.jpg" style="zoom:23%;" />
-
