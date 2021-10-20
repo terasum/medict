@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import { createSubWindow, WindowOption } from './subwindow';
 import { writePreloadFile } from './config/config';
 import { logger } from './utils/logger';
@@ -71,6 +71,14 @@ const createWindow = (): void => {
     // childWindow.webContents('will-navigate', (e) => {
     //   e.preventDefault()
     // })
+  });
+
+  mainWindow.webContents.on('will-navigate', (event :Event, url :string ) => {
+    /* If url isn't the actual page */
+    if(url != mainWindow.webContents.getURL()) {
+      event.preventDefault();
+      shell.openExternal(url);
+    } 
   });
 
   mainWindow.on('unresponsive', function () {
