@@ -97,7 +97,7 @@
     "@types/koa-logger": "^3.1.1",
     "@types/koa-pino-logger": "^3.0.0",
     "@types/koa-static": "^4.0.1",
-    "@types/lodash": "^4.14.170",
+    "@types/lodash": "^4.14.175",
     "@types/markdown-it": "^12.2.3",
     "@types/rimraf": "^3.0.1",
     "@types/tmp": "^0.2.0",
