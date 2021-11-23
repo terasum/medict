@@ -169,7 +169,7 @@
 </template>
 
 <script lang="ts">
-import { SyncMainAPI, AsyncMainAPI } from '../../service.renderer.manifest';
+// import { SyncMainAPI, AsyncMainAPI } from '../../service.renderer.manifest';
 import { listeners } from '../../service.renderer.listener';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
@@ -320,26 +320,28 @@ export default Vue.extend({
         });
     },
     openMddFile() {
-      const resultPath = SyncMainAPI.syncShowOpenDialog({
-        fileExtensions: ['mdd'],
-        multiFile: true,
-      });
-      console.log(resultPath);
-      if (resultPath && resultPath.length > 0) {
-        console.log(resultPath);
-        this.mddpath = resultPath;
-      }
+      // TODO FIX
+      // const resultPath = SyncMainAPI.syncShowOpenDialog({
+      //   fileExtensions: ['mdd'],
+      //   multiFile: true,
+      // });
+      // console.log(resultPath);
+      // if (resultPath && resultPath.length > 0) {
+      //   console.log(resultPath);
+      //   this.mddpath = resultPath;
+      // }
     },
     openMdxFile() {
-      const resultPath = SyncMainAPI.syncShowOpenDialog({
-        fileExtensions: ['mdx'],
-        multiFile: false,
-      });
-      console.log(resultPath);
-      if (resultPath && resultPath.length > 0) {
-        console.log(resultPath[0]);
-        this.mdxpath = resultPath[0];
-      }
+      // TODO FIX
+      // const resultPath = SyncMainAPI.syncShowOpenDialog({
+      //   fileExtensions: ['mdx'],
+      //   multiFile: false,
+      // });
+      // console.log(resultPath);
+      // if (resultPath && resultPath.length > 0) {
+      //   console.log(resultPath[0]);
+      //   this.mdxpath = resultPath[0];
+      // }
     },
     resetForm() {
       (this.id = random_key(6)), (this.newid = '');
@@ -351,50 +353,53 @@ export default Vue.extend({
       this.resourceBaseDir = '';
     },
     deleteDict(dictid: string) {
-      let _this = this;
-      const response = SyncMainAPI.syncShowComfirmMessageBox({
-        message: '确认删除?',
-        type: 'warning',
-        buttons: ['取消', '确认'],
-        defaultId: 0,
-        cancelId: 0,
-      });
+      // TODO FIX
+      // let _this = this;
+      // const response = SyncMainAPI.syncShowComfirmMessageBox({
+      //   message: '确认删除?',
+      //   type: 'warning',
+      //   buttons: ['取消', '确认'],
+      //   defaultId: 0,
+      //   cancelId: 0,
+      // });
 
-      if (response === 1) {
-        this.$store
-          .dispatch('asyncDelNewDict', dictid)
-          .then((result) => {
-            if (result) {
-              console.log(result);
-              if (result) {
-                _this.showAlert('info', '删除成功', function() {
-                  _this.$emit('modal-should-close');
-                });
-              }
-            } else {
-              _this.showAlert('error', '删除失败');
-            }
-          })
-          .catch((err) => {
-            _this.showAlert('error', '删除失败,' + err);
-          });
-      } else {
-        console.log('canceled');
-      }
+      // if (response === 1) {
+      //   this.$store
+      //     .dispatch('asyncDelNewDict', dictid)
+      //     .then((result) => {
+      //       if (result) {
+      //         console.log(result);
+      //         if (result) {
+      //           _this.showAlert('info', '删除成功', function() {
+      //             _this.$emit('modal-should-close');
+      //           });
+      //         }
+      //       } else {
+      //         _this.showAlert('error', '删除失败');
+      //       }
+      //     })
+      //     .catch((err) => {
+      //       _this.showAlert('error', '删除失败,' + err);
+      //     });
+      // } else {
+      //   console.log('canceled');
+      // }
     },
     checkResource(dictid: string) {
-      const response = AsyncMainAPI.openDictResourceDir(dictid);
-      console.log(response);
+      // TODO FIX
+      // const response = AsyncMainAPI.openDictResourceDir(dictid);
+      // console.log(response);
     },
     searchResource(dictid: string) {
-      if (!this.resourceKey || this.resourceKey == '') {
-        this.showAlert('info', 'null');
-        return;
-      }
-      AsyncMainAPI.loadDictResource({
-        dictid: dictid,
-        resourceKey: this.resourceKey,
-      });
+      // TODO FIX
+      // if (!this.resourceKey || this.resourceKey == '') {
+      //   this.showAlert('info', 'null');
+      //   return;
+      // }
+      // AsyncMainAPI.loadDictResource({
+      //   dictid: dictid,
+      //   resourceKey: this.resourceKey,
+      // });
     },
   },
   mounted() {

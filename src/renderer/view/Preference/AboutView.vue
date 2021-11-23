@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { AsyncMainAPI } from '../../service.renderer.manifest';
+// import { AsyncMainAPI } from '../../rpc.renderer.manifest';
 
 export default Vue.extend({
   components: {},
@@ -109,7 +109,8 @@ export default Vue.extend({
   },
   methods: {
     onClickGithub(url: string) {
-      AsyncMainAPI.openUrlOnBrowser(url);
+      // TODO FIX
+      // AsyncMainAPI.openUrlOnBrowser(url);
     },
   },
 });

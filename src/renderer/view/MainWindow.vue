@@ -64,8 +64,8 @@
             :src="'data:text/html;charset=utf-8;base64,' + currentContent"
             enableremotemodule="true"
             webpreferences="nodeIntegration=false,webSecurity=true,allowRunningInsecureContent=false,contextIsolation=true"
-            :preload="preload"
           />
+            <!-- :preload="preload" -->
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
+// import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 import { listeners } from '../service.renderer.listener';
 import Store from '../store/index';
 
@@ -90,7 +90,8 @@ export default Vue.extend({
   },
   computed: {
     preload() {
-      return `file://${SyncMainAPI.syncGetWebviewPreliadFilePath()}`;
+      return ''
+      // return `file://${SyncMainAPI.syncGetWebviewPreliadFilePath()}`;
     },
     currentWordIdx() {
       return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
@@ -131,7 +132,8 @@ export default Vue.extend({
       this.$store.dispatch('asyncFindWordPrecisly', item.id);
     },
     findResource(dictid: string, resourceKey: string) {
-      return AsyncMainAPI.loadDictResource({ dictid, resourceKey });
+      // TODO FIX
+      // return AsyncMainAPI.loadDictResource({ dictid, resourceKey });
     },
     onDevtoolBtnClick() {
       // for webview
@@ -150,14 +152,16 @@ export default Vue.extend({
       ) {
         return;
       }
+      // TODO FIX
 
-      AsyncMainAPI.loadDictResource({
-        dictid: this.currentDict.id,
-        resourceKey: this.lookupResourceKey,
-      });
+      // AsyncMainAPI.loadDictResource({
+      //   dictid: this.currentDict.id,
+      //   resourceKey: this.lookupResourceKey,
+      // });
     },
     onResourceDir() {
-      AsyncMainAPI.openDictResourceDir(this.currentDict.id);
+      // TODO FIX
+      // AsyncMainAPI.openDictResourceDir(this.currentDict.id);
     },
   },
   mounted() {
