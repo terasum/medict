@@ -1,4 +1,4 @@
-import { Dictionary } from '../../main/domain/Dictionary';
+import { Dictionary } from '../../infra/Dictionary';
 
 export declare class DictItem {
   id: string;

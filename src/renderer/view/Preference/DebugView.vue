@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { AsyncMainAPI, SyncMainAPI } from '../../service.renderer.manifest';
+// import { AsyncMainAPI, SyncMainAPI } from '../../rpc.renderer.manifest';
 import BugFill from '../../components/icons/bug-fill.icon.vue';
 export default Vue.extend({
   components: { BugFill },
@@ -85,19 +85,24 @@ export default Vue.extend({
       console.log(`save result`);
     },
     onClickDevBtn() {
-      AsyncMainAPI.openDevTool();
+      // TODO FIX
+      // AsyncMainAPI.openDevTool();
     },
     onClickMainProcessLog() {
-      AsyncMainAPI.openMainProcessLog();
+      // TODO FIX
+      // AsyncMainAPI.openMainProcessLog();
     },
     onClickRescDir() {
-      AsyncMainAPI.openResourceDir();
+      // TODO FIX
+      // AsyncMainAPI.openResourceDir();
     },
     loggerPath() {
-      return SyncMainAPI.syncShowMainLoggerPath();
+      // TODO FIX
+      // return SyncMainAPI.syncShowMainLoggerPath();
     },
     resourcePath() {
-      return SyncMainAPI.syncGetResourceRootPath();
+      // TODO FIX
+      // return SyncMainAPI.syncGetResourceRootPath();
     },
   },
 });

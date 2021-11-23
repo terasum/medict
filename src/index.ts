@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import { createSubWindow, WindowOption } from './subwindow';
 import { writePreloadFile } from './config/config';
 import { logger } from './utils/logger';
+import { registerProc } from '@terasum/electron-call';
+
 
 // busy works doing here
 import './main/init';
@@ -10,6 +12,7 @@ import './main/init';
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const WORKER_WINDOW_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -17,7 +20,7 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-let currentMainWindow : BrowserWindow | null = null;
+let currentMainWindow: BrowserWindow | null = null;
 
 const createWindow = (): void => {
   logger.info('🔧 userData path: %s', app.getPath('userData'));
@@ -40,10 +43,11 @@ const createWindow = (): void => {
     minWidth: 864,
     titleBarStyle: 'hidden',
     // when ready-to-show, that the window will appear, prevent white screen
-    show: false,
+    show: true,
     // The lines below solved the issue
     webPreferences: {
       nodeIntegration: true,
+      nodeIntegrationInSubFrames: true,
       contextIsolation: false,
       webviewTag: true,
     },
@@ -52,12 +56,36 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // open dev-tools when startup
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
+
+  // create worker window
+  const workerWindow = createSubWindow(mainWindow, {
+    width: 0,
+    height: 0,
+    html: WORKER_WINDOW_WEBPACK_ENTRY,
+    titleBarStyle: 'hidden',
+    nodeIntegration: true,
+    contextIsolation: false,
+    show: true,
+  })
+
+  // register workers 
+  registerProc('renderer', mainWindow.id);
+  registerProc('worker', workerWindow.id);
+  // refresh apis every 30 seconds
+  setInterval(() => {
+    if (mainWindow) {
+      registerProc('renderer', mainWindow.id);
+    }
+    if (workerWindow) {
+      registerProc('worker', workerWindow.id);
+    }
+  }, 30000)
 
   if (mainWindow) {
     currentMainWindow = mainWindow;
   }
- 
+
   // sub-windows
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     return { action: 'deny' };
@@ -66,6 +94,8 @@ const createWindow = (): void => {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
+  workerWindow.once('ready-to-show', () => {
+  })
 
   mainWindow.webContents.on('did-create-window', childWindow => {
     // childWindow.webContents('will-navigate', (e) => {
@@ -73,12 +103,12 @@ const createWindow = (): void => {
     // })
   });
 
-  mainWindow.webContents.on('will-navigate', (event :Event, url :string ) => {
+  mainWindow.webContents.on('will-navigate', (event: Event, url: string) => {
     /* If url isn't the actual page */
-    if(url != mainWindow.webContents.getURL()) {
+    if (url != mainWindow.webContents.getURL()) {
       event.preventDefault();
       shell.openExternal(url);
-    } 
+    }
   });
 
   mainWindow.on('unresponsive', function () {
@@ -92,6 +122,19 @@ const createWindow = (): void => {
   // special ipcmain
   ipcMain.on('createSubWindow', function (event: any, args: WindowOption) {
     createSubWindow(mainWindow, args);
+  });
+
+  ipcMain.on('ipc:main', function (event, data) {
+    console.log(`[MAIN-PROC]on main:message ${data}`)
+    // workerWindow.webContents.send('worker:message', data);
+  });
+
+  ipcMain.on('ipc:worker', function (event, data) {
+    workerWindow.webContents.send('worker:message', data);
+  });
+
+  ipcMain.on('ipc:mainweb', function (event, data) {
+    mainWindow.webContents.send('mainweb:message', data);
   });
 
   // remove first

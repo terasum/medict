@@ -4,6 +4,11 @@ import fs from 'fs';
 import { preloadContent } from './preload/webview.preload';
 import {logger} from '../utils/logger';
 
+export function getUserResourceRootPath() {
+  const userResourcePath = app.getPath('userData');
+  return userResourcePath;
+}
+
 export function getResourceRootPath() {
   const userResourcePath = app.getPath('userData');
   const resourceRootPath = path.resolve(userResourcePath, 'resources', 'cache');

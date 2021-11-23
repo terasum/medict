@@ -15,10 +15,7 @@
       >问题反馈与建议</span
     >
     <span class="split-line"></span>
-    <span
-      class="hyperlink"
-      data-href="/docs"
-      @click="onClickInternalLink"
+    <span class="hyperlink" data-href="/docs" @click="onClickInternalLink"
       >使用说明</span
     >
   </div>
@@ -27,7 +24,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { AsyncMainAPI } from '../service.renderer.manifest';
+// import { AsyncMainAPI } from '../service.renderer.manifest';
+
 
 export default Vue.extend({
   data() {
@@ -37,17 +35,18 @@ export default Vue.extend({
   watch: {},
   methods: {
     onClickHyperLink(event: any) {
-      if (event && event.target) {
-        if (event.target.dataset && event.target.dataset.href) {
-          AsyncMainAPI.openUrlOnBrowser(event.target.dataset.href);
-        }
-      }
-      console.log(event);
+      // TODO FIX
+      // if (event && event.target) {
+      //   if (event.target.dataset && event.target.dataset.href) {
+      //     AsyncMainAPI.openUrlOnBrowser(event.target.dataset.href);
+      //   }
+      // }
+      // console.log(event);
     },
     onClickInternalLink(event: any) {
       if (event && event.target) {
         if (event.target.dataset && event.target.dataset.href) {
-        this.$router.replace({ path: event.target.dataset.href });
+          this.$router.replace({ path: event.target.dataset.href });
         }
       }
       console.log(event);

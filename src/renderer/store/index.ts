@@ -1,7 +1,13 @@
 import Vuex from 'vuex';
-import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 import { StoreDataType } from './StoreDataType';
 import { listeners } from '../service.renderer.listener';
+import { createByProc } from '@terasum/electron-call';
+import { DictAccessorApi } from '../../main/apis/DictAccessorApi';
+import { WordQueryApi } from '../../main/apis/WordQueryApi';
+
+const stubByRenderer = createByProc('renderer', 'error');
+const dictAccessorApi = stubByRenderer.use<DictAccessorApi>('main', 'DictAccessorApi');
+const wordQueryApi = stubByRenderer.use<WordQueryApi>('main', 'WordQueryApi');
 
 
 
@@ -95,7 +101,8 @@ const Store = new Vuex.Store({
       // update current searching word
       commit('updateCurrentWord', payload);
       // invoke associate
-      AsyncMainAPI.suggestWord(payload);
+      // TODO FIX
+      // wordQueryApi.suggestWord(payload);
     },
     asyncUpdateSideBar(context, payload) {
       context.commit('updateCandidateWordNum', payload.candidateWordNum);
@@ -103,59 +110,64 @@ const Store = new Vuex.Store({
     asyncFindWordPrecisly({ commit, state }, id) {
       if (state.suggestWords[id]) {
         commit('updateSelectedWordIdx', id);
-        AsyncMainAPI.findWordPrecisly(state.suggestWords[id]);
+        // TODO FIX
+        // wordQueryApi.findWordPrecisly(state.suggestWords[id]);
       } else {
         console.error(`error on find word precisly ${state.suggestWords[id]}`);
       }
     },
     asyncAddNewDict({ state, commit }, dict) {
-      const result = SyncMainAPI.dictAddOne({ dict: dict });
-      const dicts = SyncMainAPI.dictFindAll();
-      commit('updateDictionaries', dicts);
+      const result = dictAccessorApi.dictAddOne({ dict: dict });
+      // TODO FIX
+      // const dicts = dictAccessorApi.dictFindAll();
+      // commit('updateDictionaries', dicts);
       return result;
     },
     asyncDelNewDict({ state, commit }, dictid) {
-      const result = SyncMainAPI.dictDeleteOne({ dictid: dictid });
-      const dicts = SyncMainAPI.dictFindAll();
-      commit('updateDictionaries', dicts);
+      const result = dictAccessorApi.dictDeleteOne({ dictid: dictid });
+      // TODO FIX
+      // const dicts = dictAccessorApi.dictFindAll();
+      // commit('updateDictionaries', dicts);
       return result;
     },
   },
 });
 
 function defaultSelectDict() {
-  const dicts = SyncMainAPI.dictFindAll(undefined);
-  if (!dicts || dicts.length <= 0) {
-    return { id: '', alias: '', name: '' };
-  }
-  return {
-    id: dicts[0].id,
-    alias: dicts[0].alias,
-    name: dicts[0].name,
-  };
+  // TODO FIX
+  // const dicts = dictAccessorApi.dictFindAll(undefined);
+  // if (!dicts || dicts.length <= 0) {
+  //   return { id: '', alias: '', name: '' };
+  // }
+  // return {
+  //   id: dicts[0].id,
+  //   alias: dicts[0].alias,
+  //   name: dicts[0].name,
+  // };
 }
 
 // setup default data asynchronizly
-(function setupDefaultData(){
+// TODO FIX
+// (function setupDefaultData(){
 
-  let loadDicts = new Promise((resolve) =>{
-    // load all dictories first
-  let dicts = SyncMainAPI.dictFindAll(undefined);
-    resolve(dicts);
-  }).then(dicts =>{
-    Store.commit("updateDictionaries", dicts);
-  }).catch(err =>{
+//   let loadDicts = new Promise((resolve) =>{
+//     // load all dictories first
+//   let dicts = SyncMainAPI.dictFindAll(undefined);
+//     resolve(dicts);
+//   }).then(dicts =>{
+//     Store.commit("updateDictionaries", dicts);
+//   }).catch(err =>{
    
-  });
+//   });
 
-  // current select dict
-  let loadCurrentSelect = new Promise((resolve) => {
-    resolve(defaultSelectDict());
-  }).then(dict =>{
-    Store.commit('updateCurrentSelectDict', dict);
-  });
+//   // current select dict
+//   let loadCurrentSelect = new Promise((resolve) => {
+//     resolve(defaultSelectDict());
+//   }).then(dict =>{
+//     Store.commit('updateCurrentSelectDict', dict);
+//   });
 
-})();
+// })();
 
 
 

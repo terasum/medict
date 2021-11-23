@@ -1,6 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-
 module.exports = [
   // Add support for native node modules
   {
@@ -46,7 +45,7 @@ module.exports = [
   //   test: /\.js$/,
   //   loader: 'babel-loader'
   // },
-   // SASS and CSS files from Vue Single File Components:
+  // SASS and CSS files from Vue Single File Components:
   {
     test: /\.s[ac]ss$/i,
     use: [
@@ -76,14 +75,23 @@ module.exports = [
     test: /\.md$/,
     use: [
       {
-        loader: "html-loader",
+        loader: 'html-loader',
       },
       {
-        loader: "markdown-loader",
-                        options: {
-                            /* your options here */
-          },
+        loader: 'markdown-loader',
+        options: {
+          /* your options here */
+        },
       },
-    ]
-}
+    ],
+  },
+  {
+    test: /\.worker\.js$/,
+    use: [
+      {
+        loader: 'worker-loader',
+        options: { inline: true, fallback: false },
+      },
+    ],
+  },
 ];

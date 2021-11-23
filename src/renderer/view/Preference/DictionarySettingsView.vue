@@ -76,7 +76,7 @@ import Vue from 'vue';
 import Header from '../../components/Header.vue';
 import NewDictionary from '../../components/preference/NewDictionary.vue';
 import DictModal from '../../components/default/DictModal.vue';
-import { SyncMainAPI } from '../../service.renderer.manifest';
+// import { SyncMainAPI } from '../../rpc.renderer.manifest';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import Store from '../../store/index';
@@ -118,7 +118,8 @@ export default Vue.extend({
       // console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
       // this.$bvModal.show('dictionary-item-modal');
       this.isShowDictModalActive = true;
-      this.selectedModalDict = SyncMainAPI.dictFindOne({ dictid: id });
+      // TODO FIX
+      // this.selectedModalDict = SyncMainAPI.dictFindOne({ dictid: id });
 
       // show window
       //   apis["createSubWindow"]({

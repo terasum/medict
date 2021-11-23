@@ -126,7 +126,7 @@ import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
 import { listeners } from '../service.renderer.listener';
-import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
+// import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
 
 const engineMap = {
   baidu: '百度翻译',
@@ -177,16 +177,16 @@ export default Vue.extend({
       }, 1000)
     },
     copyDest() {
-      let result = SyncMainAPI.clipboardWriteText({ text: this.destText });
-      if (result) {
-        this.showTooltip('目标文本已复制');
-      }
+      // let result = SyncMainAPI.clipboardWriteText({ text: this.destText });
+      // if (result) {
+      //   this.showTooltip('目标文本已复制');
+      // }
     },
     copySrc() {
-      let result = SyncMainAPI.clipboardWriteText({ text: this.sourceText });
-      if (result) {
-        this.showTooltip('原始文本已复制');
-      }
+      // let result = SyncMainAPI.clipboardWriteText({ text: this.sourceText });
+      // if (result) {
+      //   this.showTooltip('原始文本已复制');
+      // }
     },
     useEngine(engine: string) {
       if (engine !== 'baidu' && engine !== 'google' && engine != 'youdao') {
@@ -210,28 +210,28 @@ export default Vue.extend({
       this.destLangPlaceHolder = placeHolderMap[lang];
     },
     doTranslate() {
-      if (!this.sourceText || this.sourceText == '') {
-        return;
-      }
-      if (this.engine === 'baidu') {
-        AsyncMainAPI.asyncBaiduTranslate({
-          query: this.sourceText,
-          from: this.sourceLangCode,
-          to: this.destLangCode,
-        });
-      } else if (this.engine === 'google') {
-        AsyncMainAPI.asyncGoogleTranslate({
-          query: this.sourceText,
-          from: this.sourceLangCode,
-          to: this.destLangCode,
-        });
-      } else if (this.engine === 'youdao') {
-        AsyncMainAPI.asyncYoudaoTranslate({
-          query: this.sourceText,
-          from: this.sourceLangCode,
-          to: this.destLangCode,
-        });
-      }
+      // if (!this.sourceText || this.sourceText == '') {
+      //   return;
+      // }
+      // if (this.engine === 'baidu') {
+      //   AsyncMainAPI.asyncBaiduTranslate({
+      //     query: this.sourceText,
+      //     from: this.sourceLangCode,
+      //     to: this.destLangCode,
+      //   });
+      // } else if (this.engine === 'google') {
+      //   AsyncMainAPI.asyncGoogleTranslate({
+      //     query: this.sourceText,
+      //     from: this.sourceLangCode,
+      //     to: this.destLangCode,
+      //   });
+      // } else if (this.engine === 'youdao') {
+      //   AsyncMainAPI.asyncYoudaoTranslate({
+      //     query: this.sourceText,
+      //     from: this.sourceLangCode,
+      //     to: this.destLangCode,
+      //   });
+      // }
     },
   },
   mounted() {

@@ -33,7 +33,7 @@ import Buefy from 'buefy'
 
 import routes from './routes';
 import { __RANDOM_KEY__ } from '../utils/random_key';
-import { cleanUpListeneres } from './init.renderersvc.register';
+
 
 import 'normalize.css/normalize.css';
 // import '@fortawesome/fontawesome-free/js/brands.min.js';
@@ -51,7 +51,7 @@ Vue.use(Vuex);
 
 
 // cleanup ipc listener, make sure this invoke before import store
-cleanUpListeneres();
+// cleanUpListeneres();
 
 // make sure this import after than use vuex
 import store from './store';
@@ -68,12 +68,7 @@ const router = new VueRouter({
 router.push({ path: store.state.defaultWindow });
 Vue.use(VueRouter);
 
-console.log(
-  '👋 This message is being logged by "renderer.ts", included via webpack'
-);
-
-
-
+import './renderer.init';
 
 // Create and mount the root instance.
 // Make sure to inject the router with the router option to make the

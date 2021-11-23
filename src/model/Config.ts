@@ -6,7 +6,12 @@ export declare class DictItem {
 }
 
 export class Config {
+  dictBaseDir: string;
   translateApis: {
+    youdao: {
+      appid: string;
+      appkey: string;
+    };
     baidu: {
       appid: string;
       appkey: string;
@@ -14,7 +19,8 @@ export class Config {
   };
   dicts: DictItem[];
   constructor() {
+    this.dictBaseDir = "";
     this.dicts = [];
-    this.translateApis = { baidu: { appid: '', appkey: '' } };
+    this.translateApis = { youdao: { appid: '', appkey: '' }, baidu: { appid: '', appkey: '' } };
   }
 }

@@ -88,7 +88,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { SyncMainAPI } from '../../service.renderer.manifest';
+// import { SyncMainAPI } from '../../rpc.renderer.manifest';
 import Alert from '../../components/default/Alert.vue'
 
 export default Vue.extend({
@@ -124,30 +124,32 @@ export default Vue.extend({
       }
     },
     saveConfig() {
-      const baiduResult = SyncMainAPI.saveTranslateBaiduApiConfig({
-        appid: this.baidu_appid,
-        appkey: this.baidu_appkey,
-      });
-      console.log(`save result ${baiduResult}`);
-      const youdaoResult = SyncMainAPI.saveTranslateYoudaoApiConfig({
-        appid: this.youdao_appid,
-        appkey: this.youdao_appkey,
-      });
-      console.log(`save result ${youdaoResult}`);
-      this.showAlert('info', '保存成功!');
+      // TODO FIX
+      // const baiduResult = SyncMainAPI.saveTranslateBaiduApiConfig({
+      //   appid: this.baidu_appid,
+      //   appkey: this.baidu_appkey,
+      // });
+      // console.log(`save result ${baiduResult}`);
+      // const youdaoResult = SyncMainAPI.saveTranslateYoudaoApiConfig({
+      //   appid: this.youdao_appid,
+      //   appkey: this.youdao_appkey,
+      // });
+      // console.log(`save result ${youdaoResult}`);
+      // this.showAlert('info', '保存成功!');
     },
   },
   mounted() {
     this.$nextTick(function () {
-      const config = SyncMainAPI.loadTranslateApiConfig();
-      if (config && config.hasOwnProperty('baidu')) {
-        this.baidu_appkey = config.baidu.appkey;
-        this.baidu_appid = config.baidu.appid;
-      }
-      if (config && config.hasOwnProperty('youdao')) {
-        this.youdao_appid = config.youdao.appid;
-        this.youdao_appkey = config.youdao.appkey;
-      }
+      // TODO FIX
+      // const config = SyncMainAPI.loadTranslateApiConfig();
+      // if (config && config.hasOwnProperty('baidu')) {
+      //   this.baidu_appkey = config.baidu.appkey;
+      //   this.baidu_appid = config.baidu.appid;
+      // }
+      // if (config && config.hasOwnProperty('youdao')) {
+      //   this.youdao_appid = config.youdao.appid;
+      //   this.youdao_appkey = config.youdao.appkey;
+      // }
     });
   },
 });

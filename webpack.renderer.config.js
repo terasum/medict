@@ -4,8 +4,6 @@ const plugins = require('./webpack.plugins');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-
-
 module.exports = {
   module: {
     rules,
