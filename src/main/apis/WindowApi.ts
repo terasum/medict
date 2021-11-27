@@ -54,6 +54,12 @@ export class WindowApi {
       shell.openExternal(url);
     }
   }
+  openExternalURL(url: string) {
+    console.log(`openurl ${url}`);
+    if (url && url.length > 0 && url.startsWith('https://')) {
+      shell.openExternal(url);
+    }
+  }
   syncShowComfirmMessageBox(args: MessageBoxSyncOptions) {
     console.log('showComfirmMessageBox args: ');
     console.log(args);

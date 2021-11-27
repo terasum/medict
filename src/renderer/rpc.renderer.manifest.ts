@@ -1,20 +1,12 @@
 import { ipcRenderer } from 'electron';
 import { createByProc } from '@terasum/electron-call';
 import { MessageApi } from '../main/apis/MessageApi';
-import WorkerMessageAPI from '../worker/apis/WorkerMessageApi';
+import WorkerMessageAPI from '../worker/apis/WorkerMessageAPI';
 
 const stubByRenderer = createByProc('renderer', 'error');
 
 const workerMessageApi = stubByRenderer.use<WorkerMessageAPI>('worker', 'WorkerMessageAPI');
 const messageApi = stubByRenderer.use<MessageApi>('main', 'MessageApi');
-
-  setInterval(() => {
-    console.log('invoke messageApi.syncMessage("hello")')
-    messageApi.syncMessage('hello').then((v) => {
-      console.log("RRRR", v);
-    })
-  }, 3000);
-
 
 (function errorListen() {
 

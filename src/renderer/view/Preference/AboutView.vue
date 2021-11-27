@@ -17,7 +17,7 @@
             <div class="input-container">
             <b-button
                 class="btn"
-                @click="onClickGithub('https://github.com/terasum/medict')"
+                @click="openExternal('https://github.com/terasum/medict')"
                 >访问 github</b-button
               >
             </div>
@@ -42,7 +42,7 @@
             <div class="input-info">
               <label>开发人员</label>
               <p>
-                <a href="javascript:void(0);" @click="onClickGithub('https://github.com/terasum')">Chen, Quan</a>
+                <a href="javascript:void(0);" @click="openExternal('https://github.com/terasum')">Chen, Quan</a>
               </p>
             </div>
             <div class="input-container">
@@ -77,6 +77,11 @@
 <script lang="ts">
 import Vue from 'vue';
 // import { AsyncMainAPI } from '../../rpc.renderer.manifest';
+import { createByProc } from '@terasum/electron-call';
+import { WindowApi } from '../../../main/apis/WindowApi';
+
+const mainStub = createByProc('renderer');
+const windowOpenApi = mainStub.use<WindowApi>('main', 'WindowApi');
 
 export default Vue.extend({
   components: {},
@@ -108,9 +113,8 @@ export default Vue.extend({
     }
   },
   methods: {
-    onClickGithub(url: string) {
-      // TODO FIX
-      // AsyncMainAPI.openUrlOnBrowser(url);
+    openExternal(url: string) {
+      windowOpenApi.openExternalURL(url)
     },
   },
 });
