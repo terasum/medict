@@ -18,7 +18,7 @@ export default class Configuration {
     preloadDir: string;
 
     public static newInstance() {
-        if ((!__globalConfig__) || __globalConfig__ == null || __globalConfig__ == undefined) {
+        if (!__globalConfig__) {
             __globalConfig__ = new Configuration();
         }
         return __globalConfig__;

@@ -1,6 +1,8 @@
 import { createByProc } from '@terasum/electron-call';
-import WorkerMessageAPI from './apis/WorkerMessageApi';
-const stubByWorker = createByProc('worker', 'error');
-const workerMessageApi = new WorkerMessageAPI();
+import WorkerMessageAPI from './apis/WorkerMessageAPI';
+import DictAPI from './apis/DictAPI';
 
-stubByWorker.provide(['main','renderer'], 'WorkerMessageAPI', workerMessageApi);
+const stubByWorker = createByProc('worker', 'error');
+
+stubByWorker.provide(['main','renderer'], 'WorkerMessageAPI', new WorkerMessageAPI());
+stubByWorker.provide(['main','renderer'], 'DictAPI', new DictAPI());

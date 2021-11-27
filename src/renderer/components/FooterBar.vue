@@ -24,8 +24,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-// import { AsyncMainAPI } from '../service.renderer.manifest';
 
+import { createByProc } from '@terasum/electron-call';
+import { WindowApi } from '../../main/apis/WindowApi';
+const rendererStub = createByProc('renderer', 'error')
+const windowApi = rendererStub.use<WindowApi>('main','WindowApi')
 
 export default Vue.extend({
   data() {
@@ -35,13 +38,12 @@ export default Vue.extend({
   watch: {},
   methods: {
     onClickHyperLink(event: any) {
-      // TODO FIX
-      // if (event && event.target) {
-      //   if (event.target.dataset && event.target.dataset.href) {
-      //     AsyncMainAPI.openUrlOnBrowser(event.target.dataset.href);
-      //   }
-      // }
-      // console.log(event);
+      if (event && event.target) {
+        if (event.target.dataset && event.target.dataset.href) {
+          windowApi.openExternalURL(event.target.dataset.href);
+        }
+      }
+      console.log(event);
     },
     onClickInternalLink(event: any) {
       if (event && event.target) {

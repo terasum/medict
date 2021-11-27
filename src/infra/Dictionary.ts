@@ -7,6 +7,7 @@ import { SuggestItem } from '../model/SuggestItem';
 import { Definition, NullDef } from '../model/Definition';
 import { StorabeDictionary } from '../model/StorableDictionary';
 import { logger } from '../utils/logger';
+import FuzzyTrie from './indexing/FuzzyTrie';
 
 
 function isArray(o: any) {
@@ -28,8 +29,11 @@ export class Dictionary extends StorabeDictionary {
   mdxDict: Mdict;
   mddDicts: Mdict[];
   description: string;
+  mdxIndex: FuzzyTrie = new FuzzyTrie();
+  mddIndex: FuzzyTrie[] = [];
+  indexed: boolean = false;
 
-  public static newByStorabe(dict: StorabeDictionary){
+  public static newByStorabe(dict: StorabeDictionary) {
     return new Dictionary(dict.id, dict.alias, dict.name, dict.mdxpath, dict.mddpath, dict.description);
   }
 
@@ -61,6 +65,65 @@ export class Dictionary extends StorabeDictionary {
     this.description = description || 'undefined';
   }
 
+  indexing() {
+    if (!this.mdxDict) {
+      return;
+    }
+    const keyWords = this.mdxDict.rangeKeyWords();
+    for (let word of keyWords) {
+      this.mdxIndex.add(word.keyText, word);
+    }
+
+    this.mddDicts.forEach(mdd => {
+      const mddTrie = new FuzzyTrie();
+      const mddKey = mdd.rangeKeyWords();
+      for (let key of mddKey) {
+        mddTrie.add(key.keyText, key);
+      }
+      this.mddIndex.push(mddTrie)
+    });
+    // 将词典标记为已经索引完成
+    this.indexed = true;
+  }
+
+  lookup2(word: string) {
+    const wordIndex = this.mdxIndex.has(word);
+    if (!wordIndex || wordIndex == null || !wordIndex.getData()) {
+      return NullDef(word);
+    }
+
+    const result = this.mdxDict.parse_defination(wordIndex.getData().keyText, wordIndex.getData().roffset);
+    if (!result) {
+      return NullDef(word);
+    }
+    return (result as unknown) as Definition;
+
+  }
+
+  associate2(word: string) {
+    const result: SuggestItem[] = [];
+    if (word.trim() == '' || word.length === 0) {
+      return result;
+    }
+    // limits word result upto 50
+    let counter = 0;
+    const limit = 50;
+    const pfxWords = this.mdxIndex.prefix(word);
+    if (!pfxWords || pfxWords.length == 0) {
+      return [];
+    }
+    for (let i = 0; i < pfxWords?.length ?? 0; i++) {
+      if (counter >= limit) {
+        break;
+      }
+      const word = pfxWords[i];
+      result.push({ id: counter, dictid: this.id, ...word.data });
+      counter++;
+    }
+    return result;
+  }
+
+
   findWordDefinition(keyText: string, roffset: number) {
     const result = this.mdxDict.parse_defination(keyText, roffset);
     if (!result) {
@@ -76,8 +139,7 @@ export class Dictionary extends StorabeDictionary {
     if (fs.existsSync(fileCachePath)) {
       const contentBuffer = fs.readFileSync(fileCachePath);
       logger.info(
-        `main-process read cache file: ${fileCachePath} ${
-          contentBuffer?.length ?? 0
+        `main-process read cache file: ${fileCachePath} ${contentBuffer?.length ?? 0
         }`
       );
       if (withPayload) {

@@ -1,4 +1,4 @@
-import { extractKeys } from '../src/main/domain/ReplacerJs';
+import { extractKeys } from '../src/infra/ReplacerJs';
 import { assert } from 'chai';
 // var assert = chai.assert; // Using Assert style
 describe('extractKey', () => {

@@ -2,6 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Jest Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/.bin/jest",
+        "--runInBand",
+        "tests/fuzzytrie.spec.ts"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "runtimeExecutable": "${env:HOME}/.nvm/versions/node/v14.16.1/bin/node",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": false,
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "port": 9229
+    },
+
+    {
       "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
@@ -10,7 +30,7 @@
       "windows": {
         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
       },
-      "args" : [""]
+      "args": [""]
     }
   ]
 }
