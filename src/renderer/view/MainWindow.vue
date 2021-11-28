@@ -321,7 +321,7 @@ export default Vue.extend({
     color: #666;
     font-size: 12px;
     line-height: 20px;
-    -webkit-user-select: none;
+    user-select: none;
   }
 }
 
