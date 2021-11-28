@@ -77,8 +77,7 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-import { SyncMainAPI } from '../rpc.renderer.manifest';
-import { listeners } from '../service.renderer.listener';
+import {SyncMainAPI} from '../../main/rpc.sync.main.reference';
 import Store from '../store/index';
 
 export default Vue.extend({

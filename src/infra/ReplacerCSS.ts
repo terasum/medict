@@ -4,7 +4,7 @@ import { logger } from '../utils/logger';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import { SyncMainAPI } from '../worker/worksvc/worker.main.svc.manifest';
+import { SyncMainAPI } from '../main/rpc.sync.main.reference';
 
 
 

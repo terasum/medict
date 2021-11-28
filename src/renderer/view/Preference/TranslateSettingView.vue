@@ -88,7 +88,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-// import { SyncMainAPI } from '../../rpc.renderer.manifest';
 import Alert from '../../components/default/Alert.vue'
 
 export default Vue.extend({

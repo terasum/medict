@@ -169,7 +169,6 @@
 </template>
 
 <script lang="ts">
-// import { SyncMainAPI, AsyncMainAPI } from '../../service.renderer.manifest';
 import { listeners } from '../../service.renderer.listener';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
@@ -179,7 +178,8 @@ import Folder from '../icons/folder.icon.vue';
 import Vue from 'vue';
 
 
-import {  SyncMainAPI } from '../../rpc.renderer.manifest';
+import { SyncMainAPI } from '../../../main/rpc.sync.main.reference';
+
 import { createByProc } from '@terasum/electron-call';
 import { WindowApi } from '../../../main/apis/WindowApi';
 

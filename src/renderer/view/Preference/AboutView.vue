@@ -76,7 +76,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-// import { AsyncMainAPI } from '../../rpc.renderer.manifest';
 import { createByProc } from '@terasum/electron-call';
 import { WindowApi } from '../../../main/apis/WindowApi';
 

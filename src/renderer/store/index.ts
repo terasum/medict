@@ -3,7 +3,7 @@ import { StoreDataType } from './StoreDataType';
 import { listeners } from '../service.renderer.listener';
 import { createByProc } from '@terasum/electron-call';
 
-import DictAPI from '../..//worker/apis/DictAPI';
+import { DictAPI } from '../..//worker/apis/DictAPI';
 
 const stubByRenderer = createByProc('renderer', 'error');
 const dictApi = stubByRenderer.use<DictAPI>('worker', 'DictAPI');

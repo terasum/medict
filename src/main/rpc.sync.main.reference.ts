@@ -1,4 +1,6 @@
-import { ipcRenderer } from 'electron';
+// this file is reference by RENDERER process
+// do not import in main-process
+import {ipcRenderer} from 'electron';
 
 function syncWrap(fnName: string) {
   return (args?: any) => {
@@ -10,12 +12,8 @@ export const SyncMainAPI = {
   syncShowOpenDialog: syncWrap('syncShowOpenDialog'),
   syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
   syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
-  syncUserGetResourceRootPath: syncWrap('syncGetUserResourceRootPath'),
-  syncShowComfirmMessageBox: syncWrap('syncShowComfirmMessageBox'),
-  loadTranslateApiConfig: syncWrap('loadTranslateApiConfig'),
-  saveTranslateBaiduApiConfig: syncWrap('saveTranslateBaiduApiConfig'),
-  saveTranslateYoudaoApiConfig: syncWrap('saveTranslateYoudaoApiConfig'),
+  syncGetResourceServerPort: syncWrap('syncGetResourceServerPort'),
   syncGetWebviewPreliadFilePath: syncWrap('syncGetWebviewPreliadFilePath'),
+
   clipboardWriteText:syncWrap('clipboardWriteText'),
-  syncGetResourceServerPort:syncWrap('syncGetResourceServerPort'),
 };
