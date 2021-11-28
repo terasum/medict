@@ -354,7 +354,6 @@ export default Vue.extend({
   background-image: linear-gradient(135deg, #325dff, #529eff);
   padding-top: 6px;
   border-bottom: 1px solid #d1d1d1;
-  -webkit-app-region: drag;
   .header-navigate-btns {
     height: 54px;
     max-width: 80px;
