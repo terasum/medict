@@ -2,17 +2,12 @@ import { FileOpenService } from '../mainsvc/FileOpenService';
 import { logger } from '../../utils/logger';
 import { getUserResourceRootPath, getResourceRootPath, getLoggerFilePath, webviewPreloadFilePath } from '../../config/config';
 
-
+const fileOpenService = new FileOpenService();
 export class FileOpenApi {
-  fileOpenService: FileOpenService;
-
-  constructor() {
-    this.fileOpenService = new FileOpenService();
-  }
   syncShowOpenDialog(arg: {fileExtensions: string[] | undefined, multiFile: boolean}) {
     logger.info('syncShowOpenDialog - arg');
     logger.info(arg);
-    return this.fileOpenService.showOpenDialog(arg);
+    return fileOpenService.showOpenDialog(arg);
   }
   syncShowMainLoggerPath(arg?: any) {
     return getLoggerFilePath();

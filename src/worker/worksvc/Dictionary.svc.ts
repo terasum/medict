@@ -2,13 +2,15 @@ import { Dictionary } from '../../infra/Dictionary';
 import { SuggestItem } from '../../model/SuggestItem';
 import { Definition, NullDef } from '../../model/Definition';
 import { StorabeDictionary } from '../../model/StorableDictionary';
-import path from 'path';
-import fs from 'fs';
-import walk from 'walkdir';
+import { DictContentService } from '../worksvc/DictionaryContent.svc';
 import { logger } from '../../utils/logger';
 import { md5hash } from '../../utils/hash_utils';
 import { EventEmitter } from 'keyv';
+
 import _ from 'lodash';
+import path from 'path';
+import fs from 'fs';
+import walk from 'walkdir';
 
 export const EV_START_INDEXING = 'EV_START_INDEXING';
 export const EV_END_INDEXING = 'EV_END_INDEXING';
@@ -50,11 +52,15 @@ export class DictService {
   // 事件抛出器
   eventEmitter = new EventEmitter();
 
+  // dictContentService 内容处理服务
+  dictContentService: DictContentService
+
   constructor(resourceRootDir: string, dictsBaseDir: string, dictsConfigFile: string) {
     this.dictsBaseDir = dictsBaseDir;
     this.resourceRoot = resourceRootDir;
     this.dictsConfigFile = dictsConfigFile;
     this.eventEmitter = new EventEmitter();
+    this.dictContentService = new DictContentService();
   }
 
   /**
@@ -89,9 +95,9 @@ export class DictService {
    * ------------ 可查询内存词典部分  -------------- 
    */
   listDicts() {
-    const list: StorabeDictionary[] = [];
-    this.dictCache.forEach((val) => {
-      list.push(val);
+    const list: Dictionary[] = [];
+    this.dictCache.forEach((dict) => {
+      list.push(dict);
     });
     return list;
   }
@@ -105,6 +111,7 @@ export class DictService {
       new Promise((resolve) => {
         this.eventEmitter.emit(EV_START_INDEXING, dict.name)
         dict.indexing();
+        this.dictCache.set(dict.id, dict);
         this.eventEmitter.emit(EV_END_INDEXING, dict.name)
       })
     })
@@ -146,7 +153,7 @@ export class DictService {
    * @returns 
    */
   lookupPrecisly(dictid: string, keyText: string, roffset: number) {
-    this.loadDict(dictid)?.findWordDefinition(keyText, roffset);
+    return this.loadDict(dictid)?.findWordDefinition(keyText, roffset);
   }
 
   /**
@@ -176,6 +183,35 @@ export class DictService {
       return NullDef(keyText);
     }
     return wordDef;
+  }
+
+/**
+   * 处理原生HTML返回结果
+   * @param dictid 词典ID
+   * @param keyText 关键词
+   * @param definition 原生返回结果
+   * @returns 
+   */
+  definitionReplace(dictid: string, keyText: string, definition: string) {
+    // 资源查询函数
+    const resFn = (resKey: string, withPayload = false) => {
+      return this.loadResource(dictid, resKey, withPayload);
+    };
+
+    // 词查询函数
+    const lookupFn = (word: string) => {
+      return this.lookup(dictid, word);
+    };
+
+    logger.info("[main-process] suggestWord event.sender.send('onFindWordPrecisly')");
+
+    return this.dictContentService.definitionReplace(
+      dictid,
+      keyText,
+      definition,
+      lookupFn,
+      resFn
+    )
   }
 
 
@@ -341,6 +377,11 @@ export class DictService {
         }
         logger.info(`[WORKER]resource-copy, base:[${fileBasename}] successed`);
       });
+      // 针对 css 文件，需要解析器内部内容并检索查询内部
+
+
+
+
     });
   }
 

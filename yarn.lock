@@ -866,6 +866,13 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
+"@koa/cors@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@koa/cors/-/cors-3.1.0.tgz#618bb073438cfdbd3ebd0e648a76e33b84f3a3b2"
+  integrity sha512-7ulRC1da/rBa6kj6P4g2aJfnET3z8Uf3SWu60cjbtxTA5g8lxRdX/Bd2P92EagGwwAhANeNw8T8if99rJliR6Q==
+  dependencies:
+    vary "^1.1.2"
+
 "@malept/cross-spawn-promise@^1.0.0", "@malept/cross-spawn-promise@^1.1.0", "@malept/cross-spawn-promise@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@malept/cross-spawn-promise/-/cross-spawn-promise-1.1.1.tgz"
@@ -1284,6 +1291,13 @@
     "@types/keygrip" "*"
     "@types/koa-compose" "*"
     "@types/node" "*"
+
+"@types/koa__cors@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@types/koa__cors/-/koa__cors-3.0.3.tgz#49d75813b443ba3d4da28ea6cf6244b7e99a3b23"
+  integrity sha512-74Xb4hJOPGKlrQ4PRBk1A/p0gfLpgbnpT0o67OMVbwyeMXvlBN+ZCRztAAmkKZs+8hKbgMutUlZVbA52Hr/0IA==
+  dependencies:
+    "@types/koa" "*"
 
 "@types/linkify-it@*":
   version "3.0.2"
@@ -4228,7 +4242,7 @@ fresh@0.5.2, fresh@~0.5.2:
 
 fs-extra@^10.0.0:
   version "10.0.0"
-  resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-10.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
   integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
   dependencies:
     graceful-fs "^4.2.0"

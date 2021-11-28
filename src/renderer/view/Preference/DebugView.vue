@@ -76,7 +76,16 @@
 
 <script lang="ts">
 import Vue from 'vue';
-// import { AsyncMainAPI, SyncMainAPI } from '../../rpc.renderer.manifest';
+import {  SyncMainAPI } from '../../rpc.renderer.manifest';
+import { createByProc } from '@terasum/electron-call';
+import { WindowApi } from '../../../main/apis/WindowApi';
+import {ipcRenderer} from 'electron';
+
+const mainStub = createByProc('renderer');
+const windowOpenApi = mainStub.use<WindowApi>('main', 'WindowApi');
+
+
+
 import BugFill from '../../components/icons/bug-fill.icon.vue';
 export default Vue.extend({
   components: { BugFill },
@@ -84,25 +93,22 @@ export default Vue.extend({
     saveConfig() {
       console.log(`save result`);
     },
+
     onClickDevBtn() {
-      // TODO FIX
-      // AsyncMainAPI.openDevTool();
+      ipcRenderer.send('openDevTool');
     },
+
     onClickMainProcessLog() {
-      // TODO FIX
-      // AsyncMainAPI.openMainProcessLog();
+      windowOpenApi.openMainProcessLog();
     },
     onClickRescDir() {
-      // TODO FIX
-      // AsyncMainAPI.openResourceDir();
+      windowOpenApi.openResourceDir();
     },
-    loggerPath() {
-      // TODO FIX
-      // return SyncMainAPI.syncShowMainLoggerPath();
+    async loggerPath() {
+      return SyncMainAPI.syncShowMainLoggerPath();
     },
     resourcePath() {
-      // TODO FIX
-      // return SyncMainAPI.syncGetResourceRootPath();
+      return SyncMainAPI.syncGetResourceRootPath();
     },
   },
 });

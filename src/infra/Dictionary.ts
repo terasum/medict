@@ -2,13 +2,36 @@ import Mdict from 'js-mdict';
 import path from 'path';
 import fs from 'fs';
 
-import { resourceServerPort } from '../main/init.resource.server';
 import { SuggestItem } from '../model/SuggestItem';
 import { Definition, NullDef } from '../model/Definition';
 import { StorabeDictionary } from '../model/StorableDictionary';
 import { logger } from '../utils/logger';
 import FuzzyTrie from './indexing/FuzzyTrie';
+import { SyncMainAPI } from '../worker/worksvc/worker.main.svc.manifest';
 
+
+function __closureResourceRoot() {
+  let _resourceRoot = '';
+  return function() {
+    if(_resourceRoot === '') {
+      _resourceRoot = SyncMainAPI.syncGetResourceRootPath();
+    }
+    return _resourceRoot
+  }
+}
+
+
+function __closureResourceServerPort() {
+  let _resourcePort = 0;
+  return function() {
+    if(_resourcePort === 0) {
+      _resourcePort = SyncMainAPI.syncGetResourceServerPort();
+    }
+    return _resourcePort
+  }
+}
+const fnResourceRoot = __closureResourceRoot();
+const fnResourceServerPort = __closureResourceServerPort();
 
 function isArray(o: any) {
   return Object.prototype.toString.call(o) == '[object Array]';
@@ -132,14 +155,14 @@ export class Dictionary extends StorabeDictionary {
     return (result as unknown) as Definition;
   }
 
-  findWordResource(keyText: string, withPayload = false) {
+  findWordResource(keyText: string, withPayload = false, skipFileCache = false) {
     let result = NullDef(keyText);
     // load cache first
     const fileCachePath = rscCachePath(this.id, keyText);
-    if (fs.existsSync(fileCachePath)) {
+    if (!skipFileCache && fs.existsSync(fileCachePath)) {
       const contentBuffer = fs.readFileSync(fileCachePath);
       logger.info(
-        `main-process read cache file: ${fileCachePath} ${contentBuffer?.length ?? 0
+        `[WORKER] read cache file: ${fileCachePath} ${contentBuffer?.length ?? 0
         }`
       );
       if (withPayload) {
@@ -174,7 +197,7 @@ export class Dictionary extends StorabeDictionary {
     if (result && result.definition) {
       const filePath = rscCachePath(this.id, keyText);
       fs.writeFileSync(filePath, Buffer.from(result.definition, 'base64'));
-      logger.info(`main-process write cache file: ${filePath}`);
+      logger.info(`[WORKER] replace resource PATH write cache file: ${filePath}`);
 
       if (withPayload) {
         return {
@@ -231,7 +254,7 @@ function rscCachePath(dictid: string, resourceKey: string) {
   }
   const resourcePath = resourceKey.split('\\');
 
-  const fullPath = path.join("TODOTODO", dictid, ...resourcePath);
+  const fullPath = path.join(fnResourceRoot(), dictid, ...resourcePath);
   const fullDirPath = path.dirname(fullPath);
   if (!fs.existsSync(fullDirPath)) {
     fs.mkdirSync(fullDirPath, { recursive: true });
@@ -243,6 +266,7 @@ function rscRelativePath(dictid: string, resourceKey: string) {
   if (!dictid || dictid === '') {
     throw new Error(`invalid dictionary id ${dictid}`);
   }
+  const resourceServerPort = fnResourceServerPort();
   const resourcePath = resourceKey.split('\\');
   const fullPath = path.join(dictid, ...resourcePath);
   return 'http://localhost:' + resourceServerPort + '/' + fullPath;

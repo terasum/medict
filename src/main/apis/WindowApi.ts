@@ -1,4 +1,4 @@
-import { shell, dialog, MessageBoxSyncOptions } from 'electron'; // deconstructing assignment
+import { shell, dialog, MessageBoxSyncOptions, ipcMain } from 'electron'; // deconstructing assignment
 
 import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
 import path from 'path';
@@ -26,14 +26,11 @@ export class WindowApi {
   ) {
     event.sender.send('createSubWindow', arg);
   }
-  openDevTool(event: any) {
-    event.sender.send('openDevTool');
-  }
-  openResourceDir(event: any) {
+  openResourceDir() {
     console.log(`openResourceDir ${getResourceRootPath()}`);
     shell.openPath(getResourceRootPath()); // Open the given file in the desktop's default manner.
   }
-  openDictResourceDir(event: any, dictid: string) {
+  openDictResourceDir(dictid: string) {
     const fpath = path.resolve(getResourceRootPath(), dictid);
     if (!fs.existsSync(fpath)) {
       fs.mkdirSync(fpath)
@@ -41,7 +38,7 @@ export class WindowApi {
     shell.openPath(fpath); // Open the given file in the desktop's default manner.
     return true;
   }
-  openMainProcessLog(event: any) {
+  openMainProcessLog() {
     console.log(`openMainProcessLog ${getLoggerFilePath()}`);
     const logpath = getLoggerFilePath();
     if (fs.existsSync(logpath)) {
