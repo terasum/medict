@@ -19,7 +19,7 @@ export declare class StoreDataType {
   };
 
   dictionaries: Dictionary[];
-  suggestWords: string[];
+  suggestWords: any[];
   historyStack: any[];
   currentWord: { dictid: string, word:string };
   currentLookupWord: string;

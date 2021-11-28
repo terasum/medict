@@ -44,7 +44,7 @@ export class EntryReplacer implements Replacer {
         // 再将结果返回 webview 页面,加入随机字符串是为了保证页面安全
         $(alist[i]).attr(
           'onclick',
-          `function entry_click__${i}__${__RANDOM_KEY__}() { window.postMessage({ channel: 'entryLinkWord', payload: { dictid: '${dictid}', keyText: '${newWord}' } });} entry_click__${i}__${__RANDOM_KEY__}(); return false;`
+          `(function() {window.postMessage({ channel: 'entryLinkWord', payload: { dictid: '${dictid}', keyText: '${newWord}' } })})(); return false;`
         );
       }
     }
@@ -54,3 +54,5 @@ export class EntryReplacer implements Replacer {
     return {keyText, definition:$.html()};
   }
 }
+
+

@@ -1,6 +1,6 @@
 import { Definition } from '../model/Definition';
 
-export type ResourceFn = (key: string, withPayload?: boolean) => Definition;
+export type ResourceFn = (key: string, withPayload?: boolean, skipFileCache?: boolean) => Definition;
 export type LookupFn = (key: string) => Definition;
 
 export interface Replacer {

@@ -62,10 +62,10 @@
           <!-- webpreferences="allowRunningInsecureContent=yes" -->
           <webview
             :src="'data:text/html;charset=utf-8;base64,' + currentContent"
+            :preload="preload"
             enableremotemodule="true"
             webpreferences="nodeIntegration=false,webSecurity=true,allowRunningInsecureContent=false,contextIsolation=true"
           />
-            <!-- :preload="preload" -->
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-// import { AsyncMainAPI, SyncMainAPI } from '../service.renderer.manifest';
+import { SyncMainAPI } from '../rpc.renderer.manifest';
 import { listeners } from '../service.renderer.listener';
 import Store from '../store/index';
 
@@ -90,8 +90,7 @@ export default Vue.extend({
   },
   computed: {
     preload() {
-      return ''
-      // return `file://${SyncMainAPI.syncGetWebviewPreliadFilePath()}`;
+      return `file://${SyncMainAPI.syncGetWebviewPreliadFilePath()}`;
     },
     currentWordIdx() {
       return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
@@ -104,17 +103,6 @@ export default Vue.extend({
       if (!searchWord) {
         return '';
       }
-
-      // const actualWord = (this.$store as typeof Store).state.currentActualWord;
-      // if (!actualWord || actualWord === '') {
-      //   return '';
-      // }
-
-      // if (actualWord === searchWord) {
-      //   return actualWord;
-      // }
-
-      // return searchWord + ' › ' + actualWord;
       return searchWord;
     },
     currentContent() {
@@ -128,40 +116,34 @@ export default Vue.extend({
     },
   },
   methods: {
+
     lookupWord(item: any) {
       this.$store.dispatch('asyncFindWordPrecisly', item.id);
     },
-    findResource(dictid: string, resourceKey: string) {
-      // TODO FIX
-      // return AsyncMainAPI.loadDictResource({ dictid, resourceKey });
-    },
+    // 打开webview的调试窗口
     onDevtoolBtnClick() {
       // for webview
       const webview = document.getElementsByTagName('webview')[0];
       //@ts-ignore
       webview.openDevTools();
     },
+    // 搜索资源
+    findResource(dictid: string, resourceKey: string) {
+      this.$store.dispatch('asyncLoadResource', { dictid, resourceKey });
+    },
+    // 点击资源搜索按钮
     onLookupResource() {
       if (!this.lookupResourceKey || this.lookupResourceKey == '') {
         return;
       }
-      if (
-        !this.currentDict ||
-        !this.currentDict.id ||
-        this.currentDict.id === ''
-      ) {
+      if ( !this.currentDict || !this.currentDict.id || this.currentDict.id === '') {
         return;
       }
-      // TODO FIX
-
-      // AsyncMainAPI.loadDictResource({
-      //   dictid: this.currentDict.id,
-      //   resourceKey: this.lookupResourceKey,
-      // });
+      this.findResource(this.currentDict.id, this.lookupResourceKey);
     },
+    // 打开资源所在文件夹
     onResourceDir() {
-      // TODO FIX
-      // AsyncMainAPI.openDictResourceDir(this.currentDict.id);
+      this.$store.dispatch('asyncOpenDictResourceDir', { dictid: this.currentDict.id });
     },
   },
   mounted() {
@@ -169,32 +151,7 @@ export default Vue.extend({
     // designed for @@ENTRY_LINK==
     const webview = document.getElementsByTagName('webview')[0];
     webview.addEventListener('ipc-message', (event) => {
-      console.log('====== webview post event ========');
-      // 通过event.channel的值来判断webview发送的事件名
-      // @ts-ignore
-      if (event.channel === 'onFindWordPrecisly') {
-        console.log(`[async:mainWindow] response onFindWordPrecisly:`);
-        console.log(event);
-        const newContent = Buffer.from(
-          // @ts-ignore
-          event.args[0].definition,
-          'utf8'
-        ).toString('base64');
-        this.$store.commit('updateCurrentContent', newContent);
-        // @ts-ignore
-        this.$store.commit('updateCurrentLookupWord', event.args[0].keyText);
-      }
-
-      // @ts-ignore
-      if (event.channel === 'entryLinkWord') {
-        console.log(`[async:mainWindow] webview entryLinkWord clicked`);
-        console.log(event);
-      }
-    });
-
-    // onloadDictResource listener
-    listeners.onLoadDictResource((event, arg) => {
-      console.log(arg);
+      this.$store.dispatch('postWebviewEvent', event);
     });
   },
   destroyed() {},
@@ -244,6 +201,7 @@ export default Vue.extend({
         padding: 0.5rem 0.2rem 0.5rem 0.4rem;
         border-bottom: 1px solid #e1e1e1;
         font-size: 0.9rem;
+        cursor: pointer;
         &:hover {
           background: #4A8EFF;
           color: #fff;

@@ -178,6 +178,14 @@ import Alert from '../default/Alert.vue'
 import Folder from '../icons/folder.icon.vue';
 import Vue from 'vue';
 
+
+import {  SyncMainAPI } from '../../rpc.renderer.manifest';
+import { createByProc } from '@terasum/electron-call';
+import { WindowApi } from '../../../main/apis/WindowApi';
+
+const mainStub = createByProc('renderer');
+const windowOpenApi = mainStub.use<WindowApi>('main', 'WindowApi');
+
 const validate = function (dictData: StorabeDictionary) {
   if (!dictData) {
     return {
@@ -320,28 +328,26 @@ export default Vue.extend({
         });
     },
     openMddFile() {
-      // TODO FIX
-      // const resultPath = SyncMainAPI.syncShowOpenDialog({
-      //   fileExtensions: ['mdd'],
-      //   multiFile: true,
-      // });
-      // console.log(resultPath);
-      // if (resultPath && resultPath.length > 0) {
-      //   console.log(resultPath);
-      //   this.mddpath = resultPath;
-      // }
+      const resultPath = SyncMainAPI.syncShowOpenDialog({
+        fileExtensions: ['mdd'],
+        multiFile: true,
+      });
+      console.log(resultPath);
+      if (resultPath && resultPath.length > 0) {
+        console.log(resultPath);
+        this.mddpath = resultPath;
+      }
     },
     openMdxFile() {
-      // TODO FIX
-      // const resultPath = SyncMainAPI.syncShowOpenDialog({
-      //   fileExtensions: ['mdx'],
-      //   multiFile: false,
-      // });
-      // console.log(resultPath);
-      // if (resultPath && resultPath.length > 0) {
-      //   console.log(resultPath[0]);
-      //   this.mdxpath = resultPath[0];
-      // }
+      const resultPath = SyncMainAPI.syncShowOpenDialog({
+        fileExtensions: ['mdx'],
+        multiFile: false,
+      });
+      console.log(resultPath);
+      if (resultPath && resultPath.length > 0) {
+        console.log(resultPath[0]);
+        this.mdxpath = resultPath[0];
+      }
     },
     resetForm() {
       (this.id = random_key(6)), (this.newid = '');
@@ -352,54 +358,15 @@ export default Vue.extend({
       this.mddpath = '';
       this.resourceBaseDir = '';
     },
-    deleteDict(dictid: string) {
-      // TODO FIX
-      // let _this = this;
-      // const response = SyncMainAPI.syncShowComfirmMessageBox({
-      //   message: '确认删除?',
-      //   type: 'warning',
-      //   buttons: ['取消', '确认'],
-      //   defaultId: 0,
-      //   cancelId: 0,
-      // });
-
-      // if (response === 1) {
-      //   this.$store
-      //     .dispatch('asyncDelNewDict', dictid)
-      //     .then((result) => {
-      //       if (result) {
-      //         console.log(result);
-      //         if (result) {
-      //           _this.showAlert('info', '删除成功', function() {
-      //             _this.$emit('modal-should-close');
-      //           });
-      //         }
-      //       } else {
-      //         _this.showAlert('error', '删除失败');
-      //       }
-      //     })
-      //     .catch((err) => {
-      //       _this.showAlert('error', '删除失败,' + err);
-      //     });
-      // } else {
-      //   console.log('canceled');
-      // }
-    },
     checkResource(dictid: string) {
-      // TODO FIX
-      // const response = AsyncMainAPI.openDictResourceDir(dictid);
-      // console.log(response);
+      windowOpenApi.openDictResourceDir(dictid)
     },
     searchResource(dictid: string) {
-      // TODO FIX
-      // if (!this.resourceKey || this.resourceKey == '') {
-      //   this.showAlert('info', 'null');
-      //   return;
-      // }
-      // AsyncMainAPI.loadDictResource({
-      //   dictid: dictid,
-      //   resourceKey: this.resourceKey,
-      // });
+      if (!this.resourceKey || this.resourceKey == '') {
+        this.showAlert('info', 'null');
+        return;
+      }
+      this.$store.dispatch('asyncLoadResource', {dictid, keyText:this.resourceKey})
     },
   },
   mounted() {

@@ -14,11 +14,9 @@ export function registerServices() {
         logger.debug(
           `[main-rpc:sync]: ================= [${fnName}] =============== START`
         );
-        logger.debug(`[main-rpc:sync]: ${fnName}| arg:`);
-        logger.debug(args);
+        logger.debug(`[main-rpc:sync]: ${fnName}| arg:`, args);
         const ret = fn(args);
-        logger.debug(`[main-rpc:sync]: ${fnName}| ret:`);
-        logger.debug(ret);
+        logger.debug(`[main-rpc:sync]: ${fnName}| ret:`, ret);
         event.returnValue = ret;
         logger.debug(
           `[main-rpc:sync]: ================= [${fnName}] =============== END`
