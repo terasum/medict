@@ -7,7 +7,8 @@ import { Definition, NullDef } from '../model/Definition';
 import { StorabeDictionary } from '../model/StorableDictionary';
 import { logger } from '../utils/logger';
 import FuzzyTrie from './indexing/FuzzyTrie';
-import { SyncMainAPI } from '../worker/worksvc/worker.main.svc.manifest';
+
+import { SyncMainAPI } from '../main/rpc.sync.main.reference';
 
 
 function __closureResourceRoot() {

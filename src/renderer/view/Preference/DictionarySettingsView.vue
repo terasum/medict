@@ -76,7 +76,6 @@ import Vue from 'vue';
 import Header from '../../components/Header.vue';
 import NewDictionary from '../../components/preference/NewDictionary.vue';
 import DictModal from '../../components/default/DictModal.vue';
-// import { SyncMainAPI } from '../../rpc.renderer.manifest';
 import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import Store from '../../store/index';

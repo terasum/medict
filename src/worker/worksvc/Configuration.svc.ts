@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { preloadContent } from '../../config/preload/webview.preload';
 import { logger } from '../../utils/logger';
-import {SyncMainAPI} from './worker.main.svc.manifest';
+import { SyncMainAPI } from '../../main/rpc.sync.main.reference';
 
 let __globalConfig__: Configuration;
 
@@ -85,5 +85,17 @@ export default class Configuration {
 
     webviewPreloadFilePath() {
         return this.preloadFilePath;
+    }
+    getYoudaoAppID() {
+        return '';
+    }
+    getYoudaoAppKey() {
+        return ''
+    }
+    getBaiduAppID() {
+        return '';
+    }
+    getBaiduAppKey() {
+        return ''
     }
 }

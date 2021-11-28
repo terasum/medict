@@ -1,8 +1,8 @@
 import { DictService, EV_END_INDEXING, EV_START_INDEXING } from "../worksvc/Dictionary.svc";
 import Configuration from "../worksvc/Configuration.svc";
-import { SyncMainAPI } from "../worksvc/worker.main.svc.manifest";
+import { SyncMainAPI } from '../../main/rpc.sync.main.reference';
 
-export default class DictAPI {
+export class DictAPI {
     dictService: DictService;
     config: Configuration;
 
