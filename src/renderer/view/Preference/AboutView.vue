@@ -25,7 +25,7 @@
           <div class="input-group">
             <div class="input-info">
               <label>软件版本</label>
-              <p>v2.0.10</p>
+              <p>v2.2.0</p>
             </div>
             <div class="input-container">
             </div>
