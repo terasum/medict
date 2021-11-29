@@ -64,11 +64,10 @@ module.exports = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.scss', '.vue'],
     alias: {
       vue$: 'vue/dist/vue.esm.js', // 用 webpack 1 时需用 'vue/dist/vue.common.js'
-      // '@': path.resolve(__dirname, 'node_modules/'),
-      // '~': path.resolve(__dirname, 'src/renderer/'),
     },
   },
   output: {
-    filename: 'js~[name].[chunkhash:12].js',
+    filename: "[name].bundle.js",
+    chunkFilename: "[id].bundle.js"
   },
 };
