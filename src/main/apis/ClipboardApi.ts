@@ -1,7 +1,7 @@
 import { logger } from '../../utils/logger';
 import { ClipboardService } from '../mainsvc/ClipboardService';
 
-export class ClipboardApi {
+export class ClipboardAPI {
   clipboard: ClipboardService;
 
   constructor() {

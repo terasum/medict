@@ -43,9 +43,6 @@ export class DictService {
   // 当前词典的扫描目录
   dictsBaseDir: string;
 
-  // 当前词典的配置文件中存储的列表
-  dictsConfigFile: string
-
   // 当前词典的资源根目录
   resourceRoot: string
 
@@ -55,10 +52,9 @@ export class DictService {
   // dictContentService 内容处理服务
   dictContentService: DictContentService
 
-  constructor(resourceRootDir: string, dictsBaseDir: string, dictsConfigFile: string) {
+  constructor(resourceRootDir: string, dictsBaseDir: string) {
     this.dictsBaseDir = dictsBaseDir;
     this.resourceRoot = resourceRootDir;
-    this.dictsConfigFile = dictsConfigFile;
     this.eventEmitter = new EventEmitter();
     this.dictContentService = new DictContentService();
   }
@@ -107,10 +103,13 @@ export class DictService {
     this.loadDictsByDir(this.dictsBaseDir);
     this.dicts.forEach((val) => {
       let dict = Dictionary.newByStorabe(val);
+      dict.indexed = false;
+
       // 构建索引
       new Promise((resolve) => {
         this.eventEmitter.emit(EV_START_INDEXING, dict.name)
         dict.indexing();
+        dict.indexed = true;
         this.dictCache.set(dict.id, dict);
         this.eventEmitter.emit(EV_END_INDEXING, dict.name)
       })
@@ -171,6 +170,16 @@ export class DictService {
   }
 
   /**
+   * 查询关联词，返回精确位置, 如果索引建立完成，则通过索引查询，如果未建立完成，通过传统方法查询(有误差)
+   * @param dictid 词典ID
+   * @param keyText 词典词条
+   * @returns 
+   */
+  lookupIndex(dictid: string, keyText: string) {
+    return this.loadDict(dictid)?.lookupIndex(keyText);
+  }
+
+  /**
    * 加载词条资源
    * @param dictid 词典ID
    * @param keyText 词典资源词条
@@ -227,19 +236,38 @@ export class DictService {
       return result;
     }
 
-    // limits word result upto 50
     let counter = 0;
+   
+    // 先检查索引
+    const wordIdx = this.lookupIndex(dictid, word);
+    if(wordIdx) {
+      result.push({
+        id: counter,
+        dictid: dictid,
+        keyText: wordIdx.keyText,
+        rofset: wordIdx.rofset,
+      });
+      counter++
+    }
+
+    // 再检索关联
+
+    // limits word result upto 50
     const limit = 50;
     const dict = this.loadDict(dictid);
     if (!dict) {
       return [];
     }
+
     const words = dict.associate(word);
     for (let i = 0; i < words?.length ?? 0; i++) {
       if (counter >= limit) {
         break;
       }
       const word = words[i];
+      if(wordIdx && wordIdx.keyText === word.keyText && word.rofset === wordIdx.rofset) {
+        continue;
+      }
       // logger.info(`set ${key}, ${word.keyText}`)
       result.push({
         id: counter,
@@ -262,6 +290,9 @@ export class DictService {
    * @returns 序列化词典
    */
   loadDictsByDir(dictsBaseDir: string) {
+    if (!dictsBaseDir && dictsBaseDir === '') {
+      return;
+    }
     // 扫描根目录
     // walk-through the directory, and copy css/js/font/png files
     console.info("[WORKER] dict scan root dict dir " + dictsBaseDir);

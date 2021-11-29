@@ -1,7 +1,7 @@
 
 import path from 'path';
 import fs from 'fs';
-import { preloadContent } from '../../config/preload/webview.preload';
+import { preloadContent } from '../../renderer/preload/webview.preload';
 import { logger } from '../../utils/logger';
 import { SyncMainAPI } from '../../main/rpc.sync.main.reference';
 

@@ -1,26 +1,14 @@
-import { StorabeDictionary } from './StorableDictionary';
-
-export declare class DictItem {
-  dictid: string;
-  dictionary: StorabeDictionary;
+class TranslateApis {
+  youdao = { appid: "", appkey: "" }
+  baidu = { appid: "", appkey: "" }
 }
 
 export class Config {
   dictBaseDir: string;
-  translateApis: {
-    youdao: {
-      appid: string;
-      appkey: string;
-    };
-    baidu: {
-      appid: string;
-      appkey: string;
-    };
-  };
-  dicts: DictItem[];
+  translateApis: TranslateApis;
+
   constructor() {
     this.dictBaseDir = "";
-    this.dicts = [];
-    this.translateApis = { youdao: { appid: '', appkey: '' }, baidu: { appid: '', appkey: '' } };
+    this.translateApis = new TranslateApis();
   }
 }

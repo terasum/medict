@@ -8,6 +8,7 @@ interface WindowOption {
   nodeIntegration: boolean,
   contextIsolation: boolean,
   show: boolean
+  enableWebSecurity: boolean,
 }
 
 const createSubWindow = (parent: BrowserWindow | undefined, options: WindowOption): BrowserWindow => {
@@ -22,6 +23,7 @@ const createSubWindow = (parent: BrowserWindow | undefined, options: WindowOptio
     webPreferences: {
       nodeIntegration: options.nodeIntegration,
       contextIsolation: options.contextIsolation,
+      webSecurity: options.enableWebSecurity,
     },
     show: options.show
   });

@@ -19,6 +19,7 @@ export declare class StoreDataType {
   };
 
   dictionaries: Dictionary[];
+  dictBaseDir: string;
   suggestWords: any[];
   historyStack: any[];
   currentWord: { dictid: string, word:string };

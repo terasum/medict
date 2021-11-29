@@ -78,11 +78,11 @@
 import Vue from 'vue';
 import {SyncMainAPI} from '../../../main/rpc.sync.main.reference';
 import { createByProc } from '@terasum/electron-call';
-import { WindowApi } from '../../../main/apis/WindowApi';
+import { WindowAPI } from '../../../main/apis/WindowAPI';
 import {ipcRenderer} from 'electron';
 
 const mainStub = createByProc('renderer');
-const windowOpenApi = mainStub.use<WindowApi>('main', 'WindowApi');
+const windowOpenApi = mainStub.use<WindowAPI>('main', 'WindowApi');
 
 
 
@@ -104,8 +104,8 @@ export default Vue.extend({
     onClickRescDir() {
       windowOpenApi.openResourceDir();
     },
-    async loggerPath() {
-      return SyncMainAPI.syncShowMainLoggerPath();
+    loggerPath() {
+      return SyncMainAPI.syncGetLoggerFilePath();
     },
     resourcePath() {
       return SyncMainAPI.syncGetResourceRootPath();

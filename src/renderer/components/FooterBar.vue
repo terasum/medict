@@ -26,9 +26,9 @@
 import Vue from 'vue';
 
 import { createByProc } from '@terasum/electron-call';
-import { WindowApi } from '../../main/apis/WindowApi';
+import { WindowAPI } from '../../main/apis/WindowAPI';
 const rendererStub = createByProc('renderer', 'error')
-const windowApi = rendererStub.use<WindowApi>('main','WindowApi')
+const windowApi = rendererStub.use<WindowAPI>('main','WindowApi')
 
 export default Vue.extend({
   data() {

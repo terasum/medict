@@ -77,10 +77,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import { createByProc } from '@terasum/electron-call';
-import { WindowApi } from '../../../main/apis/WindowApi';
+import { WindowAPI } from '../../../main/apis/WindowAPI';
 
 const mainStub = createByProc('renderer');
-const windowOpenApi = mainStub.use<WindowApi>('main', 'WindowApi');
+const windowOpenApi = mainStub.use<WindowAPI>('main', 'WindowApi');
 
 export default Vue.extend({
   components: {},

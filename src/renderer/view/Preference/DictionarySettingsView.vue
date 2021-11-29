@@ -4,45 +4,43 @@
       <h3><i class="fas fa-book"></i> 词典设置</h3>
     </div>
     <div class="settings-body">
-          <div class="dictionary-settings">
-            <!-- Mini button group -->
-            <div class="toolbar toolbar-header">
-              <div class="toolbar-actions">
-                <div class="btn-group">
-                  <button class="button toolbar-btn" v-on:click="addDictionary">
-                    <span class="icon"><i class="fas fa-plus-square" /></span>
-                    添加词典
-                  </button>
-                  <button class="button toolbar-btn" v-on:click="refreshDicts">
-                    <span class="icon"><i class="fas fa-sync" /></span> 刷新列表
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="dictionary-list">
-              <ul>
-                  <li
-                    v-for="item in dictionaries"
-                    :key="item.id"
-                    v-on:click="openDictionary(item.id)"
-                    class="dictionary-list-item"
-                  >
-                   <div class="dictionary-list-item-icon-container">
-                     <div class="dictionary-list-item-icon"><i class="fas fa-atlas"></i></div>
-                   </div>
-                   <div class="dictionary-list-item-infos">
-                    <p>ID: {{ item.id }}</p>
-                    <p>词典别名: {{ item.alias }}</p>
-                    <p>词典全名: {{ item.name }}</p>
-                    <!-- <p>mdx: {{ item.mdxpath }}</p> -->
-                    <!-- <p>mdd: {{ item.mddpath }}</p> -->
-                     </div>
-                    
-                </li>
-
-              </ul>
+      <div class="dictionary-settings">
+        <!-- Mini button group -->
+        <div class="toolbar toolbar-header">
+          <div class="toolbar-actions">
+            <div class="btn-group">
+              <button class="button toolbar-btn" v-on:click="selectDictBaseDir">
+                <span class="icon"><i class="fas fa-plus-square" /></span>
+                选择词典路径
+              </button>
+              <span>{{ dictBasicDir }}</span>
             </div>
           </div>
+        </div>
+        <div class="dictionary-list">
+          <ul>
+            <li
+              v-for="item in dictionaries"
+              :key="item.id"
+              v-on:click="openDictionary(item.id)"
+              class="dictionary-list-item"
+            >
+              <div class="dictionary-list-item-icon-container">
+                <div class="dictionary-list-item-icon">
+                  <i class="fas fa-atlas"></i>
+                </div>
+              </div>
+              <div class="dictionary-list-item-infos">
+                <p>ID: {{ item.id }}</p>
+                <p>词典别名: {{ item.alias }}</p>
+                <p>词典全名: {{ item.name }}</p>
+                <!-- <p>mdx: {{ item.mdxpath }}</p> -->
+                <!-- <p>mdd: {{ item.mddpath }}</p> -->
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <DictModal v-model="isShowDictModalActive">
@@ -76,17 +74,24 @@ import Vue from 'vue';
 import Header from '../../components/Header.vue';
 import NewDictionary from '../../components/preference/NewDictionary.vue';
 import DictModal from '../../components/default/DictModal.vue';
-import { random_key } from '../../../utils/random_key';
 import { StorabeDictionary } from '../../../model/StorableDictionary';
 import Store from '../../store/index';
-// declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-// declare const DICT_SETTINGS_WINDOW_WEBPACK_ENTRY: string;
+import { DictAPI } from '../../../worker/apis/DictAPI';
+import { createByProc } from '@terasum/electron-call';
+
+import { SyncMainAPI } from '../../../main/rpc.sync.main.reference';
+
+const mainStub = createByProc('renderer');
+const dictAPI = mainStub.use<DictAPI>('worker', 'DictAPI');
 
 export default Vue.extend({
   components: { Header, NewDictionary, DictModal },
   computed: {
     dictionaries() {
       return (this.$store as typeof Store).state.dictionaries;
+    },
+    dictBasicDir() {
+      return (this.$store as typeof Store).state.dictBaseDir;
     },
   },
   data: () => {
@@ -104,39 +109,32 @@ export default Vue.extend({
       this.isAddDictModalActive = false;
       this.isShowDictModalActive = false;
     },
-    refreshDicts() {
-      //this.dictionaries = SyncMainAPI.dictFindAll(undefined);
+    selectDictBaseDir() {
+      const selectedDir = SyncMainAPI.syncShowOpenDirDialog();
+      console.log(selectedDir);
+      if(!selectedDir || selectedDir.length <= 0 ) {
+        return;
+      }
+      new Promise(async () =>{
+        console.log('[RENDERER] ### setting new dict base dir', selectedDir)
+        await dictAPI.setBaseDir(selectedDir[0]);
+        dictAPI.reload();
+        console.log('[RENDERER] ### reloading data', selectedDir)
+        this.$store.dispatch('refreshDictData');
+      })
+      
     },
-    addDictionary() {
-      this.newDictData.id = random_key(6);
-      // this.$bvModal.show('add-dictionary-modal');
-      this.isAddDictModalActive = true;
-    },
-    openDictionary(id: string) {
-      // console.log(MAIN_WINDOW_WEBPACK_ENTRY);
-      // console.log(DICT_SETTINGS_WINDOW_WEBPACK_ENTRY);
-      // this.$bvModal.show('dictionary-item-modal');
+    async openDictionary(dictid: string) {
+      console.log('select dict', dictid);
+      const dictInfo = await dictAPI.getDictInfo(dictid);
+      if (!dictInfo) {
+        return;
+      }
+      this.selectedModalDict = dictInfo;
       this.isShowDictModalActive = true;
-      // TODO FIX
-      // this.selectedModalDict = SyncMainAPI.dictFindOne({ dictid: id });
-
-      // show window
-      //   apis["createSubWindow"]({
-      //     width: 200,
-      //     height: 300,
-      //     html: DICT_SETTINGS_WINDOW_WEBPACK_ENTRY,
-      //     titleBarStyle: "default",
-      //     nodeIntegration: true,
-      //     contextIsolation: false,
-      //   });
     },
   },
-  mounted() {
-    // this.$root.$on('bv::modal::hide', (arg: any) => {
-    //   console.log(arg);
-    //   this.refreshDicts();
-    // });
-  },
+  mounted() {},
 });
 </script>
 
@@ -237,7 +235,7 @@ export default Vue.extend({
   padding-right: 10px;
   margin-top: 10px;
 
-  .dictionary-list{
+  .dictionary-list {
     padding: 8px 10px;
     max-height: 420px;
     overflow-y: auto;
@@ -252,10 +250,10 @@ export default Vue.extend({
       box-shadow: 1px 1px 3px #c1c1c1;
       cursor: pointer;
       margin-bottom: 5px;
-      &:hover{
+      &:hover {
         background: #f5f5f5;
       }
-      &:active{
+      &:active {
         background: #f5f5f5;
       }
 
@@ -264,21 +262,20 @@ export default Vue.extend({
         display: flex;
         flex-direction: column;
         justify-content: center;
-.dictionary-list-item-icon{
-        flex-direction: row;
-        display: flex;
-        justify-content: center;
-        width: 64px;
-        font-size: 32px;
-        line-height: 64px;
-        color: #666;
-}
+        .dictionary-list-item-icon {
+          flex-direction: row;
+          display: flex;
+          justify-content: center;
+          width: 64px;
+          font-size: 32px;
+          line-height: 64px;
+          color: #666;
+        }
       }
 
       .dictionary-list-item-infos {
         width: calc(100% - 80px);
         font-size: 12px;
-
       }
     }
   }
@@ -295,8 +292,7 @@ export default Vue.extend({
       font-size: 12px;
       text-align: left;
       cursor: default;
-      min-width:100%
-
+      min-width: 100%;
     }
 
     &::v-deep thead {

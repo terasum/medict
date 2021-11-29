@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron';
 import { createSubWindow, WindowOption } from './subwindow';
-import { writePreloadFile } from './config/config';
+import { writePreloadFile } from './main/apis/BasicConfigAPI';
 import { logger } from './utils/logger';
 import { registerProc } from '@terasum/electron-call';
 
@@ -67,6 +67,7 @@ const createWindow = (): void => {
     nodeIntegration: true,
     contextIsolation: false,
     show: true,
+    enableWebSecurity: false,
   })
 
   // register workers 
