@@ -1,13 +1,13 @@
-import { shell, dialog, MessageBoxSyncOptions, ipcMain } from 'electron'; // deconstructing assignment
+import { shell, dialog, MessageBoxSyncOptions } from 'electron'; // deconstructing assignment
 
-import { getResourceRootPath, getLoggerFilePath } from '../../config/config';
+import { getResourceRootPath, getLoggerFilePath } from './BasicConfigAPI';
 import path from 'path';
 import fs from 'fs';
 
 /**
  * WindowService 创建新窗口服务
  */
-export class WindowApi {
+export class WindowAPI {
   /**
    * createSubWindow 创建新的子窗口
    * @param event 事件源

@@ -26,15 +26,12 @@ export class TranslateAPI {
         this.translate = new TranslateService();
     }
 
-
-
-
     async asyncBaiduTranslate(arg: { query: string; from: string; to: string; }) {
         if (!arg || !arg.from || !arg.to || !arg.query) {
             return buildResp('baidu', undefined, new Error('invalid args'), -1);
         }
         try {
-            const text = await this.translate.BaiduTranslate(arg.from, arg.to, arg.query)
+            const text = await this.translate.BaiduTranslate(arg.query, arg.from, arg.to)
             if (text) {
                 return buildResp('baidu', text);
             }
@@ -50,7 +47,7 @@ export class TranslateAPI {
         }
 
         try {
-            const text = await this.translate.GoogleTranslate(arg.from, arg.to, arg.query)
+            const text = await this.translate.GoogleTranslate(arg.query, arg.from, arg.to)
             if (text) {
                 return buildResp('google', text);
             }
@@ -66,7 +63,7 @@ export class TranslateAPI {
         }
 
         try {
-            const text = await this.translate.YoudaoTranslate(arg.from, arg.to, arg.query)
+            const text = await this.translate.YoudaoTranslate(arg.query, arg.from, arg.to)
             if (text) {
 
                 return buildResp('youdao', text);

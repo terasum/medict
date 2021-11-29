@@ -1,13 +1,17 @@
 import Vuex from 'vuex';
 import { StoreDataType } from './StoreDataType';
-import { listeners } from '../service.renderer.listener';
 import { createByProc } from '@terasum/electron-call';
+import { WindowAPI } from '../../main/apis/WindowAPI';
+
+const mainStub = createByProc('renderer');
+const windowOpenApi = mainStub.use<WindowAPI>('main', 'WindowApi');
+
+
 
 import { DictAPI } from '../..//worker/apis/DictAPI';
 
 const stubByRenderer = createByProc('renderer', 'error');
 const dictApi = stubByRenderer.use<DictAPI>('worker', 'DictAPI');
-
 
 
 const state: StoreDataType = {
@@ -22,6 +26,7 @@ const state: StoreDataType = {
   },
 
   dictionaries: [],
+  dictBaseDir: '',
   suggestWords: [],
   historyStack: [],
   currentWord: { dictid: '', word: '' }, // current user input word (in the search input box)
@@ -74,6 +79,9 @@ const Store = new Vuex.Store({
     updateDictionaries(state, dicts) {
       state.dictionaries = dicts;
     },
+    updateDictBaseDir(state, dirPath) {
+      state.dictBaseDir = dirPath;
+    },
     updateSelectedWordIdx(state, idx) {
       if (idx >= 0 && idx < state.sideBarData.candidateWordNum) {
         state.sideBarData.selectedWordIdx = idx;
@@ -113,17 +121,17 @@ const Store = new Vuex.Store({
       console.log('[RENDERER] asyncSearchWord result ', suggestResult);
       // 设置建议词列表
       commit('updateSuggestWords', suggestResult);
-      if(suggestResult.length > 0) {
-        setTimeout(() =>{
+      if (suggestResult.length > 0) {
+        setTimeout(() => {
           this.dispatch('asyncFindWordPrecisly', 0)
         }, 600)
       }
     },
-    // 打开自研文件夹
-    asyncOpenDictResourceDir({commit, state}, {dictid}) {
-      console.log('[RENDERER] store.index asyncOpenDictResourceDir', dictid)
+    // 打开资源文件夹
+    asyncOpenDictResourceDir({ commit, state }, { dictid }) {
+      windowOpenApi.openDictResourceDir(dictid);
     },
-    asyncLoadResource({commit, state}, payload) {
+    asyncLoadResource({ commit, state }, payload) {
       // TODO
       console.log('[RENDERER] store.index search resource', payload)
     },
@@ -138,76 +146,100 @@ const Store = new Vuex.Store({
      * @returns 设置当前显示的词条内容
      */
     async asyncFindWordPrecisly({ commit, state }, id) {
-      if (state.suggestWords[id]) {
-        commit('updateSelectedWordIdx', id);
-        const selectWord = state.suggestWords[id];
-        console.log('[RENDERER] findWordPrecisly', id, state.suggestWords[id])
-        const wordDef = await dictApi.lookupWordPrecisely(selectWord.dictid, selectWord.keyText, selectWord.rofset)
-        console.log('[RENDERER] findWordPrecisly def: ',wordDef)
-        if (!wordDef){
-          Store.commit('updateCurrentContent', Buffer.from('NOT Loaded').toString('base64'));
+      if (id === state.sideBarData.selectedWordIdx) {
+        return;
+      }
+      if (!state.suggestWords[id]) {
+        console.warn(`store.index find word precisly, not select word ${id}`);
+        return;
+      }
+
+      commit('updateSelectedWordIdx', id);
+      const selectWord = state.suggestWords[id];
+      console.log('[RENDERER] findWordPrecisly', id, state.suggestWords[id])
+      const wordDef = await dictApi.lookupDefinition(selectWord.dictid, selectWord.keyText, selectWord.rofset)
+      console.log('[RENDERER] findWordPrecisly def: ', wordDef)
+      if (!wordDef) {
+        Store.commit('updateCurrentContent', Buffer.from('NOT Loaded').toString('base64'));
+        return;
+      }
+      // 先展示未处理的
+      // const newContent = Buffer.from(wordDef!.definition).toString('base64');
+
+      // 再展示已经后处理的
+      const postWordDef = await dictApi.postHandle(selectWord.dictid, wordDef.keyText, wordDef.definition);
+      console.log('[RENDERER] post handled', postWordDef);
+      // 编码返回
+      const postContent = Buffer.from((postWordDef).definition).toString('base64');
+      Store.commit('updateCurrentContent', postContent);
+
+
+    },
+
+    async refreshDictData() {
+      // do refresh immeiately 
+      Store.commit('updateDictionaries', []);
+      refresh();
+      let loadTicker = setInterval(refresh, 15000);
+
+      async function refresh() {
+
+        // load all dictories first
+        let dicts = await dictApi.loadAllIndexed();
+        if (!dicts) {
+          console.log('[RENDERER] retry loading dictionaries...');
           return;
         }
-        // 先展示未处理的
-        const newContent = Buffer.from(wordDef!.definition).toString('base64');
-        // 再展示已经后处理的
-        const postWordDef = await dictApi.postHandleDef(selectWord.dictid, wordDef.keyText, wordDef.definition);
-        console.log('[RENDERER] post handled', postWordDef);
-        // 编码返回
-        const postContent = Buffer.from((postWordDef).definition).toString('base64');
-        Store.commit('updateCurrentContent', postContent);
-      
-      } else {
-        console.error(`error on find word precisly ${state.suggestWords[id]}`);
+        console.log('[RENDERER] load dicts from worker', dicts);
+        Store.commit("updateDictionaries", dicts);
+
+        if (dicts.length > 0) {
+          Store.commit('updateCurrentSelectDict', dicts[0]);
+        }
+
+        let dictBaseDir = await dictApi.getBaseDir();
+        if (!dictBaseDir) {
+          return;
+        }
+        Store.commit("updateDictBaseDir", dictBaseDir)
+
+        console.log('[RENDERER] cleanup load dictionary ticker');
+        clearInterval(loadTicker);
       }
+
     },
 
-    asyncAddNewDict({ state, commit }, dict) {
-      // const result = dictAccessorApi.dictAddOne({ dict: dict });
-      // TODO FIX
-      // const dicts = dictAccessorApi.dictFindAll();
-      // commit('updateDictionaries', dicts);
-      // return result;
-    },
-
-    asyncDelNewDict({ state, commit }, dictid) {
-      // const result = dictAccessorApi.dictDeleteOne({ dictid: dictid });
-      // TODO FIX
-      // const dicts = dictAccessorApi.dictFindAll();
-      // commit('updateDictionaries', dicts);
-      // return result;
-    },
-    postWebviewEvent({state, commit}, event) {
+    postWebviewEvent({ state, commit }, event) {
       console.log('[RENDERER] store.index webview catch event', event);
       if (!event || event.type !== 'ipc-message') {
         return;
       }
       if (event.channel === 'entryLinkWord') {
         console.log(`[RENDERER] store.index webview entryLinkWord event catched`);
-        if(!event.args || event.args.length < 1) {
+        if (!event.args || event.args.length < 1) {
           return;
         }
         const entryLinkQuery = event.args[0];
         console.log('[RENDERER] store.index click Entry Link', entryLinkQuery);
-        this.dispatch('asyncSearchWord', {dictid: entryLinkQuery.dictid, word: entryLinkQuery.keyText})
+        this.dispatch('asyncSearchWord', { dictid: entryLinkQuery.dictid, word: entryLinkQuery.keyText })
       }
-      
-    // // 通过event.channel的值来判断webview发送的事件名
-    //   // @ts-ignore
-    //   if (event.channel === 'onFindWordPrecisly') {
-    //     console.log(`[async:mainWindow] response onFindWordPrecisly:`);
-    //     console.log(event);
-    //     const newContent = Buffer.from(
-    //       // @ts-ignore
-    //       event.args[0].definition,
-    //       'utf8'
-    //     ).toString('base64');
-    //     this.$store.commit('updateCurrentContent', newContent);
-    //     // @ts-ignore
-    //     this.$store.commit('updateCurrentLookupWord', event.args[0].keyText);
-    //   }
 
-    //   // @ts-ignore
+      // // 通过event.channel的值来判断webview发送的事件名
+      //   // @ts-ignore
+      //   if (event.channel === 'onFindWordPrecisly') {
+      //     console.log(`[async:mainWindow] response onFindWordPrecisly:`);
+      //     console.log(event);
+      //     const newContent = Buffer.from(
+      //       // @ts-ignore
+      //       event.args[0].definition,
+      //       'utf8'
+      //     ).toString('base64');
+      //     this.$store.commit('updateCurrentContent', newContent);
+      //     // @ts-ignore
+      //     this.$store.commit('updateCurrentLookupWord', event.args[0].keyText);
+      //   }
+
+      //   // @ts-ignore
 
 
     }
@@ -219,74 +251,28 @@ const Store = new Vuex.Store({
   let loadTicker = setInterval(async () => {
     // load all dictories first
     let dicts = await dictApi.loadAllIndexed();
-    if (dicts) {
-      console.log('[RENDERER] load dicts from worker', dicts);
-      Store.commit("updateDictionaries", dicts);
-      if (dicts.length > 0) {
-        Store.commit('updateCurrentSelectDict', dicts[0]);
-      }
-      console.log('[RENDERER] cleanup load dictionary ticker');
-      clearInterval(loadTicker);
-    } else {
+    if (!dicts) {
       console.log('[RENDERER] retry loading dictionaries...');
+      return;
     }
+
+    console.log('[RENDERER] load dicts from worker', dicts);
+    Store.commit("updateDictionaries", dicts);
+
+    if (dicts.length > 0) {
+      Store.commit('updateCurrentSelectDict', dicts[0]);
+    }
+
+    let dictBaseDir = await dictApi.getBaseDir();
+    if (!dictBaseDir) {
+      return;
+    }
+    Store.commit("updateDictBaseDir", dictBaseDir)
+
+    console.log('[RENDERER] cleanup load dictionary ticker');
+    clearInterval(loadTicker);
   }, 1000);
-})();
 
-
-
-(function setupListener() {
-  /**
-   * onSuggestWord catch main-process return suggest word response
-   * @param event: event source, main-process
-   * @param args: suggestion word payload,
-   * [{
-   *   dictid: "ar3e0x"
-   *   id: 0
-   *   keyText: "wack"
-   *   rofset: 156414748
-   * }]
-   */
-  listeners.onSuggestWord((event: any, args: any) => {
-    console.log(`[store/index/listener]{onSuggestWord}: resp:`);
-    console.log(args);
-    Store.dispatch('asyncUpdateSideBar', {
-      candidateWordNum: args.length,
-    });
-    Store.commit('updateSuggestWords', args);
-  });
-
-  /**
-   * onFindWordPrecisly catch onFindWordPrecisly event, render main definition of word
-   * @param event: event source, main-process
-   * @param args: word definition payload,
-   * {
-   *   definition: "<html>"
-   * }
-   */
-  listeners.onFindWordPrecisly((event: any, args: any) => {
-    console.debug(`[store/index/listener]{onFindWordPrecisly}: resp:`);
-    console.debug(args);
-    const newContent = Buffer.from(args.definition, 'utf8').toString('base64');
-    Store.commit('updateCurrentContent', newContent);
-    Store.commit('updateCurrentLookupWord', args.sourceKey);
-    Store.commit('updateCurrentActualWord', args.keyText);
-
-  });
-
-  /**
-   * onLoadDictResource catch onLoadDictResource event, render resource definition
-   * @param event: event source, main-process
-   * @param args: word definition payload,
-   *                              * {
-   *   definition: "<bbn>"
-   * }
-   */
-  listeners.onLoadDictResource((event: any, args: any) => {
-    console.debug(`[store/index/listener]{onLoadDictResource}: resp:`);
-    console.debug(args);
-    // this.currentContent = args.definition.trim("\r\n\u0000");
-  });
 })();
 
 export default Store;

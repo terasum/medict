@@ -13,8 +13,8 @@ import { SyncMainAPI } from '../main/rpc.sync.main.reference';
 
 function __closureResourceRoot() {
   let _resourceRoot = '';
-  return function() {
-    if(_resourceRoot === '') {
+  return function () {
+    if (_resourceRoot === '') {
       _resourceRoot = SyncMainAPI.syncGetResourceRootPath();
     }
     return _resourceRoot
@@ -24,8 +24,8 @@ function __closureResourceRoot() {
 
 function __closureResourceServerPort() {
   let _resourcePort = 0;
-  return function() {
-    if(_resourcePort === 0) {
+  return function () {
+    if (_resourcePort === 0) {
       _resourcePort = SyncMainAPI.syncGetResourceServerPort();
     }
     return _resourcePort
@@ -90,24 +90,59 @@ export class Dictionary extends StorabeDictionary {
   }
 
   indexing() {
+    let timeout = false;
+    setTimeout(() => {
+      if (!timeout) {
+        timeout = true;
+      }
+    }, 10000);
+
     if (!this.mdxDict) {
       return;
     }
+    // index mdx keys
     const keyWords = this.mdxDict.rangeKeyWords();
     for (let word of keyWords) {
+      if (timeout) {
+        return;
+      }
+
       this.mdxIndex.add(word.keyText, word);
     }
 
+    if (timeout) {
+      return;
+    }
+
+    // indexing mdd
     this.mddDicts.forEach(mdd => {
+      if (timeout) {
+        return;
+      }
       const mddTrie = new FuzzyTrie();
       const mddKey = mdd.rangeKeyWords();
       for (let key of mddKey) {
+        if (timeout) {
+          return;
+        }
         mddTrie.add(key.keyText, key);
       }
       this.mddIndex.push(mddTrie)
     });
     // 将词典标记为已经索引完成
     this.indexed = true;
+  }
+
+  lookupIndex(word: string) {
+    const wordIdx =  this.mdxIndex.has(word);
+    if (wordIdx) {
+      console.log("AAAAAAAAAAAAA", wordIdx)
+      return {
+        keyText: wordIdx!.getData().keyText,
+        rofset:  wordIdx!.getData().recordStartOffset
+      }
+    }
+    return undefined;
   }
 
   lookup2(word: string) {

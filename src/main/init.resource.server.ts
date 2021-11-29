@@ -1,4 +1,4 @@
-import { getResourceRootPath } from '../config/config';
+import { getResourceRootPath } from './apis/BasicConfigAPI';
 import koa_logger from 'koa-logger';
 import serve from 'koa-static';
 import Koa from 'koa';

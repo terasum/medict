@@ -125,7 +125,6 @@
 import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
-import { listeners } from '../service.renderer.listener';
 import { createByProc } from '@terasum/electron-call';
 import { TranslateAPI } from '../../worker/apis/TranslateAPI';
 import {SyncMainAPI} from '../../main/rpc.sync.main.reference';
@@ -184,13 +183,13 @@ export default Vue.extend({
       }, 1000)
     },
     copyDest() {
-      let result = SyncMainAPI.clipboardWriteText({ text: this.destText });
+      let result = SyncMainAPI.syncClipboardWriteText({ text: this.destText });
       if (result) {
         this.showTooltip('目标文本已复制');
       }
     },
     copySrc() {
-      let result = SyncMainAPI.clipboardWriteText({ text: this.sourceText });
+      let result = SyncMainAPI.syncClipboardWriteText({ text: this.sourceText });
       if (result) {
         this.showTooltip('原始文本已复制');
       }
@@ -247,34 +246,34 @@ export default Vue.extend({
     },
   },
   mounted() {
-    listeners.onAsyncTranslate((event, arg) => {
-      console.log('===== translate result ====');
-      console.log(arg);
-      if (arg && arg.engine === 'baidu') {
-        if (arg.code === 0 && arg.data) {
-          if (arg.data.trans_result && arg.data.trans_result.length > 0) {
-            this.destText = arg.data.trans_result[0].dst;
-          } else {
-            this.destText = 'failed (' + arg.code + '): ' + arg.message;
-          }
-        }
-      } else if (arg && arg.engine === 'google') {
-        if (arg.data && arg.data.length > 0) {
-          this.destText = arg.data;
-        } else {
-          this.destText = 'failed (' + arg.code + '): ' + arg.message;
-        }
-      } else if (arg && arg.engine === 'youdao') {
-        if (arg.data && arg.data.length > 0) {
-          this.destText = arg.data;
-        } else {
-          this.destText = 'failed (' + arg.code + '): ' + arg.message;
-        }
-      } else {
-        // do nothing
-        this.destText = 'engine not recognized';
-      }
-    });
+    // listeners.onAsyncTranslate((event, arg) => {
+    //   console.log('===== translate result ====');
+    //   console.log(arg);
+    //   if (arg && arg.engine === 'baidu') {
+    //     if (arg.code === 0 && arg.data) {
+    //       if (arg.data.trans_result && arg.data.trans_result.length > 0) {
+    //         this.destText = arg.data.trans_result[0].dst;
+    //       } else {
+    //         this.destText = 'failed (' + arg.code + '): ' + arg.message;
+    //       }
+    //     }
+    //   } else if (arg && arg.engine === 'google') {
+    //     if (arg.data && arg.data.length > 0) {
+    //       this.destText = arg.data;
+    //     } else {
+    //       this.destText = 'failed (' + arg.code + '): ' + arg.message;
+    //     }
+    //   } else if (arg && arg.engine === 'youdao') {
+    //     if (arg.data && arg.data.length > 0) {
+    //       this.destText = arg.data;
+    //     } else {
+    //       this.destText = 'failed (' + arg.code + '): ' + arg.message;
+    //     }
+    //   } else {
+    //     // do nothing
+    //     this.destText = 'engine not recognized';
+    //   }
+    // });
   },
 });
 </script>

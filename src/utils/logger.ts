@@ -1,4 +1,4 @@
-import { getLoggerFilePath } from '../config/config';
+import { getLoggerFilePath } from '../main/apis/BasicConfigAPI';
 import { app } from 'electron';
 
 import log from 'electron-log';

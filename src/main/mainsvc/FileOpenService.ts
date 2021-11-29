@@ -35,4 +35,22 @@ export class FileOpenService {
       filters: [{ name: 'Custom File Type', extensions: arg.fileExtensions }],
     });
   }
+
+  showOpenDirDialog() {
+    let prop = ['openDirectory', 'noResolveAliases', 'dontAddToRecent'] as (
+      | 'openFile'
+      | 'noResolveAliases'
+      | 'dontAddToRecent'
+      | 'multiSelections'
+      | 'openDirectory'
+      | 'showHiddenFiles'
+      | 'createDirectory'
+      | 'promptToCreate'
+      | 'treatPackageAsDirectory'
+    )[];
+    return dialog.showOpenDialogSync({
+      properties: prop,
+      message: '选择文件夹',
+    });
+  }
 }

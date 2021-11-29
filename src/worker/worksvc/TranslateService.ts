@@ -1,7 +1,7 @@
 import { logger } from '../../utils/logger';
-import { translate as baiduApi } from '../../apis/baidu_translate';
-import { translate as googleApi } from '../../apis/google_translate';
-import { translate as youdaoApi } from '../../apis/youdao_translate';
+import { translate as baiduApi } from '../../infra/3dparty/baidu_translate';
+import { translate as googleApi } from '../../infra/3dparty/google_translate';
+import { translate as youdaoApi } from '../../infra/3dparty/youdao_translate';
 
 import Configuration from './Configuration.svc';
 
@@ -30,6 +30,7 @@ export class TranslateService {
             from = 'zh-CN'
         }
         let resp = await googleApi("appid", "appkey", from, to, query);
+        console.log(resp);
         return resp.text;
     }
 

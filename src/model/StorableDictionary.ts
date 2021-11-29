@@ -45,3 +45,8 @@ export class StorabeDictionary {
     return newDict;
   }
 }
+
+export declare class DictItem {
+  dictid: string;
+  dictionary: StorabeDictionary;
+}

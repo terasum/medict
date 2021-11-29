@@ -10,10 +10,16 @@ function syncWrap(fnName: string) {
 
 export const SyncMainAPI = {
   syncShowOpenDialog: syncWrap('syncShowOpenDialog'),
-  syncShowMainLoggerPath: syncWrap('syncShowMainLoggerPath'),
-  syncGetResourceRootPath: syncWrap('syncGetResourceRootPath'),
-  syncGetResourceServerPort: syncWrap('syncGetResourceServerPort'),
-  syncGetWebviewPreliadFilePath: syncWrap('syncGetWebviewPreliadFilePath'),
+  syncShowOpenDirDialog: syncWrap('syncShowOpenDirDialog'),
+  syncGetResourceServerPort:syncWrap('syncGetResourceServerPort'),
+  syncClipboardWriteText:syncWrap('syncClipboardWriteText'),
+  syncGetResourceRootPath:syncWrap('syncGetResourceRootPath'),
 
-  clipboardWriteText:syncWrap('clipboardWriteText'),
+
+  syncGetUserResourceRootPath:syncWrap('syncGetUserResourceRootPath'),
+  syncGetConfigJsonPath:syncWrap('syncGetConfigJsonPath'),
+  syncGetLoggerFilePath:syncWrap('syncGetLoggerFilePath'),
+  syncGetWebviewPreliadFilePath:syncWrap('syncGetWebviewPreliadFilePath'),
+  syncWritePreloadFile: syncWrap('syncWritePreloadFile'),
+
 };

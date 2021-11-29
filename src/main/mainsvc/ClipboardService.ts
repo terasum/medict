@@ -1,4 +1,3 @@
-import { logger } from '../../utils/logger';
 import { clipboard } from 'electron';
 
 export class ClipboardService {
