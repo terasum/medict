@@ -12,11 +12,6 @@ module.exports = {
     rules: require('./webpack.rules'),
   },
   resolve: {
-    alias:{
-      '@src': path.resolve(__dirname, 'src'),
-      '@main': path.resolve(__dirname, 'src'),
-      '@worker': path.resolve(__dirname, 'src')
-    },
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json', 'scss', '.vue'],
   },
 };

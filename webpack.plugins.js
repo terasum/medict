@@ -5,6 +5,8 @@ const { VueLoaderPlugin } = require('vue-loader');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const EncodingPlugin = require('webpack-encoding-plugin');
+
 
 const assets = ['docs', 'css']; // asset directories
 
@@ -27,6 +29,8 @@ const plugins = [
     reportFilename: 'electron-webpack-analysis-report.html',
     openAnalyzer: false,
   }),
+new EncodingPlugin({    encoding: 'utf-8'  }),
 ];
 
 module.exports = plugins;
+
