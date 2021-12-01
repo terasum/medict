@@ -250,7 +250,7 @@ const Store = new Vuex.Store({
 (function setupDefaultData() {
   let loadTicker = setInterval(async () => {
     // load all dictories first
-    let dicts = await dictApi.loadAllIndexed();
+    let dicts = await dictApi.loadAllUnIndexed();
     if (!dicts) {
       console.log('[RENDERER] retry loading dictionaries...');
       return;
