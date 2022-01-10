@@ -113,7 +113,7 @@
     "eslint-plugin-import": "^2.25.3",
     "fork-ts-checker-webpack-plugin": "^6.2.12",
     "html-loader": "^2.1.2",
-    "jest": "^27.0.6",
+    "jest": "^27.4.7",
     "jest-mock-axios": "^4.4.0",
     "mini-css-extract-plugin": "^2.4.2",
     "node-loader": "^2.0.0",
