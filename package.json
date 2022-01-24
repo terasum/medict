@@ -86,7 +86,7 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.56",
     "@electron-forge/plugin-webpack": "6.0.0-beta.56",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
-    "@types/bootstrap": "^5.0.17",
+    "@types/bootstrap": "^5.1.9",
     "@types/chai": "^4.2.19",
     "@types/crypto-js": "^4.0.2",
     "@types/expect": "^24.3.0",
