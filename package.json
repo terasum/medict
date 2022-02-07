@@ -106,7 +106,7 @@
     "@typescript-eslint/parser": "^4.29.1",
     "chai": "^4.3.4",
     "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^5.0.0",
+    "css-loader": "^6.6.0",
     "electron": "16.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "eslint": "^7.29.0",
