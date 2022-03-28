@@ -986,10 +986,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -10857,10 +10857,10 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.3.4:
-  version "4.3.5"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-4.3.5.tgz"
-  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
+typescript@^4.6.3:
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.3.tgz#eefeafa6afdd31d725584c67a0eaba80f6fc6c6c"
+  integrity sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
