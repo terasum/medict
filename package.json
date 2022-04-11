@@ -134,7 +134,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@koa/cors": "^3.1.0",
-    "@popperjs/core": "^2.9.2",
+    "@popperjs/core": "^2.11.5",
     "@shuaninfo/random": "^5.1.1",
     "@terasum/electron-call": "0.0.8",
     "@vitalets/google-translate-api": "^7.0.0",
