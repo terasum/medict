@@ -986,10 +986,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -1049,10 +1049,10 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/bootstrap@^5.0.17":
-  version "5.0.17"
-  resolved "https://registry.npmjs.org/@types/bootstrap/-/bootstrap-5.0.17.tgz"
-  integrity sha512-uQQQ3p+zw10VjZLvtCuKWI6QgVCYEnK/yHnno3gyEhikfQdiZexS2XPxjWRboGmX135o470GkmCta9eAgQMVLQ==
+"@types/bootstrap@^5.1.11":
+  version "5.1.11"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.1.11.tgz#afe61b5f63063cbda9474c122b7d7d3a21ae1a20"
+  integrity sha512-hto/seRZl0aKqZgSZJC9GrtTzT3e1fDPQ80wBPDogj4Zn9tC9sStkQEdn+wXw1wjAz3LoGDR0ievgJx/a42t3w==
   dependencies:
     "@popperjs/core" "^2.9.2"
     "@types/jquery" "*"
