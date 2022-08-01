@@ -620,10 +620,10 @@
     xterm-addon-fit "^0.5.0"
     xterm-addon-search "^0.8.0"
 
-"@electron/get@^1.13.0":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.13.1.tgz#42a0aa62fd1189638bd966e23effaebb16108368"
-  integrity sha512-U5vkXDZ9DwXtkPqlB45tfYnnYBN8PePp1z/XDCupnSpdrxT8/ThCv9WCwPLf9oqiSGZTkH6dx2jDUPuoXpjkcA==
+"@electron/get@^1.14.1", "@electron/get@^1.6.0", "@electron/get@^1.9.0":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.14.1.tgz#16ba75f02dffb74c23965e72d617adc721d27f40"
+  integrity sha512-BrZYyL/6m0ZXz/lDxy/nlVhQz+WF+iPS6qXolEU8atw7h6v1aYkjwJZ63m+bJMBTxDE66X+r2tPS4a/8C82sZw==
   dependencies:
     debug "^4.1.1"
     env-paths "^2.2.0"
@@ -634,22 +634,6 @@
     sumchecker "^3.0.1"
   optionalDependencies:
     global-agent "^3.0.0"
-    global-tunnel-ng "^2.7.1"
-
-"@electron/get@^1.6.0", "@electron/get@^1.9.0":
-  version "1.12.4"
-  resolved "https://registry.npmjs.org/@electron/get/-/get-1.12.4.tgz"
-  integrity sha512-6nr9DbJPUR9Xujw6zD3y+rS95TyItEVM0NVjt1EehY2vUWfIgPiIPVHxCvaTS0xr2B+DRxovYVKbuOWqC35kjg==
-  dependencies:
-    debug "^4.1.1"
-    env-paths "^2.2.0"
-    fs-extra "^8.1.0"
-    got "^9.6.0"
-    progress "^2.0.3"
-    semver "^6.2.0"
-    sumchecker "^3.0.1"
-  optionalDependencies:
-    global-agent "^2.0.2"
     global-tunnel-ng "^2.7.1"
 
 "@eslint/eslintrc@^0.4.3":
@@ -986,10 +970,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -1353,15 +1337,10 @@
   resolved "https://registry.npmjs.org/@types/minimatch/-/minimatch-3.0.5.tgz"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
-"@types/node@*":
-  version "16.4.1"
-  resolved "https://registry.npmjs.org/@types/node/-/node-16.4.1.tgz"
-  integrity sha512-UW7cbLqf/Wu5XH2RKKY1cHwUNLicIDRLMraYKz+HHAerJ0ZffUEk+fMnd8qU2JaS6cAy0r8tsaf7yqHASf/Y0Q==
-
-"@types/node@^14.6.2":
-  version "14.17.5"
-  resolved "https://registry.npmjs.org/@types/node/-/node-14.17.5.tgz"
-  integrity sha512-bjqH2cX/O33jXT/UmReo2pM7DIJREPMnarixbQ57DOOzzFaI6D2+IcwaJQaJpv0M1E9TIhPCYVxrkcityLjlqA==
+"@types/node@*", "@types/node@^16.11.26":
+  version "16.11.47"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.47.tgz#efa9e3e0f72e7aa6a138055dace7437a83d9f91c"
+  integrity sha512-fpP+jk2zJ4VW66+wAMFoBJlx1bxmBKx4DUFf68UHgdGCOuyUTDlLWqsaNPJh7xhNDykyJ9eIzAygilP/4WoN8g==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -3333,11 +3312,6 @@ copy-webpack-plugin@^9.0.1:
     schema-utils "^3.0.0"
     serialize-javascript "^6.0.0"
 
-core-js@^3.6.5:
-  version "3.15.2"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-3.15.2.tgz"
-  integrity sha512-tKs41J7NJVuaya8DxIOCnl8QuPHx5/ZVbFo1oKgVl1qHFBBrDctzQGtuLjPpRdNTWmKPH6oEvgN/MUID+l485Q==
-
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz"
@@ -4147,13 +4121,13 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@16.0.2:
-  version "16.0.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-16.0.2.tgz#6d0ae3152c410478dfffdbf80852a3840679b8c5"
-  integrity sha512-kT746yVMztrP4BbT3nrFNcUcfgFu2yelUw6TWBVTy0pju+fBISaqcvoiMrq+8U0vRpoXSu2MJYygOf4T0Det7g==
+electron@19.0.10:
+  version "19.0.10"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-19.0.10.tgz#4d2f03f307fbb70a295ff419112130b75661eda9"
+  integrity sha512-EiWtPWdD7CzkRkp1cw7t0N9W2qhI5XZOudHX7daOh5wI076nsdV2dtlAf/XyTHhPNoKR5qhTWrSnYL9PY6D1vg==
   dependencies:
-    "@electron/get" "^1.13.0"
-    "@types/node" "^14.6.2"
+    "@electron/get" "^1.14.1"
+    "@types/node" "^16.11.26"
     extract-zip "^1.0.3"
 
 elliptic@^6.5.3:
@@ -5276,19 +5250,6 @@ glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.5, glob@^7.1.6:
     minimatch "^3.0.4"
     once "^1.3.0"
     path-is-absolute "^1.0.0"
-
-global-agent@^2.0.2:
-  version "2.2.0"
-  resolved "https://registry.npmjs.org/global-agent/-/global-agent-2.2.0.tgz"
-  integrity sha512-+20KpaW6DDLqhG7JDiJpD1JvNvb8ts+TNl7BPOYcURqCrXqnN1Vf+XVOrkKJAFPqfX+oEhsdzOj1hLWkBTdNJg==
-  dependencies:
-    boolean "^3.0.1"
-    core-js "^3.6.5"
-    es6-error "^4.1.1"
-    matcher "^3.0.0"
-    roarr "^2.15.3"
-    semver "^7.3.2"
-    serialize-error "^7.0.1"
 
 global-agent@^3.0.0:
   version "3.0.0"
