@@ -986,10 +986,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -1049,13 +1049,12 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/bootstrap@^5.0.17":
-  version "5.0.17"
-  resolved "https://registry.npmjs.org/@types/bootstrap/-/bootstrap-5.0.17.tgz"
-  integrity sha512-uQQQ3p+zw10VjZLvtCuKWI6QgVCYEnK/yHnno3gyEhikfQdiZexS2XPxjWRboGmX135o470GkmCta9eAgQMVLQ==
+"@types/bootstrap@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@types/bootstrap/-/bootstrap-5.2.1.tgz#618978b7dc5afb2a8eb8cb4c8d4e63b2c112ca69"
+  integrity sha512-jPdLpDnBTHeocqelEz+ZVP2eY12hIBXgJLV/n0URiQiiNLdCgHwDqaI0chijjn1qwvDNbjzhKDeYAHxsnIGtIA==
   dependencies:
     "@popperjs/core" "^2.9.2"
-    "@types/jquery" "*"
 
 "@types/cacheable-request@^6.0.1":
   version "6.0.2"
@@ -1231,13 +1230,6 @@
   dependencies:
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
-
-"@types/jquery@*":
-  version "3.5.6"
-  resolved "https://registry.npmjs.org/@types/jquery/-/jquery-3.5.6.tgz"
-  integrity sha512-SmgCQRzGPId4MZQKDj9Hqc6kSXFNWZFHpELkyK8AQhf8Zr6HKfCzFv9ZC1Fv3FyQttJZOlap3qYb12h61iZAIg==
-  dependencies:
-    "@types/sizzle" "*"
 
 "@types/json-schema@*", "@types/json-schema@^7.0.4", "@types/json-schema@^7.0.5", "@types/json-schema@^7.0.7", "@types/json-schema@^7.0.8":
   version "7.0.8"
@@ -1441,11 +1433,6 @@
   dependencies:
     "@types/mime" "^1"
     "@types/node" "*"
-
-"@types/sizzle@*":
-  version "2.3.3"
-  resolved "https://registry.npmjs.org/@types/sizzle/-/sizzle-2.3.3.tgz"
-  integrity sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==
 
 "@types/sonic-boom@*":
   version "0.7.0"
