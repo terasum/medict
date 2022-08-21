@@ -1,0 +1,3 @@
+BaseDictDir="testdir"
+StaticServerPort=1234
+APIServerPort=8080
