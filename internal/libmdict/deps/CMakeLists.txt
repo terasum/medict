@@ -1,0 +1,2 @@
+add_subdirectory(minilzo)
+add_subdirectory(miniz)

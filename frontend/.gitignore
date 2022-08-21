@@ -88,6 +88,5 @@ typings/
 # Electron-Forge
 out/
 
-libdict/
 testdict/
-build/
+dist/
