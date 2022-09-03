@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -58,7 +59,6 @@ func Cors() gin.HandlerFunc {
 func StartStaticServer(cfg *config.Config) {
 	r := gin.Default()
 	r.Use(Cors()) //开启中间件 允许使用跨域请求
-	r.Static("/", "./frontend/dist")
 	r.NoRoute(func(c *gin.Context) {
 		fmt.Printf("NoRoute REQ: %s\n", c.Request.URL.String())
 		fmt.Printf("NoRoute REQ: %s\n", c.Request.RequestURI)
@@ -101,8 +101,7 @@ func StartStaticServer(cfg *config.Config) {
 		return
 	})
 
-	// err := r.Run("localhost:" + strconv.Itoa(cfg.StaticServerPort))
-	err := r.Run("localhost:19191")
+	err := r.Run("localhost:" + strconv.Itoa(cfg.StaticServerPort))
 	if err != nil {
 		panic(err)
 		return

@@ -73,28 +73,35 @@ import Vue from 'vue';
 import Header from '../components/Header.vue';
 import FooterBar from '../components/FooterBar.vue';
 // @ts-ignore
-import index_md from '../assets/docs/index.md';
-// @ts-ignore
-import select_and_use_md from '../assets/docs/select_and_use_dict.md';
-// @ts-ignore
-import baidu_translate_md from '../assets/docs/baidu_translate_config.md';
-// @ts-ignore
-import youdao_translate_md from '../assets/docs/youdao_traslate_config.md';
-// @ts-ignore
-import faq_md from '../assets/docs/faq.md';
-// @ts-ignore
-import terms_and_service from '../assets/docs/terms_and_service.md';
-// @ts-ignore
-import license_md from '../assets/docs/license.md';
+// import index_md from '../assets/docs/index.md';
+// // @ts-ignore
+// import select_and_use_md from '../assets/docs/select_and_use_dict.md';
+// // @ts-ignore
+// import  baidu_translate_md from '../assets/docs/baidu_translate_config.md';
+// // @ts-ignore
+// import  youdao_translate_md from '../assets/docs/youdao_traslate_config.md';
+// // @ts-ignore
+// import  faq_md from '../assets/docs/faq.md';
+// // @ts-ignore
+// import  terms_and_service from '../assets/docs/terms_and_service.md';
+// // @ts-ignore
+// import license_md from '../assets/docs/license.md';
 
 const routerMap = {
-  0: index_md,
-  1: select_and_use_md,
-  2: baidu_translate_md,
-  3: youdao_translate_md,
-  4: faq_md,
-  5: terms_and_service,
-  6: license_md,
+  0: "121",
+  1: "122",
+  2: "123",
+  3: "124",
+  4: "125",
+  5: "126",
+  6: "127"
+  // 0: index_md,
+  // 1: select_and_use_md,
+  // 2: baidu_translate_md,
+  // 3: youdao_translate_md,
+  // 4: faq_md,
+  // 5: terms_and_service,
+  // 6: license_md,
 };
 
 export default Vue.extend({

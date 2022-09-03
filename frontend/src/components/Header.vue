@@ -74,28 +74,6 @@
 
         <div
           class="fn-box"
-          v-bind:class="{ 'fn-box-active': currentTab === '翻译' }"
-          v-on:click="clickTranslation"
-        >
-          <span class="fn-box-icon">
-            <Translate :width="16" :height="16" />
-          </span>
-          <span class="fn-box-text">翻译</span>
-        </div>
-
-        <div
-          class="fn-box"
-          v-bind:class="{ 'fn-box-active': currentTab === '插件' }"
-          v-on:click="clickPlugins"
-        >
-          <span class="fn-box-icon">
-            <Plugins :width="16" :height="16" />
-          </span>
-          <span class="fn-box-text">插件</span>
-        </div>
-
-        <div
-          class="fn-box"
           v-bind:class="{ 'fn-box-active': currentTab === '设置' }"
           v-on:click="clickPreference"
         >
@@ -113,9 +91,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Store from '../store/index';
-import Translate from '../components/icons/translate.icon.vue';
 import Search from '../components/icons/search.icon.vue';
-import Plugins from '../components/icons/plugins2.icon.vue';
 import Settings from '../components/icons/settings.icon.vue';
 
 interface DictItem {
@@ -125,9 +101,7 @@ interface DictItem {
 }
 export default Vue.extend({
   components: {
-    Translate,
     Search,
-    Plugins,
     Settings,
   },
   props: {
@@ -217,21 +191,7 @@ export default Vue.extend({
         this.$store.commit('updateSuggestWords', []);
       }
     },
-    clickTranslation(event: any) {
-      console.log(event);
-      this.$store.commit('updateTab', '翻译');
 
-      if (this.$router.currentRoute.path !== '/translate') {
-        this.$router.replace({ path: '/translate' });
-      }
-    },
-    clickPlugins(event: any) {
-      this.$store.commit('updateTab', '插件');
-
-      if (this.$router.currentRoute.path !== '/plugins') {
-        this.$router.replace({ path: '/plugins' });
-      }
-    },
     clickPreference(event: any) {
       this.$store.commit('updateTab', '设置');
       if (this.$router.currentRoute.path !== '/preference') {
