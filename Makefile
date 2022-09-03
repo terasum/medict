@@ -1,5 +1,5 @@
 dev: libmdict
-	wails dev -assetdir ./frontend/dist -devserverurl "http://localhost:3011"
+	wails dev -assetdir ./frontend/dist -devserver "localhost:3011"
 
 build: libmdict
 	wails build

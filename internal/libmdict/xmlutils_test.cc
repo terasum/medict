@@ -1,6 +1,7 @@
 #include <xmlutils.h>
 
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -18,5 +19,9 @@ int main() {
       "Left2Right=\"Yes\" DataSourceFormat=\"106\" StyleSheet=\"a\"/>";
   map<string, string> headinfo = parseXMLHeader(dicxml);
   //	cout<<headinfo["Encoding"]<<endl;
-  assert(headinfo["Encoding"] == "UTF-8");
+//  if (strcmp(headinfo["Encoding"], "UTF-8") == 0 ){
+//     cerr<<"headinfo encoding not equals UTF-8"<<endl;
+//     return -1;
+//  }
+    return 0;
 }

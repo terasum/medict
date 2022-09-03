@@ -59,16 +59,6 @@
           </div>
         </div>
         <div class="word-content">
-          <!-- webpreferences="allowRunningInsecureContent=yes" -->
-          <!-- <webview
-            :src="'data:text/html;charset=utf-8;base64,' + currentContent"
-            :preload="preload"
-            enableremotemodule="true"
-            webpreferences="nodeIntegration=false,webSecurity=true,allowRunningInsecureContent=false,contextIsolation=true"
-          /> -->
-          <!-- <vue-friendly-iframe :src="'data:text/html;charset=utf-8;base64,' + currentContent" @load="onLoad" allow="encrypted-media" sandbox="allow-same-origin allow-scripts"></vue-friendly-iframe> -->
-          <!-- <vue-friendly-iframe :src="'http://localhost:1234/t?raw_key_word=123&record_start=456'" @load="onLoad" allow="encrypted-media" sandbox="allow-same-origin allow-scripts"></vue-friendly-iframe> -->
-          <!-- <vue-friendly-iframe :src="'http://localhost:1234/t?raw_key_word=123&record_start=456'" @load="onLoad" allow="encrypted-media" sandbox="allow-same-origin allow-scripts"></vue-friendly-iframe> -->
           <vue-friendly-iframe :src="currentContent" @load="onLoad"></vue-friendly-iframe>
         </div>
       </div>

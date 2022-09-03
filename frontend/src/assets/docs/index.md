@@ -12,13 +12,13 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 
 ### 词典界面
 
-<img src="pic_dict_window.jpg" alt="词典界面" style="zoom: 23%;" />
+<img src="/docs/pic_dict_window.jpg" alt="词典界面" style="zoom: 23%;" />
 
 ### 翻译界面
 
-<img src="pic_translate_window.jpg" alt="翻译界面" style="zoom: 23%;" />
+<img src="/docs/pic_translate_window.jpg" alt="翻译界面" style="zoom: 23%;" />
 
 ### 设置界面
 
-<img src="pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
+<img src="/docs/pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
 
