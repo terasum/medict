@@ -986,10 +986,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -1325,10 +1325,10 @@
   resolved "https://registry.npmjs.org/@types/linkify-it/-/linkify-it-3.0.2.tgz"
   integrity sha512-HZQYqbiFVWufzCwexrvh694SOim8z2d+xJl5UNamcvQFejLY/2YUtzXHYi3cHdI7PMlS8ejH2slRAOJQ32aNbA==
 
-"@types/lodash@^4.14.170":
-  version "4.14.171"
-  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.171.tgz"
-  integrity sha512-7eQ2xYLLI/LsicL2nejW9Wyko3lcpN6O/z0ZLHrEQsg280zIdCv1t/0m6UtBjUHokCGBQ3gYTbHzDkZ1xOBwwg==
+"@types/lodash@^4.14.189":
+  version "4.14.189"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.189.tgz#975ff8c38da5ae58b751127b19ad5e44b5b7f6d2"
+  integrity sha512-kb9/98N6X8gyME9Cf7YaqIMvYGnBSWqEci6tiettE6iJWH1XdJz/PO8LB0GtLCG7x8dU3KWhZT+lA1a35127tA==
 
 "@types/markdown-it@^12.2.3":
   version "12.2.3"
