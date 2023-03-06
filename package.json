@@ -111,7 +111,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "eslint": "^7.29.0",
     "eslint-plugin-import": "^2.25.3",
-    "fork-ts-checker-webpack-plugin": "^6.2.12",
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
     "html-loader": "^2.1.2",
     "jest": "^27.0.6",
     "jest-mock-axios": "^4.4.0",
