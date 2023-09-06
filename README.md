@@ -18,19 +18,19 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 ### 词典界面
 
 <div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="assets/pic_dict_window.jpg" alt="词典界面" style="zoom: 23%;" />
+  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/assets/pic_dict_window.jpg" alt="词典界面" style="zoom: 23%;" />
 </div>
 
 ### 翻译界面
 
 <div style="width: 100%;">
-<img  width=500 style="display:block; margin: 0 auto;"  src="assets/pic_translate_window.jpg" alt="翻译界面" style="zoom: 23%;" />
+<img  width=500 style="display:block; margin: 0 auto;"  src="docs/assets/pic_translate_window.jpg" alt="翻译界面" style="zoom: 23%;" />
 </div>
 
 ### 设置界面
 
 <div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="assets/pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
+  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/assets/pic_settings_window.jpg" alt="设置界面" style="zoom: 23%;" />
 </div>
 
 ## 下载
@@ -45,14 +45,14 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 2. 点击下方 "+" 号
 
 <div style="width: 100%;">
-    <img width=500 style="display:block; margin: 0 auto;" src="assets/pic_add_dict_btn.jpg" alt="pic_add_dict_btn.jpg" style="zoom: 23%;" />
+    <img width=500 style="display:block; margin: 0 auto;" src="docs/assets/pic_add_dict_btn.jpg" alt="pic_add_dict_btn.jpg" style="zoom: 23%;" />
 </div>
 
 3. 在弹出框中填写词典信息
 4. 选择词典文件
 
 <div>
-  <img width=500 style="display:block; margin: 0 auto;"  src="assets/pic_add_dict_modal.jpg" alt="pic_add_dict_modal.jpg" style="zoom:23%;" />
+  <img width=500 style="display:block; margin: 0 auto;"  src="docs/assets/pic_add_dict_modal.jpg" alt="pic_add_dict_modal.jpg" style="zoom:23%;" />
 </div>
 
 **注意:** mdx文件所在的文件夹中的js/css/font文件均会被拷贝到缓存文件夹中，请把一个独立词典放在一个独立的文件夹中，并将相关资源放在一起。
@@ -64,13 +64,13 @@ Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式,
 1. 选择词典并输入目标词（模糊）
 
 <div>
-  <img width=500 style="display:block; margin: 0 auto;" src="assets/pic_usage_step1.jpg" alt="pic_usage_step1.jpg" style="zoom:23%;" />
+  <img width=500 style="display:block; margin: 0 auto;" src="docs/assets/pic_usage_step1.jpg" alt="pic_usage_step1.jpg" style="zoom:23%;" />
 </div>
 
 2. 在左边栏选择你想要查的具体词汇, 如果该词汇和其他词汇同一个意思（即@@Link==） 则直接展示该同意义词汇
 
 <div>
-<img width=500 style="display:block; margin: 0 auto;" src="assets/pic_usage_step2.jpg" alt="pic_usage_step2.jpg" style="zoom:23%;" />
+<img width=500 style="display:block; margin: 0 auto;" src="docs/assets/pic_usage_step2.jpg" alt="pic_usage_step2.jpg" style="zoom:23%;" />
 </div>
 
 ## Q&A
