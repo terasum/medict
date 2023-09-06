@@ -76,9 +76,9 @@ import { StorabeDictionary } from '../../model/StorableDictionary';
 import Alert from '../default/Alert.vue'
 
 import Folder from '../icons/folder.icon.vue';
-import Vue from 'vue';
+import {defineComponent} from "vue";
+export default defineComponent({
 
-export default Vue.extend({
   components: { Folder, Alert },
   props: {
     showResourceBtn: {

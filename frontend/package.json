@@ -1,32 +1,28 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.2.0",
-    "axios": "^0.21.1",
-    "buefy": "^0.9.10",
-    "jquery": "1.9.1 - 3",
-    "lodash": "^4.17.21",
+    "axios": "^0.21.4",
     "normalize.css": "^8.0.1",
-    "vue": "^2.6.14",
-    "vue-class-component": "^7.2.6",
+    "pinia": "^2.1.6",
+    "uuid": "^9.0.0",
+    "vue": "^3.3.4",
     "vue-friendly-iframe": "^0.20.0",
-    "vue-property-decorator": "^9.1.2",
-    "vue-router": "^3.5.2",
-    "vue-template-compiler": "^2.7.9",
-    "vuex": "^3.6.2"
+    "vue-router": "^4.2.4",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "happy-dom": "^6.0.4",
-    "sass": "^1.54.5",
-    "vite": "^2.9.9",
-    "vite-plugin-md": "^0.20.2",
-    "vite-plugin-vue2": "^2.0.2"
+    "@vitejs/plugin-vue": "^3.2.0",
+    "@vue/compiler-sfc": "^3.3.4",
+    "naive-ui": "^2.34.4",
+    "sass": "^1.66.1",
+    "vfonts": "^0.0.3",
+    "vite": "^3.2.7"
   }
 }

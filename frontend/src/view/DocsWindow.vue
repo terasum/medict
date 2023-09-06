@@ -104,7 +104,9 @@ const routerMap = {
   // 6: license_md,
 };
 
-export default Vue.extend({
+import { defineComponent } from 'vue';
+export default defineComponent({
+
   components: { Header, FooterBar },
   data() {
     return {
@@ -127,7 +129,7 @@ export default Vue.extend({
   },
   mounted() {
     this.$nextTick(() => {
-      this.docs = index_md;
+      this.docs = "";
     });
   },
 });

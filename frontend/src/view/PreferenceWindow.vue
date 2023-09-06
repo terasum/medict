@@ -80,8 +80,9 @@ const routerMap = {
   3: '/preference/debug',
   4: '/preference/about',
 };
+import { defineComponent } from 'vue';
+export default defineComponent({
 
-export default Vue.extend({
   components: { Header, NewDictionary, FooterBar },
   computed: {},
   data: () => {

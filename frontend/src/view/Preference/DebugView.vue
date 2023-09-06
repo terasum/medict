@@ -85,7 +85,10 @@ import Vue from 'vue';
 
 
 import BugFill from '../../components/icons/bug-fill.icon.vue';
-export default Vue.extend({
+
+import { defineComponent } from 'vue';
+export default defineComponent({
+
   components: { BugFill },
   methods: {
     saveConfig() {

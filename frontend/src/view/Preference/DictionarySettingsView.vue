@@ -80,8 +80,9 @@ import Store from '../../store/index';
 // import { SyncMainAPI } from '../../main/rpc.sync.main.reference';
 
 
+import { defineComponent } from 'vue';
+export default defineComponent({
 
-export default Vue.extend({
   components: { Header, NewDictionary, DictModal },
   computed: {
     dictionaries() {
@@ -283,7 +284,7 @@ export default Vue.extend({
     width: 100%;
     overflow-x: auto; //allows the div to scroll horizontally only when the div overflows.
     overflow-y: hidden; //does not allow for the div to scroll vertically
-    &::v-deep table {
+    &:v-deep(table) {
       border-spacing: 0;
       width: 100%;
       border: 0;
@@ -294,7 +295,7 @@ export default Vue.extend({
       min-width: 100%;
     }
 
-    &::v-deep thead {
+    &:v-deep(thead){
       display: table-header-group;
       vertical-align: middle;
       border-color: inherit;
@@ -308,17 +309,17 @@ export default Vue.extend({
       }
     }
 
-    &::v-deep td,
-    th {
+    &:v-deep(td,
+    th) {
       padding: 2px 15px;
     }
 
-    &::v-deep tr {
+    &:v-deep(tr) {
       &:hover {
         background: #ddd;
       }
     }
-    &::v-deep th {
+    &:v-deep(th) {
       border-bottom: 1px solid #aaa;
       text-align: center;
     }

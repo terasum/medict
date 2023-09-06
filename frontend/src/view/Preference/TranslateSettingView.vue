@@ -90,7 +90,8 @@
 import Vue from 'vue';
 import Alert from '../../components/default/Alert.vue'
 
-export default Vue.extend({
+import { defineComponent } from 'vue';
+export default defineComponent({
   components: {Alert},
   data() {
     return {

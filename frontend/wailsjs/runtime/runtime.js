@@ -37,19 +37,19 @@ export function LogFatal(message) {
 }
 
 export function EventsOnMultiple(eventName, callback, maxCallbacks) {
-    window.runtime.EventsOnMultiple(eventName, callback, maxCallbacks);
+    return window.runtime.EventsOnMultiple(eventName, callback, maxCallbacks);
 }
 
 export function EventsOn(eventName, callback) {
-    EventsOnMultiple(eventName, callback, -1);
+    return EventsOnMultiple(eventName, callback, -1);
 }
 
-export function EventsOff(eventName) {
-    return window.runtime.EventsOff(eventName);
+export function EventsOff(eventName, ...additionalEventNames) {
+    return window.runtime.EventsOff(eventName, ...additionalEventNames);
 }
 
 export function EventsOnce(eventName, callback) {
-    EventsOnMultiple(eventName, callback, 1);
+    return EventsOnMultiple(eventName, callback, 1);
 }
 
 export function EventsEmit(eventName) {
@@ -63,6 +63,10 @@ export function WindowReload() {
 
 export function WindowReloadApp() {
     window.runtime.WindowReloadApp();
+}
+
+export function WindowSetAlwaysOnTop(b) {
+    window.runtime.WindowSetAlwaysOnTop(b);
 }
 
 export function WindowSetSystemDefaultTheme() {
@@ -91,6 +95,10 @@ export function WindowFullscreen() {
 
 export function WindowUnfullscreen() {
     window.runtime.WindowUnfullscreen();
+}
+
+export function WindowIsFullscreen() {
+    return window.runtime.WindowIsFullscreen();
 }
 
 export function WindowGetSize() {
@@ -137,6 +145,10 @@ export function WindowUnmaximise() {
     window.runtime.WindowUnmaximise();
 }
 
+export function WindowIsMaximised() {
+    return window.runtime.WindowIsMaximised();
+}
+
 export function WindowMinimise() {
     window.runtime.WindowMinimise();
 }
@@ -151,6 +163,14 @@ export function WindowSetBackgroundColour(R, G, B, A) {
 
 export function ScreenGetAll() {
     return window.runtime.ScreenGetAll();
+}
+
+export function WindowIsMinimised() {
+    return window.runtime.WindowIsMinimised();
+}
+
+export function WindowIsNormal() {
+    return window.runtime.WindowIsNormal();
 }
 
 export function BrowserOpenURL(url) {
@@ -171,4 +191,12 @@ export function Hide() {
 
 export function Show() {
     window.runtime.Show();
+}
+
+export function ClipboardGetText() {
+    return window.runtime.ClipboardGetText();
+}
+
+export function ClipboardSetText(text) {
+    return window.runtime.ClipboardSetText(text);
 }
