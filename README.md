@@ -7,9 +7,16 @@
 
 Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式, 目前支持 v1.x 和 v2.0 格式的词典。
 
+## v3-ing
+Medict v3 版本正在开发中，采用 wails 框架重构，启动性能与包容量大小将大大优化，尽情期待。
+Medict version 3 is under developing, will refactored by wails framework, waiting for time!
+
 ## 下载与更新
 
 目前 Medict 正在紧张开发阶段，版本为自动打包滚动发布，请自行到 https://github.com/terasum/medict/releases 页面寻找最新开发版本, 所有版本均有打包日期，选择最新版本即可。
+
+注意!!!
+v3 版本正在开发中，请切换分支至 master 再进行下载老版本。
 
 ## 界面概览
 
