@@ -140,7 +140,7 @@
     "@vitalets/google-translate-api": "^7.0.0",
     "axios": "^0.21.1",
     "buefy": "^0.9.10",
-    "cheerio": "^1.0.0-rc.10",
+    "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",
     "dotenv": "^10.0.0",
     "electron-log": "^4.3.5",
