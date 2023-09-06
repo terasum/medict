@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from "vue";
+export default defineComponent({
 
-export default Vue.extend({
   components: {},
   props: {
     active: {
@@ -106,11 +106,11 @@ export default Vue.extend({
     }
   }
 
-  &::v-deep .modal-background {
+  &:deep(.modal-background) {
     display: none;
   }
 
-  &::v-deep .modal-content {
+  &:deep(.modal-content) {
     background: #fff;
     margin: 0 auto;
     border: 1px solid #cfcfcf;
@@ -122,7 +122,7 @@ export default Vue.extend({
     max-height: 480px;
   }
 
-  &::v-deep .app-modal-header {
+  &:deep(.app-modal-header) {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -168,13 +168,13 @@ export default Vue.extend({
     }
   }
 
-  &::v-deep .modal-close {
+  &:deep(.modal-close){
     display: none;
     &::before {
       content: '确认';
     }
   }
-  &::v-deep .app-modal-footer {
+  &:deep(.app-modal-footer) {
     padding: 0.3rem 0.5rem !important;
   }
 }

@@ -1,51 +1,46 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
-import Buefy from 'buefy'
+import {createApp} from 'vue';
+import naive from 'naive-ui';
 
 import routes from './routes';
+import { createRouter,createWebHashHistory } from 'vue-router'
+
 import { __RANDOM_KEY__ } from './utils/random_key';
 
 
 import 'normalize.css/normalize.css';
-// import '@fortawesome/fontawesome-free/js/brands.min.js';
-import '@fortawesome/fontawesome-free/js/solid.min.js';
-import '@fortawesome/fontawesome-free/js/fontawesome.min.js';
-import 'buefy/dist/buefy.min.css';
+// 通用字体
+import 'vfonts/Lato.css'
+// 等宽字体
+import 'vfonts/FiraCode.css'
 
-// customer css
 import './renderer.scss';
 
-Vue.config.productionTip = false
-Vue.config.devtools = true;
+import './renderer.init';
+
+import App from './App.vue';
 
 
 // cleanup ipc listener, make sure this invoke before import store
 // cleanUpListeneres();
 
 // make sure this import after than use vuex
-import store from './store';
+// import store from './store';
 
-Vue.use(Buefy);
 
-// Create the router instance and pass the `routes` option
-// You can pass in additional options here, but let's
-// keep it simple for now.
-const router = new VueRouter({
-  routes, // short for `routes: routes`
-});
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes, 
+})
+
 // default view as mainWindow
-router.push({ path: store.state.defaultWindow });
-Vue.use(VueRouter);
-
-import './renderer.init';
-import App from './App.vue';
 
 
-// Create and mount the root instance.
-// Make sure to inject the router with the router option to make the
-// whole app router-aware.
-const appMain = new Vue({ router, store , render: h => h(App)});
+const app = createApp(App);
+
+router.push({ path: "/"}); // store.state.defaultWindow });
+app.use(router);
+
+app.use(naive)
 
 // remove skeleton
 let skeleton = document.querySelector('#skeleton-wrapper')
@@ -53,4 +48,5 @@ if (skeleton) {
   skeleton.innerHTML = ''
 }
 
-appMain.$mount('#app');
+// appMain.$mount('#app');
+app.mount('#app')

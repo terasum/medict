@@ -82,8 +82,9 @@ import Vue from 'vue';
 // const windowOpenApi = call.use<WindowAPI>('WindowAPI');
 
 
+import { defineComponent } from 'vue';
+export default defineComponent({
 
-export default Vue.extend({
   components: {},
   data(){
     return {

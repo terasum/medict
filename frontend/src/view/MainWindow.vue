@@ -10,9 +10,9 @@
               :key="item.offset"
               v-on:click="lookupWord(item)"
               v-bind:class="{ 'word-item-active': currentWordIdx === item.offset }"
-            >
+            > 
               {{ item.key_word }}
-            </li>
+             </li>
           </ul>
         </div>
       </div>
@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="word-content">
-          <vue-friendly-iframe :src="currentContent" @load="onLoad"></vue-friendly-iframe>
+          <!-- <vue-friendly-iframe :src="'<p>test</p>'" @load="onLoad"></vue-friendly-iframe> -->
         </div>
       </div>
     </div>
@@ -74,8 +74,9 @@ import FooterBar from '../components/FooterBar.vue';
 import Store from '../store/index';
 import {VueFriendlyIframe} from 'vue-friendly-iframe';
 
+import { defineComponent } from 'vue';
+export default defineComponent({
 
-export default Vue.extend({
   components: { Header, FooterBar, VueFriendlyIframe },
   data() {
     return {
@@ -88,28 +89,30 @@ export default Vue.extend({
       // return SyncMainAPI.syncGetWebviewPreloadFilePath();
     },
     currentWordIdx() {
-      return (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
+      return 0; // (this.$store as typeof Store).state.sideBarData.selectedWordIdx;
     },
     currentShowWord() {
-      return (this.$store as typeof Store).state.currentLookupWord;
+      return "word"; // (this.$store as typeof Store).state.currentLookupWord;
     },
     tabWord() {
-      const searchWord = (this.$store as typeof Store).state.currentLookupWord;
-      if (!searchWord) {
-        return '';
-      }
-      return searchWord;
+      // const searchWord = (this.$store as typeof Store).state.currentLookupWord;
+      // if (!searchWord) {
+      //   return '';
+      // }
+      // return searchWord;
+      return "word";
     },
     currentContent() {
-      let content =  (this.$store as typeof Store).state.currentContent;
-      console.log("currentContent", content);
-      return content;
+      // let content =  (this.$store as typeof Store).state.currentContent;
+      // console.log("currentContent", content);
+      // return content;
+      return "test";
     },
     currentDict() {
-      return (this.$store as typeof Store).state.currentSelectDict;
+      return "dict1"; // (this.$store as typeof Store).state.currentSelectDict;
     },
     suggestWords() {
-      return (this.$store as typeof Store).state.suggestWords;
+      return []; // (this.$store as typeof Store).state.suggestWords;
     },
   },
   methods: {
@@ -129,7 +132,8 @@ export default Vue.extend({
     },
     // 搜索资源
     findResource(dictid: string, resourceKey: string) {
-      this.$store.dispatch('asyncLoadResource', { dictid, resourceKey });
+      return "";
+      // this.$store.dispatch('asyncLoadResource', { dictid, resourceKey });
     },
     // 点击资源搜索按钮
     onLookupResource() {

@@ -89,7 +89,6 @@
 
 
 <script lang="ts">
-import Vue from 'vue';
 import Store from '../store/index';
 import Search from '../components/icons/search.icon.vue';
 import Settings from '../components/icons/settings.icon.vue';
@@ -99,7 +98,9 @@ interface DictItem {
   alias: string;
   name: string;
 }
-export default Vue.extend({
+import { defineComponent } from 'vue';
+export default defineComponent({
+
   components: {
     Search,
     Settings,
@@ -119,21 +120,25 @@ export default Vue.extend({
 
   computed: {
     avaliableDictCount() {
-      let dicts = (this.$store as typeof Store).state.dictionaries;
-      return !dicts ? 0 : dicts.length;
+      // let dicts = (this.$store as typeof Store).state.dictionaries;
+      // return !dicts ? 0 : dicts.length;
+      return 0;
     },
     currentDict() {
-      return (this.$store as typeof Store).state.currentSelectDict;
+      // return (this.$store as typeof Store).state.currentSelectDict;
+      return "dict01";
     },
     selectDicts() {
-      let dicts: DictItem[] = [];
-      (this.$store as typeof Store).state.dictionaries.forEach((item) => {
-        dicts.push({ id: item.id, alias: item.alias, name: item.name });
-      });
-      return dicts;
+      // let dicts: DictItem[] = [];
+      // (this.$store as typeof Store).state.dictionaries.forEach((item) => {
+      //   dicts.push({ id: item.id, alias: item.alias, name: item.name });
+      // });
+      // return dicts;
+      return [];
     },
     currentTab() {
-      return (this.$store as typeof Store).state.headerData.currentTab;
+      // return (this.$store as typeof Store).state.headerData.currentTab;
+      return 0;
     },
   },
   watch: {
@@ -213,11 +218,11 @@ export default Vue.extend({
   top: 60px;
   z-index: 999;
 
-  &::v-deep .modal-background {
+  &:deep(.modal-background) {
     display: none;
   }
 
-  &::v-deep .modal-content {
+  &:deep(.modal-content) {
     background: #fff;
     border: 1px solid #cfcfcf;
     margin: 0 auto;
@@ -228,20 +233,20 @@ export default Vue.extend({
     max-height: calc(100% - 102px);
   }
 
-  &::v-deep .modal-close {
+  &:v-deep(.modal-close) {
     display: none;
     &::before {
       content: '确认';
     }
   }
 
-  &::v-deep .dictionaries-container {
+  &:v-deep(.dictionaries-container) {
     height: 260px;
     width: 100%;
     overflow: hidden;
   }
 
-  &::v-deep .dictionaries {
+  &:v-deep(.dictionaries){
     padding: 0;
     margin-bottom: 20px;
     min-height: 100px;
@@ -263,14 +268,14 @@ export default Vue.extend({
     }
   }
 
-  &::v-deep .dict-active {
+  &:v-deep(.dict-active) {
     background: #ddeef580;
     &:hover {
       background: #ddeef580 !important;
     }
   }
 
-  &::v-deep .dictionary-item {
+  &:v-deep(.dictionary-item) {
     display: flex;
     height: 46px;
     padding: 4px 10px;
@@ -363,9 +368,9 @@ export default Vue.extend({
     padding: 0;
     margin: 0;
     margin-top: 18px;
-    &::v-deep {
-      .btn-group,
-      .btn-group-vertical {
+    &:v-deep(.btn-group,
+      .btn-group-vertical)
+       {
         vertical-align: top;
       }
       // toggle button
@@ -445,7 +450,6 @@ export default Vue.extend({
       .form-control[readonly] {
         background-color: #fff;
       }
-    }
   }
 
   .header-functions {
