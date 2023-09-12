@@ -1,0 +1,24 @@
+html {
+  height:100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent;
+}
+body {
+  font-family: Avenir,-apple-system,BlinkMacSystemFont,'Segoe UI', 'Hiragino Sans GB','Microsoft YaHei', 'PingFang SC','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol',sans-serif;
+  margin: auto;
+  width: 100%;
+  height:100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: transparent;
+  backdrop-filter: blur(5px);
+}
+
+#app {
+  height:100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+

@@ -1,11 +1,12 @@
-<template>
+<template></template>
+<!-- <template>
   <div class="container settings-view">
     <div class="settings-title">
       <h3><i class="fas fa-book"></i> 词典设置</h3>
     </div>
     <div class="settings-body">
       <div class="dictionary-settings">
-        <!-- Mini button group -->
+         Mini button group 
         <div class="toolbar toolbar-header">
           <div class="toolbar-actions">
             <div class="btn-group">
@@ -34,8 +35,6 @@
                 <p>ID: {{ item.id }}</p>
                 <p>词典别名: {{ item.alias }}</p>
                 <p>词典全名: {{ item.name }}</p>
-                <!-- <p>mdx: {{ item.mdxpath }}</p> -->
-                <!-- <p>mdd: {{ item.mddpath }}</p> -->
               </div>
             </li>
           </ul>
@@ -70,14 +69,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import Header from '../../components/Header.vue';
-import NewDictionary from '../../components/preference/NewDictionary.vue';
-import DictModal from '../../components/default/DictModal.vue';
+import Header from '@/components/Header.vue';
+import NewDictionary from '@/components/preference/NewDictionary.vue';
+import DictModal from '@/components/default/DictModal.vue';
 import { StorabeDictionary } from '../../model/StorableDictionary';
-import Store from '../../store/index';
-// import { DictAPI } from '../../main/apis/DictAPI';
-// import { SyncMainAPI } from '../../main/rpc.sync.main.reference';
+import Store from '@/store/index';
 
 
 import { defineComponent } from 'vue';
@@ -360,4 +356,4 @@ export default defineComponent({
     }
   }
 }
-</style>
+</style> -->

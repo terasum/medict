@@ -30,12 +30,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	dicts, err := apis.NewDictsAPI(config)
+	dictsApi, err := apis.NewDictsAPI(config)
 	if err != nil {
 		panic(err)
 	}
-	defer dicts.Destroy()
-	staticInfos := apis.NewStaticInfosApi(config)
+	staticServerApi := apis.NewStaticServersApi(config)
 
 	go static.StartStaticServer(config)
 
@@ -60,7 +59,7 @@ func main() {
 		OnDomReady:        app.domReady,
 		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
-			app, dicts, staticInfos,
+			app, dictsApi, staticServerApi,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
