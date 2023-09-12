@@ -8,9 +8,14 @@ require github.com/stretchr/testify v1.8.0
 
 require (
 	github.com/agatan/bktree v0.0.0-20170513134333-739c0743f255
+	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
 	github.com/gin-gonic/gin v1.7.7
+	github.com/pkg/errors v0.9.1
+	github.com/rasky/go-lzo v0.0.0-20200203143853-96a758eda86e
 	github.com/spf13/viper v1.10.1
+	go.etcd.io/etcd/client/pkg/v3 v3.5.1
+	golang.org/x/text v0.7.0
 )
 
 require (
@@ -41,7 +46,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/samber/lo v1.27.1 // indirect
@@ -55,11 +59,13 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect

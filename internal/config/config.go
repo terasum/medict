@@ -5,7 +5,6 @@ import "github.com/spf13/viper"
 type Config struct {
 	BaseDictDir      string `toml:"baseDictDir"`
 	StaticServerPort int
-	APIServerPort    int
 	CacheFileDir     string
 }
 

@@ -1,35 +1,55 @@
 export namespace model {
 	
-	export class PlainDictItem {
-	    id: string;
-	    name: string;
+	export class KeyBlockEntry {
+	    id: number;
+	    record_start_offset: number;
+	    record_end_offset: number;
+	    key_word: string;
+	    key_block_idx: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new PlainDictItem(source);
+	        return new KeyBlockEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.record_start_offset = source["record_start_offset"];
+	        this.record_end_offset = source["record_end_offset"];
+	        this.key_word = source["key_word"];
+	        this.key_block_idx = source["key_block_idx"];
+	    }
+	}
+	export class PlainDictionaryItem {
+	    id: string;
+	    name: string;
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new PlainDictionaryItem(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.name = source["name"];
+	        this.path = source["path"];
 	    }
 	}
-	export class WrappedWordItem {
-	    dict_id: string;
-	    raw_key_word: string;
-	    key_word: string;
-	    record_start: number;
+	export class Resp {
+	    data: any;
+	    err: string;
+	    code: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new WrappedWordItem(source);
+	        return new Resp(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.dict_id = source["dict_id"];
-	        this.raw_key_word = source["raw_key_word"];
-	        this.key_word = source["key_word"];
-	        this.record_start = source["record_start"];
+	        this.data = source["data"];
+	        this.err = source["err"];
+	        this.code = source["code"];
 	    }
 	}
 
