@@ -1,0 +1,148 @@
+name: Release Medict
+
+on:
+  push:
+    #    tags:
+    #      - v*
+    branches:
+      - master
+      - develop
+
+jobs:
+  package:
+    strategy:
+      matrix:
+        go-version: [1.21.x]
+        platform: [macos-13.1, ubuntu-20.04, windows-2019]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Get version tag (unix)
+        if: matrix.platform != 'windows-2019'
+        id: version
+        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+
+      - name: Get version tag (windows)
+        if: matrix.platform == 'windows-2019'
+        id: versionw
+        run: |
+          $tag = $env:GITHUB_REF -replace "refs/tags/", ""
+          echo "::set-output name=tag::$(echo $tag)"
+
+      - name: Inall pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.7.4
+          run_install: false
+
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Chechout
+        uses: actions/checkout@v2
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+
+
+jobs:
+  release:
+    name: Release October (macOS)
+    runs-on: macos-latest # We can cross compile but need to be on macOS to notarise
+    strategy:
+      matrix:
+        platform:
+          - darwin/amd64
+          - darwin/arm64
+          - darwin/universal
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Normalise platform tag
+        id: normalise_platform
+        shell: bash
+        run: |
+          tag=$(echo ${{ matrix.platform }} | sed -e 's/\//_/g')
+          echo "::set-output name=tag::$tag"
+
+      - name: Normalise version tag
+        id: normalise_version
+        shell: bash
+        run: |
+          version=$(echo ${{ github.event.release.tag_name }} | sed -e 's/v//g')
+          echo "::set-output name=version::$version"
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Install gon for macOS notarisation
+        shell: bash
+        run: wget https://github.com/mitchellh/gon/releases/download/v0.2.3/gon_macos.zip && unzip gon_macos.zip && mv gon /usr/local/bin
+
+      - name: Import code signing certificate from Github Secrets
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
+
+      - name: Install wails
+        shell: bash
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.19.1'
+
+      - name: Build frontend assets
+        shell: bash
+        run: |
+          npm install -g pnpm
+          cd frontend && pnpm install
+
+      - name: Build wails app for macOS
+        shell: bash
+        run: wails build -platform ${{ matrix.platform }} -ldflags "-X main.version=${{ steps.version.outputs.tag }}"
+
+      - name: Compress macOS dmg
+        shell: bash
+        run: cd build/bin && zip -r october-${{ steps.normalise_platform.outputs.tag }}.zip October.dmg
+
+          - name: Create darwin disk image
+            if: matrix.platform == 'macos-13.3'
+            run: |
+              brew install create-dmg
+              rm build/bin
+              create-dmg --volname "Medict" --volicon "build/assets/darwin/dmg_icon.icns" --background "build/assets/darwin/dmg_bg.png" --window-size 512 360 --icon-size 100 --icon "Medict.app" 100 185  --hide-extension "Medict.app" --app-drop-link 388 185 "Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg" "build"
+
+          - name: Upload darwin disk image
+            if: matrix.platform == 'macos-13.3'
+            uses: actions/upload-artifact@v2
+            with:
+              name: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
+              path: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
+
+
+      - name: Get latest release from API
+        id: get_upload_url
+        shell: bash
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/marcus-crane/october/releases" > /tmp/releases.json
+          url=$(jq -r '.[0].upload_url' /tmp/releases.json)
+          echo "::set-output name=url::$url"
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_NAME: october_${{ steps.normalise_version.outputs.version }}_${{ steps.normalise_platform.outputs.tag }}
+        with:
+          upload_url:  ${{ steps.get_upload_url.outputs.url }}
+          asset_path: ./build/bin/october-${{ steps.normalise_platform.outputs.tag }}.zip
+          asset_name: ${{ env.ARTIFACT_NAME }}.zip
+          asset_content_type: application/zip
