@@ -91,3 +91,4 @@ out/
 libdict/
 testdict/
 /build/bin/
+.idea
