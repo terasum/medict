@@ -88,4 +88,6 @@ typings/
 # Electron-Forge
 out/
 
+libdict/
 testdict/
+/build/bin/
