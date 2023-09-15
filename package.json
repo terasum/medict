@@ -97,7 +97,7 @@
     "@types/koa-logger": "^3.1.1",
     "@types/koa-pino-logger": "^3.0.0",
     "@types/koa-static": "^4.0.1",
-    "@types/koa__cors": "^3.0.3",
+    "@types/koa__cors": "^4.0.1",
     "@types/lodash": "^4.14.170",
     "@types/markdown-it": "^12.2.3",
     "@types/rimraf": "^3.0.1",
@@ -133,7 +133,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
-    "@koa/cors": "^3.1.0",
+    "@koa/cors": "^4.0.0",
     "@popperjs/core": "^2.9.2",
     "@shuaninfo/random": "^5.1.1",
     "@terasum/electron-call": "0.0.8",
