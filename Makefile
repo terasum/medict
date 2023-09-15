@@ -19,5 +19,8 @@ clean:
 	rm -rf internal/libmdict/build
 	@echo "make clean done"
 
+license:
+	addlicense -c "Quan Chen <chenquan_act@163.com>" -l gpl -v -y 2023 -ignore frontend/**/* -ignore build/**/* -ignore .github/**/* pkg internal
 
-.PHONY: watch all libmdict clean
+
+.PHONY: watch all libmdict clean license
