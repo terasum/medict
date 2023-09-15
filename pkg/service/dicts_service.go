@@ -24,7 +24,6 @@ import (
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service/support"
-	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 	"os"
 	"path"
 )
@@ -56,9 +55,12 @@ func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 	if dict, ok := ds.dicts[dictId]; ok {
 		fmt.Printf("dict %s, currentDir is %s\n", dictId, dict.PathInfo.CurrentDir)
 		fullPath := path.Join(dict.PathInfo.CurrentDir, key)
-		if fileutil.Exist(fullPath) {
+		_, err := os.Stat(fullPath)
+		if err == nil {
 			return os.ReadFile(fullPath)
+
 		}
+
 	}
 	return nil, errors.New("not found")
 }
