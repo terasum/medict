@@ -90,4 +90,4 @@ out/
 
 libdict/
 testdict/
-build/
+/build/bin/
