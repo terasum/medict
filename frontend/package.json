@@ -1,0 +1,32 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "normalize.css": "^8.0.1",
+    "pinia": "^2.1.6",
+    "uuid": "^9.0.0",
+    "vue": "^3.3.4",
+    "vue-friendly-iframe": "^0.20.0",
+    "vue-router": "^4.2.4",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.0.0",
+    "@vicons/antd": "^0.12.0",
+    "@vicons/fa": "^0.12.0",
+    "@vicons/tabler": "^0.12.0",
+    "@vitejs/plugin-vue": "^3.2.0",
+    "@vue/compiler-sfc": "^3.3.4",
+    "naive-ui": "^2.34.4",
+    "sass": "^1.66.1",
+    "vfonts": "^0.0.3",
+    "vite": "^3.2.7"
+  }
+}

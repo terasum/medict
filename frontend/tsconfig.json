@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",  
+        "paths": { 
+            "@/*": ["src/*"],
+            "$/*": ["wails/*"]
+        },
+        "lib": [ "dom","es2015", "es2017" ]
+
+    },
+    "include": [
+        "src",
+        "wailsjs"
+    ]
+}
