@@ -1,6 +1,6 @@
 # Medict
-[![NodeCI](https://github.com/terasum/medict/workflows/Node%20CI/badge.svg?event=push)](https://github.com/terasum/medict/actions?query=workflow%3A%22Node+CI%22+branch%3Acanary+event%3Apush)
-![GitHub release](https://img.shields.io/github/package-json/v/terasum/medict)
+![Static Badge](https://img.shields.io/badge/version-v3.0.1-blue?style=flat)
+![GitHub Repo stars](https://img.shields.io/github/stars/terasum/medict)
 ![license](https://img.shields.io/github/license/terasum/medict.svg)
 
 ## Medict 介绍
