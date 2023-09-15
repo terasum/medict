@@ -39,20 +39,20 @@ jobs:
 
       # darwin
       - name: Build for darwin
-        if: matrix.platform == 'macos-13.3'
+        if: matrix.platform == 'macos-latest'
         run: |
           rm build/bin
           wails build -f -ldflags "-X main.Version=${{ steps.version.outputs.tag }}"
 
       - name: Create darwin disk image
-        if: matrix.platform == 'macos-13.3'
+        if: matrix.platform == 'macos-latest'
         run: |
           brew install create-dmg
           ls -lh $PWD && ls -lh $PWD/build
           create-dmg --volname "Medict" --volicon "build/assets/darwin/dmg_icon.icns" --background "build/assets/darwin/dmg_bg.png" --window-size 512 360 --icon-size 100 --icon "Medict.app" 100 185  --hide-extension "Medict.app" --app-drop-link 388 185 "Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg" "build"
 
       - name: Upload darwin disk image
-        if: matrix.platform == 'macos-13.3'
+        if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v2
         with:
           name: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
