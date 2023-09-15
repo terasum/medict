@@ -101,7 +101,7 @@
     "@types/lodash": "^4.14.170",
     "@types/markdown-it": "^12.2.3",
     "@types/rimraf": "^3.0.1",
-    "@types/tmp": "^0.2.0",
+    "@types/tmp": "^0.2.4",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.29.1",
     "chai": "^4.3.4",
