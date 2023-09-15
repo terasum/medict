@@ -18,7 +18,7 @@ jobs:
       - name: Get version tag (unix)
         if: matrix.platform != 'windows-2019'
         id: version
-        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+        run: echo "::set-output name=tag::${GITHUB_SHA}"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
@@ -42,7 +42,8 @@ jobs:
         if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
-          wails build -f -ldflags "-X medict/internal/app.semver=${{ steps.version.outputs.tag }}"
+          wails build -f -ldflags "-X main.Version=${{ steps.version.outputs.tag }}"
+          ls -lh $PWD
           tar -C build -zcvf Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz build/bin/Medict
 
       - name: Upload linux tar.gz
