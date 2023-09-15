@@ -132,7 +132,7 @@
     "worker-loader": "^3.0.8"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@fortawesome/fontawesome-free": "^6.4.2",
     "@koa/cors": "^3.1.0",
     "@popperjs/core": "^2.9.2",
     "@shuaninfo/random": "^5.1.1",

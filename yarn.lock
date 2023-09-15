@@ -667,10 +667,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@fortawesome/fontawesome-free@^5.15.4":
-  version "5.15.4"
-  resolved "https://registry.npmjs.org/@fortawesome/fontawesome-free/-/fontawesome-free-5.15.4.tgz"
-  integrity sha512-eYm8vijH/hpzr/6/1CJ/V/Eb1xQFW2nnUKArb3z+yUWv7HTwj6M7SP957oMjfZjAHU6qpoNc2wQvIxBLWYa/Jg==
+"@fortawesome/fontawesome-free@^6.4.2":
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-6.4.2.tgz#36b6a9cb5ffbecdf89815c94d0c0ffa489ac5ecb"
+  integrity sha512-m5cPn3e2+FDCOgi1mz0RexTUvvQibBebOUlUlW0+YrMjDTPkiJ6VTKukA1GRsvRw+12KyJndNjj0O4AgTxm2Pg==
 
 "@humanwhocodes/config-array@^0.5.0":
   version "0.5.0"
@@ -986,10 +986,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terasum/electron-call@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@terasum/electron-call/-/electron-call-0.0.7.tgz"
-  integrity sha512-eiQ0LKGnZmGmnXCwX3d8lVOXz8/AKXCRhvyPxTDH/21J7mwALIQC1pz2lVHxC7ZYNsK6pCq9ZpNaquxWpw50vw==
+"@terasum/electron-call@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@terasum/electron-call/-/electron-call-0.0.8.tgz#fe001150de8347f8ab32599236dd97fb75713292"
+  integrity sha512-LLv/ex3AYrr2V5F/8k0j1ImAFweNcElE7t4NeonfbJ9DiU60nvsD6Vg1J7vaMWKDYdYrQfLbiRHVC/BTjKRG0Q==
 
 "@tootallnate/once@1":
   version "1.1.2"
