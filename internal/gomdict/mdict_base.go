@@ -19,13 +19,12 @@ package gomdict
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"github.com/rasky/go-lzo"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/rasky/go-lzo"
 )
 
 // ReadDictHeader reads the dictionary header.

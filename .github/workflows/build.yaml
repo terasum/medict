@@ -1,7 +1,10 @@
 on:
   push:
-    tags:
-      - v*
+#    tags:
+#      - v*
+    branches:
+      - master
+      - develop
 
 jobs:
   package:
@@ -23,8 +26,11 @@ jobs:
           $tag = $env:GITHUB_REF -replace "refs/tags/", ""
           echo "::set-output name=tag::$(echo $tag)"
 
-      - name: Setup node and pnpm
-        uses: dafnik/setup-node-pnpm@v1
+      - name: Inall pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.7.4
+          run_install: false
 
       - name: Install Go
         uses: actions/setup-go@v2
