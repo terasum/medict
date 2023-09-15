@@ -18,7 +18,7 @@ jobs:
       - name: Get version tag (unix)
         if: matrix.platform != 'windows-2019'
         id: version
-        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+        run: echo "::set-output name=tag::${GITHUB_SHA}"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
