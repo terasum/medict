@@ -70,7 +70,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y libgtk-3-dev libwebkit2gtk-4.0-dev
           wails build -f -ldflags "-X medict/internal/app.semver=${{ steps.version.outputs.tag }}"
-          tar -C build -zcvf Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz build/bin/medict
+          tar -C build -zcvf Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz build/bin/Medict
 
       - name: Upload linux tar.gz
         if: matrix.platform == 'ubuntu-20.04'
