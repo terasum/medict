@@ -41,7 +41,6 @@ jobs:
       - name: Build for darwin
         if: matrix.platform == 'macos-latest'
         run: |
-          rm build/bin
           wails build -f -ldflags "-X main.Version=${{ steps.version.outputs.tag }}"
 
       - name: Create darwin disk image
