@@ -1,12 +1,12 @@
 {
-  "name": "medict-app",
-  "outputfilename": "medict-app",
+  "name": "Medict",
+  "outputfilename": "Medict",
   "frontend:install": "pnpm install",
   "frontend:build": "pnpm run build",
   "frontend:dev:watcher": "pnpm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "terasum",
-    "email": "terasum@163.com"
+    "name": "Quan Chen",
+    "email": "chenquan_act@163.com"
   }
 }
