@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.21.x]
-        platform: [macos-13.1]
+        platform: [macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Get version tag (unix)
@@ -48,7 +48,7 @@ jobs:
         if: matrix.platform == 'macos-13.3'
         run: |
           brew install create-dmg
-          ls -lh $PWD
+          ls -lh $PWD && ls -lh $PWD/build
           create-dmg --volname "Medict" --volicon "build/assets/darwin/dmg_icon.icns" --background "build/assets/darwin/dmg_bg.png" --window-size 512 360 --icon-size 100 --icon "Medict.app" 100 185  --hide-extension "Medict.app" --app-drop-link 388 185 "Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg" "build"
 
       - name: Upload darwin disk image
