@@ -119,7 +119,7 @@
     "node-loader": "^2.0.0",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
     "sass": "^1.35.0",
-    "sass-loader": "^12.1.0",
+    "sass-loader": "^13.3.2",
     "terser-webpack-plugin": "^5.2.4",
     "ts-jest": "^27.0.3",
     "ts-loader": "^9.2.2",
