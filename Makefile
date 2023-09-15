@@ -20,7 +20,7 @@ clean:
 	@echo "make clean done"
 
 license:
-	addlicense -c "Quan Chen <chenquan_act@163.com>" -l gpl -v -y 2023 -ignore frontend/**/* -ignore build/**/* -ignore .github/**/* pkg internal
+	addlicense -c "Quan Chen <chenquan_act@163.com>" -l gpl3 -v -y 2023 -ignore frontend/**/* -ignore build/**/* -ignore .github/**/* frontend/src
 
 
 .PHONY: watch all libmdict clean license
