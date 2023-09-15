@@ -110,7 +110,7 @@
     "electron": "16.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "eslint": "^7.29.0",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.28.1",
     "fork-ts-checker-webpack-plugin": "^6.2.12",
     "html-loader": "^2.1.2",
     "jest": "^27.0.6",
