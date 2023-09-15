@@ -23,6 +23,9 @@ jobs:
           $tag = $env:GITHUB_REF -replace "refs/tags/", ""
           echo "::set-output name=tag::$(echo $tag)"
 
+      - name: Setup node and pnpm
+        uses: dafnik/setup-node-pnpm@v1
+
       - name: Install Go
         uses: actions/setup-go@v2
         with:
