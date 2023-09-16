@@ -20,11 +20,11 @@ jobs:
         id: version
         run: echo "::set-output name=tag::v-3.0.1-alpha-${GITHUB_SHA:0:6}"
 
-      - name: Get version tag (windows)
-        if: matrix.platform == 'windows-2019'
-        id: versionw
-        run: |
-          echo "::set-output name=tag::v3.0.1-alpha-temp"
+#      - name: Get version tag (windows)
+#        if: matrix.platform == 'windows-2019'
+#        id: versionw
+#        run: |
+#          echo "::set-output name=tag::v3.0.1-alpha-temp"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
@@ -87,15 +87,15 @@ jobs:
           New-Item -ItemType directory -Path "$HOME\.wails" -Force
           Copy-Item -Path "$PWD\wails.json" -Destination "$HOME\.wails\wails.json"
           choco install mingw
-          wails build -f -ldflags "-X medict/internal/app.semver=${{ steps.versionw.outputs.tag }}"
-          Compress-Archive -Path "$PWD\build\bin\medict.exe" -DestinationPath "$PWD\Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip"
+          wails build -f -ldflags "-X medict/internal/app.semver=unknown"
+          Compress-Archive -Path "$PWD\build\bin\medict.exe" -DestinationPath "$PWD\Medict_Windows_x86_64.zip"
 
       - name: Upload windows zip
         if: matrix.platform == 'windows-2019'
         uses: actions/upload-artifact@v2
         with:
-          name: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
-          path: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
+          name: Medict_Windows_x86_64.zip
+          path: Medict_Windows_x86_64.zip
 
 
       # - name: Create linux app image
@@ -124,12 +124,6 @@ jobs:
         if: matrix.platform != 'windows-2019'
         id: version
         run: echo "::set-output name=tag::v-3.0.1-alpha-${GITHUB_SHA:0:6}"
-
-      - name: Get version tag (windows)
-        if: matrix.platform == 'windows-2019'
-        id: versionw
-        run: |
-          echo "::set-output name=tag::v3.0.1-alpha-temp"       
 
       - name: Get changelog url
         id: changelog
@@ -176,8 +170,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip/Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
-          asset_name: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
+          asset_path: Medict_Windows_x86_64.zip/Medict_Windows_x86_64.zip
+          asset_name: Medict_Windows_x86_64.zip
           asset_content_type: application/octet-stream
 
         # - name: Attach linux app image
