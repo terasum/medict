@@ -171,8 +171,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Medict_${{ steps.version.outputs.tag }}_Windows_x86_64.zip/Medict_${{ steps.version.outputs.tag }}_Windows_x86_64.zip
-          asset_name: Medict_${{ steps.version.outputs.tag }}_Windows_x86_64.zip
+          asset_path: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip/Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
+          asset_name: Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip
           asset_content_type: application/octet-stream
 
         # - name: Attach linux app image
