@@ -92,7 +92,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
+          asset_path: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg/Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
           asset_name: Medict_${{ steps.version.outputs.tag }}_Darwin_x86_64.dmg
           asset_content_type: application/octet-stream
 
