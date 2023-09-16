@@ -89,7 +89,7 @@ jobs:
           Copy-Item -Path "$PWD\wails.json" -Destination "$HOME\.wails\wails.json"
           choco install mingw
           wails build -f -ldflags "-X medict/internal/app.semver=${{ steps.versionw.outputs.tag }}"
-          Compress-Archive -Path "$PWD\build\medict.exe" -DestinationPath "$PWD\Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip"
+          Compress-Archive -Path "$PWD\build\bin\medict.exe" -DestinationPath "$PWD\Medict_${{ steps.versionw.outputs.tag }}_Windows_x86_64.zip"
 
       - name: Upload windows zip
         if: matrix.platform == 'windows-2019'
