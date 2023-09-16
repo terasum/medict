@@ -78,7 +78,7 @@ jobs:
         if: matrix.platform == 'ubuntu-20.04'
         uses: actions/upload-artifact@v2
         with:
-          name: Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz/Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz
+          name: Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz
           path: Medict_${{ steps.version.outputs.tag }}_Linux_x86_64.tar.gz
 
       # windows
