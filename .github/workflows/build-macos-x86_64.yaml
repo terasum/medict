@@ -18,7 +18,7 @@ jobs:
       - name: Get version tag (unix)
         if: matrix.platform != 'windows-2019'
         id: version
-        run: echo "::set-output name=tag::${GITHUB_SHA}"
+        run: echo "::set-output name=tag::v-3.0.1-alpha-"$(date +%Y%m%d)"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
@@ -79,7 +79,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           release_name: ${{ steps.version.outputs.tag }}
-          body: Full changelog ⇒ [${{ steps.version.outputs.tag }}](${{ steps.changelog.outputs.url }})
+          body: "Medict Nightly build release: <h1>${{ steps.version.outputs.tag }}</h1>"
           draft: true
           prerelease: false
 
