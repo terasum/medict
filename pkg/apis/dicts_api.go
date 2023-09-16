@@ -19,9 +19,9 @@ package apis
 import (
 	"encoding/base64"
 	"errors"
+	"github.com/terasum/medict/internal/config"
 	"strings"
 
-	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 )
@@ -30,20 +30,25 @@ type DictsAPI struct {
 	dictSvc *service.DictService
 }
 
-func NewDictsAPI(config *config.Config) (*DictsAPI, error) {
+func NewDictsApi() *DictsAPI {
+	return &DictsAPI{}
+}
+
+func (dicts *DictsAPI) Init(config *config.Config) error {
 	svc, err := service.NewDictService(config)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &DictsAPI{dictSvc: svc}, nil
+	dicts.dictSvc = svc
+	return nil
 }
 
-func (dict *DictsAPI) Dicts() []*model.PlainDictionaryItem {
-	return dict.dictSvc.Dicts()
+func (dicts *DictsAPI) Dicts() []*model.PlainDictionaryItem {
+	return dicts.dictSvc.Dicts()
 }
 
-func (dict *DictsAPI) Lookup(dictId string, rawKeyWord string) *model.Resp {
-	defData, err := dict.dictSvc.Lookup(dictId, rawKeyWord)
+func (dicts *DictsAPI) Lookup(dictId string, rawKeyWord string) *model.Resp {
+	defData, err := dicts.dictSvc.Lookup(dictId, rawKeyWord)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
@@ -53,8 +58,8 @@ func (dict *DictsAPI) Lookup(dictId string, rawKeyWord string) *model.Resp {
 	return model.BuildSuccess(base64.StdEncoding.EncodeToString([]byte(def)))
 }
 
-func (dict *DictsAPI) Search(dictId string, rawKeyWord string) *model.Resp {
-	entries, err := dict.dictSvc.Search(dictId, rawKeyWord)
+func (dicts *DictsAPI) Search(dictId string, rawKeyWord string) *model.Resp {
+	entries, err := dicts.dictSvc.Search(dictId, rawKeyWord)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
@@ -62,11 +67,11 @@ func (dict *DictsAPI) Search(dictId string, rawKeyWord string) *model.Resp {
 	return model.BuildSuccess(entries)
 }
 
-func (dict *DictsAPI) Locate(dictId string, entry *model.KeyBlockEntry) *model.Resp {
+func (dicts *DictsAPI) Locate(dictId string, entry *model.KeyBlockEntry) *model.Resp {
 	if entry == nil {
 		return model.BuildError(errors.New("empty entry"), model.BadParamErrCode)
 	}
-	def, err := dict.dictSvc.Locate(dictId, entry)
+	def, err := dicts.dictSvc.Locate(dictId, entry)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}

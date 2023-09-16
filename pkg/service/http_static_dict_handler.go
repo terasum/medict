@@ -1,124 +1,35 @@
-//
-// Copyright (C) 2023 Quan Chen <chenquan_act@163.com>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-package static
+package service
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
-	"github.com/terasum/medict/pkg/service"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-const (
-	ContentTypeBinary = "application/octet-stream"
-	ContentTypeForm   = "application/x-www-form-urlencoded"
-	ContentTypeJSON   = "application/json"
-	ContentTypeHTML   = "text/html; charset=utf-8"
-	ContentTypeText   = "text/plain; charset=utf-8"
-)
-
-const ContentRootUrl = "/__mdict"
-
-func Cors() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		method := c.Request.Method
-		origin := c.Request.Header.Get("Origin") //请求头部
-		if origin != "" {
-			//接收客户端发送的origin （重要！）
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-			//服务器支持的所有跨域请求的方法
-			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
-			//允许跨域设置可以返回其他子段，可以自定义字段
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session")
-			// 允许浏览器（客户端）可以解析的头部 （重要）
-			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
-			//设置缓存时间
-			c.Header("Access-Control-Max-Age", "172800")
-			//允许客户端传递校验信息比如 cookie (重要)
-			c.Header("Access-Control-Allow-Credentials", "true")
-		}
-
-		//允许类型校验
-		if method == "OPTIONS" {
-			c.JSON(http.StatusOK, "ok!")
-		}
-
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("Panic info is: %v", err)
-			}
-		}()
-
-		c.Next()
-	}
-}
-
-func StartStaticServer(cfg *config.Config) {
-	r := gin.Default()
-	r.Use(Cors()) //开启中间件 允许使用跨域请求
-
-	var err error
-	var dictService *service.DictService
-
-	dictService, err = service.NewDictService(cfg)
-	if err != nil {
-		panic(err)
-	}
-
-	r.NoRoute(func(c *gin.Context) {
-		fmt.Printf("NoRoute REQ: %s\n", c.Request.URL.String())
-		fmt.Printf("NoRoute REQ: %s\n", c.Request.RequestURI)
-		if !strings.HasPrefix(c.Request.URL.String(), ContentRootUrl+"/__tcidem_query") {
-			handleAssetsQueryReq(c, dictService)
-			return
-		}
-
-		handleWordQueryReq(c, dictService)
-		return
-	})
-
-	err = r.Run("localhost:" + strconv.Itoa(cfg.StaticServerPort))
-	if err != nil {
-		panic(err)
-		return
-	}
-}
-
-func handleAssetsQueryReq(c *gin.Context, dictService *service.DictService) {
+func (server *HttpServer) handleResourceQueryReq(c *gin.Context) {
 	dictId := c.Query("dict_id")
-	rawkeys := strings.SplitN(c.Request.RequestURI, "?", 2)
-	if len(rawkeys) < 1 {
+	rawKeys := strings.SplitN(c.Request.RequestURI, "?", 2)
+	if len(rawKeys) < 2 {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	resourceKey := rawkeys[0]
+	if dictId == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	resourceKey := rawKeys[0]
 	resourceKey = strings.TrimPrefix(resourceKey, ContentRootUrl+"/")
 
-	handleWordResourceReq(c, dictService, resourceKey, dictId)
+	server.innerResourceQuery(c, resourceKey, dictId)
 	return
 }
 
-func handleWordQueryReq(c *gin.Context, dictService *service.DictService) {
+func (server *HttpServer) handleWordQueryReq(c *gin.Context) {
 	// 请求地址: http://localhost:8193/__mdict/__tcidem_query?dict_id=f234356c227f82a54afdaa3514de188a&key_word=card&record_start_offset=20477857&record_end_offset=20501885&key_block_idx=26868
 	keyWord := c.Query("key_word")
 	recordStart := c.Query("record_start_offset")
@@ -135,7 +46,7 @@ func handleWordQueryReq(c *gin.Context, dictService *service.DictService) {
 		return
 	}
 
-	def, err := dictService.Locate(dictId, entry)
+	def, err := server.DictService.Locate(dictId, entry)
 	if err != nil {
 
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -152,33 +63,33 @@ func handleWordQueryReq(c *gin.Context, dictService *service.DictService) {
 	return
 }
 
-func handleWordResourceReq(c *gin.Context, dictService *service.DictService, key, dictId string) {
+func (server *HttpServer) innerResourceQuery(c *gin.Context, key, dictId string) {
 	if key == "" || dictId == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	if !strings.Contains(key, "/") {
 		fmt.Printf("NoRoute[0] handle resource key: %s from dir\n", key)
-		resultBytes, err := dictService.FindFromDir(dictId, key)
+		resultBytes, err := server.DictService.FindFromDir(dictId, key)
 		if err == nil {
 			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 			if err != nil {
-				WrapContentType(c, key, resultBytes)
+				wrapContentType(c, key, resultBytes)
 				return
 			}
-			WrapContentType(c, key, resultBytes)
+			wrapContentType(c, key, resultBytes)
 			return
 		}
 
-		resultBytes, err = dictService.LookupResource(dictId, key)
+		resultBytes, err = server.DictService.LookupResource(dictId, key)
 		if err == nil {
 			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 			if err != nil {
-				WrapContentType(c, key, resultBytes)
+				wrapContentType(c, key, resultBytes)
 				return
 			}
 
-			WrapContentType(c, key, resultBytes)
+			wrapContentType(c, key, resultBytes)
 			return
 		}
 
@@ -189,17 +100,17 @@ func handleWordResourceReq(c *gin.Context, dictService *service.DictService, key
 	}
 
 	key = strings.ReplaceAll(key, "/", "\\")
-	result, err := dictService.LookupResource(dictId, key)
+	result, err := server.DictService.LookupResource(dictId, key)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	result, err = tmpl.WrapResource(dictId, key, result)
 	if err != nil {
-		WrapContentType(c, key, result)
+		wrapContentType(c, key, result)
 		return
 	}
-	WrapContentType(c, key, result)
+	wrapContentType(c, key, result)
 	return
 }
 
@@ -243,7 +154,7 @@ func convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx 
 	}, nil
 }
 
-func WrapContentType(c *gin.Context, key string, data []byte) {
+func wrapContentType(c *gin.Context, key string, data []byte) {
 	if strings.HasSuffix(key, ".css") {
 		c.Data(http.StatusOK, "text/css", data)
 	} else if strings.HasSuffix(key, ".js") {
