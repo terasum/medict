@@ -24,8 +24,7 @@ jobs:
         if: matrix.platform == 'windows-2019'
         id: versionw
         run: |
-          $tag = $env:GITHUB_SHA
-          echo "::set-output name=tag::$(echo $tag)"
+          echo "::set-output name=tag::v3.0.1-alpha-temp"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
