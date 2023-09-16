@@ -18,9 +18,7 @@ jobs:
       - name: Get version tag (unix)
         if: matrix.platform != 'windows-2019'
         id: version
-        run: |
-          export MEDICT_BUILD_VER="v-3.0.1-alpha-"$(date +%Y%m%d%H%M)
-          echo "::set-output name=tag::${MEDICT_BUILD_VER}"
+        run: echo "::set-output name=tag::v-3.0.1-alpha-${GITHUB_SHA:0:6}"
 
       - name: Inall pnpm
         uses: pnpm/action-setup@v2
