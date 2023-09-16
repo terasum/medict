@@ -24,7 +24,7 @@ jobs:
         if: matrix.platform == 'windows-2019'
         id: versionw
         run: |
-          $tag = $env:GITHUB_SHA -replace "refs/tags/", ""
+          $tag = $env:GITHUB_REF -replace "refs/tags/", ""
           echo "::set-output name=tag::$(echo $tag)"
 
       - name: Inall pnpm
