@@ -18,13 +18,6 @@ package main
 
 import (
 	"embed"
-	"log"
-
-	"github.com/terasum/medict/internal/entry"
-	"github.com/terasum/medict/internal/static"
-
-	"github.com/terasum/medict/pkg/apis"
-
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 
 	"github.com/wailsapp/wails/v2"
@@ -42,21 +35,9 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
-	config, err := entry.DefaultConfig()
-	if err != nil {
-		panic(err)
-	}
-	dictsApi, err := apis.NewDictsAPI(config)
-	if err != nil {
-		panic(err)
-	}
-	staticServerApi := apis.NewStaticServersApi(config)
-
-	go static.StartStaticServer(config)
-
 	// Create application with options
-	err = wails.Run(&options.App{
-		Title:             "medict",
+	err := wails.Run(&options.App{
+		Title:             "Medict",
 		Width:             800,
 		Height:            600,
 		MinWidth:          720,
@@ -75,7 +56,7 @@ func main() {
 		OnDomReady:        app.domReady,
 		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
-			app, dictsApi, staticServerApi,
+			app,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
@@ -96,6 +77,6 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

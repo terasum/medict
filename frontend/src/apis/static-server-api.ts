@@ -17,8 +17,8 @@
  */
 
 
-import { StaticServerUrl } from '../../wailsjs/go/apis/StaticInfos';
+import { StaticServerURL } from '../../wailsjs/go/main/App';
 
 export const StaticDictServerURL = function (): Promise<string> {
-    return StaticServerUrl()
+    return StaticServerURL()
 }
