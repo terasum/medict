@@ -120,10 +120,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: package
     steps:
-      - name: Get version tag
+      - name: Get version tag (unix)
+        if: matrix.platform != 'windows-2019'
         id: version
-        # run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
         run: echo "::set-output name=tag::v-3.0.1-alpha-${GITHUB_SHA:0:6}"
+
+      - name: Get version tag (windows)
+        if: matrix.platform == 'windows-2019'
+        id: versionw
+        run: |
+          echo "::set-output name=tag::v3.0.1-alpha-temp"       
 
       - name: Get changelog url
         id: changelog
