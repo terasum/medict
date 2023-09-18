@@ -101,7 +101,7 @@ func (mdict *Mdict) Search(word string) ([]*MDictKeyBlockEntry, error) {
 	if mdict.bktree == nil {
 		return nil, errors.New("bktree hasn't build yet")
 	}
-	result, err := mdict.SimSearch(word, 2)
+	result, err := mdict.SimSearch(word, 1)
 	return result, err
 }
 
