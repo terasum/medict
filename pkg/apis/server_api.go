@@ -14,4 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package service
+package apis
+
+import (
+	"github.com/terasum/medict/internal/config"
+	"net"
+)
+
+type StaticServerAPI struct {
+	APIServerAddr net.Addr
+}
+
+func NewStaticServerAPI(conf *config.Config) *StaticServerAPI {
+	return &StaticServerAPI{}
+}
+
+func (serverApi *StaticServerAPI) StaticServerApiBaseURL() string {
+	if serverApi.APIServerAddr == nil {
+		return ""
+	}
+	return serverApi.APIServerAddr.String()
+}

@@ -18,11 +18,11 @@ package main
 
 import (
 	"embed"
-	"github.com/wailsapp/wails/v2/pkg/options/mac"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
@@ -35,8 +35,8 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
-	// Create application with options
-	err := wails.Run(&options.App{
+
+	appOptions := &options.App{
 		Title:             "Medict",
 		Width:             800,
 		Height:            600,
@@ -50,11 +50,15 @@ func main() {
 		StartHidden:       false,
 		HideWindowOnClose: false,
 		BackgroundColour:  &options.RGBA{R: 33, G: 37, B: 43, A: 255},
-		Assets:            assets,
-		LogLevel:          logger.DEBUG,
-		OnStartup:         app.startup,
-		OnDomReady:        app.domReady,
-		OnShutdown:        app.shutdown,
+		AssetServer: &assetserver.Options{
+			Assets: assets,
+		},
+		Logger:             logger.NewDefaultLogger(),
+		LogLevel:           logger.INFO,
+		LogLevelProduction: logger.INFO,
+		OnStartup:          app.startup,
+		OnDomReady:         app.domReady,
+		OnShutdown:         app.shutdown,
 		Bind: []interface{}{
 			app,
 		},
@@ -74,9 +78,11 @@ func main() {
 				Icon:    icon,
 			},
 		},
-	})
+	}
 
+	err := wails.Run(appOptions)
 	if err != nil {
 		panic(err)
 	}
+
 }

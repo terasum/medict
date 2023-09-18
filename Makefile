@@ -1,3 +1,5 @@
+dev:
+	wails dev --loglevel info
 build:
 	wails build
 

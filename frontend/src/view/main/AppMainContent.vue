@@ -113,21 +113,35 @@ function listenContentUpdate() {
        after, // 在 action 返回或解决后的钩子
        onError, // action 抛出或拒绝的钩子
      }) => {
-      if (name !== "updateMainContent" && name !== "updateMainContentURL" && name !== "updateSelectDict") {
-        console.log("not updateMainContent, skipped");
-        return;
+      switch (name) {
+        case "updateMainContent": break;
+        case "updateMainContentURL": break;
+        case "updateSelectDict": break;
+        default: {
+          console.log(`[event] not recognized event, skipped, event name: ${name}`);
+          return;
+        }
       }
 
       // 这将在 action 成功并完全运行后触发。
       // 它等待着任何返回的 promise
       after((result) => {
-        if (name === "updateMainContent") {
+        switch (name) {
+          case "updateMainContent": {
             const content = b64DecodeUnicode(store.mainContent)
             updateIframeContent(content, true);
-        } else if (name === "updateMainContentURL") {
-          updateIframeContent(store.mainContentURL, false);
-        } else if (name === "updateSelectDict") {
-          inputWord.value = ""
+            break;
+          }
+          case "updateMainContentURL": {
+            updateIframeContent(store.mainContentURL, false);
+            break;
+        }
+
+          case "updateSelectDict": {
+            inputWord.value = ""
+            break;
+          }
+
         }
       })
 
@@ -196,7 +210,9 @@ function handleChange (v) {
 onMounted(() => {
   cerateIframe();
   listenContentUpdate();
-  dictQueryStore.setUpDictAPI()
+  setTimeout(function() {
+    dictQueryStore.setUpAPIBaseURL()
+  },1000)
 });
 
 ///----------------------------

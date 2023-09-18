@@ -18,60 +18,63 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/labstack/gommon/log"
 	"github.com/terasum/medict/internal/entry"
-	"github.com/terasum/medict/pkg/service"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"os"
+	"github.com/terasum/medict/pkg/backserver"
+	"github.com/terasum/medict/pkg/model"
 )
 
 // App struct
 type App struct {
 	ctx context.Context
 
-	sserver *service.StaticService
-	ready   bool
-
 	errorChannel chan error
 	stopChannel  chan int
+	bs           *backserver.BackServer
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	app := &App{
+		errorChannel: make(chan error),
+		stopChannel:  make(chan int),
+		bs:           &backserver.BackServer{Ready: false},
+	}
+
+	err := app.appInit()
+	if err != nil {
+		go func() {
+			app.errorChannel <- err
+		}()
+	}
+	return app
+}
+
+func (b *App) appInit() error {
+	conf, err := entry.DefaultConfig()
+	if err != nil {
+		return err
+	}
+
+	bs, err := backserver.NewStaticServer(conf)
+	if err != nil {
+		return err
+	}
+
+	err = bs.SetUp()
+	if err != nil {
+		return err
+	}
+	b.bs = bs
+	// running bs, this is not blocking
+	bs.Start()
+	return nil
 }
 
 // startup is called at application startup
 func (b *App) startup(ctx context.Context) {
-	errorChannel := make(chan error)
-	stopChannel := make(chan int)
-	b.errorChannel = errorChannel
-	b.stopChannel = stopChannel
-
-	go b.startErrorSignalListen()
-	go b.startStopSignalListen()
-
-	config, err := entry.DefaultConfig()
-	if err != nil {
-		panicWithErrorMessageDialog(ctx, err)
-		os.Exit(-1)
-		return
-	}
-
-	dictService, err := service.NewDictService(config)
-	if err != nil {
-		panicWithErrorMessageDialog(ctx, err)
-		os.Exit(-1)
-		return
-	}
-
-	staticService := service.NewStaticServer(ctx, config, dictService, errorChannel, stopChannel)
-
-	// 开始服务
-	go staticService.Start()
-
-	b.sserver = staticService
-	b.ready = true
+	go b.stopChanListen(ctx)
+	go b.errorChanListen(ctx)
 }
 
 // domReady is called after the front-end dom has been loaded
@@ -84,45 +87,19 @@ func (b *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 	close(b.stopChannel)
 	close(b.errorChannel)
+	b.bs.GracefulStop()
 }
 
-func (b *App) StaticServerURL() string {
-	if b.ready {
-		return b.sserver.StaticServerBaseUrl()
-	} else {
-		return ""
-	}
-}
-
-func panicWithErrorMessageDialog(ctx context.Context, err error) {
-	_, dialogErr := runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
-		Title:         "错误",
-		Type:          runtime.ErrorDialog,
-		Message:       err.Error(),
-		Buttons:       []string{"OK"},
-		DefaultButton: "OK",
-	})
-	if dialogErr != nil {
-		fmt.Printf("[CRITIC] open dialog error %s\n", dialogErr.Error())
-	}
-}
-
-func (b *App) startErrorSignalListen() {
-	for {
-		select {
-		case err := <-b.errorChannel:
-			panicWithErrorMessageDialog(b.ctx, err)
-		case <-b.stopChannel:
-			return
+func (b *App) Dispatch(apiName string, args map[string]interface{}) *model.Resp {
+	log.Infof("[wails] IPC request dispatch [%s] args %v", apiName, args)
+	if args != nil {
+		for k, v := range args {
+			log.Infof("[wails] IPC dispatch args [%s]: {%s : %v}", apiName, k, v)
 		}
 	}
+	return b.bs.DispatchIPCReq(apiName, args)
 }
 
-func (b *App) startStopSignalListen() {
-	for {
-		select {
-		case <-b.stopChannel:
-			return
-		}
-	}
+func (b *App) ResourceServerAddr() string {
+	return b.bs.StaticServerBaseUrl()
 }

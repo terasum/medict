@@ -19,7 +19,7 @@
 import { defineStore } from 'pinia';
 
 import { GetAllDicts } from '@/apis/dicts-api';
-import { StaticDictServerURL } from '@/apis/static-server-api';
+import { StaticDictServerURL } from '@/apis/apis';
 
 function constructQueryURL(entry) {
   let {
@@ -94,12 +94,28 @@ export const useDictQueryStore = defineStore('dictQuery', {
     updateSelectDict(dictItem) {
       this.selectDict=dictItem;
     },
-    setUpDictAPI() {
-      StaticDictServerURL().then((url) => {
-        console.log('========= static server url ===========');
-        console.log(url);
-        this.dictApiBaseURL = url;
-      });
+    setUpAPIBaseURL() {
+      let count = 0;
+      let that = this;
+      let inv = setInterval(function() {
+        StaticDictServerURL().then((url) => {
+          if (url === "") {
+            console.log(`[init] static server url empty retry ${count}`)
+            return
+          }
+          if (url.startsWith("http://localhost:0/")){
+            console.log(`[init] static server url empty retry ${count}`)
+            return
+          }
+          console.log(`[init] static server url success ${count}`)
+          that.updateBaseURL(url);
+          clearInterval(inv);
+        });
+      }, 1000)
+    },
+    updateBaseURL(url) {
+      console.log(url);
+      this.dictApiBaseURL = url;
     },
     locateWord(entry_idx) {
       if (this.dictApiBaseURL === '') {

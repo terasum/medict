@@ -20,6 +20,7 @@ const (
 	SuccessErrCode   = 200
 	InnerSysErrCode  = 500
 	BadParamErrCode  = 401
+	BadReqCode       = 400
 	UnknownErrorCode = 999
 )
 
@@ -34,6 +35,14 @@ func BuildSuccess(data interface{}) *Resp {
 		Data: data,
 		Err:  "success",
 		Code: SuccessErrCode,
+	}
+}
+
+func BuildRawError(err string, code int) *Resp {
+	return &Resp{
+		Data: nil,
+		Err:  err,
+		Code: code,
 	}
 }
 
