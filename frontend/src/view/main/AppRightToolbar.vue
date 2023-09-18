@@ -20,52 +20,73 @@
 @import '@/style/variables.scss';
 
 .app-right-toolbar {
-  display: flex;
-  flex-direction: row;
   height: 100%;
   width: $layout-right-toolbar-width;
-  background-color: #fafafa;
-  .dictionaries {
+
+  .toolbar-top {
+    height: $layout-header-height;
+    width: 100%;
+
     display: flex;
-    flex-direction: column;
-    width:60px;
-    margin-top: $layout-main-content-functions-height;
+    padding: 0 10px;
+    background-color: $theme-top-header-background-color;
+  }
 
-    .dictionary-item {
-      display: block;
-      width: 48px;
-      height: 48px;
-      text-align: center;
-      line-height: 48px;
-      margin: 6px auto;
-      border: 1px solid #ccc;
-      border-radius: 8px;;
-      font-size: 13px;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
+  .toolbar-content {
+    display: flex;
+    flex-direction: row;
+    background-color: #fafafa;
+    height: calc(100% - $layout-header-height);
 
-      &:hover {
-        background-color: #f1f1f1;
+    .dictionaries {
+      display: flex;
+      flex-direction: column;
+      width: 60px;
+
+      .dictionary-item {
+        display: block;
+        width: 48px;
+        height: 48px;
+        text-align: center;
+        line-height: 48px;
+        margin: 6px auto;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+
+        &:hover {
+          background-color: #f1f1f1;
+        }
       }
-
     }
-
   }
 }
 </style>
 <template>
   <div id="app-right-toolbar" class="app-right-toolbar">
-      <div class="dictionaries" >
-        <span class="dictionary-item" v-for="item in state.dictList" 
-        :key="item.id" 
-        data-dictid="item.id" @click="chooseDict(item)">{{ item.name }}</span>
+    <div class="toolbar-top"></div>
+    <div class="toolbar-content">
+      <div class="dictionaries">
+        <span
+          class="dictionary-item"
+          v-for="item in state.dictList"
+          :key="item.id"
+          data-dictid="item.id"
+          @click="chooseDict(item)"
+          >{{ item.name }}</span
+        >
+      </div>
     </div>
   </div>
 </template>
 <script setup>
 import { useDictQueryStore } from '@/store/dict';
-import {reactive, onMounted} from "vue";
+import { reactive, onMounted } from 'vue';
 const dictQueryStore = useDictQueryStore();
 
 const state = reactive({
@@ -74,24 +95,23 @@ const state = reactive({
 
 function chooseDict(item) {
   dictQueryStore.updateSelectDict(item);
-  dictQueryStore.updateMainContent("");
+  dictQueryStore.updateMainContent('');
   dictQueryStore.updatePendingList([]);
 }
 
 function loadDictionaries() {
-    dictQueryStore.queryDictList().then((res) => {
-      if (res.length > 0) {
-        dictQueryStore.updateSelectDict(res[0]);
-      }
-      
-      for (let i = 0; i < res.length; i++) {
-        state.dictList.push(res[i]);
-      }
-    });
+  dictQueryStore.queryDictList().then((res) => {
+    if (res.length > 0) {
+      dictQueryStore.updateSelectDict(res[0]);
+    }
+
+    for (let i = 0; i < res.length; i++) {
+      state.dictList.push(res[i]);
+    }
+  });
 }
 
 onMounted(() => {
   loadDictionaries();
 });
-
 </script>

@@ -31,10 +31,12 @@ function constructQueryURL(entry) {
 const countDownJs = `
 <html>
 <head>
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 <style>
   html, body {
-     width: 100%;
     height: 100%;
+    padding:0;
+    margin:0;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -98,9 +100,20 @@ export const useDictQueryStore = defineStore('dictQuery', {
       let count = 0;
       let that = this;
       let inv = setInterval(function() {
-        StaticDictServerURL().then((url) => {
+        let urlPromise = StaticDictServerURL();
+
+        if (!urlPromise){
+          clearInterval(inv);
+          return;
+        }
+
+        urlPromise.then((url) => {
           if (url === "") {
             console.log(`[init] static server url empty retry ${count}`)
+            return
+          }
+          // browser
+          if (url === "http://localhost:1/"){
             return
           }
           if (url.startsWith("http://localhost:0/")){
@@ -109,6 +122,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
           }
           console.log(`[init] static server url success ${count}`)
           that.updateBaseURL(url);
+          clearInterval(inv);
+        }).catch((err) =>{
+          console.error(err);
           clearInterval(inv);
         });
       }, 1000)

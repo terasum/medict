@@ -21,6 +21,7 @@
     "@rollup/plugin-alias": "^5.0.0",
     "@vicons/antd": "^0.12.0",
     "@vicons/fa": "^0.12.0",
+    "@vicons/fluent": "^0.12.0",
     "@vicons/tabler": "^0.12.0",
     "@vitejs/plugin-vue": "^3.2.0",
     "@vue/compiler-sfc": "^3.3.4",

@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-import {Dispatch, ResourceServerAddr} from '../../wailsjs/go/main/App';
-import {model} from "../../wailsjs/go/models"
+import { Dispatch, ResourceServerAddr } from '../../wailsjs/go/main/App';
+import { model } from '../../wailsjs/go/models';
 
 function objectToPathParams(obj) {
   const params = [];
@@ -30,44 +29,24 @@ function objectToPathParams(obj) {
   return params.join('&');
 }
 
-
 export const StaticDictServerURL = function (): Promise<string> {
-  return ResourceServerAddr()
-}
+  if (window['go']) {
+    return ResourceServerAddr();
+  } else {
+    Promise.resolve("http://localhost:1")
+  }
+};
 
-const APIs = async function() {
-  // let baseURL = await (getBaseURL())();
-  // return {
-  //   "GetAllDicts": {method: "GET", path: baseURL + "/__api/v1/dicts/GetAllDicts"},
-  //   "LookupWord":  {method: "GET", path: baseURL + "/__api/v1/dicts/LookupWord"},
-  //   "SearchWord":  {method: "GET", path: baseURL + "/__api/v1/dicts/SearchWord"},
-  //   "LocateWord":  {method: "GET", path: baseURL + "/__api/v1/dicts/LocateWord"},
-  // }
-}
 
 export async function requestBackend(apiName, data): Promise<model.Resp> {
-  return Dispatch(apiName, data)
+  if (window['go']) {
+    return Dispatch(apiName, data);
+  } else {
+    return Promise.resolve({
+      data: [{id:"1", "name":"test"}],
+      err: "",
+      code: 200,
+    })
 
-  // let apis = await APIs()
-  // let api = apis[apiName];
-  // if (!api) {
-  //   return
-  // }
-  // let method = api.method;
-  // let path = api.path;
-  // if (method=== "GET"){
-  //   const queryParams = objectToPathParams(data);
-  //   const fullUrl = `${path}?${queryParams}`;
-  //   return await request.get(fullUrl, {
-  //     url: fullUrl,
-  //     method: "GET",
-  //   })
-  // } else {
-  //   return await request.get(path, {
-  //     url: path,
-  //     method: "GET",
-  //     data: data,
-  //   })
-  // }
-
+  }
 }

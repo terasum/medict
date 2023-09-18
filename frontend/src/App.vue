@@ -33,7 +33,9 @@
     display: block;
     --wails-draggable: drag;
     background: transparent;
-    background-color: #fafafa;
+    // background-color: #fafafa;
+
+    background-color: $theme-top-header-background-color;
   }
   .x-space-provider {
     width: 100%;
@@ -63,25 +65,35 @@ import { ref, reactive } from 'vue';
 import { NConfigProvider, NGlobalStyle } from 'naive-ui';
 import { darkTheme as dark, lightTheme as light } from 'naive-ui';
 import { zhCN, dateZhCN } from 'naive-ui';
-import { GlobalThemeOverrides } from 'naive-ui'
+import { GlobalThemeOverrides } from 'naive-ui';
 
 let isDark = ref(false);
 let theme = reactive(light);
 
-if (isDark.value){
-   theme = dark;
+if (isDark.value) {
+  theme = dark;
 }
 
-  const themeOverrides: GlobalThemeOverrides = {
-    common: {
-      primaryColor: '#326cb8'
-    },
-    Input:{
-      borderFocus: '1px solid #326cb8',
-      borderHover: '1px solid #326cc9',
-    },
-    Button: {
-      textColor: '#FF0000'
-    }
-  }
+const themeOverrides: GlobalThemeOverrides = {
+  common: {
+    primaryColor: '#326cb8',
+  },
+  Input: {
+    borderFocus: '1px solid #326cb8',
+    borderHover: '1px solid #326cc9',
+  },
+  Button: {
+    textColor: '#333',
+    // borderFocus: '1px solid #326cb8',
+    // borderHover: '1px solid #326cc9',
+    textColorHoverPrimary: '#326cb8',
+    textColorPressedPrimary: '#326cb8',
+    textColorFocusPrimary: '#326cb8',
+    border: "none",
+    borderHover: "none",
+    borderPressed: "none",
+    borderFocus: "none",
+    borderDisabled: "none",
+  },
+};
 </script>
