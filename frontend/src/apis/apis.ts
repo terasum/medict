@@ -40,12 +40,13 @@ export const StaticDictServerURL = function (): Promise<string> {
 
 export async function requestBackend(apiName, data): Promise<model.Resp> {
   if (window['go']) {
+    console.log(`[IPC] dispatch [${apiName}]into golang args`, data)
     return Dispatch(apiName, data);
   } else {
     return Promise.resolve({
-      data: [{id:"1", "name":"test"}],
-      err: "",
-      code: 200,
+      data:"",
+      err: "browser not support",
+      code: 500,
     })
 
   }

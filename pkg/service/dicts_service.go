@@ -19,13 +19,14 @@ package service
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path"
+
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/gomdict"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service/support"
-	"os"
-	"path"
 )
 
 var singltonInstanceDictService *DictService
@@ -53,7 +54,6 @@ func NewDictService(config *config.Config) (*DictService, error) {
 
 func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 	if dict, ok := ds.dicts[dictId]; ok {
-		fmt.Printf("dict %s, currentDir is %s\n", dictId, dict.PathInfo.CurrentDir)
 		fullPath := path.Join(dict.PathInfo.CurrentDir, key)
 		_, err := os.Stat(fullPath)
 		if err == nil {
@@ -69,14 +69,15 @@ func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
 	result := make([]*model.PlainDictionaryItem, len(ds.dicts))
 	i := 0
 	for _, dict := range ds.dicts {
-		result[i] = &model.PlainDictionaryItem{
-			ID:   dict.ID,
-			Name: dict.Name,
-			Path: dict.PathInfo.MdxAbsPath,
-		}
+		result[i] = dict.ToPlain()
 		i++
 	}
 	return result
+}
+
+func (ds *DictService) GetDictPlain(id string) (*model.PlainDictionaryItem, bool) {
+	dict, ok := ds.dicts[id]
+	return dict.ToPlain(), ok
 }
 
 func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {

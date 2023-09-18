@@ -21,6 +21,18 @@ import { model } from './model';
 import {requestBackend} from '@/apis/apis';
 
 
+export const GetDictCover = async function(dict_id: string, cover_name:string): Promise<model.Resp> {
+try{
+        let resp = await requestBackend("GetDictCover", {dict_id, cover_name})
+        console.log("[dicts-api] GetDictCover: ", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api] GetDictCover: " ,error)
+        return Promise.reject(error)
+    }
+}
+
+
 export const GetAllDicts = async function (): Promise<Array<IDict>> {
     try{
         let resp = await requestBackend("GetAllDicts", {})
