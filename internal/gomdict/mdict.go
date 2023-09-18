@@ -22,6 +22,7 @@ import (
 	"github.com/agatan/bktree"
 	"github.com/creasty/go-levenshtein"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -124,9 +125,48 @@ func (mdict *Mdict) BuildBKTree() error {
 func (mdict *Mdict) SimSearch(word string, tolerance int) ([]*MDictKeyBlockEntry, error) {
 	entry := &MDictKeyBlockEntry{KeyWord: word}
 	results := mdict.bktree.Search(entry, tolerance)
-	resultWords := make([]*MDictKeyBlockEntry, 0)
-	for _, result := range results {
-		resultWords = append(resultWords, result.Entry.(*MDictKeyBlockEntry))
+
+	wrapper := &entryWrapper{
+		list: make([]*entryWrapperItem, 0),
 	}
-	return resultWords, nil
+	for _, r := range results {
+		wrapper.list = append(wrapper.list, &entryWrapperItem{
+			entry:    r.Entry.(*MDictKeyBlockEntry),
+			distance: r.Distance,
+		})
+	}
+
+	sort.Sort(wrapper)
+	return wrapper.toEntryList(), nil
+}
+
+type entryWrapperItem struct {
+	entry    *MDictKeyBlockEntry
+	distance int
+}
+
+type entryWrapper struct {
+	list []*entryWrapperItem
+}
+
+func (w *entryWrapper) Less(i, j int) bool {
+	return w.list[i].distance < w.list[j].distance
+}
+
+func (w *entryWrapper) Len() int {
+	return len(w.list)
+}
+
+func (w *entryWrapper) Swap(i, j int) {
+	temp := w.list[i]
+	w.list[i] = w.list[j]
+	w.list[j] = temp
+}
+
+func (w *entryWrapper) toEntryList() []*MDictKeyBlockEntry {
+	entries := make([]*MDictKeyBlockEntry, w.Len())
+	for idx, result := range w.list {
+		entries[idx] = result.entry
+	}
+	return entries
 }
