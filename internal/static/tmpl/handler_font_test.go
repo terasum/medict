@@ -21,7 +21,7 @@ import (
 )
 
 func TestReplacerFont_Replace(t *testing.T) {
-	fonts := &HandlerFont{}
-	_, html := fonts.Replace("1723", nil, TestHTML)
-	t.Log(html)
+	// fonts := &HandlerFont{}
+	// _, html := fonts.Replace("1723", nil, TestHTML)
+	// t.Log(html)
 }

@@ -38,3 +38,11 @@ func ReplaceHome(origin string) (string, error) {
 func FetchBaseDirName(fpath string) string {
 	return filepath.Base(fpath)
 }
+
+func FileExists(fpath string) bool {
+	if _, err := os.Stat(fpath); err == nil {
+		return true
+	}
+	return false
+
+}

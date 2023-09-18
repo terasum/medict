@@ -17,9 +17,10 @@
 package support
 
 import (
-	"github.com/terasum/medict/pkg/model"
 	"io/fs"
 	"path/filepath"
+
+	"github.com/terasum/medict/pkg/model"
 )
 
 func WalkDir(dirpath string) ([]*model.DirItem, error) {
@@ -37,6 +38,9 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 			return nil
 		}
 		item, err := innerWalker(dirpath, path, err)
+		if err != nil {
+			return err
+		}
 		if item.MdxAbsPath != "" {
 			list = append(list, item)
 		}
@@ -71,6 +75,10 @@ func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
 			// pop stack
 			mddabs, _ := filepath.Abs(path)
 			item.MddAbsPath = append(item.MddAbsPath, mddabs)
+		} else if info.Name() == "cover.png" {
+			item.Background = "cover.png"
+		} else if info.Name() == "cover.jpg" {
+			item.Background = "cover.jpg"
 		} else {
 			// TODO copy css/js files
 		}

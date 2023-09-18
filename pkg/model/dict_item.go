@@ -31,20 +31,34 @@ type DirItem struct {
 	CurrentDir string
 	MdxAbsPath string
 	MddAbsPath []string
+	Background string
 }
 
 type PlainDictionaryItem struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Path string `json:"path"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	BaseDictDir string `json:"base_dir"`
+	Background  string `json:"background"`
 }
 
 type DictionaryItem struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	PathInfo *DirItem
-	MDX      *gomdict.Mdict
-	MDDS     []*gomdict.Mdict
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Background string `json:"background"`
+	PathInfo   *DirItem
+	MDX        *gomdict.Mdict
+	MDDS       []*gomdict.Mdict
+}
+
+func (dict *DictionaryItem) ToPlain() *PlainDictionaryItem {
+	return &PlainDictionaryItem{
+		ID:          dict.ID,
+		Name:        dict.Name,
+		BaseDictDir: dict.PathInfo.CurrentDir,
+		Path:        dict.PathInfo.MdxAbsPath,
+		Background:  dict.Background,
+	}
 }
 
 type KeyBlockEntry struct {
@@ -60,6 +74,11 @@ func NewByDirItem(dirItem *DirItem) (*DictionaryItem, error) {
 		ID:       utils.MD5Hash(dirItem.CurrentDir),
 		Name:     utils.FetchBaseDirName(dirItem.CurrentDir),
 		PathInfo: dirItem,
+	}
+
+	if dirItem.Background != "" {
+		background := dirItem.Background + "?dict_id=" + dictItem.ID + "&d=0"
+		dictItem.Background = background
 	}
 
 	mdx, err := gomdict.New(dirItem.MdxAbsPath)

@@ -76,7 +76,9 @@
           class="dictionary-item"
           v-for="item in state.dictList"
           :key="item.id"
-          data-dictid="item.id"
+          :data-dict-id="item.id"
+          :data-dict-name="item.name"
+          :data-background="item.background"
           @click="chooseDict(item)"
           >{{ item.name }}</span
         >
@@ -87,6 +89,11 @@
 <script setup>
 import { useDictQueryStore } from '@/store/dict';
 import { reactive, onMounted } from 'vue';
+import { debounce } from '@/utils';
+import {GetDictCover} from "@/apis/dicts-api"
+
+
+
 const dictQueryStore = useDictQueryStore();
 
 const state = reactive({
@@ -101,12 +108,50 @@ function chooseDict(item) {
 
 function loadDictionaries() {
   dictQueryStore.queryDictList().then((res) => {
+    console.log(res);
     if (res.length > 0) {
       dictQueryStore.updateSelectDict(res[0]);
     }
 
     for (let i = 0; i < res.length; i++) {
       state.dictList.push(res[i]);
+    }
+
+    refreshDict();
+  });
+}
+
+const refreshDict = debounce(refreshDictBackground);
+
+function refreshDictBackground() {
+  document.querySelectorAll('.dictionary-item').forEach((item) => {
+    if (item.dataset.background) {
+      let sp = item.dataset.background.split('?');
+      if (sp.length == 2) {
+        let cover_name = sp[0];
+        let path_params = sp[1].split("&");
+        let dict_id = "";
+
+        for (let i = 0; i < path_params.length; i++) {
+        let pair = path_params[i].split('=');
+          if (pair[0] == 'dict_id') {
+            dict_id = pair[1];
+            break
+          }
+        }
+
+        GetDictCover(dict_id,  cover_name).then((res) => {
+          if (cover_name.endsWith(".jpg")) {
+            item.style.backgroundImage = `url("data:image/jpeg;base64,${res}")`;
+          } else {
+            item.style.backgroundImage = `url("data:image/png;base64,${res}")`;
+          }
+           item.style.backgroundPosition = `center`;
+           item.style.backgroundSize = `cover`;
+           item.style.backgroundRepeat = `no-repeat`;
+           item.innerText = ""
+        })
+      }
     }
   });
 }

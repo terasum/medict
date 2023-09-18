@@ -17,12 +17,13 @@
 package backserver
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/labstack/gommon/log"
-	"github.com/terasum/medict/internal/static"
 	"net"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/labstack/gommon/log"
+	"github.com/terasum/medict/internal/static"
 )
 
 func (bs *BackServer) startStaticServer(listenAddr string) {
@@ -109,4 +110,5 @@ func (bs *BackServer) setUpRouters() error {
 func (bs *BackServer) setupHandlers() {
 	bs.handlerMap.Store("GetAllDicts", bs.DictCon.GetAllDicts)
 	bs.handlerMap.Store("SearchWord", bs.DictCon.SearchWord)
+	bs.handlerMap.Store("GetDictCover", bs.DictCon.GetDictCover)
 }

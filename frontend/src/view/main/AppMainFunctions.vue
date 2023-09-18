@@ -172,11 +172,7 @@
       </div>
 
       <div class="header-functions">
-        <!-- <div
-          class="fn-box"
-          v-bind:class="{ 'fn-box-active': currentTab === '词典' }"
-          v-on:click="clickDictionary"
-        > -->
+
         <div class="fn-box">
           <span class="fn-box-icon">
             <Search />
@@ -185,8 +181,6 @@
         </div>
         <div
           class="fn-box"
-          v-bind:class="{ 'fn-box-active': currentTab === '词典' }"
-          v-on:click="clickDictionary"
         >
           <span class="fn-box-icon">
             <Book />
