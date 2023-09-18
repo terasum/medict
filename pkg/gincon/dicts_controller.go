@@ -1,35 +1,26 @@
-package service
+package gincon
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/terasum/medict/internal/static"
 	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-func (server *HttpServer) handleResourceQueryReq(c *gin.Context) {
-	dictId := c.Query("dict_id")
-	rawKeys := strings.SplitN(c.Request.RequestURI, "?", 2)
-	if len(rawKeys) < 2 {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	if dictId == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	resourceKey := rawKeys[0]
-	resourceKey = strings.TrimPrefix(resourceKey, ContentRootUrl+"/")
-
-	server.innerResourceQuery(c, resourceKey, dictId)
-	return
+type DictsController struct {
+	ds *service.DictService
 }
 
-func (server *HttpServer) handleWordQueryReq(c *gin.Context) {
+func NewDictsController(ds *service.DictService) *DictsController {
+	return &DictsController{ds: ds}
+}
+
+func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 	// 请求地址: http://localhost:8193/__mdict/__tcidem_query?dict_id=f234356c227f82a54afdaa3514de188a&key_word=card&record_start_offset=20477857&record_end_offset=20501885&key_block_idx=26868
 	keyWord := c.Query("key_word")
 	recordStart := c.Query("record_start_offset")
@@ -46,7 +37,7 @@ func (server *HttpServer) handleWordQueryReq(c *gin.Context) {
 		return
 	}
 
-	def, err := server.DictService.Locate(dictId, entry)
+	def, err := dc.ds.Locate(dictId, entry)
 	if err != nil {
 
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -59,18 +50,37 @@ func (server *HttpServer) handleWordQueryReq(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, ContentTypeHTML, htmlContent)
+	c.Data(http.StatusOK, static.ContentTypeHTML, htmlContent)
 	return
 }
 
-func (server *HttpServer) innerResourceQuery(c *gin.Context, key, dictId string) {
+func (dc *DictsController) HandleResourceQueryReq(c *gin.Context) {
+	dictId := c.Query("dict_id")
+	rawKeys := strings.SplitN(c.Request.RequestURI, "?", 2)
+	if len(rawKeys) < 2 {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if dictId == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	resourceKey := rawKeys[0]
+	resourceKey = strings.TrimPrefix(resourceKey, static.ContentRootUrl+"/")
+
+	dc.innerResourceQuery(c, resourceKey, dictId)
+	return
+}
+
+func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string) {
 	if key == "" || dictId == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	if !strings.Contains(key, "/") {
 		fmt.Printf("NoRoute[0] handle resource key: %s from dir\n", key)
-		resultBytes, err := server.DictService.FindFromDir(dictId, key)
+		resultBytes, err := dc.ds.FindFromDir(dictId, key)
 		if err == nil {
 			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 			if err != nil {
@@ -81,7 +91,7 @@ func (server *HttpServer) innerResourceQuery(c *gin.Context, key, dictId string)
 			return
 		}
 
-		resultBytes, err = server.DictService.LookupResource(dictId, key)
+		resultBytes, err = dc.ds.LookupResource(dictId, key)
 		if err == nil {
 			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 			if err != nil {
@@ -100,7 +110,7 @@ func (server *HttpServer) innerResourceQuery(c *gin.Context, key, dictId string)
 	}
 
 	key = strings.ReplaceAll(key, "/", "\\")
-	result, err := server.DictService.LookupResource(dictId, key)
+	result, err := dc.ds.LookupResource(dictId, key)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return

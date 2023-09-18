@@ -18,34 +18,50 @@
 
 import { IDict } from './types';
 import { model } from './model';
+import {requestBackend} from '@/apis/apis';
+
 
 export const GetAllDicts = async function (): Promise<Array<IDict>> {
-    return new Promise((resolve, reject) =>{
-       resolve([])
-    })
-
-    // const dicts = await Dicts()
-    // return dicts as unknown as Array<IDict>
+    try{
+        let resp = await requestBackend("GetAllDicts", {})
+        console.log("[dicts-api] GetAllDicts: ", resp)
+        return resp.data as unknown as Array<IDict>
+    } catch (error) {
+        console.error("[dicts-api] GetAllDicts: " ,error)
+        return Promise.reject(error)
+    }
 }
 
 
 export const LookupWord = async function (dictid:string, word: string) : Promise<model.Resp> {
-    return new Promise((resolve, reject) =>{
-        resolve(new model.Resp({}))
-    })
-    // return await Lookup(dictid, word)
+    try{
+        let resp = await requestBackend("LookupWord", {dict_id:dictid, word:word})
+        console.log("[dicts-api]", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api]" ,error)
+        return Promise.reject(error)
+    }
 }
 
 export const SearchWord = async function(dictid:string, word: string) :Promise<model.Resp> {
-    return new Promise((resolve, reject) =>{
-        resolve(new model.Resp({}))
-    })
-    // return await Search(dictid, word)
+    try{
+        let resp = await requestBackend("SearchWord", {dict_id: dictid, word: word})
+        console.log("[dicts-api]", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api]" ,error)
+        return Promise.reject(error)
+    }
 }
 
 export const LocateWord = async function(dictid:string, keyBlockEntry: model.KeyBlockEntry): Promise<model.Resp> {
-    return new Promise((resolve, reject) =>{
-        resolve(new model.Resp({}))
-    })
-    // return await Locate(dictid, keyBlockEntry)
+    try{
+        let resp = await requestBackend("LocateWord", {dict_id: dictid, key_block_entry: keyBlockEntry})
+        console.log("[dicts-api]", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api]" ,error)
+        return Promise.reject(error)
+    }
 }

@@ -27,28 +27,25 @@ import (
 )
 
 type DictsAPI struct {
-	dictSvc *service.DictService
+	DictSvc *service.DictService
 }
 
-func NewDictsApi() *DictsAPI {
-	return &DictsAPI{}
-}
-
-func (dicts *DictsAPI) Init(config *config.Config) error {
-	svc, err := service.NewDictService(config)
+func NewDictsAPI(conf *config.Config) (*DictsAPI, error) {
+	dictSvc, err := service.NewDictService(conf)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	dicts.dictSvc = svc
-	return nil
+	return &DictsAPI{
+		DictSvc: dictSvc,
+	}, nil
 }
 
 func (dicts *DictsAPI) Dicts() []*model.PlainDictionaryItem {
-	return dicts.dictSvc.Dicts()
+	return dicts.DictSvc.Dicts()
 }
 
 func (dicts *DictsAPI) Lookup(dictId string, rawKeyWord string) *model.Resp {
-	defData, err := dicts.dictSvc.Lookup(dictId, rawKeyWord)
+	defData, err := dicts.DictSvc.Lookup(dictId, rawKeyWord)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
@@ -59,7 +56,7 @@ func (dicts *DictsAPI) Lookup(dictId string, rawKeyWord string) *model.Resp {
 }
 
 func (dicts *DictsAPI) Search(dictId string, rawKeyWord string) *model.Resp {
-	entries, err := dicts.dictSvc.Search(dictId, rawKeyWord)
+	entries, err := dicts.DictSvc.Search(dictId, rawKeyWord)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
@@ -71,7 +68,7 @@ func (dicts *DictsAPI) Locate(dictId string, entry *model.KeyBlockEntry) *model.
 	if entry == nil {
 		return model.BuildError(errors.New("empty entry"), model.BadParamErrCode)
 	}
-	def, err := dicts.dictSvc.Locate(dictId, entry)
+	def, err := dicts.DictSvc.Locate(dictId, entry)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
