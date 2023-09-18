@@ -17,14 +17,14 @@
 -->
 
 <template>
-  <div class="container settings-view">
-    <div class="settings-title">
-      <h3><i class="fas fa-info-circle"></i> APP 信息</h3>
+  <div class="container about-view">
+    <div class="about-title">
+      <h3>APP 信息</h3>
     </div>
-    <div class="settings-body">
-      <section class="settings-section">
+    <div class="about-body">
+      <section class="about-section">
         <div class="section-title">
-          <h4><i class="fas fa-rocket"></i> 软件信息</h4>
+          <h4> <NIcon><Code/></NIcon> 软件信息</h4>
         </div>
         <div class="section-body">
           <div class="input-group">
@@ -33,27 +33,27 @@
               <p>Medict, 现代跨平台词典App</p>
             </div>
             <div class="input-container">
-            <b-button
+            <button
                 class="btn"
                 @click="openExternal('https://github.com/terasum/medict')"
-                >访问 github</b-button
+                >访问 github</button
               >
             </div>
           </div>
           <div class="input-group">
             <div class="input-info">
               <label>软件版本</label>
-              <p>v2.2.1</p>
+              <p>v3.0.1-alpha</p>
             </div>
             <div class="input-container">
             </div>
           </div>
         </div>
-      </section>
+             </section>
 
-      <section class="settings-section">
+      <section class="about-section">
         <div class="section-title">
-          <h4><i class="fas fa-hands-helping"></i> 致谢</h4>
+          <h4><NIcon><PeopleCarry/></NIcon> 致谢</h4>
         </div>
         <div class="section-body">
           <div class="input-group">
@@ -87,87 +87,74 @@
       </section>
 
     </div>
-    <div class="settings-footer">
+    <div class="about-footer">
+          <button class="btn" @click="close"> 关闭 </button>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-// import { WindowAPI } from '../../../main/apis/WindowAPI';
-// import call from 'electron-call';
+<script lang="ts" setup>
+import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
+import {Code, PeopleCarry} from "@vicons/fa";
+import { NIcon } from 'naive-ui';
 
-// const windowOpenApi = call.use<WindowAPI>('WindowAPI');
+import {useRouter} from "vue-router"
 
+const router = useRouter();
 
-import { defineComponent } from 'vue';
-export default defineComponent({
+function openExternal(url: string) {
+      BrowserOpenURL(url);
+}
 
-  components: {},
-  data(){
-    return {
-    contributors:[{
-      id:1,
-      imgSize: 45,
-      nickname: 'Chen Quan',
-      info:'Developer',
-      avatarURL: 'https://avatars.githubusercontent.com/u/20042193?v=4',
-    },
-    {
-      id:2,
-      imgSize: 45,
-      nickname: 'Song Xing',
-      info:'PM',
-      avatarURL: 'https://avatars.githubusercontent.com/u/38558937?v=4',
-    },
-    {
-      id:3,
-      imgSize: 45,
-      nickname: 'Zhang Mingjiao',
-      info:'Designer',
-      avatarURL: 'https://tva1.sinaimg.cn/large/008i3skNly1gtkrf6clgoj60d00d0dgc02.jpg',
-    },
-      
-    ]
-    }
-  },
-  methods: {
-    openExternal(url: string) {
-      // windowOpenApi.openExternalURL(url)
-    },
-  },
-});
+function close() {
+  router.replace({ path: "/" });
+}
 </script>
 
 
 
 <style lang="scss" scoped>
+.container{
+  height: 100%;
+  overflow-y: auto;
+  padding: 10px 40px;
+  background-color: #fafafa;
+}
 
-.settings-title {
+.about-title {
   padding: 10px 0 10px 12px;
-  border-bottom: 1px solid #dfdfdf;
   h3 {
+    line-height: 20px;
     font-size: 20px;
     font-weight: 700px;
-    color: #777;
-    
+    color: #505050;
+    padding: 0;
+    margin:0;
+    margin-bottom: 20px;
+    margin-top: 10px;
   }
 }
-.settings-section {
+
+
+.about-section {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #c1c1c3;
   margin: 0 10px;
-  padding: 12px 0;
 
   .section-title {
     width: 100%;
     padding: 2px 4px;
+    margin: 0;
     font-size: 16px;
+    h4{
+      margin: 4px 0;
+      border-bottom: 1px solid #c1c1c3;
+      color: rgb(18, 78, 169);
+    }
   }
 
   .section-body {
-    padding-left: 16px;
+    padding-left: 12px;
   }
 
   .input-group {
@@ -175,15 +162,24 @@ export default defineComponent({
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin: 10px 0;
     .input-info {
       label {
-        font-size: 15px;
-        color: rgb(43, 103, 194);
+        font-size: 14px;
+        font-style: bold;
       }
+
       p {
         font-size: 12px;
-        color: #999;
+        color: #333;
+        font-style: italic;
+        margin: 0;
       }
+      
+      a{
+        color: #333;
+      }
+
     }
 
     .input-container {
@@ -198,10 +194,10 @@ export default defineComponent({
     }
   }
 }
-.settings-body {
+.about-body {
   min-height: 260px;
 }
-.settings-footer {
+.about-footer {
   display: flex;
   flex-direction: row-reverse;
   padding-right: 30px;

@@ -37,7 +37,9 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 			return nil
 		}
 		item, err := innerWalker(dirpath, path, err)
-		list = append(list, item)
+		if item.MdxAbsPath != "" {
+			list = append(list, item)
+		}
 		return nil
 	})
 	return list, err
