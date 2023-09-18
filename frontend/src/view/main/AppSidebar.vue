@@ -35,6 +35,8 @@
   .sidebar-top {
     display: flex;
     padding: 0 10px;
+    background-color: $theme-top-header-background-color;
+
     .logo {
       display: flex;
       flex-direction: row;
@@ -44,6 +46,10 @@
       height: $layout-sidebar-logo-height;
       img {
         width: 100%;
+      }
+      h1{
+        color:$theme-logo-font-color;
+        font-style: italic;
       }
     }
     
@@ -81,7 +87,8 @@
 
     <div class="sidebar-top">
       <div class="logo">
-        <img src="@/assets/images/logo.png"/>
+        <!-- <img src="@/assets/images/logo.png"/> -->
+        <h1>Medict</h1>
       </div>
     </div>
 

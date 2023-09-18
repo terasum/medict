@@ -17,9 +17,34 @@
  */
 
 $fake-title-bar-height: 26px;
-$layout-header-height: 50px;
+$layout-header-height: 60px;
 $layout-footer-height: 20px;
 $layout-left-sidebar-width: 200px;
 $layout-right-toolbar-width: 60px;
-$layout-main-content-functions-height: 60px;
 $layout-sidebar-logo-height: 60px;
+
+
+$theme-logo-font-color: #505050;
+
+// background-color: #fbfbfb;
+/* background-color: #f6f6f6; */
+// background-image: linear-gradient(135deg, #325dff, #529eff);
+// $theme-top-header-background-color: #d84042;
+
+$theme-top-header-background-color: #f4f5f6;
+
+// background-color: #325eff60;
+
+$theme-function-box-font-color: #505050;
+
+// $theme-function-box-hover-bg-color: #c73639;
+// $theme-function-box-hover-font-color: #505050;
+
+$theme-function-box-hover-bg-color: #666;
+$theme-function-box-hover-font-color: #fff;
+
+
+
+// background-color: #e1e1e1;
+// background-color: #325effa6;
+$theme-function-box-active-color: #bd3134;
