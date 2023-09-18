@@ -187,11 +187,9 @@ function searchWord(word) {
     console.log("=== SearchWord ===")
     console.log(dictQueryStore.selectDict.id)
     console.log(res)
-    if (res.code === 200) {
-      dictQueryStore.updatePendingList(res.data)
-      if (res.data && res.data.length > 0) {
-        dictQueryStore.locateWord(0)
-      }
+    dictQueryStore.updatePendingList(res)
+    if (res.data && res.data.length > 0) {
+      dictQueryStore.locateWord(0)
     }
   })
 }
