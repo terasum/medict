@@ -19,6 +19,12 @@ package backserver
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/labstack/gommon/log"
 	"github.com/terasum/medict/internal/config"
@@ -26,11 +32,6 @@ import (
 	"github.com/terasum/medict/pkg/gincon"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
-	"net"
-	"net/http"
-	"strings"
-	"sync"
-	"time"
 )
 
 type BackServer struct {

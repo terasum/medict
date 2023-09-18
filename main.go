@@ -18,6 +18,7 @@ package main
 
 import (
 	"embed"
+
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -59,6 +60,8 @@ func main() {
 		OnStartup:          app.startup,
 		OnDomReady:         app.domReady,
 		OnShutdown:         app.shutdown,
+		CSSDragProperty:    "--wails-draggable",
+		CSSDragValue:       "drag",
 		Bind: []interface{}{
 			app,
 		},

@@ -26,6 +26,6 @@ func TestWalkDir(t *testing.T) {
 	result, err := WalkDir("./testdata/dicts")
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))
-	expectPath, _ := filepath.Abs("testdata/dicts/testdict/testdict.mdx")
-	assert.Equal(t, result[0].MdxAbsPath, expectPath)
+	expectPath, _ := filepath.Abs("testdata/dicts/oale3/test.mdx")
+	assert.Equal(t, expectPath, result[0].MdxAbsPath)
 }

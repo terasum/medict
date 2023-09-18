@@ -16,12 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare module '*.vue' {
-  import Vue from 'vue';
-  export default Vue;
-
-}
-
 declare module 'vue-friendly-iframe'
 
 declare module '*.md' {

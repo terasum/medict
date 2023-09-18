@@ -31,9 +31,8 @@
     width: 100%;
     height: $fake-title-bar-height;
     display: block;
-    -webkit-app-region: drag;
+    --wails-draggable: drag;
     background: transparent;
-    cursor: grab;
     background-color: #fafafa;
   }
   .x-space-provider {

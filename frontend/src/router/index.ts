@@ -17,7 +17,9 @@
  */
 
 import MainWindow from '@/view/main/MainWindow.vue';
+import AboutWindow from '@/view/about/AboutView.vue';
 
 export default [
   { path: '/', component: MainWindow },
+  { path: '/about', component: AboutWindow },
 ];

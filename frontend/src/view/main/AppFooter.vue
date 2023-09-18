@@ -17,89 +17,118 @@
 -->
 
 <template>
-    <div class="app-footer" id="app-footer">
-      <span
-        class="hyperlink"
+  <div class="app-footer" id="app-footer">
+    <span class="hyperlink">
+      <NIcon size="12"><Github /></NIcon>
+      <b
         data-href="https://github.com/terasum/medict/"
         @click="onClickHyperLink"
-        >star项目</span
+        >Github</b
       >
-  
-      <span class="split-line"></span>
-      <span
-        class="hyperlink"
+    </span>
+
+    <span class="split-line"></span>
+    <span class="hyperlink">
+      <NIcon size="12"><Bug /></NIcon>
+      <b
         data-href="https://github.com/terasum/medict/issues"
         @click="onClickHyperLink"
-        >问题反馈与建议</span
+        >问题反馈</b
       >
-      <span class="split-line"></span>
-      <span class="hyperlink" data-href="/docs" @click="onClickInternalLink"
-        >使用说明</span
-      >
-    </div>
-  </template>
-  
-  
-  <script lang="ts">
-  import { defineComponent } from 'vue';
-  export default defineComponent({
-    data() {
-      return {};
-    },
-    computed: {},
-    watch: {},
-    methods: {
-      onClickHyperLink(event: any) {
-        if (event && event.target) {
-          if (event.target.dataset && event.target.dataset.href) {
-            // TODO FIX
-            // windowApi.openExternalURL(event.target.dataset.href);
-          }
+    </span>
+
+    <span class="split-line"></span>
+    <span class="hyperlink">
+      <NIcon size="12"><Question /></NIcon>
+      <b data-href="/docs" @click="onClickInternalLink">使用说明</b>
+    </span>
+
+    <span class="split-line"></span>
+    <span class="hyperlink">
+      <NIcon size="12"><Coffee /></NIcon>
+      <b data-href="/about" @click="onClickInternalLink">关于</b>
+    </span>
+  </div>
+</template>
+
+<script lang="ts">
+import { Github, Question, Bug, Coffee } from '@vicons/fa';
+import { NIcon } from 'naive-ui';
+import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  components: { NIcon, Github, Question, Bug, Coffee },
+  data() {
+    return {};
+  },
+  computed: {},
+  watch: {},
+  methods: {
+    onClickHyperLink(event: any) {
+      if (event && event.target) {
+        if (event.target.dataset && event.target.dataset.href) {
+          BrowserOpenURL(event.target.dataset.href);
         }
-        console.log(event);
-      },
-      onClickInternalLink(event: any) {
-        if (event && event.target) {
-          if (event.target.dataset && event.target.dataset.href) {
-            this.$router.replace({ path: event.target.dataset.href });
-          }
-        }
-        console.log(event);
-      },
-    },
-    mounted() {},
-  });
-  </script>
-  
-  
-  <style lang="scss" scoped>
-  .app-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    border-top: 1px solid #ccc;
-    height: 20px;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    background: #fff;
-  
-    padding-left: 20px;
-    color: #666;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 18px;
-    span.hyperlink {
-      cursor: pointer;
-      &:hover {
-        color: #333;
       }
+      console.log(event);
+    },
+    onClickInternalLink(event: any) {
+      if (event && event.target) {
+        if (event.target.dataset && event.target.dataset.href) {
+          console.log('replace router, path', event.target.dataset.href);
+          this.$router.replace({ path: event.target.dataset.href });
+        }
+      }
+      console.log(event);
+    },
+  },
+  mounted() {},
+});
+</script>
+
+<style lang="scss" scoped>
+.app-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #ccc;
+  height: 20px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  background: #fff;
+  padding-left: 20px;
+
+  display: flex;
+
+  span.hyperlink {
+    padding-left: 5px;
+    padding-right: 5px;
+    cursor: pointer;
+    & > i {
+      height: 20px;
+      width: 20px;
     }
-    span.split-line {
-      &::before {
-        content: '|';
-        color: #ccc;
-      }
+    & > b {
+      margin-top: 0;
+      padding-top: 0;
+      height: 20px;
+      width: 20px;
+      line-height: 20px;
+
+      font-size: 12px;
+      color: #666;
+    }
+    &:hover {
+      color: #333;
     }
   }
-  </style>
+  span.split-line {
+    &::before {
+      content: '|';
+      color: #ccc;
+    }
+  }
+}
+</style>
