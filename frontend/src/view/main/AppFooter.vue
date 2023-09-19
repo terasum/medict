@@ -48,21 +48,58 @@
       <NIcon size="12"><Coffee /></NIcon>
       <b data-href="/about" @click="onClickInternalLink">关于</b>
     </span>
+    <span class="split-line"></span>
+    <span class="hyperlink">
+      <em>{{ percentage_hint }}</em>
+    </span>
+
+    <div class="building-index-process">
+        <n-progress type="line" 
+        color="#c1c1c1"
+        :show-indicator="false" 
+        :percentage="percentage" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Github, Question, Bug, Coffee } from '@vicons/fa';
-import { NIcon } from 'naive-ui';
+import { NIcon,NProgress } from 'naive-ui';
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 import { defineComponent } from 'vue';
+import {ref} from "vue";
+
+let _percentage = ref(0);
+let _percentage_hint = ref("索引建立中...")
+
+function updatePercentage() {
+  let intv = setInterval(() =>{
+    let step = 2000 / 200;
+    _percentage.value += step
+    if (_percentage.value >= 100) {
+      clearInterval(intv);
+      _percentage_hint.value = "索引建立完成"
+    }
+  }, 200);
+}
+
 
 export default defineComponent({
   components: { NIcon, Github, Question, Bug, Coffee },
   data() {
-    return {};
+    return {
+    };
   },
-  computed: {},
+  computed: {
+    percentage : function(){
+      return _percentage.value;
+
+    },
+    percentage_hint:function() {
+      return _percentage_hint.value;
+
+    }
+  },
   watch: {},
   methods: {
     onClickHyperLink(event: any) {
@@ -83,7 +120,9 @@ export default defineComponent({
       console.log(event);
     },
   },
-  mounted() {},
+  mounted() {
+    updatePercentage();
+  },
 });
 </script>
 
@@ -120,6 +159,17 @@ export default defineComponent({
       font-size: 12px;
       color: #666;
     }
+    & > em {
+      margin-top: 0;
+      padding-top: 0;
+      height: 20px;
+      width: 20px;
+      line-height: 20px;
+      font-style: normal;
+
+      font-size: 12px;
+      color: #666;
+    }
     &:hover {
       color: #333;
     }
@@ -129,6 +179,13 @@ export default defineComponent({
       content: '|';
       color: #ccc;
     }
+  }
+  .building-index-process{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 20px;
+    width: 120px;
   }
 }
 </style>
