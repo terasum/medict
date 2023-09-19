@@ -16,7 +16,12 @@
 
 package tmpl
 
-import "github.com/terasum/medict/pkg/model"
+import (
+	"github.com/op/go-logging"
+	"github.com/terasum/medict/pkg/model"
+)
+
+var log = logging.MustGetLogger("default")
 
 type Replacer interface {
 	Replace(dictId string, entry *model.KeyBlockEntry, htmlContent string) (*model.KeyBlockEntry, string)

@@ -21,10 +21,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/rasky/go-lzo"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rasky/go-lzo"
 )
 
 // ReadDictHeader reads the dictionary header.
@@ -101,6 +102,11 @@ func (mdict *MdictBase) ReadDictHeader() error {
 
 	// 4 bytes header size + header_bytes_size + 4bytes alder checksum
 	meta.KeyBlockMetaStartOffset = int64(4 + dictHeader.HeaderBytesSize + 4)
+
+	meta.Description = headerInfo.Description
+	meta.Title = headerInfo.Title
+	meta.CreationDate = headerInfo.CreationDate
+	meta.GeneratedByEngineVersion = headerInfo.GeneratedByEngineVersion
 
 	mdict.Meta = meta
 
@@ -635,7 +641,7 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 			keyList[len(keyList)-2].RecordEndOffset = keyList[len(keyList)-1].RecordStartOffset
 		}
 	}
-	//keyList[len(keyList)-1].RecordEndOffset = mdict.RecordBlockMeta.RecordBlockCompSize
+	//keyList[len(keyList)-1].RecordEndOffset = 0
 
 	return keyList
 }
@@ -761,8 +767,9 @@ func (mdict *MdictBase) decodeRecordBlockInfo(data []byte, startOffset, endOffse
 	var offset = 0
 	var compAccu = int64(0)
 	var decompAccu = int64(0)
+	var i = int64(0)
 
-	for i := int64(0); i < mdict.RecordBlockMeta.RecordBlockNum; i++ {
+	for i = int64(0); i < mdict.RecordBlockMeta.RecordBlockNum; i++ {
 		compSize := int64(0)
 		if mdict.Meta.Version >= 2.0 {
 			compSize = int64(beBinToU64(data[offset : offset+mdict.Meta.NumberWidth]))
@@ -791,12 +798,16 @@ func (mdict *MdictBase) decodeRecordBlockInfo(data []byte, startOffset, endOffse
 		compAccu += compSize
 		decompAccu += decompSize
 	}
+	if int64(i) != mdict.RecordBlockMeta.RecordBlockNum {
+		return fmt.Errorf("RecordBlockInfo (i) not equals to meta.RecordBlockNum [%d/%d] compA/decompA(%d/%d)", i, mdict.RecordBlockMeta.RecordBlockNum, compAccu, decompAccu)
+	}
 	if int64(offset) != mdict.RecordBlockMeta.RecordBlockInfoCompSize {
 		return errors.New("RecordBlockInfo offset not equals to meta.RecordBlockInfoCompSize")
 	}
 	if int64(compAccu) != mdict.RecordBlockMeta.RecordBlockCompSize {
 		return errors.New("RecordBlockInfo compAccu not equals to meta.RecordBlockCompSize")
 	}
+
 	recordBlockInfo := &MDictRecordBlockInfo{
 		RecordInfoList:             recordBlockInfoList,
 		RecordBlockInfoStartOffset: startOffset,
@@ -986,17 +997,26 @@ func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte
 
 	var recordBlockInfo *MDictRecordBlockInfoListItem
 
-	for i := 0; i < len(mdict.RecordBlockInfo.RecordInfoList)-1; i++ {
+	var i = 0
+	for ; i < len(mdict.RecordBlockInfo.RecordInfoList)-1; i++ {
 		curr := mdict.RecordBlockInfo.RecordInfoList[i]
 		next := mdict.RecordBlockInfo.RecordInfoList[i+1]
 		if item.RecordStartOffset >= curr.DeCompressAccumulatorOffset && item.RecordStartOffset < next.DeCompressAccumulatorOffset {
 			recordBlockInfo = curr
 			break
 		}
+	}
 
+	// the last one
+	if i == len(mdict.RecordBlockInfo.RecordInfoList)-1 {
+		lastOne := mdict.RecordBlockInfo.RecordInfoList[len(mdict.RecordBlockInfo.RecordInfoList)-1]
+		if item.RecordStartOffset < lastOne.DeCompressAccumulatorOffset+lastOne.DeCompressSize {
+			recordBlockInfo = lastOne
+		}
 	}
 
 	if recordBlockInfo == nil {
+		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last RecordBlockInfo: %+v\n", item, mdict.RecordBlockInfo.RecordInfoList[len(mdict.RecordBlockInfo.RecordInfoList)-1])
 		return nil, errors.New("key-item record info not found")
 	}
 
@@ -1064,7 +1084,15 @@ func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte
 		return nil, errors.New("recordBlock length not equals decompress Size")
 	}
 
-	data := recordBlock[item.RecordStartOffset-recordBlockInfo.DeCompressAccumulatorOffset : item.RecordEndOffset-recordBlockInfo.DeCompressAccumulatorOffset]
+	start := item.RecordStartOffset - recordBlockInfo.DeCompressAccumulatorOffset
+	var end int64
+	if item.RecordEndOffset == 0 {
+		end = int64(len(recordBlock))
+	} else {
+		end = item.RecordEndOffset - recordBlockInfo.DeCompressAccumulatorOffset
+	}
+
+	data := recordBlock[start:end]
 
 	if mdict.FileType == MdictTypeMdd {
 		return data, nil

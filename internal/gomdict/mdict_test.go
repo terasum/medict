@@ -17,6 +17,7 @@
 package gomdict
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
@@ -27,6 +28,11 @@ func TestMdict_Lookup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = mdict.BuildIndex()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	def, err := mdict.Lookup("about")
 	if err != nil {
 		t.Fatal(err)
@@ -40,6 +46,10 @@ func TestMdict_Lookup2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = mdict.BuildIndex()
+	if err != nil {
+		t.Fatal(err)
+	}
 	def, err := mdict.Lookup("definition")
 	if err != nil {
 		t.Fatal(err)
@@ -47,9 +57,39 @@ func TestMdict_Lookup2(t *testing.T) {
 
 	t.Logf(string(def))
 }
+func TestMdict_Lookup4(t *testing.T) {
+	mdict, err := New("testdata/dict/ode3e.mdx")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mdict.BuildIndex()
+	if err != nil {
+		t.Fatal(err)
+	}
+	entries, err := mdict.Search("word")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(entries)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%s", data)
+
+	def, err := mdict.Locate(entries[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%s", def)
+
+}
 
 func TestMdict_LookupMdd3(t *testing.T) {
 	mdict, err := New("testdata/dict/oale8.mdd")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mdict.BuildIndex()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,6 +118,10 @@ func TestMdict_LookupMdd4(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = mdict.BuildIndex()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	def, err := mdict.Lookup("\\uk\\abalone__gb_1.mp3")
 	if err != nil {
@@ -103,6 +147,10 @@ func TestMdict_LookupMdd5(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = mdict.BuildIndex()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	file, err := os.Create("testdata/out/olae8mdd.txt")
 	if err != nil {
@@ -114,10 +162,25 @@ func TestMdict_LookupMdd5(t *testing.T) {
 	}
 
 	file.Close()
+
+	pngbytes, err := mdict.Lookup("\\us_pron.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, err = os.Create("testdata/out/us_pron.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	file.Write(pngbytes)
 }
 
 func TestMdict_LookupMdd6(t *testing.T) {
 	mdict, err := New("testdata/dict/ode3e.mdd")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mdict.BuildIndex()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,6 +199,10 @@ func TestMdict_LookupMdd6(t *testing.T) {
 
 func TestMdict_SimSearch(t *testing.T) {
 	mdict, err := New("testdata/dict/oale8.mdx")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = mdict.BuildIndex()
 	if err != nil {
 		t.Fatal(err)
 	}

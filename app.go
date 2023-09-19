@@ -18,11 +18,13 @@ package main
 
 import (
 	"context"
-	"github.com/labstack/gommon/log"
+	"github.com/op/go-logging"
 	"github.com/terasum/medict/internal/entry"
 	"github.com/terasum/medict/pkg/backserver"
 	"github.com/terasum/medict/pkg/model"
 )
+
+var log = logging.MustGetLogger("default")
 
 // App struct
 type App struct {
@@ -91,12 +93,7 @@ func (b *App) shutdown(ctx context.Context) {
 }
 
 func (b *App) Dispatch(apiName string, args map[string]interface{}) *model.Resp {
-	log.Infof("[wails] IPC request dispatch [%s] args %v", apiName, args)
-	if args != nil {
-		for k, v := range args {
-			log.Infof("[wails] IPC dispatch args [%s]: {%s : %v}", apiName, k, v)
-		}
-	}
+	log.Infof("[wails] IPC request dispatch [%s] | args: %v\n", apiName, args)
 	return b.bs.DispatchIPCReq(apiName, args)
 }
 

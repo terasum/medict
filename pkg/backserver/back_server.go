@@ -19,6 +19,7 @@ package backserver
 import (
 	"context"
 	"fmt"
+	"github.com/terasum/medict/pkg/apis"
 	"net"
 	"net/http"
 	"strings"
@@ -26,10 +27,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/labstack/gommon/log"
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/static"
-	"github.com/terasum/medict/pkg/gincon"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 )
@@ -48,7 +47,7 @@ type BackServer struct {
 	DevMode bool
 
 	GinEngine *gin.Engine
-	DictCon   *gincon.DictsController
+	DictCon   *apis.DictsController
 
 	handlerMap sync.Map
 }
@@ -69,7 +68,7 @@ func (bs *BackServer) SetUp() error {
 		return err
 	}
 
-	dictCon := gincon.NewDictsController(dictsSvc)
+	dictCon := apis.NewDictsController(dictsSvc)
 	bs.DictCon = dictCon
 	bs.setupHandlers()
 
@@ -104,7 +103,7 @@ func (bs *BackServer) DispatchIPCReq(apiName string, args map[string]interface{}
 }
 
 func (bs *BackServer) GracefulStop() {
-	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 400*time.Millisecond)
 	defer cancel()
 	if bs == nil || bs.Srv == nil {
 		return
@@ -112,10 +111,10 @@ func (bs *BackServer) GracefulStop() {
 	if err := bs.Srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-	// catching ctx.Done(). timeout of 1.5 seconds.
+	// catching ctx.Done(). timeout of 0.4 seconds.
 	select {
 	case <-ctx.Done():
-		log.Info("timeout of 1.5 seconds.")
+		log.Info("timeout of 0.4 seconds.")
 	}
 	log.Info("Server exiting")
 }
