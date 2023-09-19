@@ -11,6 +11,7 @@ require (
 	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
 	github.com/gin-gonic/gin v1.9.1
+	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rasky/go-lzo v0.0.0-20200203143853-96a758eda86e
 	github.com/spf13/viper v1.10.1

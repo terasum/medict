@@ -17,6 +17,5 @@
 package entry
 
 const configTmpl = `
-DictDir="$HOME/.medict/dicts"
-StaticServerPort=59183
+DictBaseDir="$HOME/dicts"
 `

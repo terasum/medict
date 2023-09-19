@@ -17,6 +17,7 @@
 package support
 
 import (
+	"fmt"
 	"io/fs"
 	"path/filepath"
 
@@ -28,8 +29,11 @@ import (
 func WalkDir(dirpath string) ([]*model.DirItem, error) {
 	list := make([]*model.DirItem, 0)
 	err := filepath.WalkDir(dirpath, func(path string, d fs.DirEntry, err error) error {
+		if dirpath == "" {
+			return fmt.Errorf("walkdir failed, path is empty, path: [%s] %s", path, err.Error())
+		}
 		if err != nil {
-			return err
+			return fmt.Errorf("walkdir failed, path: [%s] %s", path, err.Error())
 		}
 		// skip self
 		if dirpath == path {
@@ -41,7 +45,7 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 		}
 		item, err := innerWalker(dirpath, path, err)
 		if err != nil {
-			return err
+			return fmt.Errorf("inner walker failed , path:[%s], %s", path, err.Error())
 		}
 		if item.MdictMdxAbsPath != "" {
 			list = append(list, item)
@@ -52,8 +56,11 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 }
 
 func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
+	if rootpath == "" {
+		return nil, fmt.Errorf("inner walkdir failed, path is empty, path: [%s] %s", rootpath, err.Error())
+	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("inner walk entry failed, path %s, err %s", rootpath, err.Error())
 	}
 	item := &model.DirItem{
 		BaseDir:         rootpath,
@@ -64,7 +71,7 @@ func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
 
 	err = filepath.Walk(subpath, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("inner walk dir failed, path %s, %s", path, err)
 		}
 		if info.IsDir() {
 			return nil

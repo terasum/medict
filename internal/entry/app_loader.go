@@ -18,6 +18,7 @@ package entry
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -30,20 +31,22 @@ func defaultConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	configDir := filepath.Join(home, ".medict", "dicts")
+	fmt.Printf("medict app: default config dir %s\n", home)
+	configDir := filepath.Join(home, "dicts")
 	if _, err = os.Stat(configDir); errors.Is(err, os.ErrNotExist) {
 		err = os.MkdirAll(configDir, os.ModePerm)
 		if err != nil {
 			return "", err
 		}
 	}
-	configFile := filepath.Join(home, ".medict", "medict.toml")
+	configFile := filepath.Join(home, "medict.toml")
 	if _, err = os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
 		err = os.WriteFile(configFile, []byte(configTmpl), 0644)
 		if err != nil {
 			return "", err
 		}
 	}
+	fmt.Printf("medict app: default config file %s\n", configFile)
 	return configFile, nil
 
 }
@@ -61,5 +64,6 @@ func DefaultConfig() (*config.Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("medict app: config dicts dir %s\n", cfg.BaseDictDir)
 	return cfg, nil
 }

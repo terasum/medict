@@ -19,9 +19,7 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	BaseDictDir      string `toml:"baseDictDir"`
-	StaticServerPort int
-	CacheFileDir     string
+	BaseDictDir string `toml:"BaseDictDir"`
 }
 
 func ReadConfig(configFilePath string) (*Config, error) {

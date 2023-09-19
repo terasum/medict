@@ -170,16 +170,17 @@ func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyIndex,
 func (ds *DictService) walkDicts() error {
 	baseDir, err := utils.ReplaceHome(ds.config.BaseDictDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("replace home failed, %s", err.Error())
 	}
+
 	items, err := support.WalkDir(baseDir)
 	if err != nil {
-		return err
+		return fmt.Errorf("walk dir failed, basedir %s,  %s", baseDir, err.Error())
 	}
 	for _, dirItem := range items {
-		dictItem, err := NewByDirItem(dirItem)
-		if err != nil {
-			return err
+		dictItem, err1 := NewByDirItem(dirItem)
+		if err1 != nil {
+			return fmt.Errorf("new dir item failed, %s", err1.Error())
 		}
 		ds.dicts[dictItem.ID] = dictItem
 	}

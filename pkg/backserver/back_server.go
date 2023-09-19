@@ -65,7 +65,7 @@ func NewStaticServer(conf *config.Config) (*BackServer, error) {
 func (bs *BackServer) SetUp() error {
 	dictsSvc, err := service.NewDictService(bs.Config)
 	if err != nil {
-		return err
+		return fmt.Errorf("back_server setup failed, err: %s", err.Error())
 	}
 
 	dictCon := apis.NewDictsController(dictsSvc)
