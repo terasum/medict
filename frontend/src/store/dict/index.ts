@@ -18,12 +18,18 @@
 
 import { defineStore } from 'pinia';
 
-import { GetAllDicts } from '@/apis/dicts-api';
+import { GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
 
 function constructQueryURL(entry) {
   let {
-    baseURL, dict_id, key_word, record_start_offset, record_end_offset, key_block_idx, entry_id,
+    baseURL,
+    dict_id,
+    key_word,
+    record_start_offset,
+    record_end_offset,
+    key_block_idx,
+    entry_id,
   } = entry;
   return `${baseURL}/__tcidem_query?dict_id=${dict_id}&key_word=${key_word}&record_start_offset=${record_start_offset}&record_end_offset=${record_end_offset}&key_block_idx=${key_block_idx}&entry_id=${entry_id}`;
 }
@@ -73,13 +79,26 @@ export const useDictQueryStore = defineStore('dictQuery', {
     mainContent: btoa(countDownJs),
     mainContentURL: '',
     selectDict: { id: '', name: '', path: '' },
+    inputSearchWord: '',
   }),
   actions: {
     queryDictList() {
       return GetAllDicts();
     },
+    updateInputSearchWord(word :string) {
+      console.log(`===> updateInputSearchWord: ${word}`)
+      if (!word || word.trim() == "") {
+        return;
+      }
+      if (word == this.inputSearchWord) {
+        return;
+      }
+        this.inputSearchWord = word;
+        this.searchWord(word)
+      
+    },
     updateMainContent(content) {
-      if (content === "") {
+      if (content === '') {
         this.mainContent = btoa(countDownJs);
       } else {
         this.mainContent = content;
@@ -94,40 +113,64 @@ export const useDictQueryStore = defineStore('dictQuery', {
       this.queryPendingList = wordList;
     },
     updateSelectDict(dictItem) {
-      this.selectDict=dictItem;
+      this.selectDict = dictItem;
+      if (this.inputSearchWord && this.inputSearchWord.trim() != '') {
+        this.searchWord(this.inputSearchWord);
+      }
+    },
+    searchWord(word) {
+      if (this.selectDict.id === '') {
+        console.log('skipped');
+        return;
+      }
+      if (word === '') {
+        console.log('empty word skipped');
+      }
+
+      SearchWord(this.selectDict.id, word).then((res) => {
+        console.log('=== SearchWord ===');
+        console.log(this.selectDict.id);
+        console.log(res);
+        this.updatePendingList(res);
+        if (res.data && res.data.length > 0) {
+          this.locateWord(0);
+        }
+      });
     },
     setUpAPIBaseURL() {
       let count = 0;
       let that = this;
-      let inv = setInterval(function() {
+      let inv = setInterval(function () {
         let urlPromise = StaticDictServerURL();
 
-        if (!urlPromise){
+        if (!urlPromise) {
           clearInterval(inv);
           return;
         }
 
-        urlPromise.then((url) => {
-          if (url === "") {
-            console.log(`[init] static server url empty retry ${count}`)
-            return
-          }
-          // browser
-          if (url === "http://localhost:1/"){
-            return
-          }
-          if (url.startsWith("http://localhost:0/")){
-            console.log(`[init] static server url empty retry ${count}`)
-            return
-          }
-          console.log(`[init] static server url success ${count}`)
-          that.updateBaseURL(url);
-          clearInterval(inv);
-        }).catch((err) =>{
-          console.error(err);
-          clearInterval(inv);
-        });
-      }, 1000)
+        urlPromise
+          .then((url) => {
+            if (url === '') {
+              console.log(`[init] static server url empty retry ${count}`);
+              return;
+            }
+            // browser
+            if (url === 'http://localhost:1/') {
+              return;
+            }
+            if (url.startsWith('http://localhost:0/')) {
+              console.log(`[init] static server url empty retry ${count}`);
+              return;
+            }
+            console.log(`[init] static server url success ${count}`);
+            that.updateBaseURL(url);
+            clearInterval(inv);
+          })
+          .catch((err) => {
+            console.error(err);
+            clearInterval(inv);
+          });
+      }, 1000);
     },
     updateBaseURL(url) {
       console.log(url);
@@ -135,7 +178,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
     },
     locateWord(entry_idx) {
       if (this.dictApiBaseURL === '') {
-        console.log('dictionary has not ready, baseurl hasn\'t assigned, skipped');
+        console.log(
+          "dictionary has not ready, baseurl hasn't assigned, skipped"
+        );
       }
       if (entry_idx < 0) {
         return;
@@ -146,14 +191,16 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
 
       if (this.selectDict.id === '') {
-        console.log('dictionary has not ready, dictionary id hasn\'t assigned, skipped');
+        console.log(
+          "dictionary has not ready, dictionary id hasn't assigned, skipped"
+        );
         return;
       }
 
       let entry = this.queryPendingList[entry_idx];
 
-      this.updateMainContentURL(constructQueryURL(
-        {
+      this.updateMainContentURL(
+        constructQueryURL({
           baseURL: this.dictApiBaseURL,
           dict_id: this.selectDict.id,
           key_word: entry.key_word,
@@ -161,8 +208,8 @@ export const useDictQueryStore = defineStore('dictQuery', {
           record_end_offset: entry.record_end_offset,
           key_block_idx: entry.key_block_idx,
           entry_id: entry_idx,
-        }));
-
+        })
+      );
     },
   },
 });

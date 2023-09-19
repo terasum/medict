@@ -71,12 +71,16 @@
        border-bottom: 1px solid #f1f1f1;
        border-radius: 3px;
        user-select: none;
+       font-size: 16px;
        -webkit-user-select: none;
        &:hover{
           background-color: #f1f1f1;
           cursor: pointer;
        }
       }
+      .active{
+          background-color: #f2f2f2;
+       }
     }
 
   }
@@ -94,7 +98,7 @@
 
     <div class="sidebar-content">
       <ul>
-        <li v-for="item in dictQueryStore.queryPendingList" :key="item.id" @click="locate(item.id)">
+        <li v-for="item in dictQueryStore.queryPendingList" :data-id="item.id" :key="item.id" @click="selectItem(item.id)" :class="selected_id== item.id?'active':''">
           <span >{{ item.key_word }}</span>
         </li>
       </ul>
@@ -104,11 +108,13 @@
 
 <script setup>
 import {useDictQueryStore} from '@/store/dict';
+import {ref} from "vue";
 const dictQueryStore = useDictQueryStore();
+const selected_id = ref("0");
 
-function locate(entry_id) {
+function selectItem(entry_id) {
+  selected_id.value = entry_id;
   dictQueryStore.locateWord(entry_id);
 }
-
 
 </script>

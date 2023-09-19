@@ -17,9 +17,10 @@
 package support
 
 import (
-	"github.com/terasum/medict/internal/utils"
 	"io/fs"
 	"path/filepath"
+
+	"github.com/terasum/medict/internal/utils"
 
 	"github.com/terasum/medict/pkg/model"
 )
@@ -76,7 +77,7 @@ func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
 			// pop stack
 			mddabs, _ := filepath.Abs(path)
 			item.MdictMddAbsPath = append(item.MdictMddAbsPath, mddabs)
-		} else if info.Name() == "cover.jpg" {
+		} else if info.Name() == "cover.jpg" || info.Name() == "cover.png" {
 			item.CoverImgPath = utils.FileAbs(path)
 		} else {
 			// TODO copy css/js files
