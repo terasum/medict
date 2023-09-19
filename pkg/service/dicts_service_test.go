@@ -25,9 +25,7 @@ import (
 
 func TestDictService_Dicts(t *testing.T) {
 	ds, err := NewDictService(&config.Config{
-		BaseDictDir:      "./testdata/dicts",
-		StaticServerPort: 0,
-		CacheFileDir:     "",
+		BaseDictDir: "./testdata/dicts",
 	})
 	assert.Nil(t, err)
 	dicts := ds.Dicts()
@@ -38,9 +36,7 @@ func TestDictService_Dicts(t *testing.T) {
 
 func TestDictService_Dicts2(t *testing.T) {
 	ds, err := NewDictService(&config.Config{
-		BaseDictDir:      "../../testdict/",
-		StaticServerPort: 0,
-		CacheFileDir:     "",
+		BaseDictDir: "../../testdict/",
 	})
 	assert.Nil(t, err)
 	dicts := ds.Dicts()

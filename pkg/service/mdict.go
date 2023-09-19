@@ -33,7 +33,7 @@ func NewMdict(dirItem *model.DirItem) (model.GeneralDictionary, error) {
 
 	mdx, err := gomdict.New(dirItem.MdictMdxAbsPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new mdx file failed, %s", err.Error())
 	}
 
 	mdds := make([]*gomdict.Mdict, 0)
@@ -41,7 +41,7 @@ func NewMdict(dirItem *model.DirItem) (model.GeneralDictionary, error) {
 	for _, mddpath := range dirItem.MdictMddAbsPath {
 		mdd, err1 := gomdict.New(mddpath)
 		if err1 != nil {
-			return nil, err1
+			return nil, fmt.Errorf("new mdd file failed, %s", err1.Error())
 		}
 		mdds = append(mdds, mdd)
 	}
