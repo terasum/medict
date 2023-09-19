@@ -21,13 +21,17 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
+
+	"github.com/op/go-logging"
 
 	"github.com/terasum/medict/internal/config"
-	"github.com/terasum/medict/internal/gomdict"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service/support"
 )
+
+var log = logging.MustGetLogger("default")
 
 var singltonInstanceDictService *DictService
 
@@ -54,15 +58,18 @@ func NewDictService(config *config.Config) (*DictService, error) {
 
 func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 	if dict, ok := ds.dicts[dictId]; ok {
+		key = strings.ReplaceAll(key, "\\", string(os.PathSeparator))
+		key = strings.TrimLeft(key, string("."))
+		key = strings.TrimLeft(key, string(os.PathSeparator))
 		fullPath := path.Join(dict.PathInfo.CurrentDir, key)
-		_, err := os.Stat(fullPath)
-		if err == nil {
+		if utils.FileExists(fullPath) {
+			log.Infof("FindFromDir hitted %s", fullPath)
 			return os.ReadFile(fullPath)
-
 		}
+		log.Infof("FindFromDir missed %s", fullPath)
 
 	}
-	return nil, errors.New("not found")
+	return nil, errors.New("not found from dir")
 }
 
 func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
@@ -75,6 +82,27 @@ func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
 	return result
 }
 
+func (ds *DictService) BuildIndex() error {
+	var err error
+	errIdx := make([]string, 0)
+	for idx, dict := range ds.dicts {
+		err = dict.MainDict.BuildIndex()
+		if err != nil {
+			log.Errorf("building dictionary index failed, (%s): %s", dict.ToPlain().Name, err.Error())
+			errIdx = append(errIdx, idx)
+		}
+	}
+	if len(errIdx) > 0 {
+		for _, idx := range errIdx {
+			delete(ds.dicts, idx)
+		}
+	}
+	if len(ds.dicts) == 0 {
+		return errors.New("all dictionary index building failed")
+	}
+	return nil
+}
+
 func (ds *DictService) GetDictPlain(id string) (*model.PlainDictionaryItem, bool) {
 	dict, ok := ds.dicts[id]
 	return dict.ToPlain(), ok
@@ -84,7 +112,7 @@ func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
 	} else {
-		data, err := dict.MDX.Lookup(keyword)
+		data, err := dict.MainDict.Lookup(keyword)
 		if err != nil {
 			return nil, err
 		}
@@ -94,34 +122,28 @@ func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
 
 func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, error) {
 	if dict, ok := ds.dicts[dictId]; !ok {
-		fmt.Printf("MDD resource search [%s] dict not found\n", keyword)
-		return nil, fmt.Errorf("resource (%s) not found", keyword)
+		log.Infof("LookResource dict not found [%s]", keyword)
+		return nil, fmt.Errorf("dictionary (%s) not found", keyword)
 	} else {
-		for _, mdd := range dict.MDDS {
-			data, err := mdd.Lookup(keyword)
-			if err != nil {
-				fmt.Printf("MDD resource search (%s)[%s] failed %s\n", mdd.FilePath, keyword, err.Error())
-				continue
-			}
-			fmt.Printf("MDD resource search (%s)[%s] success\n", mdd.FilePath, keyword)
-			return data, nil
+		keyword = strings.TrimSpace(keyword)
+		data, err := dict.MainDict.LookupResource(keyword)
+		if err != nil {
+			log.Infof("LookupResource search (%s):[%s] failed, err: %s\n", dict.ToPlain().Name, keyword, err.Error())
+			return nil, err
 		}
+		log.Infof("LookupResource search  (%s)[%s] success\n", dict.ToPlain().Name, keyword)
+		return data, nil
 	}
-	fmt.Printf("MDD resource search [%s] failed, not found\n", keyword)
-	return nil, fmt.Errorf("resource (%s) not found", keyword)
 }
 
 func (ds *DictService) Locate(dictid string, entry *model.KeyBlockEntry) (string, error) {
 	if dict, ok := ds.dicts[dictid]; !ok {
 		return "", errors.New("dict not found")
 	} else {
-		mdictEntry := &gomdict.MDictKeyBlockEntry{
-			RecordStartOffset: entry.RecordStartOffset,
-			RecordEndOffset:   entry.RecordEndOffset,
-			KeyWord:           entry.KeyWord,
-			KeyBlockIdx:       entry.KeyBlockIdx,
-		}
-		defData, err := dict.MDX.Locate(mdictEntry)
+		defData, err := dict.MainDict.Locate(&model.KeyIndex{
+			IndexType:     model.IndexTypeMdict,
+			KeyBlockEntry: entry,
+		})
 		if err != nil {
 			return "", err
 		}
@@ -129,25 +151,13 @@ func (ds *DictService) Locate(dictid string, entry *model.KeyBlockEntry) (string
 	}
 }
 
-func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyBlockEntry, error) {
+func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyIndex, error) {
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
 	} else {
-		entries, err := dict.MDX.Search(keyword)
+		results, err := dict.MainDict.Search(keyword)
 		if err != nil {
 			return nil, err
-		}
-		results := make([]*model.KeyBlockEntry, 0)
-		for id, e := range entries {
-			temp := &model.KeyBlockEntry{
-				ID:                id,
-				RecordStartOffset: e.RecordStartOffset,
-				RecordEndOffset:   e.RecordEndOffset,
-				KeyWord:           e.KeyWord,
-				KeyBlockIdx:       e.KeyBlockIdx,
-			}
-			results = append(results, temp)
-
 		}
 		return results, nil
 	}
@@ -167,7 +177,7 @@ func (ds *DictService) walkDicts() error {
 		return err
 	}
 	for _, dirItem := range items {
-		dictItem, err := model.NewByDirItem(dirItem)
+		dictItem, err := NewByDirItem(dirItem)
 		if err != nil {
 			return err
 		}

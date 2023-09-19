@@ -17,6 +17,7 @@
 package support
 
 import (
+	"github.com/terasum/medict/internal/utils"
 	"io/fs"
 	"path/filepath"
 
@@ -41,7 +42,7 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 		if err != nil {
 			return err
 		}
-		if item.MdxAbsPath != "" {
+		if item.MdictMdxAbsPath != "" {
 			list = append(list, item)
 		}
 		return nil
@@ -54,10 +55,10 @@ func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
 		return nil, err
 	}
 	item := &model.DirItem{
-		BaseDir:    rootpath,
-		CurrentDir: subpath,
-		MdxAbsPath: "",
-		MddAbsPath: make([]string, 0),
+		BaseDir:         rootpath,
+		CurrentDir:      subpath,
+		MdictMdxAbsPath: "",
+		MdictMddAbsPath: make([]string, 0),
 	}
 
 	err = filepath.Walk(subpath, func(path string, info fs.FileInfo, err error) error {
@@ -70,15 +71,13 @@ func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
 
 		// if mdx
 		if filepath.Ext(info.Name()) == ".mdx" {
-			item.MdxAbsPath, _ = filepath.Abs(path)
+			item.MdictMdxAbsPath, _ = filepath.Abs(path)
 		} else if filepath.Ext(info.Name()) == ".mdd" {
 			// pop stack
 			mddabs, _ := filepath.Abs(path)
-			item.MddAbsPath = append(item.MddAbsPath, mddabs)
-		} else if info.Name() == "cover.png" {
-			item.Background = "cover.png"
+			item.MdictMddAbsPath = append(item.MdictMddAbsPath, mddabs)
 		} else if info.Name() == "cover.jpg" {
-			item.Background = "cover.jpg"
+			item.CoverImgPath = utils.FileAbs(path)
 		} else {
 			// TODO copy css/js files
 		}

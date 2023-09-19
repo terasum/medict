@@ -44,6 +44,18 @@ export const GetAllDicts = async function (): Promise<Array<IDict>> {
     }
 }
 
+// BuildIndex
+export const BuildIndex = async function (): Promise<model.Resp> {
+    try{
+        let resp = await requestBackend("BuildIndex", {})
+        console.log("[dicts-api] BuildIndex: ", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api] BuildIndex: " ,error)
+        return Promise.reject(error)
+    }
+}
+
 
 export const LookupWord = async function (dictid:string, word: string) : Promise<model.Resp> {
     try{

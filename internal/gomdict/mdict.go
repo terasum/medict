@@ -19,12 +19,16 @@ package gomdict
 import (
 	"errors"
 	"fmt"
-	"github.com/agatan/bktree"
-	"github.com/creasty/go-levenshtein"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/agatan/bktree"
+	"github.com/creasty/go-levenshtein"
+	"github.com/op/go-logging"
 )
+
+var log = logging.MustGetLogger("default")
 
 type Mdict struct {
 	bktree *bktree.BKTree
@@ -53,7 +57,11 @@ func (mdict *Mdict) init() error {
 		return err
 	}
 
-	err = mdict.ReadKeyBlockInfo()
+	return nil
+}
+
+func (mdict *Mdict) BuildIndex() error {
+	err := mdict.ReadKeyBlockInfo()
 	if err != nil {
 		return err
 	}
@@ -77,14 +85,14 @@ func (mdict *Mdict) init() error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (mdict *Mdict) Lookup(word string) ([]byte, error) {
-
-	for _, keyBlockEntry := range mdict.KeyBlockData.KeyEntries {
-		if strings.TrimSpace(keyBlockEntry.KeyWord) == strings.TrimSpace(word) {
+	word = strings.TrimSpace(word)
+	for id, keyBlockEntry := range mdict.KeyBlockData.KeyEntries {
+		if keyBlockEntry.KeyWord == word {
+			log.Infof("mdict.Lookup hitted entries[%d/%d] key:(%s), entry-key:(%s), equals(%v)", id, len(mdict.KeyBlockData.KeyEntries), word, keyBlockEntry.KeyWord, keyBlockEntry.KeyWord == word)
 			return mdict.LocateRecordDefinition(keyBlockEntry)
 		}
 	}

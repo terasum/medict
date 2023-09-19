@@ -72,16 +72,27 @@
     <div class="toolbar-top"></div>
     <div class="toolbar-content">
       <div class="dictionaries">
-        <span
-          class="dictionary-item"
+
+
+        <n-popover
           v-for="item in state.dictList"
-          :key="item.id"
-          :data-dict-id="item.id"
-          :data-dict-name="item.name"
-          :data-background="item.background"
-          @click="chooseDict(item)"
-          >{{ item.name }}</span
-        >
+          :overlap="false" placement="left" trigger="hover">
+          <template #trigger>
+            <span
+              class="dictionary-item"
+              :key="item.id"
+              @click="chooseDict(item)"
+              :style="getBackground(item)"
+            ></span
+            >
+          </template>
+          <div class="large-text">
+            <div>{{ item.description && item.description.title  ? item.description.title : item.name}} </div>
+            <div style='max-width: 260px; max-height: 200px; overflow-y: auto'><p v-html='item.description.description'></p> </div>
+          </div>
+        </n-popover>
+
+
       </div>
     </div>
   </div>
@@ -89,12 +100,13 @@
 <script setup>
 import { useDictQueryStore } from '@/store/dict';
 import { reactive, onMounted } from 'vue';
-import { debounce } from '@/utils';
-import {GetDictCover} from "@/apis/dicts-api"
+import { BuildIndex } from '@/apis/dicts-api';
 
+import {NPopover} from "naive-ui";
 
 
 const dictQueryStore = useDictQueryStore();
+
 
 const state = reactive({
   dictList: [],
@@ -104,6 +116,18 @@ function chooseDict(item) {
   dictQueryStore.updateSelectDict(item);
   dictQueryStore.updateMainContent('');
   dictQueryStore.updatePendingList([]);
+}
+
+function getBackground(item) {
+  if (item.background) {
+    let style = `background:url(data:image/jpg;base64,${item.background});`
+    style += `background-size:cover;`
+    style += `background-repeat:no-repeat;`
+    style += `background-position:center;`;
+    style += `color: #fff;`;
+    return style
+  }
+  return "";
 }
 
 function loadDictionaries() {
@@ -117,44 +141,15 @@ function loadDictionaries() {
       state.dictList.push(res[i]);
     }
 
-    refreshDict();
+    setTimeout(() => {
+      // build-index
+      BuildIndex().then((resp) => {
+        console.log('building index success:', resp);
+      });
+    }, 1000);
   });
 }
 
-const refreshDict = debounce(refreshDictBackground);
-
-function refreshDictBackground() {
-  document.querySelectorAll('.dictionary-item').forEach((item) => {
-    if (item.dataset.background) {
-      let sp = item.dataset.background.split('?');
-      if (sp.length == 2) {
-        let cover_name = sp[0];
-        let path_params = sp[1].split("&");
-        let dict_id = "";
-
-        for (let i = 0; i < path_params.length; i++) {
-        let pair = path_params[i].split('=');
-          if (pair[0] == 'dict_id') {
-            dict_id = pair[1];
-            break
-          }
-        }
-
-        GetDictCover(dict_id,  cover_name).then((res) => {
-          if (cover_name.endsWith(".jpg")) {
-            item.style.backgroundImage = `url("data:image/jpeg;base64,${res}")`;
-          } else {
-            item.style.backgroundImage = `url("data:image/png;base64,${res}")`;
-          }
-           item.style.backgroundPosition = `center`;
-           item.style.backgroundSize = `cover`;
-           item.style.backgroundRepeat = `no-repeat`;
-           item.innerText = ""
-        })
-      }
-    }
-  });
-}
 
 onMounted(() => {
   loadDictionaries();

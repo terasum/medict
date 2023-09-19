@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/labstack/gommon/log"
 	"github.com/terasum/medict/internal/entry"
 	"github.com/terasum/medict/pkg/backserver"
 	"os"

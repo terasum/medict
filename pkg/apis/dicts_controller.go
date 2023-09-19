@@ -1,16 +1,20 @@
-package gincon
+package apis
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/op/go-logging"
 	"github.com/terasum/medict/internal/static"
 	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
-	"net/http"
-	"strconv"
-	"strings"
 )
+
+var log = logging.MustGetLogger("default")
 
 type DictsController struct {
 	ds *service.DictService
@@ -78,35 +82,38 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if !strings.Contains(key, "/") {
-		fmt.Printf("NoRoute[0] handle resource key: %s from dir\n", key)
-		resultBytes, err := dc.ds.FindFromDir(dictId, key)
-		if err == nil {
-			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
-			if err != nil {
-				wrapContentType(c, key, resultBytes)
-				return
-			}
+	log.Infof("innerResourceQuery search key: [%s]", key)
+
+	// 先从文件夹搜索
+	resultBytes, err := dc.ds.FindFromDir(dictId, key)
+	if err == nil {
+		log.Infof("innerResourceQuery search key hitted dir: [%s]", key)
+		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		if err != nil {
 			wrapContentType(c, key, resultBytes)
 			return
 		}
-
-		resultBytes, err = dc.ds.LookupResource(dictId, key)
-		if err == nil {
-			resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
-			if err != nil {
-				wrapContentType(c, key, resultBytes)
-				return
-			}
-
-			wrapContentType(c, key, resultBytes)
-			return
-		}
-
+		wrapContentType(c, key, resultBytes)
+		return
 	}
+
+	// 再从文件资源中搜索
+	resultBytes, err = dc.ds.LookupResource(dictId, key)
+	if err == nil {
+		log.Infof("innerResourceQuery search key hitted resource: [%s]", key)
+		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		if err != nil {
+			wrapContentType(c, key, resultBytes)
+			return
+		}
+
+		wrapContentType(c, key, resultBytes)
+		return
+	}
+
 	// 补全路径重新搜索
-	if !strings.HasPrefix(key, "/") {
-		key = "/" + key
+	if !strings.HasPrefix(key, "\\") {
+		key = "\\" + key
 	}
 
 	key = strings.ReplaceAll(key, "/", "\\")
@@ -115,6 +122,8 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
+
+	log.Infof("innerResourceQuery search key hitted resource with '\\' prefix: [%s]", key)
 	result, err = tmpl.WrapResource(dictId, key, result)
 	if err != nil {
 		wrapContentType(c, key, result)

@@ -11,7 +11,7 @@ require (
 	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
 	github.com/gin-gonic/gin v1.9.1
-	github.com/labstack/gommon v0.4.0
+	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rasky/go-lzo v0.0.0-20200203143853-96a758eda86e
 	github.com/spf13/viper v1.10.1
 	golang.org/x/text v0.9.0
@@ -36,6 +36,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/labstack/echo/v4 v4.10.2 // indirect
+	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.0 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
 	github.com/leaanthony/slicer v1.6.0 // indirect

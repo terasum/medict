@@ -39,6 +39,22 @@ func FetchBaseDirName(fpath string) string {
 	return filepath.Base(fpath)
 }
 
+func FileAbs(fpath string) string {
+	fp, err := filepath.Abs(fpath)
+	if err != nil {
+		return fpath
+	}
+	return fp
+}
+
+func FileName(fpath string) string {
+	paths := filepath.SplitList(fpath)
+	if len(paths) <= 1 {
+		return fpath
+	}
+	return paths[len(paths)-1]
+}
+
 func FileExists(fpath string) bool {
 	if _, err := os.Stat(fpath); err == nil {
 		return true

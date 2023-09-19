@@ -67,6 +67,11 @@ type MDictMeta struct {
 
 	// key-block part bytes start offset in the mdx/mdd file
 	KeyBlockMetaStartOffset int64
+
+	Description              string
+	Title                    string
+	CreationDate             string
+	GeneratedByEngineVersion string
 }
 
 type MDictKeyBlockMeta struct {

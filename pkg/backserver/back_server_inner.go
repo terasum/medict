@@ -21,10 +21,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/op/go-logging"
+
 	"github.com/gin-gonic/gin"
-	"github.com/labstack/gommon/log"
 	"github.com/terasum/medict/internal/static"
 )
+
+var log = logging.MustGetLogger("default")
 
 func (bs *BackServer) startStaticServer(listenAddr string) {
 
@@ -41,7 +44,7 @@ func (bs *BackServer) startStaticServer(listenAddr string) {
 		Handler: bs.GinEngine,
 	}
 
-	log.Infof("start listening... %s", srv.Addr)
+	log.Infof("start listening... %s\n", srv.Addr)
 
 	ln, err := net.Listen("tcp", listenAddr)
 	if err != nil && err != http.ErrServerClosed {
@@ -83,7 +86,7 @@ func cors() gin.HandlerFunc {
 
 		defer func() {
 			if err := recover(); err != nil {
-				log.Infof("Panic info is: %v", err)
+				log.Infof("Panic info is: %v\n", err)
 			}
 		}()
 
@@ -94,12 +97,14 @@ func cors() gin.HandlerFunc {
 func (bs *BackServer) setUpRouters() error {
 	bs.GinEngine.Use(cors())
 	bs.GinEngine.NoRoute(func(c *gin.Context) {
-		log.Infof("NoRoute REQ REQUEST URI: %s\n", c.Request.RequestURI)
+		log.Infof("NoRoute REQ REQUEST URI: [%s]\n", c.Request.RequestURI)
 
-		if strings.HasPrefix(c.Request.URL.String(), static.ContentRootUrl+static.WordQueryMagicPath) {
+		if strings.HasPrefix(c.Request.RequestURI, static.ContentRootUrl+static.WordQueryMagicPath) {
+			log.Infof("NoRoute REQ REQUEST URI(word): [%s]\n", c.Request.RequestURI)
 			bs.DictCon.HandleWordQueryReq(c)
 			return
 		} else {
+			log.Infof("NoRoute REQ REQUEST URI(resource): [%s]\n", c.Request.RequestURI)
 			bs.DictCon.HandleResourceQueryReq(c)
 			return
 		}
@@ -110,5 +115,5 @@ func (bs *BackServer) setUpRouters() error {
 func (bs *BackServer) setupHandlers() {
 	bs.handlerMap.Store("GetAllDicts", bs.DictCon.GetAllDicts)
 	bs.handlerMap.Store("SearchWord", bs.DictCon.SearchWord)
-	bs.handlerMap.Store("GetDictCover", bs.DictCon.GetDictCover)
+	bs.handlerMap.Store("BuildIndex", bs.DictCon.BuildIndex)
 }
