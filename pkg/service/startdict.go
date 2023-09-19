@@ -12,6 +12,10 @@ type StarDict struct {
 	IdxFilePath string
 }
 
+func (s StarDict) Name() string {
+	panic("implement me")
+}
+
 func (s StarDict) Description() *model.PlainDictionaryInfo {
 	panic("implement me")
 }

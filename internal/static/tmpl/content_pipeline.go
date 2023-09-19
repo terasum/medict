@@ -18,6 +18,7 @@ package tmpl
 
 import (
 	"fmt"
+
 	"github.com/terasum/medict/pkg/model"
 )
 
@@ -38,9 +39,9 @@ var handler = &ContentPreHandlePipeline{
 	},
 }
 
-func WrapContent(dictId string, keyEntry *model.KeyBlockEntry, definition string) ([]byte, error) {
-	content := handleContent(dictId, keyEntry, definition)
-	return []byte(fmt.Sprintf(WordDefinitionTempl, content)), nil
+func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.KeyBlockEntry, definition string) ([]byte, error) {
+	content := handleContent(dict, keyEntry, definition)
+	return []byte(fmt.Sprintf(WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, content)), nil
 }
 
 func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error) {
@@ -48,9 +49,9 @@ func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error
 	return content, nil
 }
 
-func handleContent(dictId string, keyEntry *model.KeyBlockEntry, definition string) string {
+func handleContent(dict *model.PlainDictionaryItem, keyEntry *model.KeyBlockEntry, definition string) string {
 	for _, replacer := range handler.replacers {
-		keyEntry, definition = replacer.Replace(dictId, keyEntry, definition)
+		keyEntry, definition = replacer.Replace(dict.ID, keyEntry, definition)
 	}
 	return definition
 }

@@ -23,7 +23,12 @@ const WordDefinitionTempl = `
 body{
 	padding: 5px 6px 5px 6px;
 }
+
 </style>
+<!-- out-plugin style and js file -->
+<link href="%s.css?dict_id=%s" rel="stylesheet">
+<script async src='%s.js?dict_id=%s'></script>
+
 <script lang="javascript">
 function __medict_play_sound(mp3url) {
 	console.log(mp3url);

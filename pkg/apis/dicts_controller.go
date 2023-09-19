@@ -46,9 +46,14 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
-
 	}
-	htmlContent, err := tmpl.WrapContent(dictId, entry, def)
+	dict, ok := dc.ds.GetDictPlain(dictId)
+	if !ok {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	htmlContent, err := tmpl.WrapContent(dict, entry, def)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -111,26 +116,38 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		return
 	}
 
+	key = strings.ReplaceAll(key, "/", "\\")
+	resultBytes, err = dc.ds.LookupResource(dictId, key)
+	if err == nil {
+		log.Infof("innerResourceQuery search key hitted resource: [%s]", key)
+		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		if err != nil {
+			wrapContentType(c, key, resultBytes)
+			return
+		}
+
+		wrapContentType(c, key, resultBytes)
+		return
+	}
+
 	// 补全路径重新搜索
 	if !strings.HasPrefix(key, "\\") {
 		key = "\\" + key
 	}
 
-	key = strings.ReplaceAll(key, "/", "\\")
-	result, err := dc.ds.LookupResource(dictId, key)
+	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
 	log.Infof("innerResourceQuery search key hitted resource with '\\' prefix: [%s]", key)
-	result, err = tmpl.WrapResource(dictId, key, result)
+	result, err := tmpl.WrapResource(dictId, key, resultBytes)
 	if err != nil {
 		wrapContentType(c, key, result)
 		return
 	}
 	wrapContentType(c, key, result)
-	return
 }
 
 func convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyBlockEntry, error) {

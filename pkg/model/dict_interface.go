@@ -11,6 +11,8 @@ type GeneralDictionary interface {
 	DictType() DictType
 	// Description 返回词典描述
 	Description() *PlainDictionaryInfo
+	// Name 返回词典名称(主要是为了解决mdict的外部资源问题)
+	Name() string
 	// Lookup 直接输入 keyword 遍历词典搜索
 	Lookup(keyword string) ([]byte, error)
 	// LookupResource 搜索词典资源，包括 css/js/图片/字体等, 仅限制支持在词典所在文件夹

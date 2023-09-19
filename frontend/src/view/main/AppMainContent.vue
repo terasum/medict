@@ -92,6 +92,8 @@ function listenContentUpdate() {
           break;
         case 'updateSelectDict':
           break;
+        case 'updateInputSearchWord':
+          break;
         default: {
           console.log(
             `[event] not recognized event, skipped, event name: ${name}`
@@ -113,7 +115,10 @@ function listenContentUpdate() {
             updateIframeContent(store.mainContentURL, false);
             break;
           }
-
+          case 'updateInputSearchWord' :{
+            // skip for now
+            break
+          }
           case 'updateSelectDict': {
             // inputWord.value = '';
             break;

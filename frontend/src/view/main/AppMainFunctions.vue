@@ -161,7 +161,7 @@
             type="text"
             size="small"
             placeholder="搜索"
-            @change="handleChange"
+            @keydown.enter="handleChange"
             v-model:value="inputWord"
           >
             <template #suffix>
@@ -205,171 +205,17 @@ import { Search, AngleLeft, AngleRight, Book, ToggleOn } from '@vicons/fa';
 import { Settings48Filled } from '@vicons/fluent';
 import { NIcon } from 'naive-ui';
 
-import { SearchWord } from '@/apis/dicts-api';
 import { useDictQueryStore } from '@/store/dict';
 const dictQueryStore = useDictQueryStore();
 
 let inputWord = ref('');
-
-function searchWord(word) {
-  if (dictQueryStore.selectDict.id === '') {
-    console.log('skipped');
-    return;
-  }
-  if (word === '') {
-    console.log('empty word skipped');
-  }
-
-  SearchWord(dictQueryStore.selectDict.id, word).then((res) => {
-    console.log('=== SearchWord ===');
-    console.log(dictQueryStore.selectDict.id);
-    console.log(res);
-    dictQueryStore.updatePendingList(res);
-    if (res.data && res.data.length > 0) {
-      dictQueryStore.locateWord(0);
-    }
-  });
-}
 
 ///----------------------------
 // event listener function
 ///----------------------------
 
 function handleChange(v) {
-  console.info('[Event change]: ' + v);
-  searchWord(v.trim());
+  console.info("[event keydown enter]" + inputWord.value)
+  dictQueryStore.updateInputSearchWord(inputWord.value.trim());
 }
 </script>
-
-<!-- <script lang="ts">
-import Vue from 'vue';
-import Store from '../store/index';
-import Translate from '../components/icons/translate.icon.vue';
-import Search from '../components/icons/search.icon.vue';
-import Plugins from '../components/icons/plugins2.icon.vue';
-import Settings from '../components/icons/settings.icon.vue';
-
-interface DictItem {
-  id: string;
-  alias: string;
-  name: string;
-}
-export default Vue.extend({
-  components: {
-    Translate,
-    Search,
-    Plugins,
-    Settings,
-  },
-  props: {
-    displaySearchBox: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data() {
-    return {
-      searchWord: '',
-      isDictSelectModalActive: false,
-    };
-  },
-
-  computed: {
-    avaliableDictCount() {
-      let dicts = (this.$store as typeof Store).state.dictionaries;
-      return !dicts ? 0 : dicts.length;
-    },
-    currentDict() {
-      return (this.$store as typeof Store).state.currentSelectDict;
-    },
-    selectDicts() {
-      let dicts: DictItem[] = [];
-      (this.$store as typeof Store).state.dictionaries.forEach((item) => {
-        dicts.push({ id: item.id, alias: item.alias, name: item.name });
-      });
-      return dicts;
-    },
-    currentTab() {
-      return (this.$store as typeof Store).state.headerData.currentTab;
-    },
-  },
-  watch: {
-    searchWord(word) {
-      console.debug(`asyncSearchWord ${word}`);
-      this.$store.dispatch('asyncSearchWord', {
-        dictid: this.currentDict.id,
-        word,
-      });
-    },
-  },
-  methods: {
-    onSelectDictBtnClick() {
-      if (this.avaliableDictCount > 0) {
-        this.isDictSelectModalActive = true;
-      }
-    },
-    selectDictItem(item: DictItem) {
-      this.$store.commit('updateCurrentSelectDict', item);
-      // async search
-
-      if (this.searchWord && this.searchWord.length > 0) {
-        console.log(this.searchWord);
-        this.$store.dispatch('asyncSearchWord', {
-          dictid: item.id,
-          word: this.searchWord,
-        });
-      }
-
-      this.isDictSelectModalActive = false;
-      this.$emit('close');
-    },
-    // keyup event methods
-    confirmSelect(event: any) {
-      const idx = (this.$store as typeof Store).state.sideBarData
-        .selectedWordIdx;
-      this.$store.dispatch('asyncFindWordPrecisly', idx);
-    },
-    upSelect(event: any) {
-      const idx = (this.$store as typeof Store).state.sideBarData
-        .selectedWordIdx;
-      this.$store.commit('updateSelectedWordIdx', idx - 1);
-    },
-    downSelect(event: any) {
-      const idx = (this.$store as typeof Store).state.sideBarData
-        .selectedWordIdx;
-      this.$store.commit('updateSelectedWordIdx', idx + 1);
-    },
-    clickDictionary(event: any) {
-      console.log(event);
-      this.$store.commit('updateTab', '词典');
-
-      if (this.$router.currentRoute.path !== '/') {
-        this.$router.replace({ path: '/' });
-        this.$store.commit('updateSuggestWords', []);
-      }
-    },
-    clickTranslation(event: any) {
-      console.log(event);
-      this.$store.commit('updateTab', '翻译');
-
-      if (this.$router.currentRoute.path !== '/translate') {
-        this.$router.replace({ path: '/translate' });
-      }
-    },
-    clickPlugins(event: any) {
-      this.$store.commit('updateTab', '插件');
-
-      if (this.$router.currentRoute.path !== '/plugins') {
-        this.$router.replace({ path: '/plugins' });
-      }
-    },
-    clickPreference(event: any) {
-      this.$store.commit('updateTab', '设置');
-      if (this.$router.currentRoute.path !== '/preference') {
-        this.$router.replace({ path: '/preference' });
-      }
-    },
-  },
-  mounted() {},
-}); -->
-<!-- </script> -->

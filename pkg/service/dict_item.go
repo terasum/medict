@@ -19,9 +19,11 @@ package service
 import (
 	"encoding/base64"
 	"errors"
+	"os"
+	"strings"
+
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
-	"os"
 )
 
 func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
@@ -53,7 +55,11 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 		if err != nil {
 			log.Errorf("read cover image file failed %s", err.Error())
 		} else {
-			dictItem.Background = base64.StdEncoding.EncodeToString(imgBuffer)
+			if strings.HasSuffix(dirItem.CoverImgPath, "jpg") {
+				dictItem.Background = "data:image/jpg;base64," + base64.StdEncoding.EncodeToString(imgBuffer)
+			} else {
+				dictItem.Background = "data:image/png;base64," + base64.StdEncoding.EncodeToString(imgBuffer)
+			}
 		}
 	}
 
@@ -71,6 +77,7 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 			return nil, err
 		}
 		dictItem.MainDict = dict
+		dictItem.Name = dict.Name()
 	} else if dictType == model.DictTypeStarDict {
 		dict, err := NewStardict(dirItem)
 		if err != nil {

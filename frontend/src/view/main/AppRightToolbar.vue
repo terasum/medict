@@ -45,10 +45,10 @@
 
       .dictionary-item {
         display: block;
-        width: 48px;
-        height: 48px;
+        width: 32px;
+        height: 32px;
         text-align: center;
-        line-height: 48px;
+        line-height: 32px;
         margin: 6px auto;
         border: 1px solid #ccc;
         border-radius: 8px;
@@ -56,12 +56,21 @@
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
-
-        box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+        // box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
         &:hover {
           background-color: #f1f1f1;
         }
+      }
+      .dictionary-item-active {
+        border: 1px solid rgba(17, 168, 255, 0.858);
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        padding: 2px;
+        // box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
       }
     }
   }
@@ -80,6 +89,7 @@
           <template #trigger>
             <span
               class="dictionary-item"
+              :class="item.id == dictQueryStore.selectDict.id ? 'dictionary-item-active':''"
               :key="item.id"
               @click="chooseDict(item)"
               :style="getBackground(item)"
@@ -114,13 +124,11 @@ const state = reactive({
 
 function chooseDict(item) {
   dictQueryStore.updateSelectDict(item);
-  dictQueryStore.updateMainContent('');
-  dictQueryStore.updatePendingList([]);
 }
 
 function getBackground(item) {
   if (item.background) {
-    let style = `background:url(data:image/jpg;base64,${item.background});`
+    let style = `background:url(${item.background});`
     style += `background-size:cover;`
     style += `background-repeat:no-repeat;`
     style += `background-position:center;`;
