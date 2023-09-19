@@ -41,7 +41,7 @@ func defaultConfigPath() (string, error) {
 	}
 	configFile := filepath.Join(home, "medict.toml")
 	if _, err = os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
-		err = os.WriteFile(configFile, []byte(configTmpl), 0644)
+		err = os.WriteFile(configFile, []byte(config.ConfigTmpl), 0644)
 		if err != nil {
 			return "", err
 		}
