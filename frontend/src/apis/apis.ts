@@ -16,7 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Dispatch, ResourceServerAddr } from '../../wailsjs/go/main/App';
+import { Dispatch, ResourceServerAddr, OpenFinder, BaseDictDir } from '../../wailsjs/go/main/App';
+
 import { model } from '../../wailsjs/go/models';
 
 function objectToPathParams(obj) {
@@ -36,6 +37,23 @@ export const StaticDictServerURL = function (): Promise<string> {
     Promise.resolve("http://localhost:1")
   }
 };
+
+export const OpenDirOrFile = function(filepath :string):Promise<void>{
+  if (window['go']) {
+    return OpenFinder(filepath)
+  } else {
+    Promise.resolve()
+  }
+}
+
+export const BaseDictDirectory = function():Promise<string>{
+  if (window['go']) {
+    return BaseDictDir()
+  } else {
+    Promise.resolve("internal error")
+  }
+}
+
 
 
 export async function requestBackend(apiName, data): Promise<model.Resp> {
