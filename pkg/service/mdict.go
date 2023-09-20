@@ -3,11 +3,11 @@ package service
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/terasum/medict/internal/gomdict"
-	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
 )
 
@@ -54,7 +54,12 @@ func NewMdict(dirItem *model.DirItem) (model.GeneralDictionary, error) {
 }
 
 func (md *Mdict) Name() string {
-	return strings.TrimRight(utils.FileName(md.mdxFilePath), ".mdx")
+	_, rawpath := filepath.Split(md.mdxFilePath)
+	rawpath = strings.TrimRight(rawpath, ".mdx")
+	if len(rawpath) > 0 {
+		return rawpath
+	}
+	return md.mdxFilePath
 }
 
 func (md *Mdict) Description() *model.PlainDictionaryInfo {

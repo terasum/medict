@@ -28,3 +28,7 @@ func HomeDir() (string, error) {
 	}
 	return configPath, nil
 }
+
+func AppConfigDir() (string, error) {
+	return HomeDir()
+}

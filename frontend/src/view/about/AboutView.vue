@@ -19,12 +19,12 @@
 <template>
   <div class="container about-view">
     <div class="about-title">
-      <h3>APP 信息</h3>
+      <h1>About</h1>
     </div>
     <div class="about-body">
       <section class="about-section">
         <div class="section-title">
-          <h4> <NIcon><Code/></NIcon> 软件信息</h4>
+          <h2> <NIcon><Code/></NIcon> 软件信息</h2>
         </div>
         <div class="section-body">
           <div class="input-group">
@@ -53,7 +53,7 @@
 
       <section class="about-section">
         <div class="section-title">
-          <h4><NIcon><PeopleCarry/></NIcon> 致谢</h4>
+          <h2><NIcon><PeopleCarry/></NIcon> 致谢</h2>
         </div>
         <div class="section-body">
           <div class="input-group">
@@ -87,9 +87,6 @@
       </section>
 
     </div>
-    <div class="about-footer">
-          <button class="btn" @click="close"> 关闭 </button>
-    </div>
   </div>
 </template>
 
@@ -98,16 +95,8 @@ import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 import {Code, PeopleCarry} from "@vicons/fa";
 import { NIcon } from 'naive-ui';
 
-import {useRouter} from "vue-router"
-
-const router = useRouter();
-
 function openExternal(url: string) {
       BrowserOpenURL(url);
-}
-
-function close() {
-  router.replace({ path: "/" });
 }
 </script>
 
@@ -117,22 +106,10 @@ function close() {
 .container{
   height: 100%;
   overflow-y: auto;
-  padding: 10px 40px;
-  background-color: #fafafa;
 }
 
 .about-title {
   padding: 10px 0 10px 12px;
-  h3 {
-    line-height: 20px;
-    font-size: 20px;
-    font-weight: 700px;
-    color: #505050;
-    padding: 0;
-    margin:0;
-    margin-bottom: 20px;
-    margin-top: 10px;
-  }
 }
 
 
@@ -146,10 +123,11 @@ function close() {
     padding: 2px 4px;
     margin: 0;
     font-size: 16px;
-    h4{
-      margin: 4px 0;
+    h2{
+      font-size: 21px;
+      margin: 14px 0;
+      padding: 6px 0;
       border-bottom: 1px solid #c1c1c3;
-      color: rgb(18, 78, 169);
     }
   }
 
@@ -165,12 +143,10 @@ function close() {
     margin: 10px 0;
     .input-info {
       label {
-        font-size: 14px;
         font-style: bold;
       }
 
       p {
-        font-size: 12px;
         color: #333;
         font-style: italic;
         margin: 0;
@@ -197,12 +173,7 @@ function close() {
 .about-body {
   min-height: 260px;
 }
-.about-footer {
-  display: flex;
-  flex-direction: row-reverse;
-  padding-right: 30px;
-  margin-top: 10px;
-}
+
 .btn {
   background-color: rgb(252, 252, 252);
   background-image: linear-gradient(to bottom, #fcfcfc 0, #f1f1f1 100%);

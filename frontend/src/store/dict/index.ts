@@ -85,17 +85,16 @@ export const useDictQueryStore = defineStore('dictQuery', {
     queryDictList() {
       return GetAllDicts();
     },
-    updateInputSearchWord(word :string) {
-      console.log(`===> updateInputSearchWord: ${word}`)
-      if (!word || word.trim() == "") {
+    updateInputSearchWord(word: string) {
+      console.log(`===> updateInputSearchWord: ${word}`);
+      if (!word || word.trim() == '') {
         return;
       }
       if (word == this.inputSearchWord) {
         return;
       }
-        this.inputSearchWord = word;
-        this.searchWord(word)
-      
+      this.inputSearchWord = word;
+      this.searchWord(word);
     },
     updateMainContent(content) {
       if (content === '') {

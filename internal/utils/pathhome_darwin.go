@@ -34,11 +34,15 @@ func HomeDir() (string, error) {
 		return "", fmt.Errorf("base home dir mkall failed, %s", err.Error())
 	}
 
-	//configPath := configdir.LocalConfig("medict")
-	//fmt.Printf("medict app: HomeDir %s\n", configPath)
-	//err := configdir.MakePath(configPath) // Ensure it exists.
-	//if err != nil {
-	//	return "", fmt.Errorf("base home dir mkall failed, %s", err.Error())
-	//}
+	return configPath, nil
+}
+
+func AppConfigDir() (string, error) {
+	configPath := configdir.LocalConfig("medict")
+	fmt.Printf("medict app: AppConfigDir %s\n", configPath)
+	err := configdir.MakePath(configPath) // Ensure it exists.
+	if err != nil {
+		return "", fmt.Errorf("app config dir mkall failed, %s", err.Error())
+	}
 	return configPath, nil
 }

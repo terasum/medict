@@ -7,6 +7,7 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "type": "module",
   "dependencies": {
     "axios": "^0.21.4",
     "normalize.css": "^8.0.1",
@@ -23,11 +24,17 @@
     "@vicons/fa": "^0.12.0",
     "@vicons/fluent": "^0.12.0",
     "@vicons/tabler": "^0.12.0",
-    "@vitejs/plugin-vue": "^3.2.0",
+    "@vitejs/plugin-vue": "^4.3.4",
     "@vue/compiler-sfc": "^3.3.4",
+    "@yankeeinlondon/code-builder": "^1.2.1",
+    "highlight.js": "^11.8.0",
+    "markdown-it": "^13.0.1",
+    "markdown-it-prism": "^2.3.0",
     "naive-ui": "^2.34.4",
     "sass": "^1.66.1",
     "vfonts": "^0.0.3",
-    "vite": "^3.2.7"
+    "vite": "^4.4.9",
+    "vite-plugin-inspect": "^0.7.38",
+    "vite-plugin-md": "^0.21.5"
   }
 }

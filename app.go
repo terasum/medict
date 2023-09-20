@@ -18,10 +18,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/op/go-logging"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/terasum/medict/internal/entry"
+	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/backserver"
 	"github.com/terasum/medict/pkg/model"
+	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 )
 
 var log = logging.MustGetLogger("default")
@@ -99,4 +103,26 @@ func (b *App) Dispatch(apiName string, args map[string]interface{}) *model.Resp 
 
 func (b *App) ResourceServerAddr() string {
 	return b.bs.StaticServerBaseUrl()
+}
+
+func (b *App) OpenFinder(filepath string) error {
+	if !fileutil.Exist(filepath) {
+		return errors.New("file path not exist, cannot open")
+	}
+	err := open.Run(filepath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *App) BaseDictDir() string {
+	if b.bs == nil {
+		return "internal error"
+	}
+	f, e := utils.ReplaceHome(b.bs.Config.BaseDictDir)
+	if e != nil {
+		return "internal error"
+	}
+	return f
 }
