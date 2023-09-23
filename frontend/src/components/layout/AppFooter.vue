@@ -18,8 +18,20 @@
 
 <template>
   <div class="app-footer" id="app-footer">
+
     <span class="hyperlink">
-      <NIcon size="12"><Bug /></NIcon>
+        <span 
+        data-href="https://github.com/terasum/medict"
+        @click="onClickHyperLink"
+        class="icon icon-github"></span>
+        <!-- &nbsp;<b
+        data-href="https://github.com/terasum/medict"
+        @click="onClickHyperLink"
+        >github</b> -->
+    </span>
+
+    <span class="split-line"></span>
+    <span class="hyperlink">
       <b
         data-href="https://github.com/terasum/medict/issues"
         @click="onClickHyperLink"
@@ -67,7 +79,11 @@ function onClickInternalLink(event: any) {
 </script>
 
 <style lang="scss" scoped>
+@import '@/style/variables.scss';
+@import '@/style/photon/photon.scss';
+
 .app-footer {
+
   position: absolute;
   bottom: 0;
   width: 100%;
