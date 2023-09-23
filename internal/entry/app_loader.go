@@ -26,44 +26,59 @@ import (
 	"github.com/terasum/medict/internal/utils"
 )
 
+var cfg *config.Config
+
 func defaultConfigPath() (string, error) {
-	home, err := utils.HomeDir()
+	// should raise error
+	appConfigDir, err := utils.AppConfigDir()
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("medict app: default config dir %s\n", home)
-	configDir := filepath.Join(home, "dicts")
-	if _, err = os.Stat(configDir); errors.Is(err, os.ErrNotExist) {
-		err = os.MkdirAll(configDir, os.ModePerm)
-		if err != nil {
-			return "", err
-		}
-	}
-	configFile := filepath.Join(home, "medict.toml")
+	fmt.Printf("[medict-init]: default config dir: %s\n", appConfigDir)
+
+	configFile := filepath.Join(appConfigDir, "medict.toml")
 	if _, err = os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
 		err = os.WriteFile(configFile, []byte(config.ConfigTmpl), 0644)
 		if err != nil {
 			return "", err
 		}
 	}
-	fmt.Printf("medict app: default config file %s\n", configFile)
-	return configFile, nil
 
+	fmt.Printf("[medict-init]: default config file: %s\n", configFile)
+	return configFile, nil
 }
 
-var cfg *config.Config
-
-func DefaultConfig() (*config.Config, error) {
+func loadConfig() (*config.Config, error) {
 	var err error
 	var configPath = ""
 	if cfg != nil {
 		return cfg, nil
 	}
+
 	configPath, err = defaultConfigPath()
+	if err != nil {
+		return nil, err
+	}
+
 	cfg, err = config.ReadConfig(configPath)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("medict app: config dicts dir %s\n", cfg.BaseDictDir)
+	fmt.Printf("[medict-init]: config dicts dir: %s\n", cfg.BaseDictDir)
 	return cfg, nil
+}
+
+func LoadApp() (*config.Config, error) {
+	conf, err := loadConfig()
+	if err != nil {
+		return nil, err
+	}
+	conf.BaseDictDir = conf.EnsureDictsDir()
+
+	err = WritePresetDictionary(conf.BaseDictDir)
+	if err != nil {
+		return nil, err
+	}
+
+	return conf, nil
 }

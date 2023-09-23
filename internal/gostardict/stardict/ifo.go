@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// Info contains dictionary options
-type Info struct {
+// RawInfo contains dictionary options
+type RawInfo struct {
 	Version string
 	Is64    bool
 	Options map[string]string
@@ -25,8 +25,8 @@ func decodeOption(str string) (key string, value string, err error) {
 	return a[0], a[1], nil
 }
 
-// ReadInfo reads ifo file and collects dictionary options
-func ReadInfo(filename string) (info *Info, err error) {
+// readInfo reads ifo file and collects dictionary options
+func readInfo(filename string) (info *RawInfo, err error) {
 	reader, err := os.Open(filename)
 	if err != nil {
 		return
@@ -59,12 +59,12 @@ func ReadInfo(filename string) (info *Info, err error) {
 		return
 	}
 
-	if kv != "2.4.2" && kv != "3.0.0" && kv != "2.4.2\r" &&kv != "3.0.0\r"{    // \r : fix the problem on windows
-		err = errors.New("Stardict version should be either 2.4.2 or 3.0.0")
+	if kv != "2.4.2" && kv != "3.0.0" && kv != "2.4.2\r" && kv != "3.0.0\r" { // \r : fix the problem on windows
+		err = errors.New("stardict version should be either 2.4.2 or 3.0.0")
 		return
 	}
 
-	info = new(Info)
+	info = new(RawInfo)
 
 	info.Version = kv
 

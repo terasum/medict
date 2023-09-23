@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"errors"
+
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/terasum/medict/internal/entry"
@@ -57,7 +58,7 @@ func NewApp() *App {
 }
 
 func (b *App) appInit() error {
-	conf, err := entry.DefaultConfig()
+	conf, err := entry.LoadApp()
 	if err != nil {
 		return err
 	}
@@ -71,6 +72,7 @@ func (b *App) appInit() error {
 	if err != nil {
 		return err
 	}
+	// assign backend server
 	b.bs = bs
 	// running bs, this is not blocking
 	bs.Start()

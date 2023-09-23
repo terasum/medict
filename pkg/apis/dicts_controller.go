@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -33,7 +34,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 	entryId := c.Query("entry_id")
 	keyBlockIdx := c.Query("key_block_idx")
 
-	entry, err := convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx)
+	entry, err := convertKeyIndex("medict", entryId, recordStart, recordEnd, keyWord, keyBlockIdx)
 	if err != nil {
 
 		fmt.Printf("NoRoute REQ ABORT: %s (%s:%s)\n", c.Request.RequestURI, "bad param convert", err.Error())
@@ -43,18 +44,38 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 
 	def, err := dc.ds.Locate(dictId, entry)
 	if err != nil {
-
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	// handle @@@Link=${word}
+	def = strings.TrimSpace(def)
+
+	if strings.HasPrefix(def, "@@@LINK=") {
+		log.Infof("search @@@LINK=>[%s], hex:[%s]", def, hex.EncodeToString([]byte(def)))
+		newWord := strings.TrimPrefix(def, "@@@LINK=")
+		newWord = strings.TrimRight(newWord, "\r\n\000")
+		result, err1 := dc.ds.Search(dictId, newWord)
+		if err1 == nil && len(result) > 0 {
+			newEntry := result[0]
+			def1, err2 := dc.ds.Locate(dictId, newEntry)
+			// handle link jump
+			if err2 == nil {
+				def = def1
+			} else {
+				log.Errorf("search @@@link jump failed %s, %v", def, err2)
+			}
+		}
+	}
+
 	dict, ok := dc.ds.GetDictPlain(dictId)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	htmlContent, err := tmpl.WrapContent(dict, entry, def)
+	htmlContent, err := tmpl.WrapContent(dict, entry.KeyBlockEntry, def)
 	if err != nil {
+
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -150,7 +171,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	wrapContentType(c, key, result)
 }
 
-func convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyBlockEntry, error) {
+func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyIndex, error) {
 	if entryId == "" {
 		entryId = "0"
 	}
@@ -162,6 +183,10 @@ func convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx 
 	}
 	if keyBlockIdx == "" {
 		keyBlockIdx = "0"
+	}
+	idxtype := model.IndexTypeMdict
+	if dictType == "stardict" {
+		idxtype = model.IndexTypeStardict
 	}
 
 	ientryId, err := strconv.Atoi(entryId)
@@ -181,12 +206,15 @@ func convertKeyBlockEntry(entryId, recordStart, recordEnd, keyWord, keyBlockIdx 
 		return nil, err
 	}
 
-	return &model.KeyBlockEntry{
-		ID:                ientryId,
-		RecordStartOffset: int64(irecordStart),
-		RecordEndOffset:   int64(irecordEnd),
-		KeyWord:           keyWord,
-		KeyBlockIdx:       int64(ikeyBlockIdx),
+	return &model.KeyIndex{
+		IndexType: idxtype,
+		KeyBlockEntry: &model.KeyBlockEntry{
+			ID:                ientryId,
+			RecordStartOffset: int64(irecordStart),
+			RecordEndOffset:   int64(irecordEnd),
+			KeyWord:           keyWord,
+			KeyBlockIdx:       int64(ikeyBlockIdx),
+		},
 	}, nil
 }
 

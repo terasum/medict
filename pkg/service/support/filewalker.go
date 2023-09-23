@@ -18,6 +18,7 @@ package support
 
 import (
 	"fmt"
+	"github.com/op/go-logging"
 	"io/fs"
 	"path/filepath"
 
@@ -26,6 +27,9 @@ import (
 	"github.com/terasum/medict/pkg/model"
 )
 
+var log = logging.MustGetLogger("default")
+
+// WalkDir 遍历第一层的所有文件夹，忽略文件
 func WalkDir(dirpath string) ([]*model.DirItem, error) {
 	list := make([]*model.DirItem, 0)
 	err := filepath.WalkDir(dirpath, func(path string, d fs.DirEntry, err error) error {
@@ -36,60 +40,119 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 			return fmt.Errorf("walkdir failed, path: [%s] %s", path, err.Error())
 		}
 		// skip self
-		if dirpath == path {
+		if dirpath == path || path == "." || path == ".." {
 			return nil
 		}
+
 		// skip non-dir
 		if !d.IsDir() {
 			return nil
 		}
-		item, err := innerWalker(dirpath, path, err)
+		// 遍历第二层
+		item, err := innerWalkLevel2(dirpath, path)
 		if err != nil {
-			return fmt.Errorf("inner walker failed , path:[%s], %s", path, err.Error())
+			// 二层遍历失败，继续遍历下一个
+			log.Errorf("inner walker failed , path:[%s], %s", path, err.Error())
+			return nil
 		}
-		if item.MdictMdxAbsPath != "" {
+
+		if item != nil && item.IsValid {
 			list = append(list, item)
 		}
+
 		return nil
 	})
 	return list, err
 }
 
-func innerWalker(rootpath, subpath string, err error) (*model.DirItem, error) {
-	if rootpath == "" {
-		return nil, fmt.Errorf("inner walkdir failed, path is empty, path: [%s] %s", rootpath, err.Error())
-	}
-	if err != nil {
-		return nil, fmt.Errorf("inner walk entry failed, path %s, err %s", rootpath, err.Error())
-	}
-	item := &model.DirItem{
-		BaseDir:         rootpath,
-		CurrentDir:      subpath,
-		MdictMdxAbsPath: "",
-		MdictMddAbsPath: make([]string, 0),
+func innerWalkLevel2(level1Path, level2Path string) (*model.DirItem, error) {
+	if level1Path == "" {
+		// this should not take event
+		return nil, fmt.Errorf("level2dir walk failed, level1path is empty, err: %s", level1Path)
 	}
 
-	err = filepath.Walk(subpath, func(path string, info fs.FileInfo, err error) error {
+	item := &model.DirItem{
+		BaseDir:         utils.FileAbs(level1Path),
+		CurrentDir:      utils.FileAbs(level2Path),
+		MdictMddAbsPath: make([]string, 0),
+		IsValid:         false,
+	}
+
+	err1 := filepath.Walk(level2Path, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("inner walk dir failed, path %s, %s", path, err)
+			return fmt.Errorf("level2 inner walk dir failed, path %s, %s", path, err)
 		}
+
+		// skip directory
 		if info.IsDir() {
 			return nil
+		}
+
+		// verify multiple directory types, such as
+		// order0: medict.type file
+		// order1: medict type
+		// order2: stardict type
+
+		// predefined file type
+		if info.Name() == "cover.jpg" {
+			item.CoverImgPath = utils.FileAbs(path)
+			item.CoverImgType = model.ImgTypeJPG
+		} else if info.Name() == "cover.png" {
+			item.CoverImgPath = utils.FileAbs(path)
+			item.CoverImgType = model.ImgTypePNG
+		} else if info.Name() == "mdict.toml" {
+			item.DictType = model.DictTypeMdict
+			item.ConfigPath = utils.FileAbs(path)
+		} else if info.Name() == "stardict.toml" {
+			item.DictType = model.DictTypeStarDict
+			item.ConfigPath = utils.FileAbs(path)
+		} else if info.Name() == "dict.license" {
+			item.LicensePath = utils.FileAbs(path)
 		}
 
 		// if mdx
 		if filepath.Ext(info.Name()) == ".mdx" {
 			item.MdictMdxAbsPath, _ = filepath.Abs(path)
+			item.MdictMdxFileName = utils.FileNameWithoutExt(path)
+			baseDir := utils.FileBaseDir(path)
+			fmt.Printf("path is %s, basedir is %s\n", path, baseDir)
+			pngPath := filepath.Join(baseDir, item.MdictMdxFileName+"."+"png")
+			fmt.Printf("pngpath: %s\n", pngPath)
+			if utils.FileExists(pngPath) {
+				item.CoverImgPath = utils.FileAbs(pngPath)
+				item.CoverImgType = model.ImgTypePNG
+			}
+
+			jpgPath := filepath.Join(baseDir, item.MdictMdxFileName+"."+"jpg")
+			fmt.Printf("jpgpath: %s\n", pngPath)
+			if utils.FileExists(jpgPath) {
+				item.CoverImgPath = utils.FileAbs(jpgPath)
+				item.CoverImgType = model.ImgTypeJPG
+			}
+			item.DictType = model.DictTypeMdict
+			item.IsValid = true
 		} else if filepath.Ext(info.Name()) == ".mdd" {
-			// pop stack
-			mddabs, _ := filepath.Abs(path)
-			item.MdictMddAbsPath = append(item.MdictMddAbsPath, mddabs)
-		} else if info.Name() == "cover.jpg" || info.Name() == "cover.png" {
-			item.CoverImgPath = utils.FileAbs(path)
-		} else {
-			// TODO copy css/js files
+			// MDD append
+			mddAbs, _ := filepath.Abs(path)
+			item.MdictMddAbsPath = append(item.MdictMddAbsPath, mddAbs)
 		}
+
+		// if stardict
+		if filepath.Ext(info.Name()) == ".dz" {
+			item.StarDictDzAbsPath, _ = filepath.Abs(path)
+			item.DictType = model.DictTypeStarDict
+			item.IsValid = true
+		} else if filepath.Ext(info.Name()) == ".dict" {
+			item.StarDictAbsPath, _ = filepath.Abs(path)
+			item.DictType = model.DictTypeStarDict
+			item.IsValid = true
+		} else if filepath.Ext(info.Name()) == ".ifo" {
+			item.StarDictIfoAbsPath, _ = filepath.Abs(path)
+		} else if filepath.Ext(info.Name()) == ".idx" {
+			item.StarDictIdxAbsPath, _ = filepath.Abs(path)
+		}
+
 		return nil
 	})
-	return item, err
+	return item, err1
 }

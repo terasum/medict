@@ -1,9 +1,12 @@
 package model
 
 type DictType string
+type ImgType string
 
-const DictTypeMdict DictType = "MdictType"
-const DictTypeStarDict DictType = "MdictType"
+const DictTypeMdict DictType = "Mdict"
+const DictTypeStarDict DictType = "StarDict"
+const ImgTypeJPG ImgType = "jpg"
+const ImgTypePNG ImgType = "png"
 
 type GeneralDictionary interface {
 	BuildIndex() error

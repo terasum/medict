@@ -238,9 +238,9 @@ function changeTab(tabName) {
 }
 
 function handleChange(v) {
-  console.info('[event keydown enter]' + inputWord.value);
+  console.info('[app-event](keydown.enter), args:' + inputWord.value);
   if(!uiStore.isSearchInputActive()){
-    console.log("input disabled, skipped")
+    console.log("[app-event](keydown.enter), input disabled, skipped")
     return;
   }
   dictQueryStore.updateInputSearchWord(inputWord.value.trim());

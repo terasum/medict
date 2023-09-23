@@ -97,6 +97,7 @@
 </template>
 <script setup>
 import { useDictQueryStore } from '@/store/dict';
+import { useUIStore } from '@/store/ui';
 import { reactive, onMounted } from 'vue';
 import { BuildIndex } from '@/apis/dicts-api';
 import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
@@ -104,6 +105,7 @@ import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
 import { NPopover } from 'naive-ui';
 
 const dictQueryStore = useDictQueryStore();
+const uiStore = useUIStore();
 
 const state = reactive({
   dictList: [],
@@ -127,23 +129,58 @@ function getBackground(item) {
 
 function loadDictionaries() {
   dictQueryStore.queryDictList().then((res) => {
-    console.log(res);
+    console.log("[app-init] loading dictionaries success, result:", res)
     if (res.length > 0) {
       dictQueryStore.updateSelectDict(res[0]);
     }
+    const totalNumber = res.length;
+    const updater = updateProgress(totalNumber);
 
     for (let i = 0; i < res.length; i++) {
       state.dictList.push(res[i]);
+      console.log(`[app-init] building dictionary, index: ${i}`, res[i])
+
+      BuildIndex(res[i].id).then((resp) => {
+        let progressHint = `词典 ${res[i].name} 加载完成`;
+        console.log(`[app-init] building success, index: ${i}`, resp);
+        updater(progressHint)
+
+
+      });
     }
 
-    setTimeout(() => {
-      // build-index
-      BuildIndex().then((resp) => {
-        console.log('building index success:', resp);
-      });
-    }, 1000);
   });
 }
+
+
+function updateProgress(totalNumber) {
+  let total = totalNumber;
+  let count = 0;
+  let plist = []
+  let progress = 0;
+
+  let intv = setInterval(() => {
+    if (plist.length > 0) {
+      let item = plist.shift();
+      count++;
+      progress = (count / total) * 100;
+      uiStore.updateProgress(item.hint, progress);
+      if (progress >= 100) {
+        clearInterval(intv);
+        setTimeout(() =>{
+          uiStore.updateProgress("全部加载完成", 100);
+        },300)
+      }
+    }
+  }, 200);
+  
+  return function(hint) {
+      plist.push({
+        hint: hint,
+      })
+  }
+}
+
 
 onMounted(() => {
   loadDictionaries();

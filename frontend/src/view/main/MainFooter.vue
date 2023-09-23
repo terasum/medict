@@ -18,50 +18,40 @@
 
 <template>
   <AppFooter>
-    <span class="index-process-hint">
-      <em>{{ percentage_hint.value }}</em>
-    </span>
-
     <div class="building-index-process">
       <n-progress
         type="line"
         color="#c1c1c1"
         :show-indicator="false"
-        :percentage="percnetage.value"
+        :percentage="percnetage"
       />
     </div>
+    <span class="split-line"></span>
+
+    <span class="index-process-hint">
+      <em>{{ percentage_hint }}</em>
+    </span>
   </AppFooter>
 </template>
 
 <script lang="ts" setup>
 import { NProgress } from 'naive-ui';
 import AppFooter from '@/components/layout/AppFooter.vue';
-import { ref, onMounted, computed } from 'vue';
+import { onMounted, computed } from 'vue';
+import { useUIStore } from '@/store/ui';
 
-let _percentage = ref(0);
-let _percentage_hint = ref('索引建立中...');
+const uiStore = useUIStore();
 
-function updatePercentage() {
-  let intv = setInterval(() => {
-    let step = 2000 / 200;
-    _percentage.value += step;
-    if (_percentage.value >= 100) {
-      clearInterval(intv);
-      _percentage_hint.value = '索引建立完成';
-    }
-  }, 200);
-}
 
 onMounted(()=>{
-  updatePercentage();
 })
 
 const percnetage = computed(() => {
-  return _percentage;
+  return uiStore.progressPercent;
 });
 
 const percentage_hint = computed(() =>{
-  return _percentage_hint
+  return uiStore.progressHint;
 })
 
 </script>

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/op/go-logging"
@@ -48,11 +49,14 @@ func NewDictService(config *config.Config) (*DictService, error) {
 		config: config,
 		dicts:  make(map[string]*model.DictionaryItem),
 	}
+
 	err := ds.walkDicts()
 	if err != nil {
 		return nil, err
 	}
+
 	singltonInstanceDictService = ds
+
 	return ds, nil
 }
 
@@ -63,7 +67,7 @@ func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 		key = strings.TrimLeft(key, string(os.PathSeparator))
 		fullPath := path.Join(dict.PathInfo.CurrentDir, key)
 		if utils.FileExists(fullPath) {
-			log.Infof("FindFromDir hitted %s", fullPath)
+			log.Infof("FindFromDir hit %s", fullPath)
 			return os.ReadFile(fullPath)
 		}
 		log.Infof("FindFromDir missed %s", fullPath)
@@ -79,26 +83,24 @@ func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
 		result[i] = dict.ToPlain()
 		i++
 	}
-	return result
+	list := (model.DictList)(result)
+	sort.Sort(list)
+	return list
 }
 
-func (ds *DictService) BuildIndex() error {
-	var err error
-	errIdx := make([]string, 0)
-	for idx, dict := range ds.dicts {
-		err = dict.MainDict.BuildIndex()
+func (ds *DictService) GetDictById(id string) *model.DictionaryItem {
+	if dict, ok := ds.dicts[id]; ok {
+		return dict
+	}
+	return nil
+}
+
+func (ds *DictService) BuildIndexById(dictId string) error {
+	if dict, ok := ds.dicts[dictId]; ok {
+		err := dict.MainDict.BuildIndex()
 		if err != nil {
-			log.Errorf("building dictionary index failed, (%s): %s", dict.ToPlain().Name, err.Error())
-			errIdx = append(errIdx, idx)
+			return err
 		}
-	}
-	if len(errIdx) > 0 {
-		for _, idx := range errIdx {
-			delete(ds.dicts, idx)
-		}
-	}
-	if len(ds.dicts) == 0 {
-		return errors.New("all dictionary index building failed")
 	}
 	return nil
 }
@@ -136,13 +138,17 @@ func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, er
 	}
 }
 
-func (ds *DictService) Locate(dictid string, entry *model.KeyBlockEntry) (string, error) {
+func (ds *DictService) Locate(dictid string, idx *model.KeyIndex) (string, error) {
 	if dict, ok := ds.dicts[dictid]; !ok {
 		return "", errors.New("dict not found")
 	} else {
+		idxType := model.IndexTypeMdict
+		if dict.DictType == (string)(model.DictTypeStarDict) {
+			idxType = model.IndexTypeStardict
+		}
 		defData, err := dict.MainDict.Locate(&model.KeyIndex{
-			IndexType:     model.IndexTypeMdict,
-			KeyBlockEntry: entry,
+			IndexType:     idxType,
+			KeyBlockEntry: idx.KeyBlockEntry,
 		})
 		if err != nil {
 			return "", err
@@ -168,11 +174,7 @@ func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyIndex,
  * @return error
  */
 func (ds *DictService) walkDicts() error {
-	baseDir, err := utils.ReplaceHome(ds.config.BaseDictDir)
-	if err != nil {
-		return fmt.Errorf("replace home failed, %s", err.Error())
-	}
-
+	baseDir := ds.config.EnsureDictsDir()
 	items, err := support.WalkDir(baseDir)
 	if err != nil {
 		return fmt.Errorf("walk dir failed, basedir %s,  %s", baseDir, err.Error())

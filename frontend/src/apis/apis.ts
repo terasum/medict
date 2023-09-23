@@ -58,12 +58,12 @@ export const BaseDictDirectory = function():Promise<string>{
 
 export async function requestBackend(apiName, data): Promise<model.Resp> {
   if (window['go']) {
-    console.log(`[IPC] dispatch [${apiName}]into golang args`, data)
+    console.log(`[dicts-api] ipc call, dispatch [${apiName}] event, args:`, data)
     return Dispatch(apiName, data);
   } else {
     return Promise.resolve({
       data:"",
-      err: "browser not support",
+      err: "browser not support or system not initialzd yet",
       code: 500,
     })
 

@@ -20,6 +20,7 @@ import { defineStore } from 'pinia';
 
 import { GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
+import { c } from 'naive-ui';
 
 function constructQueryURL(entry) {
   let {
@@ -34,7 +35,7 @@ function constructQueryURL(entry) {
   return `${baseURL}/__tcidem_query?dict_id=${dict_id}&key_word=${key_word}&record_start_offset=${record_start_offset}&record_end_offset=${record_end_offset}&key_block_idx=${key_block_idx}&entry_id=${entry_id}`;
 }
 
-const countDownJs = `
+const DefaultContentTemplpate = `
 <html>
 <head>
 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -76,7 +77,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
   state: () => ({
     dictApiBaseURL: '',
     queryPendingList: [],
-    mainContent: btoa(countDownJs),
+    mainContent: btoa(DefaultContentTemplpate),
     mainContentURL: '',
     selectDict: { id: '', name: '', path: '' },
     inputSearchWord: '',
@@ -86,7 +87,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       return GetAllDicts();
     },
     updateInputSearchWord(word: string) {
-      console.log(`===> updateInputSearchWord: ${word}`);
+      console.log(`[app-event](store-action), updateInputSearchWord: ${word}`);
       if (!word || word.trim() == '') {
         return;
       }
@@ -98,18 +99,25 @@ export const useDictQueryStore = defineStore('dictQuery', {
     },
     updateMainContent(content) {
       if (content === '') {
-        this.mainContent = btoa(countDownJs);
+        this.mainContent = btoa(DefaultContentTemplpate);
       } else {
         this.mainContent = content;
       }
     },
     updateMainContentURL(url) {
       this.mainContentURL = url;
+      if (url === '') {
+        this.mainContent = btoa(DefaultContentTemplpate);
+      }
     },
     updatePendingList(wordList) {
-      console.log('==== updatePendingList ====');
-      console.log(wordList);
+      console.log(`[app-event](store-action), updatePendingList`, wordList);
       this.queryPendingList = wordList;
+      if (this.queryPendingList && this.queryPendingList.length > 0) {
+        this.locateWord(0);
+      } else {
+        this.resetMainContent();
+      }
     },
     updateSelectDict(dictItem) {
       this.selectDict = dictItem;
@@ -127,13 +135,10 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
 
       SearchWord(this.selectDict.id, word).then((res) => {
-        console.log('=== SearchWord ===');
-        console.log(this.selectDict.id);
-        console.log(res);
+        console.log(`[app-event](store-action), SearchWord`, this.selectDict.id, word);
+        console.log("[app-event](store-action), SerchWord",res)
         this.updatePendingList(res);
-        if (res.data && res.data.length > 0) {
-          this.locateWord(0);
-        }
+        
       });
     },
     setUpAPIBaseURL() {
@@ -150,7 +155,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
         urlPromise
           .then((url) => {
             if (url === '') {
-              console.log(`[init] static server url empty retry ${count}`);
+              console.log(`[app init] static server url is empty, retrying times: ${count}`);
               return;
             }
             // browser
@@ -158,10 +163,10 @@ export const useDictQueryStore = defineStore('dictQuery', {
               return;
             }
             if (url.startsWith('http://localhost:0/')) {
-              console.log(`[init] static server url empty retry ${count}`);
+              console.log(`[app init] static server url setting failed, retrying times: ${count}`);
               return;
             }
-            console.log(`[init] static server url success ${count}`);
+            console.log(`[app init] static server url has setting successful, retrying times: ${count}`);
             that.updateBaseURL(url);
             clearInterval(inv);
           })
@@ -210,5 +215,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
         })
       );
     },
+    resetMainContent() {
+      this.updateMainContent(btoa(DefaultContentTemplpate))
+
+    }
   },
 });

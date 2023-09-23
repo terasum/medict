@@ -16,6 +16,5 @@
 
 package config
 
-const ConfigTmpl = `
-BaseDictDir="$HOME/dicts"
+const ConfigTmpl = `BaseDictDir="$HOME/dicts"
 `

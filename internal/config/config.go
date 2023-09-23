@@ -16,10 +16,24 @@
 
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/spf13/viper"
+	"github.com/terasum/medict/internal/utils"
+)
+
+type ConfigStruct struct {
+	BaseDictDir string `toml:"BaseDictDir"`
+}
 
 type Config struct {
-	BaseDictDir string `toml:"BaseDictDir"`
+	*ConfigStruct
+	ConfigPath    string
+	ViperInstance *viper.Viper
 }
 
 func ReadConfig(configFilePath string) (*Config, error) {
@@ -31,10 +45,58 @@ func ReadConfig(configFilePath string) (*Config, error) {
 		return nil, err
 	}
 
-	config := &Config{}
-	err = vip.Unmarshal(config)
+	configs := &ConfigStruct{}
+	err = vip.Unmarshal(configs)
 	if err != nil {
 		return nil, err
 	}
-	return config, nil
+
+	return &Config{
+		ConfigStruct:  configs,
+		ViperInstance: vip,
+		ConfigPath:    configFilePath,
+	}, nil
+}
+
+func (c *Config) Write() error {
+	return c.ViperInstance.WriteConfig()
+}
+
+func (c *Config) EnsureDictsDir() string {
+	dirPath := c.BaseDictDir
+	defer func() {
+		fmt.Printf("[medict-init]: ensure app config directory: %s\n", dirPath)
+	}()
+
+	if dirPath == "" {
+		dirPath, _ = utils.AppConfigDir()
+		dirPath = filepath.Join(dirPath, "medict", "dicts")
+	}
+
+	home, _ := utils.HomeDir()
+	dirPath = strings.ReplaceAll(dirPath, "$HOME", home)
+	appdir, _ := utils.AppConfigDir()
+	dirPath = strings.ReplaceAll(dirPath, "$APPCONFDIR", appdir)
+	if utils.FileExists(dirPath) {
+		return dirPath
+	}
+	// 不存在就创建
+	err := os.MkdirAll(dirPath, 0755)
+	if err == nil {
+		return dirPath
+	}
+	// 依旧创建失败, 选择默认配置
+	if !strings.HasPrefix(dirPath, home) || strings.HasPrefix(dirPath, appdir) {
+		dirPath, _ = utils.AppConfigDir()
+		dirPath = filepath.Join(dirPath, "medict", "dicts")
+	}
+
+	if !utils.FileExists(dirPath) {
+		err := os.MkdirAll(dirPath, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return dirPath
 }

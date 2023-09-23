@@ -23,9 +23,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/agatan/bktree"
 	"github.com/creasty/go-levenshtein"
 	"github.com/op/go-logging"
+	"github.com/terasum/medict/internal/libs/bktree"
 )
 
 var log = logging.MustGetLogger("default")
@@ -132,7 +132,7 @@ func (mdict *Mdict) BuildBKTree() error {
 
 func (mdict *Mdict) SimSearch(word string, tolerance int) ([]*MDictKeyBlockEntry, error) {
 	entry := &MDictKeyBlockEntry{KeyWord: word}
-	results := mdict.bktree.Search(entry, tolerance)
+	results := mdict.bktree.Search(entry, tolerance, 100)
 
 	wrapper := &entryWrapper{
 		list: make([]*entryWrapperItem, 0),

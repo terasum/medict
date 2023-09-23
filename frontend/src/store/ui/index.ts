@@ -32,6 +32,18 @@ export const useUIStore = defineStore('ui', {
     },
     isSearchInputActive() {
         return this.currentTab === "search";
+    },
+    updateProgress(hint:string, progress:number) {
+      if (progress > 100)  { 
+        progress = 100;
+      }
+      if (progress < 0) {
+        progress = 0
+      }
+
+      this.progressHint = hint;
+      this.progressPercent = progress;
+
     }
   },
 });
