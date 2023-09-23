@@ -16,5 +16,5 @@
 
 package config
 
-const ConfigTmpl = `BaseDictDir="$APPCONFDIR\dicts"
+const ConfigTmpl = `BaseDictDir="$APPCONFDIR\\dicts"
 `
