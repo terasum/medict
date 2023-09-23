@@ -26,7 +26,7 @@ import select_and_use_md from '@/assets/docs/select_and_use_dict.md';
 import faq_md from '@/assets/docs/faq.md';
 import terms_and_service from '@/assets/docs/terms_and_service.md';
 import license_md from '@/assets/docs/license.md';
-import about_md from '@/assets/docs/about.md';
+import about_md from '@/view/about/index.vue';
 
 import SettingDict from "@/view/setting/SettingDict.vue";
 import SettingSoftware from "@/view/setting/SettingSoftware.vue";
