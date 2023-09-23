@@ -19,35 +19,21 @@ package service
 import (
 	"encoding/base64"
 	"errors"
-	"os"
-	"strings"
-
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
+	"os"
 )
 
 func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 	// basic information reading
 	dictItem := &model.DictionaryItem{
 		PlainDictionaryItem: &model.PlainDictionaryItem{
-			ID:      utils.MD5Hash(dirItem.CurrentDir),
-			DictDir: utils.FileAbs(dirItem.CurrentDir),
-			Name:    utils.FetchBaseDirName(dirItem.CurrentDir),
+			ID:       utils.MD5Hash(dirItem.CurrentDir),
+			DictDir:  utils.FileAbs(dirItem.CurrentDir),
+			Name:     utils.FileName(dirItem.CurrentDir),
+			DictType: (string)(dirItem.DictType),
 		},
 		PathInfo: dirItem,
-	}
-
-	var dictType = model.DictTypeMdict
-
-	if dirItem.TypePath != "" && utils.FileExists(dirItem.TypePath) {
-		filename := utils.FileName(dirItem.TypePath)
-		if filename == "mdict.dtype" {
-			dictItem.DictType = (string)(model.DictTypeStarDict)
-			dictType = model.DictTypeStarDict
-		} else {
-			dictItem.DictType = (string)(model.DictTypeMdict)
-			dictType = model.DictTypeMdict
-		}
 	}
 
 	if dirItem.CoverImgPath != "" && utils.FileExists(dirItem.CoverImgPath) {
@@ -55,7 +41,7 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 		if err != nil {
 			log.Errorf("read cover image file failed %s", err.Error())
 		} else {
-			if strings.HasSuffix(dirItem.CoverImgPath, "jpg") {
+			if dirItem.CoverImgType == model.ImgTypeJPG {
 				dictItem.Background = "data:image/jpg;base64," + base64.StdEncoding.EncodeToString(imgBuffer)
 			} else {
 				dictItem.Background = "data:image/png;base64," + base64.StdEncoding.EncodeToString(imgBuffer)
@@ -71,18 +57,19 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 		log.Infof("read license file %s\n", dirItem.LicensePath)
 	}
 
-	if dictType == model.DictTypeMdict {
+	if dirItem.DictType == model.DictTypeMdict {
 		dict, err := NewMdict(dirItem)
 		if err != nil {
 			return nil, err
 		}
 		dictItem.MainDict = dict
 		dictItem.Name = dict.Name()
-	} else if dictType == model.DictTypeStarDict {
+	} else if dirItem.DictType == model.DictTypeStarDict {
 		dict, err := NewStardict(dirItem)
 		if err != nil {
 			return nil, err
 		}
+		dictItem.Name = dict.Name()
 		dictItem.MainDict = dict
 	} else {
 		return nil, errors.New("not recognized dictionary type")

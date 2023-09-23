@@ -8,24 +8,22 @@ import (
 	"strings"
 )
 
-// Dict implements in-memory dictionary
-type Dict struct {
+// RawDict implements in-memory dictionary
+type RawDict struct {
 	buffer []byte
 }
 
 // GetSequence returns data at the given offset
-func (d Dict) GetSequence(offset uint64, size uint64) []byte {
+func (d *RawDict) GetSequence(offset uint64, size uint64) []byte {
 	return d.buffer[offset:(offset + size)]
 }
 
-// ReadDict reads dictionary into memory
-func ReadDict(filename string, info *Info) (dict *Dict, err error) {
+// readDict reads dictionary into memory
+func readDict(filename string, info *RawInfo) (dict *RawDict, err error) {
 	reader, err := os.Open(filename)
-
 	if err != nil {
 		return
 	}
-
 	defer reader.Close()
 
 	var r io.Reader
@@ -46,7 +44,7 @@ func ReadDict(filename string, info *Info) (dict *Dict, err error) {
 		return
 	}
 
-	dict = new(Dict)
+	dict = new(RawDict)
 	dict.buffer = buffer
 
 	return

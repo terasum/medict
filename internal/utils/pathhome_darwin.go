@@ -18,7 +18,6 @@ func ReplaceHome(origin string) (string, error) {
 	}
 
 	origin = strings.ReplaceAll(origin, "$HOME", configPath)
-	fmt.Printf("medict app: ReplaceHome dictionary dir %s\n", origin)
 	return origin, nil
 }
 
@@ -38,11 +37,14 @@ func HomeDir() (string, error) {
 }
 
 func AppConfigDir() (string, error) {
-	configPath := configdir.LocalConfig("medict")
-	fmt.Printf("medict app: AppConfigDir %s\n", configPath)
-	err := configdir.MakePath(configPath) // Ensure it exists.
-	if err != nil {
-		return "", fmt.Errorf("app config dir mkall failed, %s", err.Error())
+	// $APPDIR/medict/medict.db
+	confp := configdir.LocalConfig("medict")
+	if !(FileExists(confp)) {
+		err := configdir.MakePath(confp)
+		if err != nil {
+			return "", fmt.Errorf("app config dir mkall failed, %s", err.Error())
+		}
 	}
-	return configPath, nil
+	// fmt.Printf("[medict-init]: AppConfigDir %s\n", confp)
+	return confp, nil
 }

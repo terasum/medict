@@ -17,7 +17,7 @@
  */
 
 export interface IDict {
-    id: number
+    id: string
     name: string
     discrption?: string
     imageURL?: string

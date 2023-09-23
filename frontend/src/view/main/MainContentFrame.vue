@@ -103,6 +103,11 @@ function listenContentUpdate() {
             break;
           }
           case 'updateMainContentURL': {
+            if (store.mainContentURL === "") {
+              const content = b64DecodeUnicode(store.mainContent);
+              updateIframeContent(content, true);  
+            }
+
             updateIframeContent(store.mainContentURL, false);
             break;
           }

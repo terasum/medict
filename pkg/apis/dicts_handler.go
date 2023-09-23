@@ -12,12 +12,21 @@ func (dc *DictsController) GetAllDicts(args map[string]interface{}) *model.Resp 
 }
 
 // BuildIndex
-func (dc *DictsController) BuildIndex(args map[string]interface{}) *model.Resp {
-	err := dc.ds.BuildIndex()
-	if err != nil {
-		return model.BuildError(err, model.InnerSysErrCode)
+func (dc *DictsController) BuildIndexByDictId(args map[string]interface{}) *model.Resp {
+	if id, ok := args["dictid"]; !ok {
+		return model.BuildError(errors.New("build index failed, dictid is empty"), model.InnerSysErrCode)
+	} else {
+		log.Infof("[wails] building dictionary index, dict id is %s", id)
+		dict := dc.ds.GetDictById(id.(string))
+		if err := dict.MainDict.BuildIndex(); err != nil {
+			log.Infof("[wails] building dictionary index, dictionary path is %s", dict.MainDict.Name())
+			log.Infof("[wails] building dictionary index failed, err %s", err.Error())
+			return model.BuildError(err, model.InnerSysErrCode)
+		} else {
+			log.Infof("[wails] building dictionary index success, id: %s", dict.MainDict.Name())
+			return model.BuildSuccess(dict.MainDict.Name())
+		}
 	}
-	return model.BuildSuccess(nil)
 }
 
 // SearchWord

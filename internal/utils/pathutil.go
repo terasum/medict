@@ -19,10 +19,11 @@ package utils
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func FetchBaseDirName(fpath string) string {
-	return filepath.Base(fpath)
+func FileBaseDir(fpath string) string {
+	return filepath.Dir(fpath)
 }
 
 func FileAbs(fpath string) string {
@@ -34,11 +35,14 @@ func FileAbs(fpath string) string {
 }
 
 func FileName(fpath string) string {
-	paths := filepath.SplitList(fpath)
-	if len(paths) <= 1 {
-		return fpath
-	}
-	return paths[len(paths)-1]
+	_, file := filepath.Split(fpath)
+	return file
+}
+
+func FileNameWithoutExt(fpath string) string {
+	rawpath := FileName(fpath)
+	rawpaths := strings.Split(rawpath, ".")
+	return rawpaths[0]
 }
 
 func FileExists(fpath string) bool {

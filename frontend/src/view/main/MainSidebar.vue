@@ -51,8 +51,7 @@
 </style>
 <template>
   <AppSidebar>
-    <div class="sidebar-content">
-      <ul>
+      <ul id="word-pending-list">
         <li
           v-for="item in dictQueryStore.queryPendingList"
           :data-id="item.id"
@@ -63,7 +62,6 @@
           <span>{{ item.key_word }}</span>
         </li>
       </ul>
-    </div>
   </AppSidebar>
 </template>
 
@@ -71,7 +69,7 @@
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 
 import { useDictQueryStore } from '@/store/dict';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 const dictQueryStore = useDictQueryStore();
 const selected_id = ref('0');
 
@@ -79,4 +77,29 @@ function selectItem(entry_id) {
   selected_id.value = entry_id;
   dictQueryStore.locateWord(entry_id);
 }
+
+onMounted(()=>{
+  // const list = document.getElementById('word-pending-list');
+  document.addEventListener('keydown', (e) => {
+     if (e.key == 'ArrowUp') {
+      if (selected_id.value == '0') {
+        selected_id.value = dictQueryStore.queryPendingList.length - 1;
+      } else {
+        selected_id.value = parseInt(selected_id.value) - 1;
+      }
+      dictQueryStore.locateWord(selected_id.value);
+    } else if (e.key == 'ArrowDown') {
+      if (selected_id.value == dictQueryStore.queryPendingList.length - 1) {
+        selected_id.value = '0';
+      } else {
+        selected_id.value = parseInt(selected_id.value) + 1;
+      }
+      dictQueryStore.locateWord(selected_id.value);
+    }
+
+  });
+  
+
+})
+
 </script>

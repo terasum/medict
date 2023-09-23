@@ -16,6 +16,8 @@
 
 package model
 
+type DirDcitType string
+
 // DirItem
 // 词典文件单元，以文件夹为基本单元，一个文件夹代表一个文件
 // 词典类型优先级:
@@ -30,18 +32,24 @@ type DirItem struct {
 	BaseDir    string
 	CurrentDir string
 
+	IsValid bool
+
+	DictType DictType
+
 	// 特殊文件类型
-	TypePath     string
 	CoverImgPath string
+	CoverImgType ImgType
 	ConfigPath   string
 	LicensePath  string
 
 	// medict 文件路径
-	MdictMdxAbsPath string
-	MdictMddAbsPath []string
+	MdictMdxFileName string
+	MdictMdxAbsPath  string
+	MdictMddAbsPath  []string
 
 	// StartDict文件路径
 	StarDictDzAbsPath  string
+	StarDictAbsPath    string
 	StarDictIdxAbsPath string
 	StarDictIfoAbsPath string
 }
@@ -55,6 +63,22 @@ type PlainDictionaryItem struct {
 	DictType   string `json:"dict_type"`
 
 	Description *PlainDictionaryInfo `json:"description"`
+}
+
+type DictList []*PlainDictionaryItem
+
+func (dlist DictList) Len() int {
+	return len(dlist)
+}
+
+func (dlist DictList) Swap(i, j int) {
+	temp := dlist[i]
+	dlist[i] = dlist[j]
+	dlist[j] = temp
+}
+
+func (dlist DictList) Less(i, j int) bool {
+	return dlist[i].ID > dlist[j].ID
 }
 
 type PlainDictionaryInfo struct {
