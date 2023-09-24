@@ -32,6 +32,7 @@ import SettingDict from "@/view/setting/SettingDict.vue";
 import SettingSoftware from "@/view/setting/SettingSoftware.vue";
 import SettingTheme from "@/view/setting/SettingTheme.vue";
 import SettingPlugin from "@/view/setting/SettingPlugin.vue";
+import SettingUpdater from "@/view/setting/SettingUpdate.vue";
 
 export default [
   { path: '/', component: MainWindow },
@@ -46,6 +47,7 @@ export default [
       { path: 'terms', component: terms_and_service },
       { path: 'license', component: license_md },
       { path: 'about', component: about_md },
+      { path: 'update', component: SettingUpdater },
     
   ]},
   {

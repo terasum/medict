@@ -68,12 +68,16 @@
                     <router-link to="/docs"> 使用说明</router-link>
                   </span>
                   <span class="nav-group-item">
-                    <span class="icon icon-alert"></span>
+                    <span class="icon icon-feather"></span>
                     <router-link to="/setting/terms"> 隐私声明</router-link>
                   </span>
                   <span class="nav-group-item">
                     <span class="icon icon-info-circled"></span>
                     <router-link to="/setting/about"> 关于信息</router-link>
+                  </span>
+                  <span class="nav-group-item">
+                    <span class="icon icon-arrows-ccw"></span>
+                    <router-link to="/setting/update"> 版本更新</router-link>
                   </span>
                   <span class="nav-group-item">
                     <span class="icon icon-cc"></span>

@@ -31,7 +31,7 @@ defineProps(['title', 'value']);
   padding: 10px 0;
 
   .setting-item {
-    width: calc(100% - 40px);
+    max-width: calc(100% - 40px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -43,12 +43,15 @@ defineProps(['title', 'value']);
 
       .setting-item-label {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         min-width: 80px;
         font-weight: bold;
+        justify-content: center;
       }
       .setting-item-data {
         color: #666;
+        line-break: loose;
+        padding-left: 20px;;
       }
     }
     .setting-item-desc {
@@ -57,7 +60,7 @@ defineProps(['title', 'value']);
     }
   }
   .setting-item-action {
-    width: 40px;
+    min-width: 40px;
   }
 }
 </style>
