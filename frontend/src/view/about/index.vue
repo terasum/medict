@@ -118,7 +118,7 @@
 <template>
   <div class="container about-view">
     <div class="about-title">
-      <h1>About</h1>
+      <!-- <h1>About</h1> -->
     </div>
     <div class="about-body">
       <section class="about-section">
