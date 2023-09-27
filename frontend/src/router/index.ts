@@ -18,6 +18,7 @@
 
 import MainWindow from '@/view/main/index.vue';
 import DictWindow from '@/view/dict/index.vue';
+import PluginsWindow from '@/view/plugins/index.vue';
 import SettingWindow from '@/view/setting/index.vue';
 import DocWindow from '@/view/docs/index.vue';
 
@@ -50,6 +51,7 @@ export default [
       { path: 'update', component: SettingUpdater },
     
   ]},
+  { path: '/plugins', component: PluginsWindow },
   {
     path: '/docs',
     component: DocWindow,

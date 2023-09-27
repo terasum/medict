@@ -37,6 +37,29 @@ function __medict_play_sound(mp3url) {
 	document.body.appendChild(audioEle);
 	audioEle.play();
 }
+
+//*************************
+// top-inner frame communication
+//**************************
+var __TOPFRAME_SECURE_ORIGIN__ = "*";
+function __medict_entry_jump(word, dict_id) {
+	console.log("[inner frame] jump entry => ", word, dict_id);
+	if (window.top){
+		window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP", "word":word, "dict_id":dict_id},__TOPFRAME_SECURE_ORIGIN__ )
+	}
+}
+
+// setup event listener and top frame origin
+!(function(){
+    window.addEventListener('message', function(e) {
+        console.log("[inner frame got message] ", e)
+		if (e && e.origin && e.origin.startsWith("wails://")){
+			__TOPFRAME_SECURE_ORIGIN__ = e.origin;
+			console.log("__TOPFRAME_SECURE_ORIGIN__", __TOPFRAME_SECURE_ORIGIN__);
+		}
+    })
+}())
+
 </script>
 </head>
 <body>

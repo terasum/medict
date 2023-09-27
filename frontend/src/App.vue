@@ -54,7 +54,11 @@
       class="x-space-provider"
       :theme-overrides="themeOverrides"
     >
-      <router-view></router-view>
+      <n-dialog-provider>
+        <n-message-provider>
+          <router-view></router-view>
+        </n-message-provider>
+      </n-dialog-provider>
       <n-global-style />
     </n-config-provider>
   </div>
@@ -62,7 +66,12 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue';
-import { NConfigProvider, NGlobalStyle } from 'naive-ui';
+import {
+  NConfigProvider,
+  NGlobalStyle,
+  NDialogProvider,
+  NMessageProvider,
+} from 'naive-ui';
 import { darkTheme as dark, lightTheme as light } from 'naive-ui';
 import { zhCN, dateZhCN } from 'naive-ui';
 import { GlobalThemeOverrides } from 'naive-ui';
@@ -89,11 +98,20 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorHoverPrimary: '#326cb8',
     textColorPressedPrimary: '#326cb8',
     textColorFocusPrimary: '#326cb8',
-    border: "none",
-    borderHover: "none",
-    borderPressed: "none",
-    borderFocus: "none",
-    borderDisabled: "none",
+    border: 'none',
+    borderHover: 'none',
+    borderPressed: 'none',
+    borderFocus: 'none',
+    borderDisabled: 'none',
+  
   },
+  Dialog: {
+    // iconColor: string;
+    // iconColorInfo: string;
+    // iconColorSuccess: "#326cb8",
+    iconSize: "0px",
+    // iconColorWarning: string;
+    // iconColorError: string;
+  }
 };
 </script>

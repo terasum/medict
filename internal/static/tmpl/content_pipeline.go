@@ -33,6 +33,7 @@ var handler = &ContentPreHandlePipeline{
 		&ReplacerJs{},
 		&ReplacerImage{},
 		&ReplacerSound{},
+		&ReplacerEntry{},
 	},
 	handlers: []Handler{
 		&HandlerFont{},

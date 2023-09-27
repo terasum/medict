@@ -1,21 +1,5 @@
 <style lang="scss">
 @import '@/style/variables.scss';
-
-.app-content-functions {
-  height: $layout-header-height;
-  display: flex;
-  width: 100%;
-  flex-direction: row;
-  background: #fafafa;
-
-  .header {
-    height: 60px;
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: $theme-top-header-background-color;
-
     .header-search-box {
       display: flex;
       height: 54px;
@@ -86,67 +70,10 @@
       }
     }
 
-    .header-functions {
-      max-width: 306px;
-      height: auto;
-      padding: 0;
-      margin: 0;
-      margin-left: 20px;
-      margin-top: 12px;
-      display: flex;
-      flex-direction: row;
-      .fn-box-active {
-        background-color: $theme-function-box-active-color;
-      }
-      .fn-box {
-        width: 52px;
-        height: 44px;
-        margin-top: -6px;
-        padding-top: 6px;
-        cursor: pointer;
-        border-radius: 4px;
-        margin-left: 2px;
-
-        color: $theme-function-box-font-color;
-
-        &:hover {
-          background-color: $theme-function-box-hover-bg-color;
-          color: $theme-function-box-hover-font-color;
-        }
-
-        .fn-box-icon {
-          width: 20px;
-          height: 20px;
-          display: block;
-          font-size: 16px;
-          line-height: 18px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        .fn-box-text {
-          margin-top: 2px;
-          margin-left: auto;
-          margin-right: auto;
-          text-align: center;
-          width: 100%;
-          display: block;
-          font-size: 12px;
-          user-select: none;
-        }
-      }
-
-      .active {
-        background-color: $theme-function-box-hover-bg-color;
-        color: $theme-function-box-hover-font-color;
-      }
-    }
-  }
-}
 </style>
 <template>
-  <div class="app-content-functions">
-    <div class="header">
-      <div class="header-search-box">
+  <AppFunctions>
+   <div class="header-search-box">
         <div class="header-navigate-btns">
           <button
             type="button"
@@ -176,38 +103,14 @@
           </n-input>
         </div>
       </div>
-
-      <div class="header-functions">
-        <div class="fn-box" @click="changeTab('search')"  :class="uiStore.currentTab == 'search'?'active':''">
-          <span class="fn-box-icon">
-            <Search />
-          </span>
-          <span class="fn-box-text">搜索</span>
-        </div>
-
-        <div class="fn-box" @click="changeTab('dict')" :class="uiStore.currentTab == 'dict'?'active':''">
-          <span class="fn-box-icon">
-            <Book />
-          </span>
-          <span class="fn-box-text">词典</span>
-        </div>
-
-        <div class="fn-box" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
-          <span class="fn-box-icon">
-            <ToggleOn />
-          </span>
-          <span class="fn-box-text">设置</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  </AppFunctions>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Search, AngleLeft, AngleRight, Book, ToggleOn } from '@vicons/fa';
-import { Settings48Filled } from '@vicons/fluent';
+import { ref, onMounted } from 'vue';
 import { NIcon } from 'naive-ui';
+import { Search, AngleLeft, AngleRight } from '@vicons/fa';
+import AppFunctions from '@/components/layout/AppFunctions.vue';
 
 import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
@@ -219,23 +122,52 @@ const router = useRouter();
 
 let inputWord = ref('');
 let inputActive = ref(false);
+let componentEventListenerUnscribe = null;
+
+
+function listenInputWordUpdate() {
+  componentEventListenerUnscribe = dictQueryStore.$onAction(
+    ({
+      name, // action 名称
+      store, // store 实例，类似 `someStore`
+      args, // 传递给 action 的参数数组
+      after, // 在 action 返回或解决后的钩子
+      onError, // action 抛出或拒绝的钩子
+    }) => {
+      // 这将在 action 成功并完全运行后触发。
+      // 它等待着任何返回的 promise
+      after((result) => {
+        switch (name) {
+          case 'updateInputSearchWordRaw': {
+            inputWord.value = dictQueryStore.inputSearchWord;
+            console.log("update inputWord by event", inputWord.value);
+            break;
+          }
+        }
+      });
+
+      // 如果 action 抛出或返回一个拒绝的 promise，这将触发
+      onError((error) => {
+        
+      });
+    }
+  );
+
+  // 手动删除监听器
+  //   unsubscribe()
+}
+
+onMounted(() => {
+  if (componentEventListenerUnscribe) {
+    componentEventListenerUnscribe();
+    componentEventListenerUnscribe = null;
+  }
+  listenInputWordUpdate();
+})
 
 ///----------------------------
 // event listener function
 ///----------------------------
-
-const tabRouters = {
-  search: '/',
-  dict: '/dict',
-  setting: '/setting',
-};
-
-function changeTab(tabName) {
-  if (uiStore.currentTab != tabName && tabRouters[tabName]) {
-    router.replace({ path: tabRouters[tabName] });
-  }
-  uiStore.updateCurrentTab(tabName);
-}
 
 function handleChange(v) {
   console.info('[app-event](keydown.enter), args:' + inputWord.value);

@@ -15,3 +15,51 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package tmpl
+
+import (
+	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/terasum/medict/pkg/model"
+)
+
+var _ Replacer = &ReplacerEntry{}
+
+var ENTRY_REG *regexp.Regexp
+
+func init() {
+	var err error
+	ENTRY_REG, err = regexp.Compile(`href=\"entry://(\S+)\"`)
+	if err != nil {
+		panic(err)
+	}
+}
+
+type ReplacerEntry struct {
+}
+
+func (r *ReplacerEntry) Replace(dictId string, entry *model.KeyBlockEntry, html string) (*model.KeyBlockEntry, string) {
+
+	if html == "" || dictId == "" {
+		return entry, html
+	}
+
+	newhtml := html
+	matchedGroup := ENTRY_REG.FindAllStringSubmatch(html, -1)
+	for _, matched := range matchedGroup {
+		if len(matched) != 2 {
+			continue
+		}
+		oldStr := matched[0]
+		oldWord := strings.TrimRight(matched[0], "\"")
+		oldWord = strings.TrimPrefix(oldWord, "href=\"entry://")
+
+		newStr := fmt.Sprintf("href=\"javascript:__medict_entry_jump('%s', '%s');\"", oldWord, dictId)
+		fmt.Printf("old %s => new %s\n", oldStr, newStr)
+
+		newhtml = strings.ReplaceAll(newhtml, oldStr, newStr)
+	}
+
+	return entry, newhtml
+}

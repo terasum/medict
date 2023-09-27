@@ -20,14 +20,10 @@
   <div class="app-footer" id="app-footer">
 
     <span class="hyperlink">
-        <span 
-        data-href="https://github.com/terasum/medict"
-        @click="onClickHyperLink"
-        class="icon icon-github"></span>
-        <!-- &nbsp;<b
-        data-href="https://github.com/terasum/medict"
-        @click="onClickHyperLink"
-        >github</b> -->
+        <b data-href="https://github.com/terasum/medict"
+        @click="onClickHyperLink">
+         <span class="icon icon-github"></span>
+        Github</b>
     </span>
 
     <span class="split-line"></span>
@@ -35,15 +31,26 @@
       <b
         data-href="https://github.com/terasum/medict/issues"
         @click="onClickHyperLink"
-        >问题反馈</b
+        >
+         <span class="icon icon-help-circled"></span>
+        问题反馈</b
       >
     </span>
 
-    <!-- <span class="split-line"></span>
+    <span class="split-line"></span>
     <span class="hyperlink">
-      <NIcon size="12"><Coffee /></NIcon>
-      <b data-href="/docs" @click="onClickInternalLink">使用说明</b>
-    </span> -->
+      <b>
+        <span class="icon icon-gauge"></span>
+        性能分析
+      </b>
+    </span>
+    <span class="split-line"></span>
+    <span class="hyperlink">
+      <b>
+        <span class="icon icon-book"></span>
+        词典下载
+      </b>
+    </span>
 
     <span class="split-line"></span>
 
@@ -100,22 +107,16 @@ function onClickInternalLink(event: any) {
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
-  cursor: default;
   span.hyperlink {
-    padding-left: 5px;
-    padding-right: 5px;
-    cursor: pointer;
-    & > i {
-      height: 20px;
-      width: 20px;
-    }
+    // padding-left: 5px;
+    // padding-right: 5px;
+    
     & > b {
-      margin-top: 0;
-      padding-top: 0;
-      height: 20px;
-      width: 20px;
+      margin: 0;
+      padding: 0;
+      // height: 20px;
       line-height: 20px;
-
+      display: block;
       font-size: 12px;
       color: #666;
     }
@@ -124,6 +125,7 @@ function onClickInternalLink(event: any) {
       color: #333;
     }
   }
+  
   span.split-line {
     &::before {
       content: '|';

@@ -78,6 +78,7 @@ function selectItem(entry_id) {
   dictQueryStore.locateWord(entry_id);
 }
 
+
 onMounted(()=>{
   // const list = document.getElementById('word-pending-list');
   document.addEventListener('keydown', (e) => {

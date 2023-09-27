@@ -44,44 +44,44 @@
                 <nav class="nav-group">
                   <h5 class="nav-group-title">APP 设置</h5>
                   <!-- <a class="nav-group-item active"> -->
-                  <a class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/dict")'>
                     <span class="icon icon-book"></span>
-                    <router-link to="/setting/dict"> 词典设置 </router-link>
-                  </a>
-                  <span class="nav-group-item">
+                    <a> 词典设置 </a>
+                  </span>
+                  <span class="nav-group-item" @click='changeTab("/setting/software")'>
                     <span class="icon icon-cog"></span>
-                    <router-link to="/setting/software"> 软件设置 </router-link>
+                    <a> 软件设置 </a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/theme")'>
                     <span class="icon icon-palette"></span>
-                    <router-link to="/setting/theme"> 主题设置 </router-link>
+                    <a> 主题设置 </a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/plugin")'>
                     <span class="icon icon-rocket"></span>
-                    <router-link to="/setting/plugin"> 插件设置 </router-link>
+                    <a> 插件设置</a>
                   </span>
                 </nav>
                 <nav class="nav-group">
                   <h5 class="nav-group-title">关于信息</h5>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/docs")'>
                     <span class="icon icon-help-circled"></span>
-                    <router-link to="/docs"> 使用说明</router-link>
+                    <a> 使用说明</a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/terms")'>
                     <span class="icon icon-feather"></span>
-                    <router-link to="/setting/terms"> 隐私声明</router-link>
+                    <a> 隐私声明</a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/about")'>
                     <span class="icon icon-info-circled"></span>
-                    <router-link to="/setting/about"> 关于信息</router-link>
+                    <a> 关于信息</a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/update")'>
                     <span class="icon icon-arrows-ccw"></span>
-                    <router-link to="/setting/update"> 版本更新</router-link>
+                    <a> 版本更新</a>
                   </span>
-                  <span class="nav-group-item">
+                  <span class="nav-group-item" @click='changeTab("/setting/license")'>
                     <span class="icon icon-cc"></span>
-                    <router-link to="/setting/license"> 开源协议</router-link>
+                    <a> 开源协议</a>
                   </span>
                 </nav>
               </div>
@@ -110,7 +110,7 @@ import AppFooter from '../../components/layout/AppFooter.vue';
 import AppFunctions from '../../components/layout/AppFunctions.vue';
 import AppMainContent from '../../components/layout/AppMainContent.vue';
 import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
-import { RouterView, RouterLink } from 'vue-router';
+import { RouterView, RouterLink, useRouter } from 'vue-router';
 
 import { NIcon, NButton, NButtonGroup } from 'naive-ui';
 import { useUIStore } from '@/store/ui';
@@ -120,10 +120,15 @@ import { GetAllDicts } from '@/apis/dicts-api';
 import { ref, onMounted } from 'vue';
 
 const dictsList = ref([]);
-
 const dictQueryStore = useDictQueryStore();
 const uiStore = useUIStore();
+const router = useRouter();
+
 uiStore.updateCurrentTab('setting');
+
+function changeTab(tablink) {
+  router.replace({path: tablink});
+}
 </script>
 
 <style lang="scss" scoped>

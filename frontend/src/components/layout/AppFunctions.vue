@@ -105,6 +105,13 @@
           <span class="fn-box-text">词典</span>
         </div>
 
+      <div class="fn-box" @click="changeTab('plugins')" :class="uiStore.currentTab == 'plugins'?'active':''">
+          <span class="fn-box-icon">
+            <Toolbox />
+          </span>
+          <span class="fn-box-text">插件</span>
+        </div>
+
         <div class="fn-box" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
           <span class="fn-box-icon">
             <ToggleOn />
@@ -117,7 +124,8 @@
 </template>
 
 <script setup>
-import { Search, Book, ToggleOn } from '@vicons/fa';
+import { Search, Book, ToggleOn, Toolbox } from '@vicons/fa';
+import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
 import { useRouter } from "vue-router";
 
@@ -132,6 +140,7 @@ const tabRouters = {
   search: '/',
   dict: '/dict',
   setting: '/setting',
+  plugins:'/plugins',
 };
 
 function changeTab(tabName) {
