@@ -1,17 +1,18 @@
 <template>
   <div class="setting-group">
     <div class="setting-item">
-      <div class="setting-item-value">
-        <span class="setting-item-label">{{ title }}</span>
-        <span class="setting-item-data">{{ value }} </span>
+      <div class="setting-item-label">
+        <span class="setting-item-title">{{ title }}</span>
+        <span class="setting-item-desc"><slot name="desc"></slot> </span>
       </div>
-      <span class="setting-item-desc">
-        <slot></slot>
+
+      <span class="setting-item-action">
+        <slot name="action"></slot>
       </span>
     </div>
-    <span class="setting-item-action">
-      <slot name="action"></slot>
-    </span>
+    <div class="setting-item-content">
+      <slot></slot>
+    </div>
   </div>
 </template>
 <script setup>
@@ -22,6 +23,7 @@ defineProps(['title', 'value']);
 <style lang="scss" scoped>
 .setting-group {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   margin: 8 0;
   border-bottom: 1px solid #ccc;
@@ -31,36 +33,35 @@ defineProps(['title', 'value']);
   padding: 10px 0;
 
   .setting-item {
+    min-width: 320px;
     max-width: calc(100% - 40px);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
-    .setting-item-value {
+    .setting-item-label {
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
       padding-right: 30px;
+      margin-bottom: 15px;
 
-      .setting-item-label {
+      .setting-item-title {
         display: flex;
         flex-direction: column;
         min-width: 80px;
         font-weight: bold;
         justify-content: center;
       }
-      .setting-item-data {
-        color: #666;
+      .setting-item-desc {
+        color: #999;
+        font-size: 13px;
         line-break: loose;
-        padding-left: 20px;;
+        padding-left: 20px;
+        font-style: italic;
       }
-    }
-    .setting-item-desc {
-      color: #999;
-      font-size: 13px;
     }
   }
   .setting-item-action {
-    min-width: 40px;
+    // width: 40px;
   }
 }
 </style>

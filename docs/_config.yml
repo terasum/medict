@@ -23,14 +23,26 @@ email: terasum@163.com
 description: >- # this means to ignore newlines until "baseurl:"
   Medict, a lightweight dictionary app.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "http://medict.chenquan.me" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: 
-github_username:  
+github_username: terasum
+
+show_downloads: true
+github:
+  - windows_url: https://download.xxx.com
+  - macos_url: https://download.xxx.com
+  - windows_url: https://download.xxx.com
+
+
+
+google_analytics:
 
 # Build settings
-theme: minima
-plugins:
-  - jekyll-feed
+# remote_theme: pages-themes/modernist@v0.2.0
+# theme: modernist
+# plugins:
+#   # - jekyll-remote-theme # add this line to the plugins list if you already have one
+#   - jekyll-feed
 
 # Exclude from processing.
 # The following items will not be processed, by default.

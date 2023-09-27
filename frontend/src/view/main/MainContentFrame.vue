@@ -65,8 +65,10 @@ function cerateIframe() {
   iframe_container.appendChild(iframe);
 }
 
+
+let componentEventListenerUnscribe = null;
 function listenContentUpdate() {
-  const unsubscribe = dictQueryStore.$onAction(
+  componentEventListenerUnscribe = dictQueryStore.$onAction(
     ({
       name, // action 名称
       store, // store 实例，类似 `someStore`
@@ -149,12 +151,33 @@ function updateIframeContent(content, is_base64 = true) {
   } else {
     iframe.src = content;
   }
+  setTimeout(() =>{
+    iframe.contentWindow.postMessage("__Medict_TOP_WIN_MSG__EVTY_SETUP__", "*")
+  },1000)
 }
+
+function listenTopMessage() {
+
+  window.onmessage = function(e) {
+    console.log("[top frame got message] ", e);
+    if (e && e.data && e.data.evtype === "__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP") {
+      console.log("inner frame jump to entry: ", e.data)
+      dictQueryStore.updateInputSearchWord(e.data.word);
+    }
+  };
+
+}
+
 
 
 onMounted(() => {
   cerateIframe();
+  if (componentEventListenerUnscribe) {
+    componentEventListenerUnscribe();
+    componentEventListenerUnscribe = null;
+  }
   listenContentUpdate();
+  listenTopMessage();
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);

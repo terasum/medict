@@ -670,3 +670,38 @@ p.cn {
 border-bottom: none;
 }
 `
+
+const TESTENTRYHTML = `
+<html><head>
+<style>
+body{
+	padding: 5px 6px 5px 6px;
+}
+
+</style>
+<!-- out-plugin style and js file -->
+<link href="oald10.ol.css?dict_id=aa98793f0c29d608cf435b848e603c38" rel="stylesheet">
+<script async="" src="oald10.ol.js?dict_id=aa98793f0c29d608cf435b848e603c38"></script>
+
+<script lang="javascript">
+function __medict_play_sound(mp3url) {
+	console.log(mp3url);
+	var audioEle = document.createElement("audio");
+	audioEle.src = mp3url;
+	document.body.appendChild(audioEle);
+	audioEle.play();
+}
+
+function __medict_entry_jump(word, dict_id) {
+	console.log("jump entry ==>", word, dict_id);
+}
+</script>
+</head>
+<body>
+<link href="oald10.css?dict_id=aa98793f0c29d608cf435b848e603c38&amp;d=0" rel="stylesheet"><div class="entry" hclass="entry" hlength="4" htag="section" id="ward_1" idm_id="000065970" sk="ward: :0" sum="677"><div class="top-container"><div class="top-g" id="ward_topg_2"><div class="webtop"><h1 class="headword" hclass="headword" htag="h1" id="ward_h_1" ox5000="y">ward</h1> <span class="pos" hclass="pos" htag="span" id="ward_pos_1">noun</span><div class="symbols" hclass="symbols" htag="div"><a href="entry://wordlists_ox5000_level_c1"><span class="ox5ksym_c1">&nbsp;</span></a></div><span class="phonetics"> <div class="phons_br" geo="br" hclass="phons_br" htag="div" wd="ward"><a class="sound audio_play_button pron-uk icon-audio" href="javascript:__medict_play_sound('uk_pron/ward__gb_1.mp3?dict_id=aa98793f0c29d608cf435b848e603c38&amp;d=0')" style="cursor: pointer" title="ward pronunciation English" valign="top"> </a><span class="phon">/wɔːd/</span></div> <div class="phons_n_am" geo="n_am" hclass="phons_n_am" htag="div" wd="ward"><a class="sound audio_play_button pron-us icon-audio" href="javascript:__medict_play_sound('us_pron/ward__us_1.mp3?dict_id=aa98793f0c29d608cf435b848e603c38&amp;d=0')" style="cursor: pointer" title="ward pronunciation American" valign="top"> </a><span class="phon">/wɔːrd/</span></div></span></div></div></div><ol class="senses_multiple" htag="ol"><li cefr="c1" class="sense" hclass="sense" htag="li" id="ward_sng_1" ox5000="y" sensenum="1"><span class="sensetop" hclass="sensetop" htag="span"><div class="symbols" hclass="symbols" htag="div"><a href="entry://wordlists_ox5000_level_c1"><span class="ox5ksym_c1">&nbsp;</span></a></div></span><span class="def" hclass="def" htag="span">a separate room or area in a hospital for people with the same type of medical condition</span><ul class="examples" hclass="examples" htag="ul"><li class="" htag="li"><span class="x">a <span class="cl">maternity/surgical/psychiatric/children’s ward</span></span></li><li class="" htag="li"><span class="cf" hclass="cf" htag="span">on the ward</span> <span class="x">He worked as a nurse on the children's ward.</span></li></ul><div class="collapse" hclass="collapse" htag="div"><span class="unbox is-active" id="ward2_unbox_1" unbox="wordfinder"><span class="box_title">Wordfinder</span><span class="body"><ul class="bullet"><li class="li"><a class="Ref" href="entry://a-e"><span class="xref">A &amp; E</span></a></li><li class="li"><a class="Ref" href="entry://admit#admit_sng_5"><span class="xref">admit</span></a></li><li class="li"><a class="Ref" href="entry://consultant#consultant_sng_2"><span class="xref">consultant</span></a></li><li class="li"><a class="Ref" href="entry://doctor_1#doctor_sng_1"><span class="xref">doctor</span></a></li><li class="li"><a class="Ref" href="entry://hospital"><span class="xref">hospital</span></a></li><li class="li"><a class="Ref" href="entry://icu"><span class="xref">ICU</span></a></li><li class="li"><a class="Ref" href="entry://inpatient"><span class="xref">inpatient</span></a></li><li class="li"><a class="Ref" href="entry://nurse_1#nurse_sng_1"><span class="xref">nurse</span></a></li><li class="li"><a class="Ref" href="entry://operation#operation_sng_1"><span class="xref">operation</span></a></li><li class="li"><a class="Ref" href="entry://ward_1#ward_sng_1"><span class="xref">ward</span></a></li></ul></span></span></div><div class="collapse" hclass="collapse" htag="div"><span class="unbox is-active" id="ward2_unbox_2" unbox="extra_examples"><span class="box_title">Extra Examples</span><ul class="examples" hclass="examples" htag="ul"><li class="" htag="li"><span class="unx">How many midwives are on the ward?</span></li><li class="" htag="li"><span class="unx">She spent five days in the maternity ward.</span></li><li class="" htag="li"><span class="unx">The doctor was doing her morning ward round.</span></li></ul></span></div><span class="topic-g"><span class="prefix">Topics </span><a class="Ref" href="entry://topic_healthcare_level_c1"><span class="topic"><span class="topic_name">Healthcare</span><span class="topic_cefr">c1</span></span></a></span> </li><li class="sense" hclass="sense" htag="li" id="ward_sng_2" sensenum="2"><span class="sensetop" hclass="sensetop" htag="span"><span class="def" hclass="def" htag="span">(in the UK) one of the areas into which a city or town is divided and which elects and is represented by a member of the local council</span></span> </li><li cefr="c2" class="sense" hclass="sense" htag="li" id="ward_sng_3" sensenum="3"><span class="sensetop" hclass="sensetop" htag="span"><span class="labels" hclass="labels" htag="span">(<span class="subj" subj="law">law</span>)</span></span> <span class="def" hclass="def" htag="span">a person, especially a child, who is under the legal protection of a court or another person (called a <a class="Ref" href="entry://guardian"><span class="ndv">guardian</span></a>)</span><ul class="examples" hclass="examples" htag="ul"><li class="" htag="li"><span class="x">The child was made a <span class="cl">ward of court</span>.</span></li></ul><span class="topic-g"><span class="prefix">Topics </span><a class="Ref" href="entry://topic_life-stages_level_c2"><span class="topic"><span class="topic_name">Life stages</span><span class="topic_cefr">c2</span></span></a></span> </li><div class="collapse" hclass="collapse" htag="div"><span class="unbox" id="ward_unbox_3" unbox="wordorigin"><span class="box_title">Word Origin</span><span class="body"><span class="p">Old English <span class="ei">weard</span> (originally referring to ‘the action of keeping a lookout for danger’, also ‘body of guards’), <span class="ei">weardian</span> ‘keep safe, guard’, of Germanic origin; reinforced in Middle English by Old Northern French <span class="ei">warde</span> (noun), <span class="ei">warder</span> (verb) ‘guard’.</span></span></span></div></ol></div><script src="oald10.js?dict_id=aa98793f0c29d608cf435b848e603c38&amp;d=0"></script>
+
+
+
+</body></html>
+
+`

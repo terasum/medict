@@ -94,8 +94,12 @@ export const useDictQueryStore = defineStore('dictQuery', {
       if (word == this.inputSearchWord) {
         return;
       }
-      this.inputSearchWord = word;
+      this.updateInputSearchWordRaw(word)
       this.searchWord(word);
+    },
+    updateInputSearchWordRaw(word: string) {
+      console.log(`[app-event](store-action), updateInputSearchWordRaw: ${word}`);
+      this.inputSearchWord = word;
     },
     updateMainContent(content) {
       if (content === '') {
@@ -201,7 +205,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
         return;
       }
 
+
       let entry = this.queryPendingList[entry_idx];
+      this.updateInputSearchWordRaw(entry.key_word)
 
       this.updateMainContentURL(
         constructQueryURL({

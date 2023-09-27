@@ -13,7 +13,7 @@ Medict version 3 is under developing, will refactor by wails framework, waiting 
 
 ## V3-index
 <div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/assets/v3-medict-app-index.png" alt="v3词典界面" style="zoom: 23%;" />
+  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/v3-medict-app-index.png" alt="v3词典界面" style="zoom: 23%;" />
 </div>
 
 
