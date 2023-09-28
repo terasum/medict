@@ -61,11 +61,21 @@
 <template>
   <div class="app-content-main">
     <div class="app-content-main-toolbar">
-      <span class="app-content-main-toolbar-box" @click="zoomOut"
-        ><NIcon><ZoomIn16Regular /></NIcon
+      <span class="app-content-main-toolbar-box" @click="todo"
+        ><NIcon><Bug16Regular /></NIcon
       ></span>
+      <span class="app-content-main-toolbar-box" @click="todo"
+        ><NIcon><DocumentCss20Regular /></NIcon
+      ></span>
+      <span class="app-content-main-toolbar-box" @click="refresh"
+        ><NIcon><ArrowClockwise20Filled /></NIcon
+      ></span>
+
       <span class="app-content-main-toolbar-box" @click="zoomIn"
         ><NIcon><ZoomOut16Regular /></NIcon
+      ></span>
+      <span class="app-content-main-toolbar-box" @click="zoomOut"
+        ><NIcon><ZoomIn16Regular /></NIcon
       ></span>
     </div>
     <div id="app-content-main-iframe-wrapper"></div>
@@ -75,13 +85,16 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted } from 'vue';
 import { useDictQueryStore } from '@/store/dict';
-import { ZoomIn16Regular, ZoomOut16Regular } from '@vicons/fluent';
+import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
 import { NIcon } from 'naive-ui';
+import { useMessage } from 'naive-ui';
 
 const dictQueryStore = useDictQueryStore();
+const message = useMessage();
 
 const TOP_WIN_MSG_ZOOM_OUT =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT';
 const TOP_WIN_MSG_ZOOM_IN =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN';
+const TOP_WIN_MSG_REFRESH = '__Medict_TOP_WIN_MSG_EVTP_REFRESH';
 const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
 
@@ -146,6 +159,10 @@ function listenInnerFrameMessage() {
   };
 }
 
+function todo() {
+  message.info('功能开发中');
+}
+
 // 缩小
 function zoomOut() {
   const evtype = TOP_WIN_MSG_ZOOM_OUT;
@@ -155,6 +172,20 @@ function zoomOut() {
   if (!iframe) {
     return;
   }
+  iframe.contentWindow.postMessage(
+    { evtype: evtype, ts: new Date().getTime() },
+    '*'
+  );
+}
+
+function refresh() {
+  const iframe = document.getElementById(
+    'app-content-main-iframe'
+  ) as unknown as HTMLIFrameElement;
+  if (!iframe) {
+    return;
+  }
+  const evtype = TOP_WIN_MSG_REFRESH;
   iframe.contentWindow.postMessage(
     { evtype: evtype, ts: new Date().getTime() },
     '*'
@@ -175,6 +206,18 @@ function zoomIn() {
     '*'
   );
 }
+
+// devtools
+function showInspector() {
+  const wailsEvent = "wails:showInspector";
+   // @ts-ignore
+  if (window.WailsInvoke) {
+    // @ts-ignore
+    window.WailsInvoke(wailsEvent).then(resp =>{
+    })
+  }
+}
+
 
 let storeChangeUnscribe = null;
 function listenContentUpdate() {

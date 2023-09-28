@@ -23,6 +23,7 @@
   display: flex;
   flex-direction: column;
   width: 60px;
+  height: 100%;
 
   .dictionary-item {
     display: block;
@@ -51,7 +52,6 @@
     height: 36px;
     line-height: 36px;
     padding: 2px;
-    // box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
       rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
   }
