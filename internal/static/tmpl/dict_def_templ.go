@@ -62,14 +62,18 @@ function __medict_entry_jump(word, dict_id) {
 			}
 		}
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT"){
-			console.log("zoom out event", e)
+			console.log("zoom out event", e);
 			defaultFontSize += 0.1;
 			document.body.style.fontSize = defaultFontSize + "em";
 		}
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN"){
-			console.log("zoom out event", e)
+			console.log("zoom out event", e);
 			defaultFontSize -= 0.1;
 			document.body.style.fontSize = defaultFontSize + "em";
+		}
+		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_REFRESH"){
+			console.log("refresh event", e);
+			window.location.reload();
 		}
     })
 }())
