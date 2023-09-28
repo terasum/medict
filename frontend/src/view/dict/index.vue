@@ -114,8 +114,8 @@
         </div>
         <div class="x-layout-right-toolbar">
           <AppRightToolbar>
-            <div class="dict-toolbar"></div> </AppRightToolbar
-          >>
+            <div class="dict-toolbar"></div> 
+          </AppRightToolbar>
         </div>
       </div>
       <div class="n-layout-footer">

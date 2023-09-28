@@ -51,11 +51,25 @@ function __medict_entry_jump(word, dict_id) {
 
 // setup event listener and top frame origin
 !(function(){
+
+	let defaultFontSize = 1;
     window.addEventListener('message', function(e) {
         console.log("[inner frame got message] ", e)
 		if (e && e.origin && e.origin.startsWith("wails://")){
-			__TOPFRAME_SECURE_ORIGIN__ = e.origin;
-			console.log("__TOPFRAME_SECURE_ORIGIN__", __TOPFRAME_SECURE_ORIGIN__);
+			if (__TOPFRAME_SECURE_ORIGIN__ !== e.origin){
+				console.log("__TOPFRAME_SECURE_ORIGIN__", __TOPFRAME_SECURE_ORIGIN__);
+				__TOPFRAME_SECURE_ORIGIN__ = e.origin;
+			}
+		}
+		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT"){
+			console.log("zoom out event", e)
+			defaultFontSize += 0.1;
+			document.body.style.fontSize = defaultFontSize + "em";
+		}
+		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN"){
+			console.log("zoom out event", e)
+			defaultFontSize -= 0.1;
+			document.body.style.fontSize = defaultFontSize + "em";
 		}
     })
 }())

@@ -20,11 +20,10 @@ import { defineStore } from 'pinia';
 
 import { GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
-import { c } from 'naive-ui';
 
 function constructQueryURL(entry) {
   let {
-    baseURL,
+    baseurl,
     dict_id,
     key_word,
     record_start_offset,
@@ -32,7 +31,7 @@ function constructQueryURL(entry) {
     key_block_idx,
     entry_id,
   } = entry;
-  return `${baseURL}/__tcidem_query?dict_id=${dict_id}&key_word=${key_word}&record_start_offset=${record_start_offset}&record_end_offset=${record_end_offset}&key_block_idx=${key_block_idx}&entry_id=${entry_id}`;
+  return `${baseurl}/__tcidem_query?dict_id=${dict_id}&key_word=${key_word}&record_start_offset=${record_start_offset}&record_end_offset=${record_end_offset}&key_block_idx=${key_block_idx}&entry_id=${entry_id}`;
 }
 
 const DefaultContentTemplpate = `
@@ -81,11 +80,15 @@ export const useDictQueryStore = defineStore('dictQuery', {
     mainContentURL: '',
     selectDict: { id: '', name: '', path: '' },
     inputSearchWord: '',
+
+    historyStack: new HistoryStack(),
   }),
   actions: {
+    // 取得当前词典列表
     queryDictList() {
       return GetAllDicts();
     },
+    // 更新当前输入的单词（input) 展示的单词
     updateInputSearchWord(word: string) {
       console.log(`[app-event](store-action), updateInputSearchWord: ${word}`);
       if (!word || word.trim() == '') {
@@ -94,26 +97,25 @@ export const useDictQueryStore = defineStore('dictQuery', {
       if (word == this.inputSearchWord) {
         return;
       }
-      this.updateInputSearchWordRaw(word)
-      this.searchWord(word);
-    },
-    updateInputSearchWordRaw(word: string) {
-      console.log(`[app-event](store-action), updateInputSearchWordRaw: ${word}`);
       this.inputSearchWord = word;
     },
-    updateMainContent(content) {
-      if (content === '') {
-        this.mainContent = btoa(DefaultContentTemplpate);
-      } else {
-        this.mainContent = content;
+    // 搜索单词
+    searchWord(word: string) {
+      if (this.selectDict.id === '') {
+        return;
       }
-    },
-    updateMainContentURL(url) {
-      this.mainContentURL = url;
-      if (url === '') {
-        this.mainContent = btoa(DefaultContentTemplpate);
+      if (!word || word.trim() == '') {
+        return;
       }
+
+      SearchWord(this.selectDict.id, word).then((res) => {
+        console.info('[store-action]{searchWord} success', word, res);
+        this.updatePendingList(res);
+      }).catch((err) => {
+        console.info('[store-action]{searchWord} failed', err);
+      });
     },
+    // 更新 pending list
     updatePendingList(wordList) {
       console.log(`[app-event](store-action), updatePendingList`, wordList);
       this.queryPendingList = wordList;
@@ -123,27 +125,35 @@ export const useDictQueryStore = defineStore('dictQuery', {
         this.resetMainContent();
       }
     },
+    // 更新main iframe内容
+    updateMainContent(content) {
+      // 防止循环嵌入 frame
+      if (this.dictApiBaseURL === "") {
+        return;
+      }
+      if (content === '') {
+        this.mainContent = btoa(DefaultContentTemplpate);
+      } else {
+        this.mainContent = content;
+      }
+    },
+    // 更新 main iframe url
+    updateMainContentURL(url) {
+      // 防止循环嵌入 frame
+      if (this.dictApiBaseURL === "") {
+        return;
+      }
+      this.mainContentURL = url;
+      if (url === '') {
+        this.mainContent = btoa(DefaultContentTemplpate);
+      }
+    },
+    // 更新选中的词典
     updateSelectDict(dictItem) {
       this.selectDict = dictItem;
       if (this.inputSearchWord && this.inputSearchWord.trim() != '') {
         this.searchWord(this.inputSearchWord);
       }
-    },
-    searchWord(word) {
-      if (this.selectDict.id === '') {
-        console.log('skipped');
-        return;
-      }
-      if (word === '') {
-        console.log('empty word skipped');
-      }
-
-      SearchWord(this.selectDict.id, word).then((res) => {
-        console.log(`[app-event](store-action), SearchWord`, this.selectDict.id, word);
-        console.log("[app-event](store-action), SerchWord",res)
-        this.updatePendingList(res);
-        
-      });
     },
     setUpAPIBaseURL() {
       let count = 0;
@@ -159,7 +169,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
         urlPromise
           .then((url) => {
             if (url === '') {
-              console.log(`[app init] static server url is empty, retrying times: ${count}`);
+              console.log(
+                `[app init] static server url is empty, retrying times: ${count}`
+              );
               return;
             }
             // browser
@@ -167,10 +179,14 @@ export const useDictQueryStore = defineStore('dictQuery', {
               return;
             }
             if (url.startsWith('http://localhost:0/')) {
-              console.log(`[app init] static server url setting failed, retrying times: ${count}`);
+              console.log(
+                `[app init] static server url setting failed, retrying times: ${count}`
+              );
               return;
             }
-            console.log(`[app init] static server url has setting successful, retrying times: ${count}`);
+            console.log(
+              `[app init] static server url has setting successful, retrying times: ${count}`
+            );
             that.updateBaseURL(url);
             clearInterval(inv);
           })
@@ -184,46 +200,170 @@ export const useDictQueryStore = defineStore('dictQuery', {
       console.log(url);
       this.dictApiBaseURL = url;
     },
-    locateWord(entry_idx) {
-      if (this.dictApiBaseURL === '') {
+    // 定位单词并返回释义
+    locateWord(entry_idx, skipPushHistory: boolean = false) {
+      if (this.dictApiBaseURL === '' || this.selectDict.id === '') {
         console.log(
-          "dictionary has not ready, baseurl hasn't assigned, skipped"
+          "app or dictionary has not ready, skipped"
         );
       }
-      if (entry_idx < 0) {
+      if (entry_idx < 0 || entry_idx >= this.queryPendingList.length) {
         return;
       }
-
-      if (entry_idx >= this.queryPendingList.length) {
-        return;
-      }
-
-      if (this.selectDict.id === '') {
-        console.log(
-          "dictionary has not ready, dictionary id hasn't assigned, skipped"
-        );
-        return;
-      }
-
 
       let entry = this.queryPendingList[entry_idx];
-      this.updateInputSearchWordRaw(entry.key_word)
 
-      this.updateMainContentURL(
-        constructQueryURL({
-          baseURL: this.dictApiBaseURL,
+      this.updateInputSearchWord(entry.key_word);
+
+
+      const locateQuerier = {
+          baseurl: this.dictApiBaseURL,
           dict_id: this.selectDict.id,
+          dict: this.selectDict,
           key_word: entry.key_word,
           record_start_offset: entry.record_start_offset,
           record_end_offset: entry.record_end_offset,
           key_block_idx: entry.key_block_idx,
           entry_id: entry_idx,
-        })
-      );
+      }
+
+      if (!skipPushHistory) {
+        this.pushHistory(locateQuerier);
+      }
+      this._locateWord(locateQuerier);
+
+    },
+    _locateWord(locateQuerier) {
+      let definitionURL = constructQueryURL(locateQuerier);
+      this.updateMainContentURL(definitionURL);
     },
     resetMainContent() {
-      this.updateMainContent(btoa(DefaultContentTemplpate))
+      this.updateMainContent(btoa(DefaultContentTemplpate));
+    },
+    pushHistory(qurier: any) {
+      if (qurier.key_word === '') {
+        return;
+      }
+      if (qurier.baseurl === '') {
+        return;
+      }
+      if (!this.historyStack.isEmpty() && this.historyStack.peek().key_word === qurier.key_word) {
+        return
+      }
+      
+      this.historyStack.push(qurier);
+    },
+    pushHistoryByEntryIDx(entry_idx){
+      if (entry_idx < 0 || entry_idx >= this.queryPendingList.length) {
+        return;
+      }
+      const entry = this.queryPendingList[entry_idx];
 
+      const locateQuerier = {
+        baseurl: this.dictApiBaseURL,
+        dict_id: this.selectDict.id,
+        dict: this.selectDict,
+        key_word: entry.key_word,
+        record_start_offset: entry.record_start_offset,
+        record_end_offset: entry.record_end_offset,
+        key_block_idx: entry.key_block_idx,
+        entry_id: entry_idx,
     }
+
+      this.pushHistory(locateQuerier);
+    },
+    backHistory() {
+      let locateQuerier = this.historyStack.back();
+      if (this.inputSearchWord == locateQuerier.key_word) {
+        return;
+      }
+      this.updateInputSearchWord(locateQuerier.key_word)
+
+      if (this.selectDict.id != locateQuerier.dict_id) {
+        this.selectDict = locateQuerier.dict;
+      }
+
+      SearchWord(locateQuerier.dict_id, locateQuerier.key_word ).then((res) => {
+        console.info('[store-action]{forwardHistory} success', locateQuerier.key_word, res);
+        this.queryPendingList = res;
+      }).catch((err) => {
+        console.info('[store-action]{forwardHistory} failed', err);
+      });
+      this._locateWord(locateQuerier);
+    },
+
+    forwardHistory() {
+      let locateQuerier = this.historyStack.forward();
+      if (this.inputSearchWord == locateQuerier.key_word) {
+        return;
+      }
+
+      this.updateInputSearchWord(locateQuerier.key_word)
+
+      if (this.selectDict.id != locateQuerier.dict_id) {
+        this.selectDict = locateQuerier.dict;
+      }
+
+      SearchWord(locateQuerier.dict_id, locateQuerier.key_word ).then((res) => {
+        console.info('[store-action]{forwardHistory} success', locateQuerier.key_word, res);
+        this.queryPendingList = res;
+      }).catch((err) => {
+        console.info('[store-action]{forwardHistory} failed', err);
+      });
+
+      this._locateWord(locateQuerier);
+    },
   },
 });
+
+class HistoryStack {
+  items: any[] = [];
+  pointer: number = -1;
+
+  push(element: any) {
+    console.log('push', this.pointer, this.items);
+    if (
+      this.items.length > 0 &&
+      this.items[this.items.length - 1] === element
+    ) {
+      return;
+    }
+
+    this.items.push(element);
+    this.pointer = this.items.length - 1;
+  }
+
+  back() {
+    console.log('back', this.pointer, this.items);
+    if (this.pointer >= 1) {
+      this.pointer -= 1;
+      return this.items[this.pointer];
+    } else if (this.pointer == 0) {
+      return this.items[0];
+    }
+    return '';
+  }
+
+  forward() {
+    console.log('forward', this.pointer, this.items);
+    if (this.pointer < this.items.length - 1) {
+      this.pointer += 1;
+      return this.items[this.pointer];
+    } else if (this.pointer == this.items.length - 1) {
+      return this.items[this.pointer];
+    }
+
+    return '';
+  }
+
+  isEmpty() {
+    return this.items.length == 0;
+  }
+
+  size() {
+    return this.items.length;
+  }
+  peek(){
+    return this.items[this.items.length - 1];
+  }
+}

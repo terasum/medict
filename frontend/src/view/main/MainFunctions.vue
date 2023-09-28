@@ -78,6 +78,7 @@
           <button
             type="button"
             class="button btn btn-light btn-nav btn-nav-left"
+            @click="backHistory()"
           >
             <n-icon><AngleLeft /></n-icon>
           </button>
@@ -85,6 +86,7 @@
           <button
             type="button"
             class="button btn btn-light btn-nav btn-nav-right"
+            @click="forwardHistory()"
           >
             <n-icon><AngleRight /></n-icon>
           </button>
@@ -122,45 +124,35 @@ const router = useRouter();
 
 let inputWord = ref('');
 let inputActive = ref(false);
-let componentEventListenerUnscribe = null;
 
 
+function backHistory() {
+  dictQueryStore.backHistory();
+}
+
+function forwardHistory() {
+  dictQueryStore.forwardHistory();
+}
+
+let storeChangeUnscribe = null;
 function listenInputWordUpdate() {
-  componentEventListenerUnscribe = dictQueryStore.$onAction(
-    ({
-      name, // action 名称
-      store, // store 实例，类似 `someStore`
-      args, // 传递给 action 的参数数组
-      after, // 在 action 返回或解决后的钩子
-      onError, // action 抛出或拒绝的钩子
-    }) => {
-      // 这将在 action 成功并完全运行后触发。
-      // 它等待着任何返回的 promise
+  storeChangeUnscribe = dictQueryStore.$onAction(({name, store, after}) => {
       after((result) => {
         switch (name) {
-          case 'updateInputSearchWordRaw': {
+          case 'updateInputSearchWord': {
             inputWord.value = dictQueryStore.inputSearchWord;
-            console.log("update inputWord by event", inputWord.value);
             break;
           }
         }
       });
-
-      // 如果 action 抛出或返回一个拒绝的 promise，这将触发
-      onError((error) => {
-        
-      });
     }
   );
-
-  // 手动删除监听器
-  //   unsubscribe()
 }
 
 onMounted(() => {
-  if (componentEventListenerUnscribe) {
-    componentEventListenerUnscribe();
-    componentEventListenerUnscribe = null;
+  if (storeChangeUnscribe) {
+    storeChangeUnscribe();
+    storeChangeUnscribe = null;
   }
   listenInputWordUpdate();
 })
@@ -175,6 +167,9 @@ function handleChange(v) {
     console.log("[app-event](keydown.enter), input disabled, skipped")
     return;
   }
-  dictQueryStore.updateInputSearchWord(inputWord.value.trim());
+  let word = inputWord.value.trim();
+
+  dictQueryStore.updateInputSearchWord(word);
+  dictQueryStore.searchWord(word);
 }
 </script>

@@ -18,34 +18,73 @@
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
+@import '@/style/photon/photon.scss';
 
-  .app-content-main {
-    width: 100%;
-    height: calc(100% - $layout-header-height);
-    #app-content-main-iframe-wrapper {
-      height: calc(100% - 16px);
-      padding: 8px 4px;
-      .app-content-main-iframe {
-        width: 100%;
-        height: 100%;
+.app-content-main {
+  width: 100%;
+  height: calc(100% - $layout-header-height);
+  .app-content-main-toolbar {
+    height: 26px;
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: #f6f8fa;
+    box-shadow: inset 0 calc(max(1px, 0.0625rem) * -1) #d0d7de;
+    .app-content-main-toolbar-box {
+      display: block;
+      height: 22px;
+      width: 22px;
+      border: 1px solid #d1d7dd;
+      font-size: 16px;
+      text-align: center;
+      line-height: 22px;
+      margin-left: 3px;
+      margin-right: 3px;
+      margin-top: 2px;
+      border-radius: 3px;
+      background-color: #f6f8fa;
+      color: #596059;
+      svg {
+        cursor: pointer;
       }
     }
   }
-
+  #app-content-main-iframe-wrapper {
+    height: calc(100% - 16px);
+    padding: 8px 4px;
+    .app-content-main-iframe {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
 </style>
 <template>
-    <div class="app-content-main">
-      <div id="app-content-main-iframe-wrapper"></div>
+  <div class="app-content-main">
+    <div class="app-content-main-toolbar">
+      <span class="app-content-main-toolbar-box" @click="zoomOut"
+        ><NIcon><ZoomIn16Regular /></NIcon
+      ></span>
+      <span class="app-content-main-toolbar-box" @click="zoomIn"
+        ><NIcon><ZoomOut16Regular /></NIcon
+      ></span>
     </div>
+    <div id="app-content-main-iframe-wrapper"></div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useDictQueryStore } from '@/store/dict';
-
+import { ZoomIn16Regular, ZoomOut16Regular } from '@vicons/fluent';
+import { NIcon } from 'naive-ui';
 
 const dictQueryStore = useDictQueryStore();
+
+const TOP_WIN_MSG_ZOOM_OUT =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT';
+const TOP_WIN_MSG_ZOOM_IN =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN';
+const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
+const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
+
 
 
 function cerateIframe() {
@@ -57,90 +96,18 @@ function cerateIframe() {
   );
   const iframe = document.createElement('iframe');
   iframe.src = 'data:text/html;base64,' + dictQueryStore.mainContent;
-  iframe.frameBorder = "0";
+  iframe.frameBorder = '0';
   iframe.width = '100%';
   iframe.height = '100%';
   iframe.id = 'app-content-main-iframe';
-  iframe.setAttribute("style", 'border: 0px;');
+  iframe.setAttribute('style', 'border: 0px;');
   iframe_container.appendChild(iframe);
 }
 
-
-let componentEventListenerUnscribe = null;
-function listenContentUpdate() {
-  componentEventListenerUnscribe = dictQueryStore.$onAction(
-    ({
-      name, // action 名称
-      store, // store 实例，类似 `someStore`
-      args, // 传递给 action 的参数数组
-      after, // 在 action 返回或解决后的钩子
-      onError, // action 抛出或拒绝的钩子
-    }) => {
-      let startTime = Date.now();
-
-      switch (name) {
-        case 'updateMainContent':
-          break;
-        case 'updateMainContentURL':
-          break;
-        case 'updateSelectDict':
-          break;
-        case 'updateInputSearchWord':
-          break;
-        default: {
-          console.log(
-            `[event] not recognized event, skipped, event name: ${name}`
-          );
-          return;
-        }
-      }
-
-      // 这将在 action 成功并完全运行后触发。
-      // 它等待着任何返回的 promise
-      after((result) => {
-        switch (name) {
-          case 'updateMainContent': {
-            const content = b64DecodeUnicode(store.mainContent);
-            updateIframeContent(content, true);
-            break;
-          }
-          case 'updateMainContentURL': {
-            if (store.mainContentURL === "") {
-              const content = b64DecodeUnicode(store.mainContent);
-              updateIframeContent(content, true);  
-            }
-
-            updateIframeContent(store.mainContentURL, false);
-            break;
-          }
-          case 'updateInputSearchWord' :{
-            // skip for now
-            break
-          }
-          case 'updateSelectDict': {
-            // inputWord.value = '';
-            break;
-          }
-        }
-      });
-
-      // 如果 action 抛出或返回一个拒绝的 promise，这将触发
-      onError((error) => {
-        console.warn(
-          `Failed "${name}" after ${
-            Date.now() - startTime
-          }ms.\nError: ${error}.`
-        );
-      });
-    }
-  );
-
-  // 手动删除监听器
-  //   unsubscribe()
-}
-
 function updateIframeContent(content, is_base64 = true) {
-  const iframe = document.getElementById('app-content-main-iframe') as unknown as HTMLIFrameElement;
+  const iframe = document.getElementById(
+    'app-content-main-iframe'
+  ) as unknown as HTMLIFrameElement;
   if (!iframe) {
     return;
   }
@@ -151,37 +118,108 @@ function updateIframeContent(content, is_base64 = true) {
   } else {
     iframe.src = content;
   }
-  setTimeout(() =>{
-    iframe.contentWindow.postMessage("__Medict_TOP_WIN_MSG__EVTY_SETUP__", "*")
-  },1000)
+  setTimeout(() => {
+    iframe.contentWindow.postMessage(TOP_WIN_MSG_SETUP, '*');
+  }, 1000);
 }
 
-function listenTopMessage() {
+function listenInnerFrameMessage() {
+  window.onmessage = function (e) {
+    console.debug('[TOPWIN GOT INNERFRAME MSG] ', e);
+    if (!e || !e.data || !e.data.evtype) {
+      return;
+    }
 
-  window.onmessage = function(e) {
-    console.log("[top frame got message] ", e);
-    if (e && e.data && e.data.evtype === "__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP") {
-      console.log("inner frame jump to entry: ", e.data)
-      dictQueryStore.updateInputSearchWord(e.data.word);
+    switch (e.data.evtype) {
+      // entry:// 跳转
+      case INNER_FRAME_MSG_ENTRY_JUMP: {
+        console.log('inner frame jump to entry: ', e.data);
+        let keyWord = e.data.word;
+        keyWord = keyWord.split('#')[0];
+        dictQueryStore.updateInputSearchWord(keyWord);
+        dictQueryStore.searchWord(keyWord);
+        dictQueryStore.pushHistoryByEntryIDx(0);
+
+        break;
+      }
     }
   };
-
 }
 
+// 缩小
+function zoomOut() {
+  const evtype = TOP_WIN_MSG_ZOOM_OUT;
+  const iframe = document.getElementById(
+    'app-content-main-iframe'
+  ) as unknown as HTMLIFrameElement;
+  if (!iframe) {
+    return;
+  }
+  iframe.contentWindow.postMessage(
+    { evtype: evtype, ts: new Date().getTime() },
+    '*'
+  );
+}
 
+// 放大
+function zoomIn() {
+  const evtype = TOP_WIN_MSG_ZOOM_IN;
+  const iframe = document.getElementById(
+    'app-content-main-iframe'
+  ) as unknown as HTMLIFrameElement;
+  if (!iframe) {
+    return;
+  }
+  iframe.contentWindow.postMessage(
+    { evtype: evtype, ts: new Date().getTime() },
+    '*'
+  );
+}
+
+let storeChangeUnscribe = null;
+function listenContentUpdate() {
+  storeChangeUnscribe = dictQueryStore.$onAction(({name, store, after}) => {
+      after((result: any) => {
+        switch (name) {
+          case 'updateMainContent': {
+            const content = b64DecodeUnicode(store.mainContent);
+            updateIframeContent(content, true);
+            break;
+          }
+          case 'updateMainContentURL': {
+            if (store.mainContentURL === '') {
+              const content = b64DecodeUnicode(store.mainContent);
+              updateIframeContent(content, true);
+            }
+
+            updateIframeContent(store.mainContentURL, false);
+            break;
+          }
+        }
+      });
+    }
+  );
+}
 
 onMounted(() => {
   cerateIframe();
-  if (componentEventListenerUnscribe) {
-    componentEventListenerUnscribe();
-    componentEventListenerUnscribe = null;
+  if (storeChangeUnscribe) {
+    storeChangeUnscribe();
+    storeChangeUnscribe = null;
   }
   listenContentUpdate();
-  listenTopMessage();
+  listenInnerFrameMessage();
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
 });
+
+onUnmounted(()=>{
+  if(storeChangeUnscribe) {
+    storeChangeUnscribe();
+    storeChangeUnscribe = null;
+  }
+})
 
 ///----------------------------
 // utils function
