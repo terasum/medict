@@ -30,7 +30,7 @@ var ENTRY_REG *regexp.Regexp
 
 func init() {
 	var err error
-	ENTRY_REG, err = regexp.Compile(`href=\"entry://(\S+)\"`)
+	ENTRY_REG, err = regexp.Compile(`href=\"entry://([\w#_ -]+)\"`)
 	if err != nil {
 		panic(err)
 	}
