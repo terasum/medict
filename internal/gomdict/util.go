@@ -48,8 +48,17 @@ func littleEndianBinUTF16ToUTF8(bytes []byte, offset int, length int) string {
 	return string(u8)
 }
 
+func min(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
+
 func bigEndianBinToUTF8(bytes []byte, offset int, length int) string {
 	cbytes := make([]byte, length)
+	rawLen := len(bytes)
+	length = min(rawLen, length)
 	copy(cbytes, bytes[offset:offset+length])
 	return string(cbytes)
 }
