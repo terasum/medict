@@ -159,66 +159,66 @@ func TestMdictBase_ReadDictHeader3(t *testing.T) {
 
 }
 
-//
-///*
-//#include "mdict_extern.h"
-//#include "mdict.h"
-//#include <stdlib.h>
-//*/
-//import "C"
-//
-//import (
-//	"unsafe"
-//)
-//
-//type Mdict struct {
-//	dict unsafe.Pointer
-//}
-//
-//type SimpleKeyItem struct {
-//	keyWord string
-//}
-//
-//func MdictInit(dictionaryPath string) *Mdict {
-//	dictFilePath := C.CString(dictionaryPath)
-//	defer C.free(unsafe.Pointer(dictFilePath))
-//	mydict := C.mdict_init(dictFilePath)
-//	return &Mdict{dict: mydict}
-//}
-//
-//func (m *Mdict) Lookup(word string) string {
-//	queryWord := C.CString(word)
-//	defer C.free(unsafe.Pointer(queryWord))
-//	var result *C.char
-//	C.mdict_lookup(m.dict, queryWord, &result)
-//	defer C.free(unsafe.Pointer(result))
-//	return C.GoString(result)
-//}
-//
-//func (m *Mdict) ParseDefinition(word string, recordStart uint64) string {
-//	queryWord := C.CString(word)
-//	defer C.free(unsafe.Pointer(queryWord))
-//	var result *C.char
-//	C.mdict_parse_definition(m.dict, queryWord, C.ulong(recordStart), &result)
-//	defer C.free(unsafe.Pointer(result))
-//	return C.GoString(result)
-//}
-//
-//func (m *Mdict) KeyList() []*SimpleKeyItem {
-//	var len C.ulong
-//	keylist := C.mdict_keylist(m.dict, &len)
-//	defer C.free(unsafe.Pointer(keylist))
-//	items := make([]*SimpleKeyItem, len)
-//	for i := C.ulong(0); i < len; i++ {
-//		items[i] = &SimpleKeyItem{keyWord: C.GoString((*C.simple_key_item)(unsafe.Pointer(uintptr(unsafe.Pointer(keylist)) + uintptr(i)*unsafe.Sizeof(*keylist))).key_word)}
-//	}
-//	return items
-//}
-//
-//func main() {
-//	// Example usage
-//	dictionaryPath := "path/to/dictionary"
-//	mydict := MdictInit(dictionaryPath)
-//	result := mydict.Lookup("word")
-//	println(result)
-//}
+func TestMdictBase_ReadDictFixBug1(t *testing.T) {
+	mdictBase := &MdictBase{
+		FilePath: "testdata/bugdict/教育部重編國語辭典(第五版)/教育部重編國語辭典(第五版).mdx",
+	}
+	err := mdictBase.ReadDictHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mdictBase.ReadKeyBlockMeta()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mdictBase.ReadKeyBlockInfo()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mdictBase.ReadKeyEntries()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mdictBase.ReadRecordBlockMeta()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mdictBase.ReadRecordBlockInfo()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("key entries list len: %d, record block info entry list len %d", len(mdictBase.KeyBlockData.KeyEntries), len(mdictBase.RecordBlockInfo.RecordInfoList))
+	t.Logf("entries number size %d\n", mdictBase.KeyBlockData.KeyEntriesSize)
+	t.Logf("keylist[0] %+v\n", mdictBase.KeyBlockData.KeyEntries[0])
+
+	item := mdictBase.KeyBlockData.KeyEntries[0]
+
+	data, err := mdictBase.LocateRecordDefinition(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("0-0 keyText: %s, data: %s", item.KeyWord, data)
+
+	item = mdictBase.KeyBlockData.KeyEntries[1]
+
+	data, err = mdictBase.LocateRecordDefinition(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("13-0 keyText: %s, data: %s", item.KeyWord, data)
+
+	item = mdictBase.KeyBlockData.KeyEntries[3]
+
+	data, err = mdictBase.LocateRecordDefinition(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("13-7 keyText: %s, data: %s", item.KeyWord, data)
+
+}

@@ -21,11 +21,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/rasky/go-lzo"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/rasky/go-lzo"
 )
 
 // ReadDictHeader reads the dictionary header.
@@ -84,12 +83,13 @@ func (mdict *MdictBase) ReadDictHeader() error {
 
 	// Handle encoding
 	encoding := headerInfo.Encoding
+	encoding = strings.ToLower(encoding)
 	switch encoding {
-	case "GBK", "GB2312":
+	case "GBK", "GB2312", "gbk", "gb2312":
 		meta.Encoding = EncodingGb18030
-	case "Big5", "BIG5":
+	case "Big5", "BIG5", "big5":
 		meta.Encoding = EncodingBig5
-	case "utf16", "utf-16":
+	case "utf16", "utf-16", "UTF-16":
 		meta.Encoding = EncodingUtf16
 	default:
 		meta.Encoding = EncodingUtf8
@@ -624,6 +624,14 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 		keyTextBytes := keyBlock[keyStartIndex+mdict.Meta.NumberWidth : keyEndIndex]
 		keyText := string(keyTextBytes)
 		var err error
+
+		if mdict.Meta.Encoding == EncodingUtf16 {
+			keyText, err = decodeLittleEndianUtf16(keyTextBytes)
+			if err != nil {
+				keyText = string(keyTextBytes)
+			}
+		}
+
 		if mdict.FileType == MdictTypeMdd {
 			keyText, err = decodeLittleEndianUtf16(keyTextBytes)
 			if err != nil {

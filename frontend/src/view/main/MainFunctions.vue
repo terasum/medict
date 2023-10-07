@@ -140,6 +140,14 @@ function listenInputWordUpdate() {
       after((result) => {
         switch (name) {
           case 'updateInputSearchWord': {
+            // inputWord.value = dictQueryStore.inputSearchWord;
+            break;
+          }
+          case 'forwardHistory': {
+            inputWord.value = dictQueryStore.inputSearchWord;
+            break;
+          }
+          case 'backHistory': {
             inputWord.value = dictQueryStore.inputSearchWord;
             break;
           }

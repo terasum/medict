@@ -19,6 +19,7 @@ package gomdict
 import (
 	"errors"
 	"fmt"
+	"github.com/terasum/medict/internal/utils"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -118,6 +119,8 @@ func (mdict *Mdict) Search(word string) ([]*MDictKeyBlockEntry, error) {
 func (x *MDictKeyBlockEntry) Distance(e bktree.Entry) int {
 	a := x.KeyWord
 	b := e.(*MDictKeyBlockEntry).KeyWord
+	a = utils.StrToUnicode(a)
+	b = utils.StrToUnicode(b)
 
 	return levenshtein.Distance(a, b)
 }
