@@ -704,13 +704,6 @@ packages:
       semver: 7.5.4
     dev: true
 
-  /busboy@1.6.0:
-    resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
-    engines: {node: '>=10.16.0'}
-    dependencies:
-      streamsearch: r2.cnpmjs.org/streamsearch@1.1.0
-    dev: true
-
   /cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
@@ -1177,7 +1170,7 @@ packages:
       destr: 1.2.2
       node-fetch-native: 0.1.8
       ufo: 0.8.6
-      undici: 5.24.0
+      undici: registry.npmjs.org/undici@5.26.3
     dev: true
 
   /open@9.1.0:
@@ -1333,13 +1326,6 @@ packages:
       defu: 6.1.2
       jiti: 1.20.0
       mlly: 1.4.2
-    dev: true
-
-  /undici@5.24.0:
-    resolution: {integrity: sha512-OKlckxBjFl0oXxcj9FU6oB8fDAaiRUq+D8jrFWGmOfI/gIyjk/IeS75LMzgYKUaeHzLUcYvf9bbJGSrUwTfwwQ==}
-    engines: {node: '>=14.0'}
-    dependencies:
-      busboy: 1.6.0
     dev: true
 
   /unocss@0.47.6(vite@4.4.9):
@@ -2294,13 +2280,6 @@ packages:
     deprecated: Please use @jridgewell/sourcemap-codec instead
     dev: true
 
-  r2.cnpmjs.org/streamsearch@1.1.0:
-    resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==, registry: https://registry.yarnpkg.com/, tarball: https://r2.cnpmjs.org/streamsearch/-/streamsearch-1.1.0.tgz}
-    name: streamsearch
-    version: 1.1.0
-    engines: {node: '>=10.0.0'}
-    dev: true
-
   r2.cnpmjs.org/strip-bom-string@1.0.0:
     resolution: {integrity: sha512-uCC2VHvQRYu+lMh4My/sFNmF2klFymLX1wHJeXnbEJERpV/ZsVuonzerjfrGpIGF7LBVa1O7i9kjiWvJiFck8g==, registry: https://registry.yarnpkg.com/, tarball: https://r2.cnpmjs.org/strip-bom-string/-/strip-bom-string-1.0.0.tgz}
     name: strip-bom-string
@@ -2708,6 +2687,13 @@ packages:
     dev: true
     optional: true
 
+  registry.npmjs.org/@fastify/busboy@2.0.0:
+    resolution: {integrity: sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/@fastify/busboy/-/busboy-2.0.0.tgz}
+    name: '@fastify/busboy'
+    version: 2.0.0
+    engines: {node: '>=14'}
+    dev: true
+
   registry.npmjs.org/fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz}
     name: fsevents
@@ -2759,3 +2745,12 @@ packages:
     name: source-map-js
     version: 1.0.2
     engines: {node: '>=0.10.0'}
+
+  registry.npmjs.org/undici@5.26.3:
+    resolution: {integrity: sha512-H7n2zmKEWgOllKkIUkLvFmsJQj062lSm3uA4EYApG8gLuiOM0/go9bIoC3HVaSnfg4xunowDE2i9p8drkXuvDw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/undici/-/undici-5.26.3.tgz}
+    name: undici
+    version: 5.26.3
+    engines: {node: '>=14.0'}
+    dependencies:
+      '@fastify/busboy': registry.npmjs.org/@fastify/busboy@2.0.0
+    dev: true
