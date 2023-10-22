@@ -136,18 +136,47 @@ function loadDictionaries() {
     const totalNumber = res.length;
     const updater = updateProgress(totalNumber);
 
-    for (let i = 0; i < res.length; i++) {
-      state.dictList.push(res[i]);
-      console.log(`[app-init] building dictionary, index: ${i}`, res[i])
+    function sequenceHandle(promiseArr) {
+      const pro = promiseArr.shift()
+      if(pro && pro.handle) {
+        pro.handle().then((resp)=>{
+          pro.callback(resp);
+          sequenceHandle(promiseArr)
+        })
+      }
+    }
 
-      BuildIndex(res[i].id).then((resp) => {
-        let progressHint = `词典 ${res[i].name} 加载完成`;
+    function buildIndexPromise(i, id, name) {
+      return {
+        handle:  function() {
+        return BuildIndex(id)
+      },
+      callback: function(resp) {
+        let progressHint = `词典 ${name} 加载完成`;
         console.log(`[app-init] building success, index: ${i}`, resp);
         updater(progressHint)
-
-
-      });
+      }
     }
+  }
+
+    let promiseArray = [];
+    for (let i = 0; i < res.length; i++) {
+      state.dictList.push(res[i]);
+      promiseArray.push(buildIndexPromise(i, res[i].id, res[i].name))
+    }
+
+    sequenceHandle(promiseArray);
+
+    // for (let i = 0; i < res.length; i++) {
+    //   state.dictList.push(res[i]);
+    //   console.log(`[app-init] building dictionary, index: ${i}`, res[i])
+
+    //   BuildIndex(res[i].id).then((resp) => {
+    //     let progressHint = `词典 ${res[i].name} 加载完成`;
+    //     console.log(`[app-init] building success, index: ${i}`, resp);
+    //     updater(progressHint)
+    //   });
+    // }
 
   });
 }

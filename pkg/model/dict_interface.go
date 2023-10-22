@@ -9,6 +9,9 @@ const ImgTypeJPG ImgType = "jpg"
 const ImgTypePNG ImgType = "png"
 
 type GeneralDictionary interface {
+	// 取得当前词典所有词列表
+	KeyList() []string
+	// BuildIndex 构建索引
 	BuildIndex() error
 	// DictType 返回词典类型, 目前仅支持 mdict 和 stardict
 	DictType() DictType

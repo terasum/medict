@@ -11,8 +11,10 @@ require (
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
 	github.com/gin-gonic/gin v1.9.1
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rasky/go-lzo v0.0.0-20200203143853-96a758eda86e
+	github.com/silenceper/pool v1.0.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/viper v1.10.1
 	go.etcd.io/etcd/client/pkg/v3 v3.5.1
@@ -37,6 +39,7 @@ require (
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/labstack/echo/v4 v4.10.2 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.0 // indirect
@@ -57,6 +60,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

@@ -82,10 +82,6 @@ func (mdict *Mdict) BuildIndex() error {
 		return err
 	}
 
-	err = mdict.BuildBKTree()
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

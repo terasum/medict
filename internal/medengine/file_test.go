@@ -14,48 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package utils
+package medengine
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
+	_ "github.com/mattn/go-sqlite3"
+	"testing"
 )
 
-func FileBaseDir(fpath string) string {
-	return filepath.Dir(fpath)
-}
-
-func FileAbs(fpath string) string {
-	fp, err := filepath.Abs(fpath)
+func TestCreateMeIndex(t *testing.T) {
+	err := CreateMeIndex("./testdata/testidx.meidx")
 	if err != nil {
-		return fpath
+		t.Fatal(err)
 	}
-	return fp
-}
 
-func FileName(fpath string) string {
-	_, file := filepath.Split(fpath)
-	return file
-}
-
-func FileNameWithoutExt(fpath string) string {
-	rawpath := FileName(fpath)
-	rawpaths := strings.Split(rawpath, ".")
-	return rawpaths[0]
-}
-
-func FileExists(fpath string) bool {
-	if _, err := os.Stat(fpath); err == nil {
-		return true
-	}
-	return false
-
-}
-
-func FileRemove(fpath string) error {
-	if FileExists(fpath) && fpath != "/" {
-		return os.RemoveAll(fpath)
-	}
-	return nil
 }
