@@ -44,6 +44,10 @@ func (bs *bkString) Distance(entry bktree.Entry) int {
 	return levenshtein.Distance(bs.w, entry.(*bkString).w)
 }
 
+func (s *StarDict) KeyList() []string {
+	return []string{}
+}
+
 func (s *StarDict) BuildIndex() error {
 	if s.ready {
 		return nil
