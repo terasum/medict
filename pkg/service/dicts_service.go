@@ -138,7 +138,7 @@ func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, er
 	}
 }
 
-func (ds *DictService) Locate(dictid string, idx *model.KeyIndex) (string, error) {
+func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, error) {
 	if dict, ok := ds.dicts[dictid]; !ok {
 		return "", errors.New("dict not found")
 	} else {
@@ -146,9 +146,9 @@ func (ds *DictService) Locate(dictid string, idx *model.KeyIndex) (string, error
 		if dict.DictType == (string)(model.DictTypeStarDict) {
 			idxType = model.IndexTypeStardict
 		}
-		defData, err := dict.MainDict.Locate(&model.KeyIndex{
-			IndexType:     idxType,
-			KeyBlockEntry: idx.KeyBlockEntry,
+		defData, err := dict.MainDict.Locate(&model.KeyQueryIndex{
+			IndexType:         idxType,
+			MdictKeyWordIndex: idx.MdictKeyWordIndex,
 		})
 		if err != nil {
 			return "", err
@@ -157,7 +157,7 @@ func (ds *DictService) Locate(dictid string, idx *model.KeyIndex) (string, error
 	}
 }
 
-func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyIndex, error) {
+func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryIndex, error) {
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
 	} else {

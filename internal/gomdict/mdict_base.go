@@ -21,46 +21,47 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/rasky/go-lzo"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rasky/go-lzo"
 )
 
-// ReadDictHeader reads the dictionary header.
-func (mdict *MdictBase) ReadDictHeader() error {
+// readDictHeader reads the dictionary header.
+func (mdict *MdictBase) readDictHeader() error {
 	// read dict header info
-	dictHeader, err := readMDictFileHeader(mdict.FilePath)
+	dictHeader, err := readMDictFileHeader(mdict.filePath)
 	if err != nil {
 		return err
 	}
 
-	mdict.Header = dictHeader
+	mdict.header = dictHeader
 
 	// Parse header XML into a map
-	headerInfo, err := parseXMLHeader(dictHeader.HeaderInfo)
+	headerInfo, err := parseXMLHeader(dictHeader.headerInfo)
 	if err != nil {
 		return err
 	}
 
 	// TODO: Handle Alder32 checksum
 
-	meta := &MDictMeta{}
+	meta := &mdictMeta{}
 
 	// Handle encryption flag
 	encrypted := headerInfo.Encrypted
 	switch {
 	case encrypted == "" || encrypted == "No":
-		meta.EncryptType = EncryptNoEnc
+		meta.encryptType = EncryptNoEnc
 	case encrypted == "Yes":
-		meta.EncryptType = EncryptRecordEnc
+		meta.encryptType = EncryptRecordEnc
 	default:
 		if encrypted[0] == '2' {
-			meta.EncryptType = EncryptKeyInfoEnc
+			meta.encryptType = EncryptKeyInfoEnc
 		} else if encrypted[0] == '1' {
-			meta.EncryptType = EncryptRecordEnc
+			meta.encryptType = EncryptRecordEnc
 		} else {
-			meta.EncryptType = EncryptNoEnc
+			meta.encryptType = EncryptNoEnc
 		}
 	}
 
@@ -70,15 +71,15 @@ func (mdict *MdictBase) ReadDictHeader() error {
 	if err != nil {
 		return err
 	}
-	meta.Version = float32(version)
+	meta.version = float32(version)
 
 	// Handle number format and width based on version
-	if meta.Version >= 2.0 {
-		meta.NumberWidth = 8
-		meta.NumberFormat = NumfmtBe8bytesq
+	if meta.version >= 2.0 {
+		meta.numberWidth = 8
+		meta.numberFormat = NumfmtBe8bytesq
 	} else {
-		meta.NumberWidth = 4
-		meta.NumberFormat = NumfmtBe4bytesi
+		meta.numberWidth = 4
+		meta.numberFormat = NumfmtBe4bytesi
 	}
 
 	// Handle encoding
@@ -86,34 +87,34 @@ func (mdict *MdictBase) ReadDictHeader() error {
 	encoding = strings.ToLower(encoding)
 	switch encoding {
 	case "GBK", "GB2312", "gbk", "gb2312":
-		meta.Encoding = EncodingGb18030
+		meta.encoding = EncodingGb18030
 	case "Big5", "BIG5", "big5":
-		meta.Encoding = EncodingBig5
+		meta.encoding = EncodingBig5
 	case "utf16", "utf-16", "UTF-16":
-		meta.Encoding = EncodingUtf16
+		meta.encoding = EncodingUtf16
 	default:
-		meta.Encoding = EncodingUtf8
+		meta.encoding = EncodingUtf8
 	}
 
 	// Fix for MDD type
-	if mdict.FileType == MdictTypeMdd {
-		meta.Encoding = EncodingUtf16
+	if mdict.fileType == MdictTypeMdd {
+		meta.encoding = EncodingUtf16
 	}
 
 	// 4 bytes header size + header_bytes_size + 4bytes alder checksum
-	meta.KeyBlockMetaStartOffset = int64(4 + dictHeader.HeaderBytesSize + 4)
+	meta.keyBlockMetaStartOffset = int64(4 + dictHeader.headerBytesSize + 4)
 
-	meta.Description = headerInfo.Description
-	meta.Title = headerInfo.Title
-	meta.CreationDate = headerInfo.CreationDate
-	meta.GeneratedByEngineVersion = headerInfo.GeneratedByEngineVersion
+	meta.description = headerInfo.Description
+	meta.title = headerInfo.Title
+	meta.creationDate = headerInfo.CreationDate
+	meta.generatedByEngineVersion = headerInfo.GeneratedByEngineVersion
 
-	mdict.Meta = meta
+	mdict.meta = meta
 
 	return nil
 }
 
-func readMDictFileHeader(filename string) (*MDictHeader, error) {
+func readMDictFileHeader(filename string) (*mdictHeader, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -149,45 +150,45 @@ func readMDictFileHeader(filename string) (*MDictHeader, error) {
 	utfHeaderInfo := littleEndianBinUTF16ToUTF8(headerInfoBytes, 0, int(headerBytesSize))
 	utfHeaderInfo = strings.Replace(utfHeaderInfo, "Library_Data", "Dictionary", 1)
 
-	mdict := &MDictHeader{
-		HeaderBytesSize:          headerBytesSize,
-		HeaderInfoBytes:          headerInfoBytes,
-		HeaderInfo:               utfHeaderInfo,
-		Adler32Checksum:          adler32Checksum,
-		DictionaryHeaderByteSize: dictHeaderPartByteSize,
+	mdict := &mdictHeader{
+		headerBytesSize:          headerBytesSize,
+		headerInfoBytes:          headerInfoBytes,
+		headerInfo:               utfHeaderInfo,
+		adler32Checksum:          adler32Checksum,
+		dictionaryHeaderByteSize: dictHeaderPartByteSize,
 	}
 
 	return mdict, nil
 }
 
-// ReadKeyBlockMeta keyblock header part contains keyblock meta info
-func (mdict *MdictBase) ReadKeyBlockMeta() error {
-	file, err := os.Open(mdict.FilePath)
+// readKeyBlockMeta keyblock header part contains keyblock meta info
+func (mdict *MdictBase) readKeyBlockMeta() error {
+	file, err := os.Open(mdict.filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	keyBlockMeta := &MDictKeyBlockMeta{}
+	keyBlockMeta := &mdictKeyBlockMeta{}
 
 	// Key block meta info part
 	// if version > 2.0 key-block meta part bytes length: 40
 	// else: length: 16
 	keyBlockMetaBytesNum := 0
-	if mdict.Meta.Version >= 2.0 {
+	if mdict.meta.version >= 2.0 {
 		keyBlockMetaBytesNum = 8 * 5
 	} else {
 		keyBlockMetaBytesNum = 4 * 4
 	}
 
 	// Key block meta info buffer
-	keyBlockMetaBuffer, err := readFileFromPos(file, mdict.Meta.KeyBlockMetaStartOffset, int64(keyBlockMetaBytesNum))
+	keyBlockMetaBuffer, err := readFileFromPos(file, mdict.meta.keyBlockMetaStartOffset, int64(keyBlockMetaBytesNum))
 	if err != nil {
 		return err
 	}
 
 	// TODO: Key block info encrypted file not supported yet
-	if mdict.Meta.EncryptType == EncryptRecordEnc {
+	if mdict.meta.encryptType == EncryptRecordEnc {
 		return errors.New("user identification is needed to read encrypted file")
 	}
 
@@ -201,96 +202,96 @@ func (mdict *MdictBase) ReadKeyBlockMeta() error {
 	//       Otherwise, the key info buffer size is 5 * 8
 
 	// 1. [0:8]([0:4]) - Number of key blocks
-	keyBlockNumBytes := keyBlockMetaBuffer[0:mdict.Meta.NumberWidth]
+	keyBlockNumBytes := keyBlockMetaBuffer[0:mdict.meta.numberWidth]
 
 	var keyBlockNumber uint64
-	if mdict.Meta.NumberWidth == 8 {
+	if mdict.meta.numberWidth == 8 {
 		keyBlockNumber = beBinToU64(keyBlockNumBytes)
-	} else if mdict.Meta.NumberWidth == 4 {
+	} else if mdict.meta.numberWidth == 4 {
 		keyBlockNumber = uint64(beBinToU32(keyBlockNumBytes))
 	}
-	keyBlockMeta.KeyBlockNum = int64(keyBlockNumber)
+	keyBlockMeta.keyBlockNum = int64(keyBlockNumber)
 
 	// 2. [8:16]([4:8]) - Number of entries
-	entriesNumBytes := keyBlockMetaBuffer[mdict.Meta.NumberWidth : mdict.Meta.NumberWidth+mdict.Meta.NumberWidth]
+	entriesNumBytes := keyBlockMetaBuffer[mdict.meta.numberWidth : mdict.meta.numberWidth+mdict.meta.numberWidth]
 	if err != nil {
 		return err
 	}
 
 	var entriesNum uint64
-	if mdict.Meta.NumberWidth == 8 {
+	if mdict.meta.numberWidth == 8 {
 		entriesNum = beBinToU64(entriesNumBytes)
-	} else if mdict.Meta.NumberWidth == 4 {
+	} else if mdict.meta.numberWidth == 4 {
 		entriesNum = uint64(beBinToU32(entriesNumBytes))
 	}
-	keyBlockMeta.EntriesNum = int64(entriesNum)
+	keyBlockMeta.entriesNum = int64(entriesNum)
 
 	var keyBlockInfoSizeBytesStartOffset int
 
 	// 3. [16:24] - Key block info decompressed size (if version >= 2.0, this section exists)
-	if mdict.Meta.Version >= 2.0 {
-		keyBlockInfoDecompressSizeBytes := keyBlockMetaBuffer[mdict.Meta.NumberWidth*2 : mdict.Meta.NumberWidth*2+mdict.Meta.NumberWidth]
+	if mdict.meta.version >= 2.0 {
+		keyBlockInfoDecompressSizeBytes := keyBlockMetaBuffer[mdict.meta.numberWidth*2 : mdict.meta.numberWidth*2+mdict.meta.numberWidth]
 
 		var keyBlockInfoDecompressSize uint64
-		if mdict.Meta.NumberWidth == 8 {
+		if mdict.meta.numberWidth == 8 {
 			keyBlockInfoDecompressSize = beBinToU64(keyBlockInfoDecompressSizeBytes)
-		} else if mdict.Meta.NumberWidth == 4 {
+		} else if mdict.meta.numberWidth == 4 {
 			keyBlockInfoDecompressSize = uint64(beBinToU32(keyBlockInfoDecompressSizeBytes))
 		}
-		keyBlockMeta.KeyBlockInfoDecompressSize = int64(keyBlockInfoDecompressSize)
+		keyBlockMeta.keyBlockInfoDecompressSize = int64(keyBlockInfoDecompressSize)
 
-		keyBlockInfoSizeBytesStartOffset = mdict.Meta.NumberWidth * 3
+		keyBlockInfoSizeBytesStartOffset = mdict.meta.numberWidth * 3
 
 	} else {
-		keyBlockInfoSizeBytesStartOffset = mdict.Meta.NumberWidth * 2
+		keyBlockInfoSizeBytesStartOffset = mdict.meta.numberWidth * 2
 	}
 
 	// 4. [24:32]([8:12]) - Key block info size
-	keyBlockInfoSizeBytes := keyBlockMetaBuffer[keyBlockInfoSizeBytesStartOffset : keyBlockInfoSizeBytesStartOffset+mdict.Meta.NumberWidth]
+	keyBlockInfoSizeBytes := keyBlockMetaBuffer[keyBlockInfoSizeBytesStartOffset : keyBlockInfoSizeBytesStartOffset+mdict.meta.numberWidth]
 
 	var keyBlockInfoSize uint64
-	if mdict.Meta.NumberWidth == 8 {
+	if mdict.meta.numberWidth == 8 {
 		keyBlockInfoSize = beBinToU64(keyBlockInfoSizeBytes)
-	} else if mdict.Meta.NumberWidth == 4 {
+	} else if mdict.meta.numberWidth == 4 {
 		keyBlockInfoSize = uint64(beBinToU32(keyBlockInfoSizeBytes))
 	}
 
-	keyBlockMeta.KeyBlockInfoCompressedSize = int64(keyBlockInfoSize)
+	keyBlockMeta.keyBlockInfoCompressedSize = int64(keyBlockInfoSize)
 
 	// 5. [32:40]([12:16]) - Key block size
-	keyBlockDataSizeBytes := keyBlockMetaBuffer[keyBlockInfoSizeBytesStartOffset+mdict.Meta.NumberWidth : keyBlockInfoSizeBytesStartOffset+mdict.Meta.NumberWidth+mdict.Meta.NumberWidth]
+	keyBlockDataSizeBytes := keyBlockMetaBuffer[keyBlockInfoSizeBytesStartOffset+mdict.meta.numberWidth : keyBlockInfoSizeBytesStartOffset+mdict.meta.numberWidth+mdict.meta.numberWidth]
 
 	var keyBlockDataSize uint64
-	if mdict.Meta.NumberWidth == 8 {
+	if mdict.meta.numberWidth == 8 {
 		keyBlockDataSize = beBinToU64(keyBlockDataSizeBytes)
-	} else if mdict.Meta.NumberWidth == 4 {
+	} else if mdict.meta.numberWidth == 4 {
 		keyBlockDataSize = uint64(beBinToU32(keyBlockDataSizeBytes))
 	}
-	keyBlockMeta.KeyBlockDataTotalSize = int64(keyBlockDataSize)
+	keyBlockMeta.keyBlockDataTotalSize = int64(keyBlockDataSize)
 
 	// 6. [40:44] - 4 bytes checksum (TODO: Skip if version > 2.0)
 	// TODO checksum verification
 
 	// Free key block info buffer
-	if mdict.Meta.Version >= 2.0 {
-		keyBlockMeta.KeyBlockInfoStartOffset = mdict.Meta.KeyBlockMetaStartOffset + 40 + 4
+	if mdict.meta.version >= 2.0 {
+		keyBlockMeta.keyBlockInfoStartOffset = mdict.meta.keyBlockMetaStartOffset + 40 + 4
 	} else {
-		keyBlockMeta.KeyBlockInfoStartOffset = mdict.Meta.KeyBlockMetaStartOffset + 16
+		keyBlockMeta.keyBlockInfoStartOffset = mdict.meta.keyBlockMetaStartOffset + 16
 	}
 
-	mdict.KeyBlockMeta = keyBlockMeta
+	mdict.keyBlockMeta = keyBlockMeta
 
 	return nil
 }
 
-func (mdict *MdictBase) ReadKeyBlockInfo() error {
-	file, err := os.Open(mdict.FilePath)
+func (mdict *MdictBase) readKeyBlockInfo() error {
+	file, err := os.Open(mdict.filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	buffer, err := readFileFromPos(file, mdict.KeyBlockMeta.KeyBlockInfoStartOffset, mdict.KeyBlockMeta.KeyBlockInfoCompressedSize)
+	buffer, err := readFileFromPos(file, mdict.keyBlockMeta.keyBlockInfoStartOffset, mdict.keyBlockMeta.keyBlockInfoCompressedSize)
 	if err != nil {
 		return err
 	}
@@ -311,9 +312,9 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 
 	// decrypt
 	var keyBlockInfoDecryptedBuffer []byte
-	if mdict.Meta.EncryptType == EncryptKeyInfoEnc {
+	if mdict.meta.encryptType == EncryptKeyInfoEnc {
 		// TODO decode key info
-		keyBlockInfoDecryptedBuffer = mdxDecrypt(data, mdict.KeyBlockMeta.KeyBlockInfoCompressedSize)
+		keyBlockInfoDecryptedBuffer = mdxDecrypt(data, mdict.keyBlockMeta.keyBlockInfoCompressedSize)
 	} else {
 		keyBlockInfoDecryptedBuffer = data
 	}
@@ -343,11 +344,11 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 	// note: we should uncompressed key_block_info_buffer[8:] data, so we need
 	// (decrypted + 8, and length -8)
 
-	decompressKeyInfoBuffer, err := zlibDecompress(keyBlockInfoDecryptedBuffer, 8, mdict.KeyBlockMeta.KeyBlockInfoCompressedSize-8)
+	decompressKeyInfoBuffer, err := zlibDecompress(keyBlockInfoDecryptedBuffer, 8, mdict.keyBlockMeta.keyBlockInfoCompressedSize-8)
 	if err != nil {
 		return err
 	}
-	if int64(len(decompressKeyInfoBuffer)) != mdict.KeyBlockMeta.KeyBlockInfoDecompressSize {
+	if int64(len(decompressKeyInfoBuffer)) != mdict.keyBlockMeta.keyBlockInfoDecompressSize {
 		return errors.New("decoded key block info data size not equals to key block meta indicates key block info size")
 	}
 
@@ -358,7 +359,7 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 	byteWidth := 1
 	textTerm := 0
 
-	if mdict.Meta.Version >= 2.0 {
+	if mdict.meta.version >= 2.0 {
 		byteWidth = 2
 		textTerm = 1
 	}
@@ -367,24 +368,24 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 	var compressSizeAccumulator = 0
 	var decompressSizeAccumulator = 0
 
-	keyBlockInfo := &MDictKeyBlockInfo{
-		KeyBlockEntriesStartOffset: 0,
-		KeyBlockInfoList:           make([]*MDictKeyBlockInfoItem, 0),
+	keyBlockInfo := &mdictKeyBlockInfo{
+		keyBlockEntriesStartOffset: 0,
+		keyBlockInfoList:           make([]*mdictKeyBlockInfoItem, 0),
 	}
 
-	for counter < mdict.KeyBlockMeta.KeyBlockNum {
+	for counter < mdict.keyBlockMeta.keyBlockNum {
 		firstKeySize, lastKeySize := 0, 0
 		firstKey := ""
 		lastKey := ""
 
-		if mdict.Meta.Version >= 2.0 {
-			currentEntriesSize = int64(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
-			dataOffset += mdict.Meta.NumberWidth
+		if mdict.meta.version >= 2.0 {
+			currentEntriesSize = int64(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
+			dataOffset += mdict.meta.numberWidth
 			firstKeySize = int(beBinToU16(decompressKeyInfoBuffer[dataOffset : dataOffset+byteWidth]))
 			dataOffset += byteWidth
 		} else {
-			currentEntriesSize = int64(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
-			dataOffset += mdict.Meta.NumberWidth
+			currentEntriesSize = int64(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
+			dataOffset += mdict.meta.numberWidth
 			firstKeySize = int(int64(beBinToU8(decompressKeyInfoBuffer[dataOffset : dataOffset+byteWidth])))
 			dataOffset += byteWidth
 		}
@@ -393,7 +394,7 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 		// step_gap means first key start data_offset to first key end;
 		var stepGap = 0
 		var termSize = textTerm
-		if mdict.Meta.Encoding == EncodingUtf16 || mdict.FileType == MdictTypeMdd {
+		if mdict.meta.encoding == EncodingUtf16 || mdict.fileType == MdictTypeMdd {
 			stepGap = (firstKeySize + textTerm) * 2
 			termSize = textTerm * 2
 		} else {
@@ -405,14 +406,14 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 
 		dataOffset += stepGap
 
-		if mdict.Meta.Version >= 2.0 {
+		if mdict.meta.version >= 2.0 {
 			lastKeySize = int(beBinToU16(decompressKeyInfoBuffer[dataOffset : dataOffset+byteWidth]))
 		} else {
 			lastKeySize = int(beBinToU8(decompressKeyInfoBuffer[dataOffset : dataOffset+byteWidth]))
 		}
 		dataOffset += byteWidth
 
-		if mdict.Meta.Encoding == EncodingUtf16 || mdict.FileType == MdictTypeMdd {
+		if mdict.meta.encoding == EncodingUtf16 || mdict.fileType == MdictTypeMdd {
 			stepGap = (lastKeySize + textTerm) * 2
 			termSize = textTerm * 2
 		} else {
@@ -425,65 +426,65 @@ func (mdict *MdictBase) decodeKeyBlockInfo(data []byte) error {
 		dataOffset += stepGap
 		// key block data meta part
 		keyBlockCompressSize := 0
-		if mdict.Meta.Version >= 2.0 {
-			keyBlockCompressSize = int(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
+		if mdict.meta.version >= 2.0 {
+			keyBlockCompressSize = int(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
 		} else {
-			keyBlockCompressSize = int(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
+			keyBlockCompressSize = int(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
 		}
-		dataOffset += mdict.Meta.NumberWidth
+		dataOffset += mdict.meta.numberWidth
 
 		keyBlockDecompressSize := 0
-		if mdict.Meta.Version >= 2.0 {
-			keyBlockDecompressSize = int(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
+		if mdict.meta.version >= 2.0 {
+			keyBlockDecompressSize = int(beBinToU64(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
 		} else {
-			keyBlockDecompressSize = int(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.Meta.NumberWidth]))
+			keyBlockDecompressSize = int(beBinToU32(decompressKeyInfoBuffer[dataOffset : dataOffset+mdict.meta.numberWidth]))
 		}
 
-		dataOffset += mdict.Meta.NumberWidth
+		dataOffset += mdict.meta.numberWidth
 
-		keyBlockInfoItem := &MDictKeyBlockInfoItem{
-			FirstKey:                      firstKey,
-			FirstKeySize:                  firstKeySize,
-			LastKey:                       lastKey,
-			LastKeySize:                   lastKeySize,
-			KeyBlockInfoIndex:             int(counter),
-			KeyBlockCompressSize:          int64(keyBlockCompressSize),
-			KeyBlockCompAccumulator:       int64(compressSizeAccumulator),
-			KeyBlockDeCompressSize:        int64(keyBlockDecompressSize),
-			KeyBlockDeCompressAccumulator: int64(decompressSizeAccumulator),
+		keyBlockInfoItem := &mdictKeyBlockInfoItem{
+			firstKey:                      firstKey,
+			firstKeySize:                  firstKeySize,
+			lastKey:                       lastKey,
+			lastKeySize:                   lastKeySize,
+			keyBlockInfoIndex:             int(counter),
+			keyBlockCompressSize:          int64(keyBlockCompressSize),
+			keyBlockCompAccumulator:       int64(compressSizeAccumulator),
+			keyBlockDeCompressSize:        int64(keyBlockDecompressSize),
+			keyBlockDeCompressAccumulator: int64(decompressSizeAccumulator),
 		}
 
 		compressSizeAccumulator += keyBlockCompressSize
 		decompressSizeAccumulator += keyBlockDecompressSize
 
-		keyBlockInfo.KeyBlockInfoList = append(keyBlockInfo.KeyBlockInfoList, keyBlockInfoItem)
+		keyBlockInfo.keyBlockInfoList = append(keyBlockInfo.keyBlockInfoList, keyBlockInfoItem)
 
 		counter++
 
 	}
-	//keyBlockInfo.KeyBlockEntriesStartOffset = int64(dataOffset) + mdict.KeyBlockMeta.KeyBlockInfoStartOffset
-	keyBlockInfo.KeyBlockEntriesStartOffset = mdict.KeyBlockMeta.KeyBlockInfoCompressedSize + mdict.KeyBlockMeta.KeyBlockInfoStartOffset
+	//keyBlockInfo.keyBlockEntriesStartOffset = int64(dataOffset) + mdict.keyBlockMeta.keyBlockInfoStartOffset
+	keyBlockInfo.keyBlockEntriesStartOffset = mdict.keyBlockMeta.keyBlockInfoCompressedSize + mdict.keyBlockMeta.keyBlockInfoStartOffset
 
-	mdict.KeyBlockInfo = keyBlockInfo
+	mdict.keyBlockInfo = keyBlockInfo
 
-	if int64(compressSizeAccumulator) != mdict.KeyBlockMeta.KeyBlockDataTotalSize {
-		return fmt.Errorf("key block data compress size not equals to meta key block data compress size(%d/%d)", compressSizeAccumulator, mdict.KeyBlockMeta.KeyBlockDataTotalSize)
+	if int64(compressSizeAccumulator) != mdict.keyBlockMeta.keyBlockDataTotalSize {
+		return fmt.Errorf("key block data compress size not equals to meta key block data compress size(%d/%d)", compressSizeAccumulator, mdict.keyBlockMeta.keyBlockDataTotalSize)
 	}
 
 	return nil
 
 }
 
-func (mdict *MdictBase) ReadKeyEntries() error {
-	file, err := os.Open(mdict.FilePath)
+func (mdict *MdictBase) readKeyEntries() error {
+	file, err := os.Open(mdict.filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
 	buffer, err := readFileFromPos(file,
-		mdict.KeyBlockInfo.KeyBlockEntriesStartOffset,
-		mdict.KeyBlockMeta.KeyBlockDataTotalSize)
+		mdict.keyBlockInfo.keyBlockEntriesStartOffset,
+		mdict.keyBlockMeta.keyBlockDataTotalSize)
 	if err != nil {
 		return err
 	}
@@ -501,24 +502,24 @@ func (mdict *MdictBase) decodeKeyEntries(keyBlockDataCompressBuffer []byte) erro
 	end := int64(0)
 	compAccu := int64(0)
 
-	keyBlockData := &MDictKeyBlockData{
-		KeyEntries:                 make([]*MDictKeyBlockEntry, 0),
-		KeyEntriesSize:             0,
-		RecordBlockMetaStartOffset: 0,
+	keyBlockData := &mdictKeyBlockData{
+		keyEntries:                 make([]*MDictKeywordEntry, 0),
+		keyEntriesSize:             0,
+		recordBlockMetaStartOffset: 0,
 	}
 
-	for idx := 0; idx < len(mdict.KeyBlockInfo.KeyBlockInfoList); idx++ {
+	for idx := 0; idx < len(mdict.keyBlockInfo.keyBlockInfoList); idx++ {
 
-		compressedSize := mdict.KeyBlockInfo.KeyBlockInfoList[idx].KeyBlockCompressSize
-		decompressedSize := mdict.KeyBlockInfo.KeyBlockInfoList[idx].KeyBlockDeCompressSize
+		compressedSize := mdict.keyBlockInfo.keyBlockInfoList[idx].keyBlockCompressSize
+		decompressedSize := mdict.keyBlockInfo.keyBlockInfoList[idx].keyBlockDeCompressSize
 
-		compAccu += mdict.KeyBlockInfo.KeyBlockInfoList[idx].KeyBlockCompressSize
+		compAccu += mdict.keyBlockInfo.keyBlockInfoList[idx].keyBlockCompressSize
 
 		end = start + compressedSize
 
-		if int64(start) != int64(mdict.KeyBlockInfo.KeyBlockInfoList[idx].KeyBlockCompAccumulator) {
+		if int64(start) != int64(mdict.keyBlockInfo.keyBlockInfoList[idx].keyBlockCompAccumulator) {
 			return fmt.Errorf("[%d] the key-block data start offset not equal to key block compress accumulator(%d/%d/%d)\n",
-				idx, start, mdict.KeyBlockInfo.KeyBlockInfoList[idx].KeyBlockCompAccumulator, compAccu)
+				idx, start, mdict.keyBlockInfo.keyBlockInfoList[idx].keyBlockCompAccumulator, compAccu)
 		}
 
 		kbCompType := keyBlockDataCompressBuffer[start : start+4]
@@ -563,8 +564,8 @@ func (mdict *MdictBase) decodeKeyEntries(keyBlockDataCompressBuffer []byte) erro
 
 		splitKeys := mdict.splitKeyBlock(key_block)
 
-		keyBlockData.KeyEntries = append(keyBlockData.KeyEntries, splitKeys...)
-		keyBlockData.KeyEntriesSize += int64(len(splitKeys))
+		keyBlockData.keyEntries = append(keyBlockData.keyEntries, splitKeys...)
+		keyBlockData.keyEntriesSize += int64(len(splitKeys))
 
 		//fmt.Printf("idx(%05d)[start:%05d/end:%05d/comps:%05d->datalen:%05d/compaccu:%d]\n", idx, start, end, compressedSize, len(key_block), compAccu)
 		//fmt.Printf("key_list %+v\n", splitKeys)
@@ -572,22 +573,22 @@ func (mdict *MdictBase) decodeKeyEntries(keyBlockDataCompressBuffer []byte) erro
 		start = end
 	}
 
-	if keyBlockData.KeyEntriesSize != mdict.KeyBlockMeta.EntriesNum {
+	if keyBlockData.keyEntriesSize != mdict.keyBlockMeta.entriesNum {
 		return errors.New("the key list items not equals to entries num")
 	}
-	keyBlockData.RecordBlockMetaStartOffset = mdict.KeyBlockInfo.KeyBlockEntriesStartOffset + mdict.KeyBlockMeta.KeyBlockDataTotalSize
+	keyBlockData.recordBlockMetaStartOffset = mdict.keyBlockInfo.keyBlockEntriesStartOffset + mdict.keyBlockMeta.keyBlockDataTotalSize
 
 	// keep key list in memory
-	mdict.KeyBlockData = keyBlockData
+	mdict.keyBlockData = keyBlockData
 
 	return nil
 }
 
-func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
+func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeywordEntry {
 	// delimiter := ""
 	width := 1
 
-	if mdict.Meta.Encoding == EncodingUtf16 || mdict.FileType == MdictTypeMdd {
+	if mdict.meta.encoding == EncodingUtf16 || mdict.fileType == MdictTypeMdd {
 		//delimiter = "0000"
 		width = 2
 	} else {
@@ -595,7 +596,7 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 		width = 1
 	}
 
-	keyList := make([]*MDictKeyBlockEntry, 0)
+	keyList := make([]*MDictKeywordEntry, 0)
 
 	keyStartIndex := 0
 	keyEndIndex := 0
@@ -604,14 +605,14 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 		// # the corresponding record's offset in record block
 		recordStartOffset := int64(0)
 
-		if mdict.Meta.NumberWidth == 8 {
-			recordStartOffset = int64(beBinToU64(keyBlock[keyStartIndex : keyStartIndex+mdict.Meta.NumberWidth]))
+		if mdict.meta.numberWidth == 8 {
+			recordStartOffset = int64(beBinToU64(keyBlock[keyStartIndex : keyStartIndex+mdict.meta.numberWidth]))
 		} else {
-			recordStartOffset = int64(beBinToU32(keyBlock[keyStartIndex : keyStartIndex+mdict.Meta.NumberWidth]))
+			recordStartOffset = int64(beBinToU32(keyBlock[keyStartIndex : keyStartIndex+mdict.meta.numberWidth]))
 		}
 
 		// # key text ends with '\x00'
-		i := keyStartIndex + mdict.Meta.NumberWidth
+		i := keyStartIndex + mdict.meta.numberWidth
 		for i < len(keyBlock) {
 			// delimiter = '0' || // delimiter = '00'
 			if (width == 1 && keyBlock[i] == 0) || (width == 2 && keyBlock[i] == 0 && keyBlock[i+1] == 0) {
@@ -621,18 +622,18 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 			i += width
 		}
 
-		keyTextBytes := keyBlock[keyStartIndex+mdict.Meta.NumberWidth : keyEndIndex]
+		keyTextBytes := keyBlock[keyStartIndex+mdict.meta.numberWidth : keyEndIndex]
 		keyText := string(keyTextBytes)
 		var err error
 
-		if mdict.Meta.Encoding == EncodingUtf16 {
+		if mdict.meta.encoding == EncodingUtf16 {
 			keyText, err = decodeLittleEndianUtf16(keyTextBytes)
 			if err != nil {
 				keyText = string(keyTextBytes)
 			}
 		}
 
-		if mdict.FileType == MdictTypeMdd {
+		if mdict.fileType == MdictTypeMdd {
 			keyText, err = decodeLittleEndianUtf16(keyTextBytes)
 			if err != nil {
 				panic(err)
@@ -640,7 +641,7 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 		}
 
 		keyStartIndex = keyEndIndex + width
-		keyList = append(keyList, &MDictKeyBlockEntry{
+		keyList = append(keyList, &MDictKeywordEntry{
 			RecordStartOffset: recordStartOffset,
 			KeyWord:           keyText,
 			KeyBlockIdx:       int64(keyStartIndex),
@@ -649,13 +650,13 @@ func (mdict *MdictBase) splitKeyBlock(keyBlock []byte) []*MDictKeyBlockEntry {
 			keyList[len(keyList)-2].RecordEndOffset = keyList[len(keyList)-1].RecordStartOffset
 		}
 	}
-	//keyList[len(keyList)-1].RecordEndOffset = 0
+	//keyList[len(keyList)-1].RecordLocateEndOffset = 0
 
 	return keyList
 }
 
-func (mdict *MdictBase) ReadRecordBlockMeta() error {
-	file, err := os.Open(mdict.FilePath)
+func (mdict *MdictBase) readRecordBlockMeta() error {
+	file, err := os.Open(mdict.filePath)
 	if err != nil {
 		return err
 	}
@@ -668,11 +669,11 @@ func (mdict *MdictBase) ReadRecordBlockMeta() error {
 	 *
 	 */
 	recordBlockMetaBufferLen := int64(16)
-	if mdict.Meta.Version >= 2.0 {
+	if mdict.meta.version >= 2.0 {
 		recordBlockMetaBufferLen = 32
 	}
 
-	recordBlockStartOffset := mdict.KeyBlockInfo.KeyBlockEntriesStartOffset + mdict.KeyBlockMeta.KeyBlockDataTotalSize
+	recordBlockStartOffset := mdict.keyBlockInfo.keyBlockEntriesStartOffset + mdict.keyBlockMeta.keyBlockDataTotalSize
 
 	buffer, err := readFileFromPos(file, recordBlockStartOffset, recordBlockMetaBufferLen)
 	if err != nil {
@@ -696,53 +697,53 @@ func (mdict *MdictBase) ReadRecordBlockMeta() error {
  * [24:32/12:16] - record block size
  */
 func (mdict *MdictBase) decodeRecordBlockMeta(data []byte, startOffset, endOffset int64) error {
-	recordBlockMeta := &MDictRecordBlockMeta{
-		KeyRecordMetaStartOffset: startOffset,
-		KeyRecordMetaEndOffset:   endOffset,
+	recordBlockMeta := &mdictRecordBlockMeta{
+		keyRecordMetaStartOffset: startOffset,
+		keyRecordMetaEndOffset:   endOffset,
 	}
 
 	keyRecordBuffer := data
 	offset := 0
 
-	if mdict.Meta.Version >= 2.0 {
-		recordBlockMeta.RecordBlockNum = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+	if mdict.meta.version >= 2.0 {
+		recordBlockMeta.recordBlockNum = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	} else {
-		recordBlockMeta.RecordBlockNum = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+		recordBlockMeta.recordBlockNum = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	}
 
-	offset += mdict.Meta.NumberWidth
+	offset += mdict.meta.numberWidth
 
-	if mdict.Meta.Version >= 2.0 {
-		recordBlockMeta.EntriesNum = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+	if mdict.meta.version >= 2.0 {
+		recordBlockMeta.entriesNum = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	} else {
-		recordBlockMeta.EntriesNum = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+		recordBlockMeta.entriesNum = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 
 	}
-	if recordBlockMeta.EntriesNum != mdict.KeyBlockMeta.EntriesNum {
-		return fmt.Errorf("keyEntriesNum != meta.EntriesNum")
+	if recordBlockMeta.entriesNum != mdict.keyBlockMeta.entriesNum {
+		return fmt.Errorf("keyEntriesNum != meta.entriesNum")
 	}
 
-	offset += mdict.Meta.NumberWidth
-	if mdict.Meta.Version >= 2.0 {
-		recordBlockMeta.RecordBlockInfoCompSize = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+	offset += mdict.meta.numberWidth
+	if mdict.meta.version >= 2.0 {
+		recordBlockMeta.recordBlockInfoCompSize = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	} else {
-		recordBlockMeta.RecordBlockInfoCompSize = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+		recordBlockMeta.recordBlockInfoCompSize = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	}
 
-	offset += mdict.Meta.NumberWidth
+	offset += mdict.meta.numberWidth
 
-	if mdict.Meta.Version >= 2.0 {
-		recordBlockMeta.RecordBlockCompSize = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+	if mdict.meta.version >= 2.0 {
+		recordBlockMeta.recordBlockCompSize = int64(beBinToU64(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	} else {
-		recordBlockMeta.RecordBlockCompSize = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.Meta.NumberWidth]))
+		recordBlockMeta.recordBlockCompSize = int64(beBinToU32(keyRecordBuffer[offset : offset+mdict.meta.numberWidth]))
 	}
 
-	mdict.RecordBlockMeta = recordBlockMeta
+	mdict.recordBlockMeta = recordBlockMeta
 	return nil
 }
 
-func (mdict *MdictBase) ReadRecordBlockInfo() error {
-	file, err := os.Open(mdict.FilePath)
+func (mdict *MdictBase) readRecordBlockInfo() error {
+	file, err := os.Open(mdict.filePath)
 	if err != nil {
 		return err
 	}
@@ -754,8 +755,8 @@ func (mdict *MdictBase) ReadRecordBlockInfo() error {
 	 * [24:32/12:16] - record block size
 	 *
 	 */
-	recordBlockInfoStartOffset := mdict.RecordBlockMeta.KeyRecordMetaEndOffset
-	recordBlockInfoLen := mdict.RecordBlockMeta.RecordBlockInfoCompSize
+	recordBlockInfoStartOffset := mdict.recordBlockMeta.keyRecordMetaEndOffset
+	recordBlockInfoLen := mdict.recordBlockMeta.recordBlockInfoCompSize
 
 	buffer, err := readFileFromPos(file, recordBlockInfoStartOffset, recordBlockInfoLen)
 	if err != nil {
@@ -771,267 +772,164 @@ func (mdict *MdictBase) ReadRecordBlockInfo() error {
 
 func (mdict *MdictBase) decodeRecordBlockInfo(data []byte, startOffset, endOffset int64) error {
 
-	recordBlockInfoList := make([]*MDictRecordBlockInfoListItem, 0)
+	recordBlockInfoList := make([]*MdictRecordBlockInfoListItem, 0)
 	var offset = 0
 	var compAccu = int64(0)
 	var decompAccu = int64(0)
 	var i = int64(0)
 
-	for i = int64(0); i < mdict.RecordBlockMeta.RecordBlockNum; i++ {
+	for i = int64(0); i < mdict.recordBlockMeta.recordBlockNum; i++ {
 		compSize := int64(0)
-		if mdict.Meta.Version >= 2.0 {
-			compSize = int64(beBinToU64(data[offset : offset+mdict.Meta.NumberWidth]))
+		if mdict.meta.version >= 2.0 {
+			compSize = int64(beBinToU64(data[offset : offset+mdict.meta.numberWidth]))
 		} else {
-			compSize = int64(beBinToU32(data[offset : offset+mdict.Meta.NumberWidth]))
+			compSize = int64(beBinToU32(data[offset : offset+mdict.meta.numberWidth]))
 		}
-		offset += mdict.Meta.NumberWidth
+		offset += mdict.meta.numberWidth
 
 		decompSize := int64(0)
-		if mdict.Meta.Version >= 2.0 {
-			decompSize = int64(beBinToU64(data[offset : offset+mdict.Meta.NumberWidth]))
+		if mdict.meta.version >= 2.0 {
+			decompSize = int64(beBinToU64(data[offset : offset+mdict.meta.numberWidth]))
 		} else {
-			decompSize = int64(beBinToU32(data[offset : offset+mdict.Meta.NumberWidth]))
+			decompSize = int64(beBinToU32(data[offset : offset+mdict.meta.numberWidth]))
 		}
-		offset += mdict.Meta.NumberWidth
+		offset += mdict.meta.numberWidth
 
 		// then assign
-		recordBlockInfoList = append(recordBlockInfoList, &MDictRecordBlockInfoListItem{
-			CompressSize:                compSize,
-			DeCompressSize:              decompSize,
-			CompressAccumulatorOffset:   compAccu,
-			DeCompressAccumulatorOffset: decompAccu,
+		recordBlockInfoList = append(recordBlockInfoList, &MdictRecordBlockInfoListItem{
+			compressSize:                compSize,
+			deCompressSize:              decompSize,
+			compressAccumulatorOffset:   compAccu,
+			deCompressAccumulatorOffset: decompAccu,
 		})
 
 		// accu last
 		compAccu += compSize
 		decompAccu += decompSize
 	}
-	if int64(i) != mdict.RecordBlockMeta.RecordBlockNum {
-		return fmt.Errorf("RecordBlockInfo (i) not equals to meta.RecordBlockNum [%d/%d] compA/decompA(%d/%d)", i, mdict.RecordBlockMeta.RecordBlockNum, compAccu, decompAccu)
+	if int64(i) != mdict.recordBlockMeta.recordBlockNum {
+		return fmt.Errorf("recordBlockInfo (i) not equals to meta.recordBlockNum [%d/%d] compA/decompA(%d/%d)", i, mdict.recordBlockMeta.recordBlockNum, compAccu, decompAccu)
 	}
-	if int64(offset) != mdict.RecordBlockMeta.RecordBlockInfoCompSize {
-		return errors.New("RecordBlockInfo offset not equals to meta.RecordBlockInfoCompSize")
+	if int64(offset) != mdict.recordBlockMeta.recordBlockInfoCompSize {
+		return errors.New("recordBlockInfo offset not equals to meta.recordBlockInfoCompSize")
 	}
-	if int64(compAccu) != mdict.RecordBlockMeta.RecordBlockCompSize {
-		return errors.New("RecordBlockInfo compAccu not equals to meta.RecordBlockCompSize")
-	}
-
-	recordBlockInfo := &MDictRecordBlockInfo{
-		RecordInfoList:             recordBlockInfoList,
-		RecordBlockInfoStartOffset: startOffset,
-		RecordBlockInfoEndOffset:   endOffset,
-		RecordBlockDataStartOffset: endOffset,
+	if int64(compAccu) != mdict.recordBlockMeta.recordBlockCompSize {
+		return errors.New("recordBlockInfo compAccu not equals to meta.recordBlockCompSize")
 	}
 
-	mdict.RecordBlockInfo = recordBlockInfo
+	recordBlockInfo := &mdictRecordBlockInfo{
+		recordInfoList:             recordBlockInfoList,
+		recordBlockInfoStartOffset: startOffset,
+		recordBlockInfoEndOffset:   endOffset,
+		recordBlockDataStartOffset: endOffset,
+	}
+
+	mdict.recordBlockInfo = recordBlockInfo
 
 	return nil
 }
 
-func (mdict *MdictBase) ReadRecordBlockData() error {
-	file, err := os.Open(mdict.FilePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	recordBlockInfoStartOffset := mdict.RecordBlockInfo.RecordBlockDataStartOffset
-
-	recordBlockInfoLen := mdict.RecordBlockInfo.RecordInfoList[len(mdict.RecordBlockInfo.RecordInfoList)-1].CompressAccumulatorOffset
-
-	buffer, err := readFileFromPos(file, recordBlockInfoStartOffset, recordBlockInfoLen)
-	if err != nil {
-		return err
-	}
-
-	err = mdict.decodeRecordBlockData(buffer, recordBlockInfoStartOffset, recordBlockInfoStartOffset+recordBlockInfoLen)
-	if err != nil {
-		return err
-	}
-	return nil
+func (mdict *MdictBase) buildRecordRangeTree() {
+	BuildRangeTree(mdict.recordBlockInfo.recordInfoList, mdict.rangeTreeRoot)
 }
 
-// TODO FIX THIS, 这个方法尚未实现
-func (mdict *MdictBase) decodeRecordBlockData(data []byte, startOffset, endOffset int64) error {
+func (mdict *MdictBase) keywordEntryToIndex(item *MDictKeywordEntry) (*MDictKeywordIndex, error) {
+	recordBlockInfo := QueryRangeData(mdict.rangeTreeRoot, item.RecordStartOffset)
 
-	var sizeCounter = int64(0)
-	var itemCounter = int64(0)
-	var recordBlockOffset = int64(0)
-	var recordCompType = "NONE"
-
-	var recordBlockData = &MDictRecordBlockData{
-		RecordBlockStartOffset: startOffset,
-		RecordBlockEndOffset:   endOffset,
-		RecordItemList:         make([]*MDictRecordDataItem, 0),
+	if recordBlockInfo == nil {
+		return nil, errors.New("key-item record info not found")
 	}
 
-	for idx := 0; idx < len(mdict.RecordBlockInfo.RecordInfoList); idx++ {
-		var recordBlockCompSize = mdict.RecordBlockInfo.RecordInfoList[idx].CompressSize
-		var recordBlockDecompSize = mdict.RecordBlockInfo.RecordInfoList[idx].DeCompressSize
-		var recordBlockDataCompBuff = data[recordBlockOffset : recordBlockOffset+recordBlockCompSize]
-		var recordBlockCompressAccumulator = mdict.RecordBlockInfo.RecordInfoList[idx].CompressAccumulatorOffset
-		var recordBlockDeCompressAccumulator = mdict.RecordBlockInfo.RecordInfoList[idx].DeCompressAccumulatorOffset
+	recordBlockStartOffset := recordBlockInfo.compressAccumulatorOffset + mdict.recordBlockInfo.recordBlockDataStartOffset
+	recordBlockLen := recordBlockInfo.compressSize
 
-		// 4 bytes: compression type
-		var rbCompType = recordBlockDataCompBuff[0:4]
-
-		// record_block stores the final record data
-		var recordBlock []byte
-
-		// TODO: igore adler32 offset
-		// Note: here ignore the checksum part
-		// bytes: adler32 checksum of decompressed record block
-		// adler32 = unpack('>I', record_block_compressed[4:8])[0]
-		if rbCompType[0] == 0 {
-			recordBlock = recordBlockDataCompBuff[8 : 8+recordBlockCompSize]
-			recordCompType = "NONE"
-		} else {
-			// decrypt
-			var blockBufDecrypted []byte
-			// if encrypt type == 1, the record block was encrypted
-			if mdict.Meta.EncryptType == EncryptRecordEnc {
-				// const passkey = new Uint8Array(8);
-				// record_block_compressed.copy(passkey, 0, 4, 8);
-				// passkey.set([0x95, 0x36, 0x00, 0x00], 4); // key part 2: fixed data
-				blockBufDecrypted = mdxDecrypt(recordBlockDataCompBuff, recordBlockCompSize)
-			} else {
-				blockBufDecrypted = recordBlockDataCompBuff[8:recordBlockCompSize]
-			}
-
-			// decompress
-			if rbCompType[0] == 1 {
-				// TODO the second part
-				recordCompType = "LZOX1"
-				header := []byte{0xf0, byte(int(recordBlockDecompSize))}
-				// # decompress key block
-				reader := bytes.NewReader(append(header, blockBufDecrypted...))
-
-				out, err1 := lzo.Decompress1X(reader, 0, 0 /* decompressedSize, 1308672*/)
-				if err1 != nil {
-					return err1
-				}
-
-				recordBlock = out
-
-			} else if rbCompType[0] == 2 {
-				recordCompType = "ZLIB"
-				var err error
-				recordBlock, err = zlibDecompress(blockBufDecrypted, 0, int64(len(blockBufDecrypted)))
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		// notice that adler32 return signed value
-		// TODO: ignore the checksum
-		// assert(adler32 == zlib.adler32(record_block) & 0xffffffff)
-
-		if int64(len(recordBlock)) != recordBlockDecompSize {
-			return errors.New("recordBlock length not equals decompress Size")
-		}
-
-		/**
-		 * 请注意，block 是会有很多个的，而每个block都可能会被压缩
-		 * 而 key_list中的 record_start, key_text是相对每一个block而言的，end是需要每次解析的时候算出来的
-		 * 所有的record_start/length/end都是针对解压后的block而言的
-		 */
-
-		// split record block according to the offset info from key block
-		//var offset = int64(0)
-		keyblockEntry := mdict.KeyBlockData.KeyEntries
-		for i := 0; i < len(keyblockEntry); i++ {
-
-			var recordEntryStart = keyblockEntry[i].RecordStartOffset
-			var keyText = keyblockEntry[i].KeyWord
-			// # reach the end of current record block
-			//if recordEntryStart-offset >= int64(len(recordBlock)) {
-			//	break
-			//}
-			// # record end index
-			var recordEntryEnd int64 = 0
-			if i < len(keyblockEntry)-1 {
-				recordEntryEnd = int64(keyblockEntry[i+1].RecordStartOffset)
-			} else {
-				//recordEntryEnd = int64(len(mdict.KeyBlockData.KeyList)) + offset
-				recordEntryEnd = endOffset
-			}
-
-			//fmt.Printf("keyText: %s, recordEntryStart: %d, recordEntryEnd:%d\n", keyText, recordEntryStart, recordEntryEnd)
-
-			recordBlockData.RecordItemList = append(recordBlockData.RecordItemList,
-				&MDictRecordDataItem{
-					KeyWord:                          keyText,
-					RecordBlockCompressStart:         recordBlockOffset,
-					RecordBlockCompressEnd:           recordBlockOffset + recordBlockCompSize,
-					RecordBlockCompressSize:          recordBlockCompSize,
-					RecordBlockDeCompressSize:        recordBlockDecompSize,
-					RecordBlockCompressType:          recordCompType,
-					RecordBlockEncrypted:             mdict.Meta.EncryptType == EncryptRecordEnc,
-					RecordBlockFileRelativeOffset:    recordBlockOffset + mdict.RecordBlockInfo.RecordBlockDataStartOffset,
-					RecordBlockCompressAccumulator:   recordBlockCompressAccumulator,
-					RecordBlockDeCompressAccumulator: recordBlockDeCompressAccumulator,
-
-					RecordEntryIndex:           int64(itemCounter),
-					RecordEntryDecompressStart: recordEntryStart,
-					RecordEntryDecompressEnd:   recordEntryEnd,
-
-					RecordInfoIndex: int64(idx),
-				})
-
-			itemCounter++
-		}
-
-		recordBlockOffset += recordBlockCompSize
-		//offset += int64(len(recordBlock))
-		sizeCounter += recordBlockCompSize
+	start := item.RecordStartOffset - recordBlockInfo.deCompressAccumulatorOffset
+	var end int64
+	if item.RecordEndOffset == 0 {
+		end = recordBlockLen
+	} else {
+		end = item.RecordEndOffset - recordBlockInfo.deCompressAccumulatorOffset
 	}
 
-	if sizeCounter != mdict.RecordBlockMeta.RecordBlockCompSize {
-		return fmt.Errorf("record entries compressed size sum not equals record block compress size(%d/%d)", sizeCounter, mdict.RecordBlockMeta.RecordBlockCompSize)
-	}
+	return &MDictKeywordIndex{
+		KeywordEntry: *item,
+		RecordBlock: MDictKeywordIndexRecordBlock{
+			DataStartOffset:          recordBlockStartOffset,
+			CompressSize:             recordBlockInfo.compressSize,
+			DeCompressSize:           recordBlockInfo.deCompressSize,
+			KeyWordPartStartOffset:   start,
+			KeyWordPartDataEndOffset: end,
+		},
+	}, nil
 
-	mdict.RecordBlockData = recordBlockData
-
-	return nil
 }
 
-func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte, error) {
-	file, err := os.Open(mdict.FilePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+func (mdict *MdictBase) keywordEntryToIndex2(item *MDictKeywordEntry) (*MDictKeywordIndex, error) {
 
-	var recordBlockInfo *MDictRecordBlockInfoListItem
+	var recordBlockInfo *MdictRecordBlockInfoListItem
 
 	var i = 0
-	for ; i < len(mdict.RecordBlockInfo.RecordInfoList)-1; i++ {
-		curr := mdict.RecordBlockInfo.RecordInfoList[i]
-		next := mdict.RecordBlockInfo.RecordInfoList[i+1]
-		if item.RecordStartOffset >= curr.DeCompressAccumulatorOffset && item.RecordStartOffset < next.DeCompressAccumulatorOffset {
+	for ; i < len(mdict.recordBlockInfo.recordInfoList)-1; i++ {
+		curr := mdict.recordBlockInfo.recordInfoList[i]
+		next := mdict.recordBlockInfo.recordInfoList[i+1]
+		if item.RecordStartOffset >= curr.deCompressAccumulatorOffset && item.RecordStartOffset < next.deCompressAccumulatorOffset {
 			recordBlockInfo = curr
 			break
 		}
 	}
 
 	// the last one
-	if i == len(mdict.RecordBlockInfo.RecordInfoList)-1 {
-		lastOne := mdict.RecordBlockInfo.RecordInfoList[len(mdict.RecordBlockInfo.RecordInfoList)-1]
-		if item.RecordStartOffset < lastOne.DeCompressAccumulatorOffset+lastOne.DeCompressSize {
+	if i == len(mdict.recordBlockInfo.recordInfoList)-1 {
+		lastOne := mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1]
+		if item.RecordStartOffset < lastOne.deCompressAccumulatorOffset+lastOne.deCompressSize {
 			recordBlockInfo = lastOne
 		}
 	}
 
 	if recordBlockInfo == nil {
-		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last RecordBlockInfo: %+v\n", item, mdict.RecordBlockInfo.RecordInfoList[len(mdict.RecordBlockInfo.RecordInfoList)-1])
+		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last recordBlockInfo: %+v\n", item, mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1])
 		return nil, errors.New("key-item record info not found")
 	}
 
-	recordBlockStartOffset := recordBlockInfo.CompressAccumulatorOffset + mdict.RecordBlockInfo.RecordBlockDataStartOffset
-	recordBlockLen := recordBlockInfo.CompressSize
+	recordBlockStartOffset := recordBlockInfo.compressAccumulatorOffset + mdict.recordBlockInfo.recordBlockDataStartOffset
+	recordBlockLen := recordBlockInfo.compressSize
 
-	recordBlockDataCompBuff, err := readFileFromPos(file, recordBlockStartOffset, recordBlockLen)
+	start := item.RecordStartOffset - recordBlockInfo.deCompressAccumulatorOffset
+	var end int64
+	if item.RecordEndOffset == 0 {
+		end = int64(recordBlockLen)
+	} else {
+		end = item.RecordEndOffset - recordBlockInfo.deCompressAccumulatorOffset
+	}
+
+	return &MDictKeywordIndex{
+		KeywordEntry: *item,
+		RecordBlock: MDictKeywordIndexRecordBlock{
+			DataStartOffset:          recordBlockStartOffset,
+			CompressSize:             recordBlockInfo.compressSize,
+			DeCompressSize:           recordBlockInfo.deCompressSize,
+			KeyWordPartStartOffset:   start,
+			KeyWordPartDataEndOffset: end,
+		},
+	}, nil
+
+}
+
+func (mdict *MdictBase) locateByKeywordIndex(index *MDictKeywordIndex) ([]byte, error) {
+	return locateDefByKWIndex(index,
+		mdict.filePath,
+		mdict.meta.encryptType == EncryptRecordEnc,
+		mdict.fileType == MdictTypeMdd,
+		mdict.meta.encoding == EncodingUtf16)
+}
+
+func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncrypted, isMdd, isUtf16 bool) ([]byte, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	recordBlockDataCompBuff, err := readFileFromPos(file, index.RecordBlock.DataStartOffset, index.RecordBlock.CompressSize)
 	if err != nil {
 		return nil, err
 	}
@@ -1047,24 +945,24 @@ func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte
 	// bytes: adler32 checksum of decompressed record block
 	// adler32 = unpack('>I', record_block_compressed[4:8])[0]
 	if rbCompType[0] == 0 {
-		recordBlock = recordBlockDataCompBuff[8:recordBlockInfo.CompressSize]
+		recordBlock = recordBlockDataCompBuff[8:index.RecordBlock.CompressSize]
 	} else {
 		// decrypt
 		var blockBufDecrypted []byte
 		// if encrypt type == 1, the record block was encrypted
-		if mdict.Meta.EncryptType == EncryptRecordEnc {
+		if isRecordEncrypted {
 			// const passkey = new Uint8Array(8);
 			// record_block_compressed.copy(passkey, 0, 4, 8);
 			// passkey.set([0x95, 0x36, 0x00, 0x00], 4); // key part 2: fixed data
-			blockBufDecrypted = mdxDecrypt(recordBlockDataCompBuff, recordBlockInfo.CompressSize)
+			blockBufDecrypted = mdxDecrypt(recordBlockDataCompBuff, index.RecordBlock.CompressSize)
 		} else {
-			blockBufDecrypted = recordBlockDataCompBuff[8:recordBlockInfo.CompressSize]
+			blockBufDecrypted = recordBlockDataCompBuff[8:index.RecordBlock.CompressSize]
 		}
 
 		// decompress
 		if rbCompType[0] == 1 {
 			// TODO the second part
-			header := []byte{0xf0, byte(int(recordBlockInfo.CompressSize))}
+			header := []byte{0xf0, byte(int(index.RecordBlock.CompressSize))}
 			// # decompress key block
 			reader := bytes.NewReader(append(header, blockBufDecrypted...))
 
@@ -1088,25 +986,140 @@ func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte
 	// notice that adler32 return signed value
 	// assert(adler32 == zlib.adler32(record_block) & 0xffffffff)
 
-	if int64(len(recordBlock)) != recordBlockInfo.DeCompressSize {
+	if int64(len(recordBlock)) != index.RecordBlock.DeCompressSize {
 		return nil, errors.New("recordBlock length not equals decompress Size")
 	}
 
-	start := item.RecordStartOffset - recordBlockInfo.DeCompressAccumulatorOffset
+	start := index.RecordBlock.KeyWordPartStartOffset
+	end := index.RecordBlock.KeyWordPartDataEndOffset
+
+	data := recordBlock[start:end]
+
+	if isMdd {
+		return data, nil
+	}
+
+	if isUtf16 {
+		datastr, err1 := decodeLittleEndianUtf16(data)
+		if err1 != nil {
+			return nil, err
+		}
+		return []byte(datastr), nil
+	}
+	return data, nil
+}
+
+func (mdict *MdictBase) locateByKeywordEntry(item *MDictKeywordEntry) ([]byte, error) {
+	file, err := os.Open(mdict.filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var recordBlockInfo *MdictRecordBlockInfoListItem
+
+	var i = 0
+	for ; i < len(mdict.recordBlockInfo.recordInfoList)-1; i++ {
+		curr := mdict.recordBlockInfo.recordInfoList[i]
+		next := mdict.recordBlockInfo.recordInfoList[i+1]
+		if item.RecordStartOffset >= curr.deCompressAccumulatorOffset && item.RecordStartOffset < next.deCompressAccumulatorOffset {
+			recordBlockInfo = curr
+			break
+		}
+	}
+
+	// the last one
+	if i == len(mdict.recordBlockInfo.recordInfoList)-1 {
+		lastOne := mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1]
+		if item.RecordStartOffset < lastOne.deCompressAccumulatorOffset+lastOne.deCompressSize {
+			recordBlockInfo = lastOne
+		}
+	}
+
+	if recordBlockInfo == nil {
+		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last recordBlockInfo: %+v\n", item, mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1])
+		return nil, errors.New("key-item record info not found")
+	}
+
+	recordBlockStartOffset := recordBlockInfo.compressAccumulatorOffset + mdict.recordBlockInfo.recordBlockDataStartOffset
+	recordBlockLen := recordBlockInfo.compressSize
+
+	recordBlockDataCompBuff, err := readFileFromPos(file, recordBlockStartOffset, recordBlockLen)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4 bytes: compression type
+	var rbCompType = recordBlockDataCompBuff[0:4]
+
+	// record_block stores the final record data
+	var recordBlock []byte
+
+	// TODO: ignore adler32 offset
+	// Note: here ignore the checksum part
+	// bytes: adler32 checksum of decompressed record block
+	// adler32 = unpack('>I', record_block_compressed[4:8])[0]
+	if rbCompType[0] == 0 {
+		recordBlock = recordBlockDataCompBuff[8:recordBlockInfo.compressSize]
+	} else {
+		// decrypt
+		var blockBufDecrypted []byte
+		// if encrypt type == 1, the record block was encrypted
+		if mdict.meta.encryptType == EncryptRecordEnc {
+			// const passkey = new Uint8Array(8);
+			// record_block_compressed.copy(passkey, 0, 4, 8);
+			// passkey.set([0x95, 0x36, 0x00, 0x00], 4); // key part 2: fixed data
+			blockBufDecrypted = mdxDecrypt(recordBlockDataCompBuff, recordBlockInfo.compressSize)
+		} else {
+			blockBufDecrypted = recordBlockDataCompBuff[8:recordBlockInfo.compressSize]
+		}
+
+		// decompress
+		if rbCompType[0] == 1 {
+			// TODO the second part
+			header := []byte{0xf0, byte(int(recordBlockInfo.compressSize))}
+			// # decompress key block
+			reader := bytes.NewReader(append(header, blockBufDecrypted...))
+
+			out, err1 := lzo.Decompress1X(reader, 0, 0 /* decompressedSize, 1308672*/)
+			if err1 != nil {
+				return nil, err1
+			}
+
+			recordBlock = out
+
+		} else if rbCompType[0] == 2 {
+			var err2 error
+			recordBlock, err2 = zlibDecompress(blockBufDecrypted, 0, int64(len(blockBufDecrypted)))
+			if err2 != nil {
+				return nil, err2
+			}
+		}
+	}
+
+	// TODO: ignore the checksum
+	// notice that adler32 return signed value
+	// assert(adler32 == zlib.adler32(record_block) & 0xffffffff)
+
+	if int64(len(recordBlock)) != recordBlockInfo.deCompressSize {
+		return nil, errors.New("recordBlock length not equals decompress Size")
+	}
+
+	start := item.RecordStartOffset - recordBlockInfo.deCompressAccumulatorOffset
 	var end int64
 	if item.RecordEndOffset == 0 {
 		end = int64(len(recordBlock))
 	} else {
-		end = item.RecordEndOffset - recordBlockInfo.DeCompressAccumulatorOffset
+		end = item.RecordEndOffset - recordBlockInfo.deCompressAccumulatorOffset
 	}
 
 	data := recordBlock[start:end]
 
-	if mdict.FileType == MdictTypeMdd {
+	if mdict.fileType == MdictTypeMdd {
 		return data, nil
 	}
 
-	if mdict.Meta.Encoding == EncodingUtf16 {
+	if mdict.meta.encoding == EncodingUtf16 {
 		datastr, err1 := decodeLittleEndianUtf16(data)
 		if err1 != nil {
 			return nil, err
@@ -1115,4 +1128,8 @@ func (mdict *MdictBase) LocateRecordDefinition(item *MDictKeyBlockEntry) ([]byte
 	}
 	return data, nil
 
+}
+
+func (mdict *MdictBase) getKeyWordEntries() ([]*MDictKeywordEntry, error) {
+	return mdict.keyBlockData.keyEntries, nil
 }

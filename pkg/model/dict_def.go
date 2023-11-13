@@ -101,15 +101,32 @@ func (dict *DictionaryItem) ToPlain() *PlainDictionaryItem {
 const IndexTypeMdict = "IndexTypeMdict"
 const IndexTypeStardict = "IndexTypeMdict"
 
-type KeyIndex struct {
+type KeyQueryIndex struct {
 	IndexType string `json:"index_type"`
-	*KeyBlockEntry
+	*MdictKeyWordIndex
 }
 
-type KeyBlockEntry struct {
-	ID                int    `json:"id"`
-	RecordStartOffset int64  `json:"record_start_offset"`
-	RecordEndOffset   int64  `json:"record_end_offset"`
-	KeyWord           string `json:"key_word"`
-	KeyBlockIdx       int64  `json:"key_block_idx"`
+type MdictKeyWordIndex struct {
+	ID                            int    `json:"id"`
+	KeyWord                       string `json:"key_word"`
+	RecordLocateStartOffset       int64  `json:"record_start_offset"`
+	RecordLocateEndOffset         int64  `json:"record_end_offset"`
+	IsUTF16                       int    `json:"is_utf16"`
+	IsRecordEncrypt               int    `json:"is_record_encrypt"`
+	IsMDD                         int    `json:"is_mdd"`
+	RecordBlockDataStartOffset    int64  `json:"record_block_data_start_offset"`
+	RecordBlockDataCompressSize   int64  `json:"record_block_data_compress_size"`
+	RecordBlockDataDeCompressSize int64  `json:"record_block_data_de_compress_size"`
+	KeyWordDataStartOffset        int64  `json:"key_word_data_start_offset"`
+	KeyWordDataEndOffset          int64  `json:"key_word_data_end_offset"`
+}
+
+type MdictMeta struct {
+	ID               string
+	Title            string
+	Filepath         string
+	Description      string
+	IsRecordEncoding bool
+	IsUTF16          bool
+	IsMDD            bool
 }

@@ -42,7 +42,7 @@ func (r ReplacerCss) SetDictContext(item *model.DictionaryItem) {
 	r.mdict = item
 }
 
-func (r *ReplacerCss) Replace(dictId string, entry *model.KeyBlockEntry, html string) (*model.KeyBlockEntry, string) {
+func (r *ReplacerCss) Replace(dictId string, entry *model.MdictKeyWordIndex, html string) (*model.MdictKeyWordIndex, string) {
 
 	if html == "" || dictId == "" {
 		return entry, html

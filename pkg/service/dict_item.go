@@ -21,6 +21,8 @@ import (
 	"errors"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service/mdict_svc"
+	"github.com/terasum/medict/pkg/service/stardict_svc"
 	"os"
 )
 
@@ -58,14 +60,14 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 	}
 
 	if dirItem.DictType == model.DictTypeMdict {
-		dict, err := NewMdict(dirItem)
+		dict, err := mdict_svc.NewMdictSvc(dirItem)
 		if err != nil {
 			return nil, err
 		}
 		dictItem.MainDict = dict
 		dictItem.Name = dict.Name()
 	} else if dirItem.DictType == model.DictTypeStarDict {
-		dict, err := NewStardict(dirItem)
+		dict, err := stardict_svc.NewStardict(dirItem)
 		if err != nil {
 			return nil, err
 		}

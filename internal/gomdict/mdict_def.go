@@ -36,132 +36,132 @@ const (
 )
 
 type MdictBase struct {
-	FilePath string
-	FileType MdictType
-	Meta     *MDictMeta
+	filePath string
+	fileType MdictType
+	meta     *mdictMeta
 
-	Header       *MDictHeader
-	KeyBlockMeta *MDictKeyBlockMeta
-	KeyBlockInfo *MDictKeyBlockInfo
-	KeyBlockData *MDictKeyBlockData
+	header       *mdictHeader
+	keyBlockMeta *mdictKeyBlockMeta
+	keyBlockInfo *mdictKeyBlockInfo
+	keyBlockData *mdictKeyBlockData
 
-	RecordBlockMeta *MDictRecordBlockMeta
-	RecordBlockInfo *MDictRecordBlockInfo
-	RecordBlockData *MDictRecordBlockData
+	recordBlockMeta *mdictRecordBlockMeta
+	recordBlockInfo *mdictRecordBlockInfo
+	//RecordBlockData *MDictRecordBlockData
+
+	rangeTreeRoot *RecordBlockRangeTreeNode
 }
 
-type MDictHeader struct {
-	HeaderBytesSize          uint32
-	HeaderInfoBytes          []byte
-	HeaderInfo               string
-	Adler32Checksum          uint32
-	DictionaryHeaderByteSize int64
+/********************************
+ *    private data type          *
+ ********************************/
+type mdictHeader struct {
+	headerBytesSize          uint32
+	headerInfoBytes          []byte
+	headerInfo               string
+	adler32Checksum          uint32
+	dictionaryHeaderByteSize int64
 }
 
-type MDictMeta struct {
-	EncryptType  int
-	Version      float32
-	NumberWidth  int
-	NumberFormat int
-	Encoding     int
+type mdictMeta struct {
+	encryptType  int
+	version      float32
+	numberWidth  int
+	numberFormat int
+	encoding     int
 
 	// key-block part bytes start offset in the mdx/mdd file
-	KeyBlockMetaStartOffset int64
+	keyBlockMetaStartOffset int64
 
-	Description              string
-	Title                    string
-	CreationDate             string
-	GeneratedByEngineVersion string
+	description              string
+	title                    string
+	creationDate             string
+	generatedByEngineVersion string
 }
 
-type MDictKeyBlockMeta struct {
-	// KeyBlockNum key block number size
-	KeyBlockNum int64
+type mdictKeyBlockMeta struct {
+	// keyBlockNum key block number size
+	keyBlockNum int64
 	// entriesNums entries number size
-	EntriesNum int64
+	entriesNum int64
 	// key-block information size (decompressed)
-	KeyBlockInfoDecompressSize int64
+	keyBlockInfoDecompressSize int64
 	// key-block information size (compressed)
-	KeyBlockInfoCompressedSize int64
+	keyBlockInfoCompressedSize int64
 	// key-block Data Size (decompressed)
-	KeyBlockDataTotalSize int64
+	keyBlockDataTotalSize int64
 	// key-block information start position in the mdx/mdd file
-	KeyBlockInfoStartOffset int64
+	keyBlockInfoStartOffset int64
 }
 
-type MDictKeyBlockInfo struct {
-	KeyBlockEntriesStartOffset int64
-	KeyBlockInfoList           []*MDictKeyBlockInfoItem
+type mdictKeyBlockInfo struct {
+	keyBlockEntriesStartOffset int64
+	keyBlockInfoList           []*mdictKeyBlockInfoItem
 }
 
-type MDictKeyBlockInfoItem struct {
-	FirstKey                      string
-	FirstKeySize                  int
-	LastKey                       string
-	LastKeySize                   int
-	KeyBlockInfoIndex             int
-	KeyBlockCompressSize          int64
-	KeyBlockCompAccumulator       int64
-	KeyBlockDeCompressSize        int64
-	KeyBlockDeCompressAccumulator int64
+type mdictKeyBlockInfoItem struct {
+	firstKey                      string
+	firstKeySize                  int
+	lastKey                       string
+	lastKeySize                   int
+	keyBlockInfoIndex             int
+	keyBlockCompressSize          int64
+	keyBlockCompAccumulator       int64
+	keyBlockDeCompressSize        int64
+	keyBlockDeCompressAccumulator int64
 }
 
-type MDictKeyBlockData struct {
-	KeyEntries                 []*MDictKeyBlockEntry
-	KeyEntriesSize             int64
-	RecordBlockMetaStartOffset int64
+type mdictKeyBlockData struct {
+	keyEntries                 []*MDictKeywordEntry
+	keyEntriesSize             int64
+	recordBlockMetaStartOffset int64
 }
 
-type MDictKeyBlockEntry struct {
+type mdictRecordBlockMeta struct {
+	keyRecordMetaStartOffset int64
+	keyRecordMetaEndOffset   int64
+
+	recordBlockNum          int64
+	entriesNum              int64
+	recordBlockInfoCompSize int64
+	recordBlockCompSize     int64
+}
+type mdictRecordBlockInfo struct {
+	recordInfoList             []*MdictRecordBlockInfoListItem
+	recordBlockInfoStartOffset int64
+	recordBlockInfoEndOffset   int64
+	recordBlockDataStartOffset int64
+}
+
+type MdictRecordBlockInfoListItem struct {
+	compressSize                int64
+	deCompressSize              int64
+	compressAccumulatorOffset   int64
+	deCompressAccumulatorOffset int64
+}
+
+/********************************
+ *    public data type          *
+ ********************************/
+
+type MDictKeywordEntry struct {
 	RecordStartOffset int64
 	RecordEndOffset   int64
 	KeyWord           string
 	KeyBlockIdx       int64
 }
 
-type MDictRecordBlockData struct {
-	RecordItemList         []*MDictRecordDataItem
-	RecordBlockStartOffset int64
-	RecordBlockEndOffset   int64
+type MDictKeywordIndex struct {
+	//encoding                            int
+	//encryptType                         int
+	KeywordEntry MDictKeywordEntry
+	RecordBlock  MDictKeywordIndexRecordBlock
 }
 
-type MDictRecordDataItem struct {
-	KeyWord                          string
-	RecordEntryIndex                 int64
-	RecordInfoIndex                  int64
-	RecordBlockIndex                 int64
-	RecordBlockCompressStart         int64
-	RecordBlockCompressEnd           int64
-	RecordBlockCompressSize          int64
-	RecordBlockDeCompressSize        int64
-	RecordBlockCompressType          string
-	RecordBlockEncrypted             bool
-	RecordBlockFileRelativeOffset    int64
-	RecordBlockCompressAccumulator   int64
-	RecordBlockDeCompressAccumulator int64
-
-	RecordEntryDecompressStart int64
-	RecordEntryDecompressEnd   int64
-}
-type MDictRecordBlockMeta struct {
-	KeyRecordMetaStartOffset int64
-	KeyRecordMetaEndOffset   int64
-
-	RecordBlockNum          int64
-	EntriesNum              int64
-	RecordBlockInfoCompSize int64
-	RecordBlockCompSize     int64
-}
-type MDictRecordBlockInfo struct {
-	RecordInfoList             []*MDictRecordBlockInfoListItem
-	RecordBlockInfoStartOffset int64
-	RecordBlockInfoEndOffset   int64
-	RecordBlockDataStartOffset int64
-}
-
-type MDictRecordBlockInfoListItem struct {
-	CompressSize                int64
-	DeCompressSize              int64
-	CompressAccumulatorOffset   int64
-	DeCompressAccumulatorOffset int64
+type MDictKeywordIndexRecordBlock struct {
+	DataStartOffset          int64
+	CompressSize             int64
+	DeCompressSize           int64
+	KeyWordPartStartOffset   int64
+	KeyWordPartDataEndOffset int64
 }

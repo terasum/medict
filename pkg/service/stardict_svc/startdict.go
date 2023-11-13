@@ -1,4 +1,4 @@
-package service
+package stardict_svc
 
 import (
 	"fmt"
@@ -80,25 +80,24 @@ func (s *StarDict) LookupResource(keyword string) ([]byte, error) {
 	return []byte{}, nil
 }
 
-func (s *StarDict) Locate(entry *model.KeyIndex) ([]byte, error) {
+func (s *StarDict) Locate(entry *model.KeyQueryIndex) ([]byte, error) {
 	return s.Lookup(entry.KeyWord)
 }
 
-func (s *StarDict) Search(keyword string) ([]*model.KeyIndex, error) {
+func (s *StarDict) Search(keyword string) ([]*model.KeyQueryIndex, error) {
 	if !s.ready {
 		return nil, fmt.Errorf("dictionary has not built yet")
 	}
 	res := s.BkTree.Search(&bkString{w: keyword}, 1, 100)
-	result := make([]*model.KeyIndex, 0)
+	result := make([]*model.KeyQueryIndex, 0)
 	for id, r := range res {
-		result = append(result, &model.KeyIndex{
+		result = append(result, &model.KeyQueryIndex{
 			IndexType: model.IndexTypeStardict,
-			KeyBlockEntry: &model.KeyBlockEntry{
-				ID:                id,
-				RecordStartOffset: 0,
-				RecordEndOffset:   0,
-				KeyWord:           r.Entry.(*bkString).w,
-				KeyBlockIdx:       0,
+			MdictKeyWordIndex: &model.MdictKeyWordIndex{
+				ID:                      id,
+				RecordLocateStartOffset: 0,
+				RecordLocateEndOffset:   0,
+				KeyWord:                 r.Entry.(*bkString).w,
 			},
 		})
 	}

@@ -37,7 +37,7 @@ func init() {
 type ReplacerImage struct {
 }
 
-func (r *ReplacerImage) Replace(dictId string, entry *model.KeyBlockEntry, html string) (*model.KeyBlockEntry, string) {
+func (r *ReplacerImage) Replace(dictId string, entry *model.MdictKeyWordIndex, html string) (*model.MdictKeyWordIndex, string) {
 	if html == "" || dictId == "" {
 		return entry, html
 	}

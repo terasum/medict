@@ -17,10 +17,8 @@
 package gomdict
 
 import (
-	"encoding/json"
 	"os"
 	"testing"
-	"time"
 )
 
 func TestMdict_Lookup(t *testing.T) {
@@ -56,32 +54,6 @@ func TestMdict_Lookup2(t *testing.T) {
 	}
 
 	t.Logf(string(def))
-}
-func TestMdict_Lookup4(t *testing.T) {
-	mdict, err := New("testdata/dict/ode3e.mdx")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = mdict.BuildIndex()
-	if err != nil {
-		t.Fatal(err)
-	}
-	entries, err := mdict.Search("word")
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := json.Marshal(entries)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%s", data)
-
-	def, err := mdict.Locate(entries[0])
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%s", def)
-
 }
 
 func TestMdict_LookupMdd3(t *testing.T) {
@@ -157,7 +129,7 @@ func TestMdict_LookupMdd5(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, entry := range mdict.KeyBlockData.KeyEntries {
+	for _, entry := range mdict.keyBlockData.keyEntries {
 		file.Write([]byte(entry.KeyWord + "\n"))
 	}
 
@@ -190,33 +162,9 @@ func TestMdict_LookupMdd6(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, entry := range mdict.KeyBlockData.KeyEntries {
+	for _, entry := range mdict.keyBlockData.keyEntries {
 		file.Write([]byte(entry.KeyWord + "\n"))
 	}
 
 	file.Close()
-}
-
-func TestMdict_SimSearch(t *testing.T) {
-	mdict, err := New("testdata/dict/oale8.mdx")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = mdict.BuildIndex()
-	if err != nil {
-		t.Fatal(err)
-	}
-	start := time.Now()
-	err = mdict.BuildBKTree()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("building bktree costs %dms", time.Now().Sub(start).Milliseconds())
-
-	result, err := mdict.SimSearch("hell", 2)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Log(result)
 }

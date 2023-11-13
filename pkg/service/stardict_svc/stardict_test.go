@@ -1,13 +1,14 @@
-package service
+package stardict_svc
 
 import (
 	"encoding/json"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service"
 	"testing"
 )
 
 func TestStarDict_Lookup(t *testing.T) {
-	dict, err := NewByDirItem(&model.DirItem{
+	dict, err := service.NewByDirItem(&model.DirItem{
 		BaseDir:            "",
 		CurrentDir:         "",
 		IsValid:            false,

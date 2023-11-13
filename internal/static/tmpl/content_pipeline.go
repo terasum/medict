@@ -40,7 +40,7 @@ var handler = &ContentPreHandlePipeline{
 	},
 }
 
-func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.KeyBlockEntry, definition string) ([]byte, error) {
+func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
 	content := handleContent(dict, keyEntry, definition)
 	return []byte(fmt.Sprintf(WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, content)), nil
 }
@@ -50,7 +50,7 @@ func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error
 	return content, nil
 }
 
-func handleContent(dict *model.PlainDictionaryItem, keyEntry *model.KeyBlockEntry, definition string) string {
+func handleContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) string {
 	for _, replacer := range handler.replacers {
 		keyEntry, definition = replacer.Replace(dict.ID, keyEntry, definition)
 	}

@@ -24,5 +24,5 @@ import (
 var log = logging.MustGetLogger("default")
 
 type Replacer interface {
-	Replace(dictId string, entry *model.KeyBlockEntry, htmlContent string) (*model.KeyBlockEntry, string)
+	Replace(dictId string, entry *model.MdictKeyWordIndex, htmlContent string) (*model.MdictKeyWordIndex, string)
 }

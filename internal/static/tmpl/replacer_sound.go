@@ -39,7 +39,7 @@ func init() {
 type ReplacerSound struct {
 }
 
-func (r *ReplacerSound) Replace(dictId string, entry *model.KeyBlockEntry, html string) (*model.KeyBlockEntry, string) {
+func (r *ReplacerSound) Replace(dictId string, entry *model.MdictKeyWordIndex, html string) (*model.MdictKeyWordIndex, string) {
 
 	if html == "" || dictId == "" {
 		return entry, html
