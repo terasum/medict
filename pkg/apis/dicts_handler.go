@@ -11,7 +11,7 @@ func (dc *DictsController) GetAllDicts(args map[string]interface{}) *model.Resp 
 	return model.BuildSuccess(resp)
 }
 
-// BuildIndex
+// buildIndex
 func (dc *DictsController) BuildIndexByDictId(args map[string]interface{}) *model.Resp {
 	if id, ok := args["dictid"]; !ok {
 		return model.BuildError(errors.New("build index failed, dictid is empty"), model.InnerSysErrCode)

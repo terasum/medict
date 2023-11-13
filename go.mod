@@ -9,11 +9,13 @@ require github.com/stretchr/testify v1.8.3
 require (
 	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
+	github.com/fatih/color v1.16.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rasky/go-lzo v0.0.0-20200203143853-96a758eda86e
+	github.com/rodaine/table v1.1.0
 	github.com/silenceper/pool v1.0.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/viper v1.10.1
@@ -26,7 +28,6 @@ require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -59,7 +60,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	github.com/rodaine/table v1.1.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/sirupsen/logrus v1.4.2 // indirect

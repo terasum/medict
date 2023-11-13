@@ -60,7 +60,7 @@ func NewIdxer(indexFilePath string) (*MdictIdxer, error) {
 // sqlite table name: meidx_keyword_index
 // table columns:
 // --------------------------
-// | idx_no | key_word | key_block_index | record_start_offset | record_end_offset | compressed_size | decompressed_size | dict_type |
+// | idx_no | keyword | key_block_index | record_start_offset | record_end_offset | compressed_size | decompressed_size | dict_type |
 func (idxer *MdictIdxer) migrate() error {
 	if utils.FileExists(idxer.indexFilePath) {
 		return nil
@@ -84,7 +84,7 @@ func (idxer *MdictIdxer) migrate() error {
 	   record_block_data_decompress_size long ,
        keyword_data_start_offset    	 long ,
        keyword_data_end_offset      	 long);
--- 	CREATE INDEX index_meidx_keyword_index_keyword ON meidx_keyword_index(key_word);
+-- 	CREATE INDEX index_meidx_keyword_index_keyword ON meidx_keyword_index(keyword);
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -148,6 +148,7 @@ func (idxer *MdictIdxer) AddRecord(record *model.MdictKeyWordIndex) error {
 	defer idxer.release(db)
 
 	sqlfmt := `INSERT OR IGNORE INTO meidx_keyword_index (
+                                           
        keyword,
 	   record_locate_start_offset,
 	   record_locate_end_offset, 
@@ -182,6 +183,7 @@ func (idxer *MdictIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, err
 	defer idxer.release(db)
 
 	sqlfmt := `SELECT 
+    	idx_no,
        keyword,
 	   record_locate_start_offset,
 	   record_locate_end_offset, 
@@ -190,7 +192,7 @@ func (idxer *MdictIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, err
 	   record_block_data_decompress_size,
        keyword_data_start_offset,
        keyword_data_end_offset
-	 FROM meidx_keyword_index WHERE key_word LIKE ?`
+	 FROM meidx_keyword_index WHERE keyword LIKE ?`
 	statement, err := db.Prepare(sqlfmt)
 	if err != nil {
 		return nil, err
@@ -204,6 +206,7 @@ func (idxer *MdictIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, err
 	for result.Next() {
 		temp := new(model.MdictKeyWordIndex)
 		err1 := result.Scan(
+			&(temp.ID),
 			&(temp.KeyWord),
 			&(temp.RecordLocateStartOffset),
 			&(temp.RecordLocateEndOffset),
@@ -236,42 +239,40 @@ func (idxer *MdictIdxer) close() {
 	idxer.connPool.Release()
 }
 
-//func (vm *virtualMdict) description() *model.PlainDictionaryInfo {
-//	if vm.instance == nil {
-//		return &model.PlainDictionaryInfo{}
-//	}
-//	return &model.PlainDictionaryInfo{
-//		Title:                 vm.instance.meta.title,
-//		Description:           vm.instance.meta.description,
-//		CreateDate:            vm.instance.meta.creationDate,
-//		GenerateEngineVersion: vm.instance.meta.generatedByEngineVersion,
-//	}
-//}
+func (idxer *MdictIdxer) Lookup(keyword string) (*model.MdictKeyWordIndex, error) {
+	db, err := idxer.acquire()
+	if err != nil {
+		return nil, err
+	}
+	defer idxer.release(db)
 
-//func (vm *virtualMdict) locate(entry *model.KeyIndex) ([]byte, error) {
-//	mdictEntry := &gomdict.MDictKeywordEntry{
-//		RecordLocateStartOffset: entry.RecordLocateStartOffset,
-//		RecordLocateEndOffset:   entry.RecordLocateEndOffset,
-//		KeyWord:           entry.KeyWord,
-//		KeyBlockIdx:       entry.KeyBlockIdx,
-//	}
-//	return vm.instance.Locate(mdictEntry)
-//}
-//
-//func (vm *virtualMdict) searchFromIndex(keyword string) ([]*model.KeyIndex, error) {
-//	if vm.idxEngine == nil {
-//		return nil, errors.New("virtual mdict hasn't built the index")
-//	}
-//
-//	records, err := vm.idxEngine.Search(keyword)
-//	if err != nil {
-//		return nil, err
-//	}
-//	results := make([]*model.KeyIndex, 0)
-//	for _, record := range records {
-//		keyIdx := model.ConvertToKeyBlockIndex(record)
-//		results = append(results, keyIdx)
-//	}
-//
-//	return results, nil
-//}
+	sqlfmt := `SELECT 
+    idx_no,
+       keyword,
+	   record_locate_start_offset,
+	   record_locate_end_offset, 
+	   record_block_data_start_offset,
+	   record_block_data_compress_size,
+	   record_block_data_decompress_size,
+       keyword_data_start_offset,
+       keyword_data_end_offset
+	 FROM meidx_keyword_index WHERE keyword = ?`
+	result := db.QueryRow(sqlfmt, keyword)
+	temp := new(model.MdictKeyWordIndex)
+	err1 := result.Scan(
+		&(temp.ID),
+		&(temp.KeyWord),
+		&(temp.RecordLocateStartOffset),
+		&(temp.RecordLocateEndOffset),
+		&(temp.RecordBlockDataStartOffset),
+		&(temp.RecordBlockDataCompressSize),
+		&(temp.RecordBlockDataDeCompressSize),
+		&(temp.KeyWordDataStartOffset),
+		&(temp.KeyWordDataEndOffset))
+	if err1 != nil {
+		log.Errorf("sql query error %s", err1.Error())
+		return nil, err1
+	}
+	return temp, nil
+
+}

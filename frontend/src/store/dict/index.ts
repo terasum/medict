@@ -25,13 +25,25 @@ function constructQueryURL(entry) {
   let {
     baseurl,
     dict_id,
-    key_word,
+    keyword,
     record_start_offset,
     record_end_offset,
-    key_block_idx,
     entry_id,
-  } = entry;
-  return `${baseurl}/__tcidem_query?dict_id=${dict_id}&key_word=${key_word}&record_start_offset=${record_start_offset}&record_end_offset=${record_end_offset}&key_block_idx=${key_block_idx}&entry_id=${entry_id}`;
+    record_block_data_start_offset,
+    record_block_data_compress_size,
+    record_block_data_decompress_size,
+    keyword_data_start_offset,
+    keyword_data_end_offset
+} = entry;
+  return `${baseurl}/__tcidem_query?dict_id=${dict_id}`+
+    `&keyword=${keyword}&record_start_offset=${record_start_offset}`+
+    `&entry_id=${entry_id}`+
+    `&record_end_offset=${record_end_offset}`+
+    `&record_block_data_start_offset=${record_block_data_start_offset}`+
+    `&record_block_data_compress_size=${record_block_data_compress_size}`+
+    `&record_block_data_decompress_size=${record_block_data_decompress_size}`+
+    `&keyword_data_start_offset=${keyword_data_start_offset}`+
+    `&keyword_data_end_offset=${keyword_data_end_offset}`;
 }
 
 const DefaultContentTemplpate = `
@@ -213,18 +225,25 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
       let entry = this.queryPendingList[entry_idx];
 
-      this.updateInputSearchWord(entry.key_word);
+      this.updateInputSearchWord(entry.keyword);
+
+
 
 
       const locateQuerier = {
           baseurl: this.dictApiBaseURL,
           dict_id: this.selectDict.id,
           dict: this.selectDict,
-          key_word: entry.key_word,
+          keyword: entry.keyword,
           record_start_offset: entry.record_start_offset,
           record_end_offset: entry.record_end_offset,
           key_block_idx: entry.key_block_idx,
           entry_id: entry_idx,
+          record_block_data_start_offset:entry.record_block_data_start_offset,
+          record_block_data_compress_size:entry.record_block_data_compress_size,
+          record_block_data_decompress_size:entry.record_block_data_decompress_size,
+          keyword_data_start_offset:entry.keyword_data_start_offset,
+          keyword_data_end_offset:entry.keyword_data_end_offset,
       }
 
       if (!skipPushHistory) {
@@ -234,6 +253,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
     },
     _locateWord(locateQuerier) {
+      console.log("frontend _locateWord", locateQuerier)
       let definitionURL = constructQueryURL(locateQuerier);
       this.updateMainContentURL(definitionURL);
     },
@@ -274,7 +294,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
     },
     backHistory() {
       let locateQuerier = this.historyStack.back();
-      if (this.inputSearchWord == locateQuerier.key_word) {
+      if (this.inputSearchWord == locateQuerier.keyword) {
         return;
       }
       this.updateInputSearchWord(locateQuerier.key_word)

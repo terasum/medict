@@ -108,7 +108,7 @@ type KeyQueryIndex struct {
 
 type MdictKeyWordIndex struct {
 	ID                            int    `json:"id"`
-	KeyWord                       string `json:"key_word"`
+	KeyWord                       string `json:"keyword"`
 	RecordLocateStartOffset       int64  `json:"record_start_offset"`
 	RecordLocateEndOffset         int64  `json:"record_end_offset"`
 	IsUTF16                       int    `json:"is_utf16"`
@@ -116,9 +116,9 @@ type MdictKeyWordIndex struct {
 	IsMDD                         int    `json:"is_mdd"`
 	RecordBlockDataStartOffset    int64  `json:"record_block_data_start_offset"`
 	RecordBlockDataCompressSize   int64  `json:"record_block_data_compress_size"`
-	RecordBlockDataDeCompressSize int64  `json:"record_block_data_de_compress_size"`
-	KeyWordDataStartOffset        int64  `json:"key_word_data_start_offset"`
-	KeyWordDataEndOffset          int64  `json:"key_word_data_end_offset"`
+	RecordBlockDataDeCompressSize int64  `json:"record_block_data_decompress_size"`
+	KeyWordDataStartOffset        int64  `json:"keyword_data_start_offset"`
+	KeyWordDataEndOffset          int64  `json:"keyword_data_end_offset"`
 }
 
 type MdictMeta struct {

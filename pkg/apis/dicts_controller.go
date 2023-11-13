@@ -26,15 +26,19 @@ func NewDictsController(ds *service.DictService) *DictsController {
 }
 
 func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
-	// 请求地址: http://localhost:8193/__mdict/__tcidem_query?dict_id=f234356c227f82a54afdaa3514de188a&key_word=card&record_start_offset=20477857&record_end_offset=20501885&key_block_idx=26868
-	keyWord := c.Query("key_word")
+	// 请求地址: http://localhost:8193/__mdict/__tcidem_query?dict_id=f234356c227f82a54afdaa3514de188a&keyword=card&record_start_offset=20477857&record_end_offset=20501885&key_block_idx=26868
+	keyWord := c.Query("keyword")
 	recordStart := c.Query("record_start_offset")
 	recordEnd := c.Query("record_end_offset")
 	dictId := c.Query("dict_id")
 	entryId := c.Query("entry_id")
-	keyBlockIdx := c.Query("key_block_idx")
+	recordBlockDataStartOffset := c.Query("record_block_data_start_offset")
+	recordBlockDataCompressSize := c.Query("record_block_data_compress_size")
+	recordBlockDataDeCompressSize := c.Query("record_block_data_decompress_size")
+	keyWordDataStartOffset := c.Query("keyword_data_start_offset")
+	keyWordDataEndOffset := c.Query("keyword_data_end_offset")
 
-	entry, err := convertKeyIndex("medict", entryId, recordStart, recordEnd, keyWord, keyBlockIdx)
+	entry, err := convertKeyIndex("medict", entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset)
 	if err != nil {
 
 		fmt.Printf("NoRoute REQ ABORT: %s (%s:%s)\n", c.Request.RequestURI, "bad param convert", err.Error())
@@ -108,12 +112,12 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	log.Infof("innerResourceQuery search key: [%s]", key)
+	log.Infof("innerResourceQuery(0) search key: [%s]", key)
 
 	// 先从文件夹搜索
 	resultBytes, err := dc.ds.FindFromDir(dictId, key)
 	if err == nil {
-		log.Infof("innerResourceQuery search key hitted dir: [%s]", key)
+		log.Infof("innerResourceQuery search key hit dir: [%s]", key)
 		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
@@ -123,10 +127,11 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		return
 	}
 
+	log.Infof("innerResourceQuery(1) search from resource [%s]", key)
 	// 再从文件资源中搜索
 	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err == nil {
-		log.Infof("innerResourceQuery search key hitted resource: [%s]", key)
+		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
 		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
@@ -138,9 +143,10 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	}
 
 	key = strings.ReplaceAll(key, "/", "\\")
+	log.Infof("innerResourceQuery(2) search from resource [%s]", key)
 	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err == nil {
-		log.Infof("innerResourceQuery search key hitted resource: [%s]", key)
+		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
 		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
@@ -156,13 +162,15 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		key = "\\" + key
 	}
 
+	log.Infof("innerResourceQuery(3) search from resource [%s]", key)
+
 	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	log.Infof("innerResourceQuery search key hitted resource with '\\' prefix: [%s]", key)
+	log.Infof("innerResourceQuery(4) search key hit resource with '\\' prefix: [%s]", key)
 	result, err := tmpl.WrapResource(dictId, key, resultBytes)
 	if err != nil {
 		wrapContentType(c, key, result)
@@ -171,7 +179,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	wrapContentType(c, key, result)
 }
 
-func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyQueryIndex, error) {
+func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset string) (*model.KeyQueryIndex, error) {
 	if entryId == "" {
 		entryId = "0"
 	}
@@ -181,9 +189,7 @@ func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBloc
 	if recordEnd == "" {
 		recordEnd = "0"
 	}
-	if keyBlockIdx == "" {
-		keyBlockIdx = "0"
-	}
+
 	idxtype := model.IndexTypeMdict
 	if dictType == "stardict" {
 		idxtype = model.IndexTypeStardict
@@ -201,21 +207,51 @@ func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBloc
 	if err != nil {
 		return nil, err
 	}
-	ikeyBlockIdx, err := strconv.Atoi(keyBlockIdx)
+
+	iRecordBlockDataStartOffset, err := strconv.Atoi(recordBlockDataStartOffset)
+	if err != nil {
+		return nil, err
+	}
+	iRecordBlockDataCompressSize, err := strconv.Atoi(recordBlockDataCompressSize)
+	if err != nil {
+		return nil, err
+	}
+	iRecordBlockDataDeCompressSize, err := strconv.Atoi(recordBlockDataDeCompressSize)
+	if err != nil {
+		return nil, err
+	}
+	iKeyWordDataStartOffset, err := strconv.Atoi(keyWordDataStartOffset)
+	if err != nil {
+		return nil, err
+	}
+	iKeyWordDataEndOffset, err := strconv.Atoi(keyWordDataEndOffset)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.KeyQueryIndex{
+	queryIndex := &model.KeyQueryIndex{
 		IndexType: idxtype,
 		MdictKeyWordIndex: &model.MdictKeyWordIndex{
-			ID:                      ientryId,
-			RecordLocateStartOffset: int64(irecordStart),
-			RecordLocateEndOffset:   int64(irecordEnd),
-			KeyWord:                 keyWord,
-			KeyBlockIdx:             int64(ikeyBlockIdx),
+			ID:                            ientryId,
+			KeyWord:                       keyWord,
+			RecordLocateStartOffset:       int64(irecordStart),
+			RecordLocateEndOffset:         int64(irecordEnd),
+			RecordBlockDataStartOffset:    int64(iRecordBlockDataStartOffset),
+			RecordBlockDataCompressSize:   int64(iRecordBlockDataCompressSize),
+			RecordBlockDataDeCompressSize: int64(iRecordBlockDataDeCompressSize),
+			KeyWordDataStartOffset:        int64(iKeyWordDataStartOffset),
+			KeyWordDataEndOffset:          int64(iKeyWordDataEndOffset),
 		},
-	}, nil
+	}
+	log.Infof("KeyWord: %s", keyWord)
+	log.Infof("RecordLocateStartOffset: %d", int64(irecordStart))
+	log.Infof("RecordLocateEndOffset: %d", int64(irecordEnd))
+	log.Infof("RecordBlockDataStartOffset: %d", int64(iRecordBlockDataStartOffset))
+	log.Infof("RecordBlockDataCompressSize: %d", int64(iRecordBlockDataCompressSize))
+	log.Infof("RecordBlockDataDeCompressSize: %d", int64(iRecordBlockDataDeCompressSize))
+	log.Infof("KeyWordDataStartOffset: %d", int64(iKeyWordDataStartOffset))
+	log.Infof("KeyWordDataEndOffset: %d", int64(iKeyWordDataEndOffset))
+	return queryIndex, nil
 }
 
 func wrapContentType(c *gin.Context, key string, data []byte) {

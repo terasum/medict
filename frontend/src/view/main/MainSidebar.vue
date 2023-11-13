@@ -59,7 +59,7 @@
           @click="selectItem(item.id)"
           :class="selected_id == item.id ? 'active' : ''"
         >
-          <span>{{ item.key_word }}</span>
+          <span>{{ item.keyword }}</span>
         </li>
       </ul>
   </AppSidebar>

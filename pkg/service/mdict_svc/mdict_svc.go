@@ -45,10 +45,10 @@ func (md *MdictSvcImpl) Name() string {
 
 func (md *MdictSvcImpl) Description() *model.PlainDictionaryInfo {
 	return &model.PlainDictionaryInfo{
-		Title:                 "",
-		Description:           "",
-		CreateDate:            "",
-		GenerateEngineVersion: "",
+		Title:                 md.mdx.Title(),
+		Description:           md.mdx.Description(),
+		CreateDate:            md.mdx.CreationDate(),
+		GenerateEngineVersion: md.mdx.GenerateEngineVersion(),
 	}
 }
 
@@ -57,6 +57,10 @@ func (md *MdictSvcImpl) KeyList() []string {
 }
 
 func (md *MdictSvcImpl) BuildIndex() error {
+	if md.hasBuildIndex {
+		return nil
+	}
+
 	err := md.mdx.BuildIndex()
 	if err != nil {
 		return err
@@ -68,41 +72,45 @@ func (md *MdictSvcImpl) BuildIndex() error {
 			return err
 		}
 	}
+	md.hasBuildIndex = true
 	return nil
 }
 
-func (md *MdictSvcImpl) Locate(entry *model.KeyQueryIndex) ([]byte, error) {
+func (md *MdictSvcImpl) Locate(qIndex *model.KeyQueryIndex) ([]byte, error) {
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
-	return nil, nil
-	//return md.mdx.rawdict.LocateByKeywordIndex(entry)
+	return md.mdx.Locate(qIndex.MdictKeyWordIndex)
 }
 
 func (md *MdictSvcImpl) Lookup(keyword string) ([]byte, error) {
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
-	return md.mdx.rawdict.Lookup(keyword)
+	return md.mdx.Lookup(keyword)
 }
 
 func (md *MdictSvcImpl) LookupResource(keyword string) ([]byte, error) {
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
+
+	hasError := false
 	var err error
 	var def []byte
 	for _, mdd := range md.mdds {
-		def, err = mdd.rawdict.Lookup(keyword)
+		def, err = mdd.Lookup(keyword)
 		if err != nil {
-			log.Infof("mdict.LookupResource failed, key [%s] not found", keyword)
+			log.Infof("continue to lookup, key [%s] not found", keyword)
+			hasError = true
 			continue
 		} else {
+			hasError = false
 			break
 		}
 	}
 
-	if def == nil || err != nil {
+	if def == nil || hasError {
 		if err != nil {
 			log.Infof("mdict.LookupResource failed, key [%s] not found, error: %s", keyword, err.Error())
 		}
@@ -116,12 +124,17 @@ func (md *MdictSvcImpl) Search(keyword string) ([]*model.KeyQueryIndex, error) {
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
-
-	_, err := md.mdx.idxer.Search(keyword)
+	idxes, err := md.mdx.Search(keyword)
 	if err != nil {
+		log.Errorf("search error: %s", err.Error())
 		return nil, err
 	}
-	//return indeses, nil
-	return nil, nil
-
+	result := make([]*model.KeyQueryIndex, len(idxes))
+	for i, idx := range idxes {
+		result[i] = &model.KeyQueryIndex{
+			IndexType:         model.IndexTypeMdict,
+			MdictKeyWordIndex: idx,
+		}
+	}
+	return result, nil
 }

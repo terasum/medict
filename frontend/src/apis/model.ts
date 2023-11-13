@@ -4,7 +4,7 @@ export namespace model {
     id: number;
     record_start_offset: number;
     record_end_offset: number;
-    key_word: string;
+    keyword: string;
     key_block_idx: number;
 
     static createFrom(source: any = {}) {
@@ -16,7 +16,7 @@ export namespace model {
       this.id = source["id"];
       this.record_start_offset = source["record_start_offset"];
       this.record_end_offset = source["record_end_offset"];
-      this.key_word = source["key_word"];
+      this.keyword = source["keyword"];
       this.key_block_idx = source["key_block_idx"];
     }
   }
