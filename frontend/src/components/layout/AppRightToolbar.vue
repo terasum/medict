@@ -37,7 +37,7 @@
   .toolbar-content {
     display: flex;
     flex-direction: row;
-    max-height: calc(100% - $layout-header-height);
+    height: calc(100% - $layout-header-height);
     border-left: 1px solid #dcdcdc;
     overflow-y: auto;
     &::-webkit-scrollbar {
