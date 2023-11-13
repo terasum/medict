@@ -19,21 +19,17 @@ package gomdict
 import (
 	"errors"
 	"fmt"
-	"github.com/terasum/medict/internal/utils"
 	"path/filepath"
-	"sort"
 	"strings"
 
-	"github.com/creasty/go-levenshtein"
 	"github.com/op/go-logging"
-	"github.com/terasum/medict/internal/libs/bktree"
 )
 
 var log = logging.MustGetLogger("default")
 
 type Mdict struct {
-	bktree *bktree.BKTree
 	*MdictBase
+	rangeTreeRoot *RecordBlockRangeTreeNode
 }
 
 func New(filename string) (*Mdict, error) {
@@ -41,19 +37,26 @@ func New(filename string) (*Mdict, error) {
 	if strings.ToLower(filepath.Ext(filename)) == ".mdd" {
 		dictType = MdictTypeMdd
 	}
+
 	mdict := &Mdict{
-		MdictBase: &MdictBase{FilePath: filename, FileType: dictType},
+		MdictBase: &MdictBase{
+			filePath:      filename,
+			fileType:      dictType,
+			rangeTreeRoot: new(RecordBlockRangeTreeNode),
+		},
 	}
 	return mdict, mdict.init()
 }
 
 func (mdict *Mdict) init() error {
-	err := mdict.ReadDictHeader()
+	// 读取词典头
+	err := mdict.readDictHeader()
 	if err != nil {
 		return err
 	}
 
-	err = mdict.ReadKeyBlockMeta()
+	// 读取 key block 元信息
+	err = mdict.readKeyBlockMeta()
 	if err != nil {
 		return err
 	}
@@ -61,119 +64,106 @@ func (mdict *Mdict) init() error {
 	return nil
 }
 
+// BuildIndex 构建索引
 func (mdict *Mdict) BuildIndex() error {
-	err := mdict.ReadKeyBlockInfo()
+	err := mdict.readKeyBlockInfo()
 	if err != nil {
 		return err
 	}
 
-	err = mdict.ReadKeyEntries()
+	err = mdict.readKeyEntries()
 	if err != nil {
 		return err
 	}
 
-	err = mdict.ReadRecordBlockMeta()
+	err = mdict.readRecordBlockMeta()
 	if err != nil {
 		return err
 	}
 
-	err = mdict.ReadRecordBlockInfo()
+	err = mdict.readRecordBlockInfo()
 	if err != nil {
 		return err
 	}
+
+	mdict.buildRecordRangeTree()
 
 	return nil
+}
+
+func (mdict *Mdict) Name() string {
+	_, rawpath := filepath.Split(mdict.filePath)
+	rawpath = strings.TrimRight(rawpath, ".mdx")
+	if len(rawpath) > 0 {
+		return rawpath
+	}
+	return rawpath
+}
+
+func (mdict *Mdict) Title() string {
+	return mdict.meta.title
+
+}
+
+func (mdict *Mdict) Description() string {
+	return mdict.meta.description
+}
+func (mdict *Mdict) GeneratedByEngineVersion() string {
+	return mdict.meta.generatedByEngineVersion
+}
+func (mdict *Mdict) CreationDate() string {
+	return mdict.meta.creationDate
+}
+func (mdict *Mdict) Version() string {
+	return fmt.Sprintf("%f", mdict.meta.version)
+}
+
+func (mdict *Mdict) IsMDD() bool {
+	return mdict.fileType == MdictTypeMdd
+}
+
+func (mdict *Mdict) IsRecordEncrypted() bool {
+	return mdict.meta.encryptType == EncryptRecordEnc
+}
+
+func (mdict *Mdict) IsUTF16() bool {
+	return mdict.meta.encoding == EncodingUtf16
 }
 
 func (mdict *Mdict) Lookup(word string) ([]byte, error) {
 	word = strings.TrimSpace(word)
-	for id, keyBlockEntry := range mdict.KeyBlockData.KeyEntries {
+	for id, keyBlockEntry := range mdict.keyBlockData.keyEntries {
 		if keyBlockEntry.KeyWord == word {
-			log.Infof("mdict.Lookup hitted entries[%d/%d] key:(%s), entry-key:(%s), equals(%v)", id, len(mdict.KeyBlockData.KeyEntries), word, keyBlockEntry.KeyWord, keyBlockEntry.KeyWord == word)
-			return mdict.LocateRecordDefinition(keyBlockEntry)
+			log.Infof("mdict.Lookup hit entries[%d/%d] key:(%s), entry-key:(%s), equals(%v)", id, len(mdict.keyBlockData.keyEntries), word, keyBlockEntry.KeyWord, keyBlockEntry.KeyWord == word)
+			return mdict.LocateByKeywordEntry(keyBlockEntry)
 		}
 	}
 	return nil, fmt.Errorf("word:(%s) not found", word)
 }
 
-func (mdict *Mdict) Locate(entry *MDictKeyBlockEntry) ([]byte, error) {
+func (mdict *Mdict) LocateByKeywordEntry(entry *MDictKeywordEntry) ([]byte, error) {
 	if entry == nil {
-		return nil, errors.New("invalid mdict key block entry")
+		return nil, errors.New("invalid mdict keyword entry")
 	}
-	return mdict.LocateRecordDefinition(entry)
+	return mdict.MdictBase.locateByKeywordEntry(entry)
 }
 
-func (mdict *Mdict) Search(word string) ([]*MDictKeyBlockEntry, error) {
-	if mdict.bktree == nil {
-		return nil, errors.New("bktree hasn't build yet")
+func (mdict *Mdict) LocateByKeywordIndex(index *MDictKeywordIndex) ([]byte, error) {
+	if index == nil {
+		return nil, errors.New("invalid mdict keyword index")
 	}
-	result, err := mdict.SimSearch(word, 1)
-	return result, err
+	return mdict.MdictBase.locateByKeywordIndex(index)
+
 }
 
-// Distance calculates hamming distance.
-func (x *MDictKeyBlockEntry) Distance(e bktree.Entry) int {
-	a := x.KeyWord
-	b := e.(*MDictKeyBlockEntry).KeyWord
-	a = utils.StrToUnicode(a)
-	b = utils.StrToUnicode(b)
-
-	return levenshtein.Distance(a, b)
+func (mdict *Mdict) GetKeyWordEntries() ([]*MDictKeywordEntry, error) {
+	return mdict.getKeyWordEntries()
 }
 
-func (mdict *Mdict) BuildBKTree() error {
-	mdict.bktree = &bktree.BKTree{}
-	for _, e := range mdict.KeyBlockData.KeyEntries {
-		mdict.bktree.Add(e)
-	}
-	return nil
+func (mdict *Mdict) GetKeyWordEntriesSize() int64 {
+	return mdict.keyBlockData.keyEntriesSize
 }
 
-func (mdict *Mdict) SimSearch(word string, tolerance int) ([]*MDictKeyBlockEntry, error) {
-	entry := &MDictKeyBlockEntry{KeyWord: word}
-	results := mdict.bktree.Search(entry, tolerance, 100)
-
-	wrapper := &entryWrapper{
-		list: make([]*entryWrapperItem, 0),
-	}
-	for _, r := range results {
-		wrapper.list = append(wrapper.list, &entryWrapperItem{
-			entry:    r.Entry.(*MDictKeyBlockEntry),
-			distance: r.Distance,
-		})
-	}
-
-	sort.Sort(wrapper)
-	return wrapper.toEntryList(), nil
-}
-
-type entryWrapperItem struct {
-	entry    *MDictKeyBlockEntry
-	distance int
-}
-
-type entryWrapper struct {
-	list []*entryWrapperItem
-}
-
-func (w *entryWrapper) Less(i, j int) bool {
-	return w.list[i].distance < w.list[j].distance
-}
-
-func (w *entryWrapper) Len() int {
-	return len(w.list)
-}
-
-func (w *entryWrapper) Swap(i, j int) {
-	temp := w.list[i]
-	w.list[i] = w.list[j]
-	w.list[j] = temp
-}
-
-func (w *entryWrapper) toEntryList() []*MDictKeyBlockEntry {
-	entries := make([]*MDictKeyBlockEntry, w.Len())
-	for idx, result := range w.list {
-		entries[idx] = result.entry
-	}
-	return entries
+func (mdict *Mdict) KeywordEntryToIndex(item *MDictKeywordEntry) (*MDictKeywordIndex, error) {
+	return mdict.MdictBase.keywordEntryToIndex(item)
 }

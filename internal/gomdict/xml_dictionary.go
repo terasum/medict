@@ -24,14 +24,14 @@ import (
 // Dictionary was generated 2023-09-11 11:07:50 by https://xml-to-go.github.io/ in Ukraine.
 type Dictionary struct {
 	XMLName                  xml.Name `xml:"Dictionary"`
-	Text                     string   `xml:",chardata"`
+	Text                     string   `xml:"chardata"`
 	GeneratedByEngineVersion string   `xml:"GeneratedByEngineVersion,attr"`
 	RequiredEngineVersion    string   `xml:"RequiredEngineVersion,attr"`
 	Encrypted                string   `xml:"Encrypted,attr"`
-	Encoding                 string   `xml:"Encoding,attr"`
+	Encoding                 string   `xml:"IsUTF16,attr"`
 	Format                   string   `xml:"Format,attr"`
 	Stripkey                 string   `xml:"Stripkey,attr"`
-	CreationDate             string   `xml:"CreationDate,attr"`
+	CreationDate             string   `xml:"creationDate,attr"`
 	Compact                  string   `xml:"Compact,attr"`
 	Compat                   string   `xml:"Compat,attr"`
 	KeyCaseSensitive         string   `xml:"KeyCaseSensitive,attr"`

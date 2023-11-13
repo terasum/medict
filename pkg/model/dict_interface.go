@@ -24,7 +24,7 @@ type GeneralDictionary interface {
 	// LookupResource 搜索词典资源，包括 css/js/图片/字体等, 仅限制支持在词典所在文件夹
 	LookupResource(keyword string) ([]byte, error)
 	// Locate 使用索引定位词条，并返回 html 释义
-	Locate(entry *KeyIndex) ([]byte, error)
+	Locate(entry *KeyQueryIndex) ([]byte, error)
 	// Search 返回近似词条索引列表，用于后续 Locate
-	Search(keyword string) ([]*KeyIndex, error)
+	Search(keyword string) ([]*KeyQueryIndex, error)
 }

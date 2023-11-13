@@ -1,4 +1,4 @@
-package service
+package mdict_svc
 
 import (
 	"encoding/json"
@@ -8,19 +8,14 @@ import (
 )
 
 func TestMdict_Name(t *testing.T) {
-	mdict := &Mdict{
-		mdxFilePath:       "/User/yourname/test/dict/test.mdx",
-		mddFilePaths:      nil,
-		hasBuildIndex:     false,
-		buildingIndexLock: nil,
-	}
+	mdict := &MdictSvcImpl{}
 	t.Logf("name is %s", mdict.Name())
 	assert.Equal(t, "test", mdict.Name())
 }
 
 func TestCreateSqliteIndex(t *testing.T) {
 
-	mdict, err := NewMdict(&model.DirItem{
+	mdict, err := NewMdictSvc(&model.DirItem{
 		BaseDir:            "testdata",
 		CurrentDir:         "testdata/mdict",
 		IsValid:            true,

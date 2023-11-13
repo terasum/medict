@@ -73,7 +73,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		return
 	}
 
-	htmlContent, err := tmpl.WrapContent(dict, entry.KeyBlockEntry, def)
+	htmlContent, err := tmpl.WrapContent(dict, entry.MdictKeyWordIndex, def)
 	if err != nil {
 
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -171,7 +171,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	wrapContentType(c, key, result)
 }
 
-func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyIndex, error) {
+func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBlockIdx string) (*model.KeyQueryIndex, error) {
 	if entryId == "" {
 		entryId = "0"
 	}
@@ -206,14 +206,14 @@ func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, keyBloc
 		return nil, err
 	}
 
-	return &model.KeyIndex{
+	return &model.KeyQueryIndex{
 		IndexType: idxtype,
-		KeyBlockEntry: &model.KeyBlockEntry{
-			ID:                ientryId,
-			RecordStartOffset: int64(irecordStart),
-			RecordEndOffset:   int64(irecordEnd),
-			KeyWord:           keyWord,
-			KeyBlockIdx:       int64(ikeyBlockIdx),
+		MdictKeyWordIndex: &model.MdictKeyWordIndex{
+			ID:                      ientryId,
+			RecordLocateStartOffset: int64(irecordStart),
+			RecordLocateEndOffset:   int64(irecordEnd),
+			KeyWord:                 keyWord,
+			KeyBlockIdx:             int64(ikeyBlockIdx),
 		},
 	}, nil
 }

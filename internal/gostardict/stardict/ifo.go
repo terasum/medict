@@ -55,7 +55,7 @@ func readInfo(filename string) (info *RawInfo, err error) {
 	}
 
 	if kn != "version" {
-		err = errors.New("Version missing (should be on second line)")
+		err = errors.New("version missing (should be on second line)")
 		return
 	}
 
