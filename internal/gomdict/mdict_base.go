@@ -864,7 +864,7 @@ func (mdict *MdictBase) keywordEntryToIndex(item *MDictKeywordEntry) (*MDictKeyw
 
 }
 
-func (mdict *MdictBase) keywordEntryToIndex2(item *MDictKeywordEntry) (*MDictKeywordIndex, error) {
+func (mdict *MdictBase) keywordEntryToIndex1(item *MDictKeywordEntry) (*MDictKeywordIndex, error) {
 
 	var recordBlockInfo *MdictRecordBlockInfoListItem
 
@@ -924,14 +924,23 @@ func (mdict *MdictBase) locateByKeywordIndex(index *MDictKeywordIndex) ([]byte, 
 }
 
 func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncrypted, isMdd, isUtf16 bool) ([]byte, error) {
+	log.Infof("locateDefByKWIndex invoked %+v, filepath %s, isRecordEncrypted %v, isMdd %v, isUTF16 %v", index, filePath, isRecordEncrypted, isMdd, isUtf16)
 	file, err := os.Open(filePath)
 	if err != nil {
+		log.Errorf("open file err %s", err.Error())
 		return nil, err
 	}
 	defer file.Close()
 	recordBlockDataCompBuff, err := readFileFromPos(file, index.RecordBlock.DataStartOffset, index.RecordBlock.CompressSize)
 	if err != nil {
+
+		log.Errorf("readFileFromPos %s", err.Error())
 		return nil, err
+	}
+
+	if recordBlockDataCompBuff == nil {
+		log.Errorf("record block data buffer is null, index: %v", index)
+		return nil, errors.New("record block data buffer is null")
 	}
 
 	// 4 bytes: compression type
@@ -968,6 +977,7 @@ func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncry
 
 			out, err1 := lzo.Decompress1X(reader, 0, 0 /* decompressedSize, 1308672*/)
 			if err1 != nil {
+				log.Errorf("stopped by Decompress1X %s", err1.Error())
 				return nil, err1
 			}
 
@@ -977,6 +987,7 @@ func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncry
 			var err2 error
 			recordBlock, err2 = zlibDecompress(blockBufDecrypted, 0, int64(len(blockBufDecrypted)))
 			if err2 != nil {
+				log.Errorf("stopped by zlibDecompress %s", err2.Error())
 				return nil, err2
 			}
 		}
@@ -987,6 +998,7 @@ func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncry
 	// assert(adler32 == zlib.adler32(record_block) & 0xffffffff)
 
 	if int64(len(recordBlock)) != index.RecordBlock.DeCompressSize {
+		log.Errorf("stopped by len(recordBlock) != index.RecordBlock.DeCompressSize")
 		return nil, errors.New("recordBlock length not equals decompress Size")
 	}
 
@@ -996,10 +1008,12 @@ func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncry
 	data := recordBlock[start:end]
 
 	if isMdd {
+		log.Errorf("return mdd data")
 		return data, nil
 	}
 
 	if isUtf16 {
+		log.Infof("keyword %s, data len %d", index.KeywordEntry.KeyWord, len(data))
 		datastr, err1 := decodeLittleEndianUtf16(data)
 		if err1 != nil {
 			return nil, err

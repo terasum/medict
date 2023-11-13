@@ -58,7 +58,7 @@ func QueryRangeData(root *RecordBlockRangeTreeNode, queryRange int64) *MdictReco
 			return root.data
 		}
 
-		if root.left != nil && root.left.endRange >= queryRange {
+		if root.left != nil && root.left.endRange > queryRange {
 			return QueryRangeData(root.left, queryRange)
 		}
 

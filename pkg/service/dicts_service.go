@@ -158,6 +158,7 @@ func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, 
 }
 
 func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryIndex, error) {
+	log.Infof("search %s %s", dictId, keyword)
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
 	} else {

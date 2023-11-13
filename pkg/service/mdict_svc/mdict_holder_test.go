@@ -10,6 +10,7 @@ func TestMdictHolder_BuildIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	err = holder.BuildIndex()
 	if err != nil {
 		t.Fatal(err)
