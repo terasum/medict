@@ -18,16 +18,6 @@
 
 <template>
   <AppFooter>
-    <!-- <div class="building-index-process">
-      <n-progress
-        type="line"
-        color="#c1c1c1"
-        :show-indicator="false"
-        :percentage="percnetage"
-      />
-    </div> -->
-    <!-- <span class="split-line"></span> -->
-
     <span class="index-process-hint">
       <span>{{ percentage_hint }}</span>
     </span>
@@ -35,20 +25,14 @@
 </template>
 
 <script lang="ts" setup>
-import { NProgress } from 'naive-ui';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import { onMounted, computed } from 'vue';
 import { useUIStore } from '@/store/ui';
 
 const uiStore = useUIStore();
 
-
 onMounted(()=>{
 })
-
-const percnetage = computed(() => {
-  return uiStore.progressPercent;
-});
 
 const percentage_hint = computed(() =>{
   return uiStore.progressHint;

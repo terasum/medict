@@ -57,7 +57,7 @@
   }
   }
   #app-content-main-iframe-wrapper {
-    height: calc(100% - 16px);
+    height: calc(100% - 80px);
     padding: 8px 4px;
     .app-content-main-iframe {
       width: 100%;

@@ -23,7 +23,6 @@ export const useUIStore = defineStore('ui', {
     currentTab: 'search',
 
     progressHint: "",
-    progressPercent: 0,
     
   }),
   actions: {
@@ -42,7 +41,6 @@ export const useUIStore = defineStore('ui', {
       }
 
       this.progressHint = hint;
-      this.progressPercent = progress;
 
     }
   },
