@@ -37,7 +37,7 @@
       >
     </span>
 
-    <span class="split-line"></span>
+    <!-- <span class="split-line"></span>
     <span class="hyperlink">
       <b>
         <span class="icon icon-gauge"></span>
@@ -50,7 +50,7 @@
         <span class="icon icon-book"></span>
         词典下载
       </b>
-    </span>
+    </span> -->
 
     <span class="split-line"></span>
 

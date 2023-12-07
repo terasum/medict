@@ -24,19 +24,26 @@
   width: 100%;
   height: calc(100% - $layout-header-height);
   .app-content-main-toolbar {
-    height: 26px;
+    height: 30px;
     display: flex;
-    flex-direction: row-reverse;
-    background-color: #f6f8fa;
+    flex-direction: row;
+    justify-content: space-between;
     box-shadow: inset 0 calc(max(1px, 0.0625rem) * -1) #d0d7de;
+    background-color: #f6f8fa;
+    .toolbar-dicts{
+      width: calc(100% - 30px);
+    }
+
+    .toolbar-boxes{
+    display: flex;
     .app-content-main-toolbar-box {
       display: block;
-      height: 22px;
-      width: 22px;
+      height: 24px;
+      width: 24px;
       border: 1px solid #d1d7dd;
       font-size: 16px;
       text-align: center;
-      line-height: 22px;
+      line-height: 24px;
       margin-left: 3px;
       margin-right: 3px;
       margin-top: 2px;
@@ -47,6 +54,7 @@
         cursor: pointer;
       }
     }
+  }
   }
   #app-content-main-iframe-wrapper {
     height: calc(100% - 16px);
@@ -60,7 +68,12 @@
 </style>
 <template>
   <div class="app-content-main">
+  
     <div class="app-content-main-toolbar">
+      <div class="toolbar-dicts">
+         <MainDictsToolbar/>
+      </div>
+      <div class="toolbar-boxes">
       <span class="app-content-main-toolbar-box" @click="todo"
         ><NIcon><Bug16Regular /></NIcon
       ></span>
@@ -77,6 +90,7 @@
       <span class="app-content-main-toolbar-box" @click="zoomOut"
         ><NIcon><ZoomIn16Regular /></NIcon
       ></span>
+     </div>
     </div>
     <div id="app-content-main-iframe-wrapper"></div>
   </div>
@@ -88,6 +102,8 @@ import { useDictQueryStore } from '@/store/dict';
 import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
 import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
+
+import MainDictsToolbar from "./MainDictsToolbar.vue";
 
 const dictQueryStore = useDictQueryStore();
 const message = useMessage();

@@ -35,9 +35,9 @@
             </div>
           </div>
         </div>
-        <div class="x-layout-right-toolbar">
+        <!-- <div class="x-layout-right-toolbar">
           <MainRightToolbar />
-        </div>
+        </div> -->
       </div>
       <div class="n-layout-footer">
         <MainFooter />
@@ -97,9 +97,8 @@ uiStore.updateCurrentTab("search");
       }
 
       .x-layout-content {
-        width: calc(
-          100% - $layout-left-sidebar-width - $layout-right-toolbar-width
-        );
+        // width: calc(100% - $layout-left-sidebar-width - $layout-right-toolbar-width);
+        width: calc(100% - $layout-left-sidebar-width);
         height: 100%;
         padding: 0;
         margin: 0;

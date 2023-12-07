@@ -18,18 +18,18 @@
 
 <template>
   <AppFooter>
-    <div class="building-index-process">
+    <!-- <div class="building-index-process">
       <n-progress
         type="line"
         color="#c1c1c1"
         :show-indicator="false"
         :percentage="percnetage"
       />
-    </div>
-    <span class="split-line"></span>
+    </div> -->
+    <!-- <span class="split-line"></span> -->
 
     <span class="index-process-hint">
-      <em>{{ percentage_hint }}</em>
+      <span>{{ percentage_hint }}</span>
     </span>
   </AppFooter>
 </template>
