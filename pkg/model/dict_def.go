@@ -16,6 +16,12 @@
 
 package model
 
+import (
+	"github.com/creasty/go-levenshtein"
+	"github.com/terasum/medict/internal/libs/bktree"
+	"github.com/terasum/medict/internal/utils"
+)
+
 type DirDcitType string
 
 // DirItem
@@ -95,7 +101,19 @@ type DictionaryItem struct {
 }
 
 func (dict *DictionaryItem) ToPlain() *PlainDictionaryItem {
-	return dict.PlainDictionaryItem
+	return &PlainDictionaryItem{
+		ID:         dict.PlainDictionaryItem.ID,
+		Name:       dict.PlainDictionaryItem.Name,
+		DictDir:    dict.PlainDictionaryItem.DictDir,
+		Background: dict.PlainDictionaryItem.Background,
+		DictType:   dict.PlainDictionaryItem.DictType,
+		Description: &PlainDictionaryInfo{
+			Title:                 dict.PlainDictionaryItem.Description.Title,
+			Description:           dict.PlainDictionaryItem.Description.Description,
+			CreateDate:            dict.PlainDictionaryItem.Description.CreateDate,
+			GenerateEngineVersion: dict.PlainDictionaryItem.Description.GenerateEngineVersion,
+		},
+	}
 }
 
 const IndexTypeMdict = "IndexTypeMdict"
@@ -121,12 +139,22 @@ type MdictKeyWordIndex struct {
 	KeyWordDataEndOffset          int64  `json:"keyword_data_end_offset"`
 }
 
+// Distance calculates levenshtein distance.
+func (x *MdictKeyWordIndex) Distance(e bktree.Entry) int {
+	a := x.KeyWord
+	b := e.(*MdictKeyWordIndex).KeyWord
+	a = utils.StrToUnicode(a)
+	b = utils.StrToUnicode(b)
+
+	return levenshtein.Distance(a, b)
+}
+
 type MdictMeta struct {
-	ID               string
-	Title            string
-	Filepath         string
-	Description      string
-	IsRecordEncoding bool
-	IsUTF16          bool
-	IsMDD            bool
+	ID               string `json:"id"`
+	Title            string `json:"title"`
+	Filepath         string `json:"filepath"`
+	Description      string `json:"description"`
+	IsRecordEncoding bool   `json:"is_record_encoding"`
+	IsUTF16          bool   `json:"is_utf_16"`
+	IsMDD            bool   `json:"is_mdd"`
 }

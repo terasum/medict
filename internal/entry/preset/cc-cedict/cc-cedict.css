@@ -1,0 +1,206 @@
+/*感谢shbf@PDAWIKI*/
+
+@font-face {	/* 自定义拼音字体 */
+    font-family: 'pinyin_font';
+    src: url('./merriweather-italic-py.woff2') format('woff2'),
+         url('./merriweather-italic-py.woff') format('woff'),
+         url('./merriweather-italic-py.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+@font-face {	/* 自定义字体 */
+    font-family: 'tagie_font';
+    src: url('./HelveticaNowMicroMed.woff2') format('woff2'),
+         url('./HelveticaNowMicroMed.woff') format('woff'),
+         url('./HelveticaNowMicroMed.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {	/* 自定义条目定义字体 */
+    font-family: 'def_font';
+    src: url('./MyriadPro-Regular.woff2') format('woff2'),
+         url('./MyriadPro-Regular.woff') format('woff'),
+         url('./MyriadPro-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {	/* 自定义图标字体 */
+	font-family: 'icon_font';
+	src: url('./iconfont.eot');
+	src: url('./iconfont.eot?#iefix') format('embedded-opentype'),
+	url('./iconfont.woff2') format('woff2'),
+	url('./iconfont.woff') format('woff'),
+	url('./iconfont.ttf') format('truetype'),
+	url('./iconfont.svg#iconfont') format('svg');
+}
+
+html { font-size:10px; } /* 字体大小基准 */
+
+body {
+	margin: 0px;
+	padding: 0px;
+	background-color:white;
+	/* 移动端字体匹配 */
+}
+
+body * {
+	font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", sans-serif;
+}
+.cc_wrapper {	/* 容器 */
+	margin:0px 0px 0.5rem 0px;
+	padding:0px;
+}
+
+.cc_header {	/* 头部包含简繁体样式 */
+	padding: 0.5rem 0.5rem;
+	background-color: rgb(69,120,191);
+}
+
+.cc_simp {
+    /* 条目简体 */
+    font-size:1.4rem;
+    font-weight:normal;
+    color: white;
+    text-shadow: 0.4px 0.4px 1px rgba(46, 46, 46, 0.65);
+}
+
+/*暂未用到*/
+.cc_title {
+    font-size:1.4rem;
+    font-family: pinyin_font;
+    font-weight:normal;
+    color: white;
+    text-shadow: 0.4px 0.4px 1px rgba(46, 46, 46, 0.65);
+}
+
+.cc_simp:before {	/* 简体条目前内容 */
+	content:"\e601"; 
+	font:1.2rem icon_font; 
+	padding:2px; 
+	font-weight:normal; 
+	margin-right:0.6rem; 
+	background-color:rgba(236,245,255,0.85);
+	-webkit-border-radius: 4px;/*Safari, Chrome*/
+	-moz-border-radius: 4px;/*Firefox*/
+	border-radius: 4px;
+	text-shadow:none;
+	color:rgb(192,103,5);
+}
+
+.cc_trad {	/* 条目繁体 */
+	font-size:1.4rem; 
+	font-weight:normal; 
+	color: white; 
+	text-shadow: 0.4px 0.4px 1px rgba(46,46,46,0.65);
+}
+
+.cc_trad:before {	/* 繁体条目前内容 */
+	content:"\e600"; 
+	font:1.2rem icon_font; 
+	padding:2px; 
+	font-weight:normal; 
+	margin-right:0.6rem; 
+	background-color:rgba(236,245,255,0.85);
+	-webkit-border-radius: 4px;/*Safari, Chrome*/
+	-moz-border-radius: 4px;/*Firefox*/
+	border-radius: 4px;
+	text-shadow:none;
+	color:rgb(192,103,5);
+}
+
+.cc_header_pinyin {	/* 条目拼音 */
+	font:1.3rem pinyin_font; 
+	color:rgb(51,51,51);
+	padding:0.5rem 0.5rem 0.5rem 0.5rem; 
+	background-color: #ECF5FF;
+}
+
+.cc_header_pinyin:before {	/* 拼音条目前内容 */
+	content:"\e701";
+	color: rgb(199,109,6);
+	font:1.4rem icon_font; 
+	padding-right:0.4rem;
+}
+
+
+DIV.cc_defs {border-bottom:1px dashed rgb(127,127,127);}
+DIV.cc_defs:last-child{border-bottom:0px dashed rgb(117,117,117);}
+
+.cc_def_pinyin {	/* 条目定义中拼音 */
+	font:1.2rem pinyin_font;
+	color: rgb(117,117,117);
+	padding-left:1px;
+}
+
+.cc_hans {   /* 解释中非链接的汉字（简繁) */
+	font-size:1.3rem;
+	color: rgb(117,117,117);
+}
+
+.cc_def {	/* 解释条目 */
+	font-size:1.4rem;
+	font-family: def_font, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", sans-serif; 
+	color:rgb(51,51,51); 
+	margin:0px 0px;
+	padding:0.1rem 0.5rem 0.1rem 0.5rem;
+}
+
+.cc_def:before {	/* 条目解释前内容 */
+	content:url("./entry-bullet.png");
+	content:"\e6e5";
+	font:1rem icon_font;
+	color:#C76E06;
+	padding:0px 1px 0px 5px;
+}
+
+.cc_tag {
+	font-size:0.9rem;
+	font-family: tagie_font, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", sans-serif; 
+	color:white;
+	background-color:#C76E06;
+	padding: 2px 2px;
+	vertical-align:1px;
+	text-transform:uppercase;
+	font-weight:normal;
+	-webkit-border-radius: 3px;/*Safari, Chrome*/
+	-moz-border-radius: 3px;/*Firefox*/
+	border-radius: 3px;
+	-moz-box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/*FF 3.5+*/
+	-webkit-box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/*Saf3-4, Chrome, iOS 4.0.2-4.2, Android 2.3+*/
+	box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/* FF3.5+, Opera 9+, Saf1+, Chrome, IE10 */
+}
+
+.cc_ie {
+	font-size:1.0rem;
+	font-family: tagie_font, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", sans-serif; 
+	color:white;
+	background-color:rgb(36,123,160);
+	padding: 2px 2px;
+	vertical-align:1px;
+	font-weight:normal;
+	-webkit-border-radius: 3px;/*Safari, Chrome*/
+	-moz-border-radius: 3px;/*Firefox*/
+	border-radius: 3px;
+	-moz-box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/*FF 3.5+*/
+	-webkit-box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/*Saf3-4, Chrome, iOS 4.0.2-4.2, Android 2.3+*/
+	box-shadow: 1px 1px 0 rgba(110,110,110,0.4);/* FF3.5+, Opera 9+, Saf1+, Chrome, IE10 */
+}
+
+.cc_def A {	/* 条目调转链接 */
+	text-decoration:none; 
+	color:rgb(0,74,171);
+	font-size:1.3rem;
+}
+
+/*  链接前内容 
+A:before {   
+    content:"\e656";
+    font:1.3rem icon_font;
+    text-decoration:none;
+}
+
+*/

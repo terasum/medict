@@ -19,6 +19,9 @@
 <template>
   <div class="x-space">
     <div class="x-layout">
+      <div class="x-layout-header">
+            <AppHeader/>
+      </div>
       <div class="x-layout-main-area">
         <div class="x-layout-sidebar">
           <AppSidebar>
@@ -112,11 +115,6 @@
             </div>
           </AppMainContent>
         </div>
-        <div class="x-layout-right-toolbar">
-          <AppRightToolbar>
-            <div class="dict-toolbar"></div> 
-          </AppRightToolbar>
-        </div>
       </div>
       <div class="n-layout-footer">
         <AppFooter>
@@ -130,10 +128,11 @@
 </template>
 
 <script setup>
-import AppSidebar from '../../components/layout/AppSidebar.vue';
-import AppFooter from '../../components/layout/AppFooter.vue';
-import AppFunctions from '../../components/layout/AppFunctions.vue';
-import AppMainContent from '../../components/layout/AppMainContent.vue';
+import AppHeader from '@/components/layout/AppHeader.vue';
+import AppSidebar from '@/components/layout/AppSidebar.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
+import AppFunctions from '@/components/layout/AppFunctions.vue';
+import AppMainContent from '@/components/layout/AppMainContent.vue';
 import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
 
 import { NIcon, NButton, NButtonGroup } from 'naive-ui';
@@ -209,7 +208,7 @@ onMounted(() => {
 
       .x-layout-content {
         width: calc(
-          100% - $layout-left-sidebar-width - $layout-right-toolbar-width
+          100% - $layout-left-sidebar-width 
         );
         height: 100%;
         padding: 0;

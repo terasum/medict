@@ -72,7 +72,6 @@
 
 </style>
 <template>
-  <AppFunctions>
    <div class="header-search-box">
         <div class="header-navigate-btns">
           <button
@@ -105,7 +104,6 @@
           </n-input>
         </div>
       </div>
-  </AppFunctions>
 </template>
 
 <script setup>

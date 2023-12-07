@@ -3,6 +3,7 @@ package apis
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/terasum/medict/internal/static/handler"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 	"github.com/terasum/medict/internal/static"
-	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 )
@@ -77,7 +77,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		return
 	}
 
-	htmlContent, err := tmpl.WrapContent(dict, entry.MdictKeyWordIndex, def)
+	htmlContent, err := handler.WrapContent(dict, entry.MdictKeyWordIndex, def)
 	if err != nil {
 
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -118,7 +118,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	resultBytes, err := dc.ds.FindFromDir(dictId, key)
 	if err == nil {
 		log.Infof("innerResourceQuery search key hit dir: [%s]", key)
-		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
 			return
@@ -132,7 +132,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err == nil {
 		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
-		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
 			return
@@ -147,7 +147,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	resultBytes, err = dc.ds.LookupResource(dictId, key)
 	if err == nil {
 		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
-		resultBytes, err = tmpl.WrapResource(dictId, key, resultBytes)
+		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
 		if err != nil {
 			wrapContentType(c, key, resultBytes)
 			return
@@ -171,7 +171,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	}
 
 	log.Infof("innerResourceQuery(4) search key hit resource with '\\' prefix: [%s]", key)
-	result, err := tmpl.WrapResource(dictId, key, resultBytes)
+	result, err := handler.WrapResource(dictId, key, resultBytes)
 	if err != nil {
 		wrapContentType(c, key, result)
 		return

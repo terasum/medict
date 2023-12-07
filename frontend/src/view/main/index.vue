@@ -19,13 +19,17 @@
 <template>
   <div class="x-space">
     <div class="x-layout">
+     <div class="x-layout-header">
+            <AppHeader>
+            <MainFunctions />
+            </AppHeader>
+      </div>
       <div class="x-layout-main-area">
         <div class="x-layout-sidebar">
           <MainSidebar />
         </div>
         <div class="x-layout-content">
           <div class="app-content" id="app-content">
-            <MainFunctions />
             <div class="app-content-main">
               <MainContentFrame />
             </div>
@@ -43,11 +47,13 @@
 </template>
 
 <script setup>
+import AppHeader from "@/components/layout/AppHeader.vue";
 import MainSidebar from './MainSidebar.vue';
 import MainRightToolbar from './MainRightToolbar.vue';
 import MainFooter from './MainFooter.vue';
 import MainContentFrame from './MainContentFrame.vue';
 import MainFunctions from './MainFunctions.vue';
+
 import { useUIStore } from '@/store/ui';
 
 const uiStore = useUIStore();
@@ -68,6 +74,12 @@ uiStore.updateCurrentTab("search");
     height: 100%;
     padding: 0;
     margin: 0;
+    .x-layout-header {
+      width: 100%;
+      // height: $layout-footer-height;
+      // padding: 0;
+      // margin: 0;
+    }
     .x-layout-main-area {
       display: flex;
       flex-direction: row;

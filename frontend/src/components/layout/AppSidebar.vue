@@ -33,30 +33,6 @@
   cursor:default;
 
   
-
-  .sidebar-top {
-    display: flex;
-    padding: 0 10px;
-    background-color: $theme-top-header-background-color;
-    border-bottom: 1px solid #dcdcdc;
-
-    .logo {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: calc($layout-sidebar-logo-height - 1px);
-      img {
-        width: 100%;
-      }
-      h1{
-        color:$theme-logo-font-color;
-        font-style: italic;
-      }
-    }
-    
-  }
   .sidebar-content{
     border-right: 1px solid #dcdcdc;
     padding: 0;
@@ -92,17 +68,8 @@
 </style>
 <template>
   <div id="app-sidebar" class="app-sidebar">
-
-    <div class="sidebar-top">
-      <div class="logo">
-        <!-- <img src="@/assets/images/logo.png"/> -->
-        <h1>Medict</h1>
-      </div>
-    </div>
-
     <div class="sidebar-content">
         <slot></slot>
-   
     </div>
   </div>
 </template>

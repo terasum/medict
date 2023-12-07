@@ -19,6 +19,9 @@
 <template>
   <div class="x-space">
     <div class="x-layout">
+      <div class="x-layout-header">
+            <AppHeader/>
+      </div>
       <div class="x-layout-main-area">
         <div class="x-layout-sidebar">
           <AppSidebar>
@@ -79,6 +82,7 @@
 <script lang="ts" setup>
 import AppSidebar from '@/components/layout/AppSidebar.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
+import AppHeader from '@/components/layout/AppHeader.vue';
 
 import AppMainContent from '@/components/layout/AppMainContent.vue';
 import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';

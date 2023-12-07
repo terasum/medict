@@ -8,45 +8,45 @@ import (
 	"github.com/terasum/medict/internal/utils"
 )
 
-//go:embed preset/dictd-elements/dictd-elements.dict.dz
-var PresetStarDictCEDictDZFile []byte
+//go:embed preset/cc-cedict/cc-cedict.mdx
+var PresetMdictMdxFile []byte
 
-//go:embed preset/dictd-elements/dictd-elements.ifo
-var PresetStarDictCEDictIFOFile []byte
+//go:embed preset/cc-cedict/cc-cedict.mdd
+var PresetMdictMddFile []byte
 
-//go:embed preset/dictd-elements/dictd-elements.idx
-var PresetStarDictCEDictIDXFile []byte
+//go:embed preset/cc-cedict/cc-cedict.css
+var PresetMdictCSSFile []byte
 
-//go:embed preset/dictd-elements/cover.png
-var PresetStarDictCEDictCoverImg []byte
+//go:embed preset/cc-cedict/cover.png
+var PresetMdictCoverImg []byte
 
 func WritePresetDictionary(baseDictDir string) error {
-	fullpath := filepath.Join(baseDictDir, "cedict-gb")
+	fullpath := filepath.Join(baseDictDir, "cc-cedict")
 	if !utils.FileExists(fullpath) {
 		if err := os.MkdirAll(fullpath, 0755); err != nil {
 			return err
 		}
 	}
 
-	dzfilePath := filepath.Join(fullpath, "cedict-gb.dict.dz")
-	if !utils.FileExists(dzfilePath) {
-		err := os.WriteFile(dzfilePath, PresetStarDictCEDictDZFile, 0644)
+	mdxfilePath := filepath.Join(fullpath, "cc-cedict.mdx")
+	if !utils.FileExists(mdxfilePath) {
+		err := os.WriteFile(mdxfilePath, PresetMdictMdxFile, 0644)
 		if err != nil {
 			return err
 		}
 	}
 
-	ifofilePath := filepath.Join(fullpath, "cedict-gb.ifo")
-	if !utils.FileExists(ifofilePath) {
-		err := os.WriteFile(ifofilePath, PresetStarDictCEDictIFOFile, 0644)
+	mddfilePath := filepath.Join(fullpath, "cc-cedict.mdd")
+	if !utils.FileExists(mddfilePath) {
+		err := os.WriteFile(mddfilePath, PresetMdictMddFile, 0644)
 		if err != nil {
 			return err
 		}
 	}
 
-	idxfilePath := filepath.Join(fullpath, "cedict-gb.idx")
-	if !utils.FileExists(idxfilePath) {
-		err := os.WriteFile(idxfilePath, PresetStarDictCEDictIDXFile, 0644)
+	cssfilePath := filepath.Join(fullpath, "cc-cedict.css")
+	if !utils.FileExists(cssfilePath) {
+		err := os.WriteFile(cssfilePath, PresetMdictCSSFile, 0644)
 		if err != nil {
 			return err
 		}
@@ -54,7 +54,7 @@ func WritePresetDictionary(baseDictDir string) error {
 
 	coverfilePath := filepath.Join(fullpath, "cover.png")
 	if !utils.FileExists(coverfilePath) {
-		err := os.WriteFile(coverfilePath, PresetStarDictCEDictCoverImg, 0644)
+		err := os.WriteFile(coverfilePath, PresetMdictCoverImg, 0644)
 		if err != nil {
 			return err
 		}

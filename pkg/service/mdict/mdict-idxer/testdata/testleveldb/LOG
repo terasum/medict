@@ -1,0 +1,122 @@
+=============== Nov 28, 2023 (CST) ===============
+15:20:45.440867 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:20:45.453642 db@open opening
+15:20:45.454370 version@stat F·[] S·0B[] Sc·[]
+15:20:45.460420 db@janitor F·2 G·0
+15:20:45.460448 db@open done T·6.776333ms
+=============== Nov 28, 2023 (CST) ===============
+15:21:48.794505 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:21:48.795446 version@stat F·[] S·0B[] Sc·[]
+15:21:48.795460 db@open opening
+15:21:48.795508 journal@recovery F·1
+15:21:48.796054 journal@recovery recovering @1
+15:21:48.801955 memdb@flush created L0@2 N·3 S·329B "PFK..ium,v3":"PFK..llo,v2"
+15:21:48.802913 version@stat F·[1] S·329B[329B] Sc·[0.25]
+15:21:48.818179 db@janitor F·3 G·0
+15:21:48.818237 db@open done T·22.762416ms
+=============== Nov 28, 2023 (CST) ===============
+15:23:16.419766 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:23:16.420493 version@stat F·[1] S·329B[329B] Sc·[0.25]
+15:23:16.420505 db@open opening
+15:23:16.420555 journal@recovery F·1
+15:23:16.420899 journal@recovery recovering @3
+15:23:16.427538 memdb@flush created L0@5 N·3 S·329B "PFK..ium,v7":"PFK..llo,v6"
+15:23:16.427767 version@stat F·[2] S·658B[658B] Sc·[0.50]
+15:23:16.446808 db@janitor F·4 G·0
+15:23:16.446843 db@open done T·26.328584ms
+=============== Nov 28, 2023 (CST) ===============
+15:27:14.150662 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:27:14.151368 version@stat F·[2] S·658B[658B] Sc·[0.50]
+15:27:14.151377 db@open opening
+15:27:14.151411 journal@recovery F·1
+15:27:14.151791 journal@recovery recovering @6
+15:27:14.158795 memdb@flush created L0@8 N·3 S·329B "PFK..ium,v11":"PFK..llo,v10"
+15:27:14.159031 version@stat F·[3] S·987B[987B] Sc·[0.75]
+15:27:14.177045 db@janitor F·5 G·0
+15:27:14.177077 db@open done T·25.693334ms
+=============== Nov 28, 2023 (CST) ===============
+15:27:50.360753 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:27:50.361430 version@stat F·[3] S·987B[987B] Sc·[0.75]
+15:27:50.361445 db@open opening
+15:27:50.361506 journal@recovery F·1
+15:27:50.361839 journal@recovery recovering @9
+15:27:50.371168 memdb@flush created L0@11 N·3 S·329B "PFK..ium,v15":"PFK..llo,v14"
+15:27:50.371393 version@stat F·[4] S·1KiB[1KiB] Sc·[1.00]
+15:27:50.391375 db@janitor F·6 G·0
+15:27:50.391405 db@open done T·29.951709ms
+15:27:50.391458 table@compaction L0·4 -> L1·0 S·1KiB Q·16
+=============== Nov 28, 2023 (CST) ===============
+15:27:56.083826 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:27:56.084445 version@stat F·[4] S·1KiB[1KiB] Sc·[1.00]
+15:27:56.084456 db@open opening
+15:27:56.084519 journal@recovery F·1
+15:27:56.084995 journal@recovery recovering @12
+15:27:56.093092 memdb@flush created L0@14 N·3 S·329B "PFK..ium,v19":"PFK..llo,v18"
+15:27:56.093364 version@stat F·[5] S·1KiB[1KiB] Sc·[1.25]
+15:27:56.111344 db@janitor F·7 G·0
+15:27:56.111378 db@open done T·26.914417ms
+15:27:56.111435 table@compaction L0·5 -> L1·0 S·1KiB Q·20
+=============== Nov 28, 2023 (CST) ===============
+15:28:00.513739 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:28:00.514081 version@stat F·[5] S·1KiB[1KiB] Sc·[1.25]
+15:28:00.514101 db@open opening
+15:28:00.514173 journal@recovery F·1
+15:28:00.514984 journal@recovery recovering @15
+15:28:00.520620 memdb@flush created L0@17 N·3 S·329B "PFK..ium,v23":"PFK..llo,v22"
+15:28:00.520899 version@stat F·[6] S·1KiB[1KiB] Sc·[1.50]
+15:28:00.534898 db@janitor F·8 G·0
+15:28:00.534933 db@open done T·20.822708ms
+15:28:00.535080 table@compaction L0·6 -> L1·0 S·1KiB Q·25
+=============== Nov 28, 2023 (CST) ===============
+15:28:03.241312 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:28:03.241791 version@stat F·[6] S·1KiB[1KiB] Sc·[1.50]
+15:28:03.241816 db@open opening
+15:28:03.242027 journal@recovery F·1
+15:28:03.243452 journal@recovery recovering @18
+15:28:03.249910 memdb@flush created L0@20 N·3 S·329B "PFK..ium,v27":"PFK..llo,v26"
+15:28:03.250122 version@stat F·[7] S·2KiB[2KiB] Sc·[1.75]
+15:28:03.264172 db@janitor F·9 G·0
+15:28:03.264295 db@open done T·22.465125ms
+15:28:03.264381 table@compaction L0·7 -> L1·0 S·2KiB Q·28
+=============== Nov 28, 2023 (CST) ===============
+15:28:05.261153 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:28:05.261382 version@stat F·[7] S·2KiB[2KiB] Sc·[1.75]
+15:28:05.261392 db@open opening
+15:28:05.261430 journal@recovery F·1
+15:28:05.262162 journal@recovery recovering @21
+15:28:05.267843 memdb@flush created L0@23 N·3 S·329B "PFK..ium,v31":"PFK..llo,v30"
+15:28:05.268391 version@stat F·[8] S·2KiB[2KiB] Sc·[2.00]
+15:28:05.280880 db@janitor F·10 G·0
+15:28:05.280905 db@open done T·19.504792ms
+15:28:05.280940 table@compaction L0·8 -> L1·0 S·2KiB Q·32
+15:28:05.285530 table@build created L1@26 N·3 S·329B "PFK..ium,v31":"PFK..llo,v30"
+15:28:05.285563 version@stat F·[0 1] S·329B[0B 329B] Sc·[0.00 0.00]
+15:28:05.292647 table@compaction committed F-7 S-2KiB Ke·0 D·21 T·11.683374ms
+15:28:05.292924 table@remove removed @23
+15:28:05.292979 table@remove removed @20
+15:28:05.293020 table@remove removed @17
+15:28:05.293058 table@remove removed @14
+15:28:05.293102 table@remove removed @11
+15:28:05.293146 table@remove removed @8
+15:28:05.293190 table@remove removed @5
+15:28:05.293411 table@remove removed @2
+=============== Nov 28, 2023 (CST) ===============
+15:28:11.977346 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:28:11.977857 version@stat F·[0 1] S·329B[0B 329B] Sc·[0.00 0.00]
+15:28:11.977874 db@open opening
+15:28:11.977928 journal@recovery F·1
+15:28:11.978519 journal@recovery recovering @24
+15:28:11.987487 memdb@flush created L0@27 N·3 S·331B "PFK..ium,v35":"PFK..llo,v34"
+15:28:11.987715 version@stat F·[1 1] S·660B[331B 329B] Sc·[0.25 0.00]
+15:28:12.005736 db@janitor F·4 G·0
+15:28:12.005778 db@open done T·27.895708ms
+=============== Nov 28, 2023 (CST) ===============
+15:28:32.504547 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:28:32.505448 version@stat F·[1 1] S·660B[331B 329B] Sc·[0.25 0.00]
+15:28:32.505468 db@open opening
+15:28:32.505542 journal@recovery F·1
+15:28:32.506085 journal@recovery recovering @28
+15:28:32.515195 memdb@flush created L0@30 N·3 S·329B "PFK..ium,v39":"PFK..llo,v38"
+15:28:32.515497 version@stat F·[2 1] S·989B[660B 329B] Sc·[0.50 0.00]
+15:28:32.533279 db@janitor F·5 G·0
+15:28:32.533324 db@open done T·27.843875ms

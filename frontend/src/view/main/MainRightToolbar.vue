@@ -87,9 +87,9 @@
                 : item.name
             }}
           </div>
-          <div style="max-width: 260px; max-height: 200px; overflow-y: auto">
-            <p v-html="item.description.description"></p>
-          </div>
+          <!-- <div style="width: 95%; max-width: 340px; max-height: 200px; overflow-y: auto"> -->
+            <!-- <div v-html="item.description.description"></div> -->
+          <!-- </div> -->
         </div>
       </n-popover>
     </div>
@@ -164,20 +164,7 @@ function loadDictionaries() {
       state.dictList.push(res[i]);
       promiseArray.push(buildIndexPromise(i, res[i].id, res[i].name))
     }
-
     sequenceHandle(promiseArray);
-
-    // for (let i = 0; i < res.length; i++) {
-    //   state.dictList.push(res[i]);
-    //   console.log(`[app-init] building dictionary, index: ${i}`, res[i])
-
-    //   BuildIndex(res[i].id).then((resp) => {
-    //     let progressHint = `词典 ${res[i].name} 加载完成`;
-    //     console.log(`[app-init] building success, index: ${i}`, resp);
-    //     updater(progressHint)
-    //   });
-    // }
-
   });
 }
 
@@ -198,7 +185,7 @@ function updateProgress(totalNumber) {
         clearInterval(intv);
         setTimeout(() =>{
           uiStore.updateProgress("全部加载完成", 100);
-        },300)
+        },150)
       }
     }
   }, 200);
@@ -212,6 +199,9 @@ function updateProgress(totalNumber) {
 
 
 onMounted(() => {
-  loadDictionaries();
+  dictQueryStore.initDicts().then((res)=>{
+    console.log("[dict-api] init dicts success, result:", res)
+    loadDictionaries();
+  })
 });
 </script>

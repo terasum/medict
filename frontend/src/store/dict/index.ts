@@ -18,7 +18,7 @@
 
 import { defineStore } from 'pinia';
 
-import { GetAllDicts, SearchWord } from '@/apis/dicts-api';
+import { InitDicts, GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
 
 function constructQueryURL(entry) {
@@ -96,6 +96,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
     historyStack: new HistoryStack(),
   }),
   actions: {
+    initDicts() {
+      return InitDicts();
+    },
     // 取得当前词典列表
     queryDictList() {
       return GetAllDicts();
@@ -104,6 +107,10 @@ export const useDictQueryStore = defineStore('dictQuery', {
     updateInputSearchWord(word: string) {
       console.log(`[app-event](store-action), updateInputSearchWord: ${word}`);
       if (!word || word.trim() == '') {
+        if (this.selectDict && this.selectDict.id !== '') {
+          console.log("[app-event] updateInputSearchWord, selectDict is not empty, update main content")
+          this.updateMainContent(this.selectDict.description.description);
+        }
         return;
       }
       if (word == this.inputSearchWord) {
@@ -122,19 +129,23 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
       SearchWord(this.selectDict.id, word).then((res) => {
         console.info('[store-action]{searchWord} success', word, res);
+        
         this.updatePendingList(res);
       }).catch((err) => {
         console.info('[store-action]{searchWord} failed', err);
+        this.updateSetCurrentDictAsContent();
       });
     },
     // 更新 pending list
     updatePendingList(wordList) {
       console.log(`[app-event](store-action), updatePendingList`, wordList);
+
       this.queryPendingList = wordList;
+      
       if (this.queryPendingList && this.queryPendingList.length > 0) {
         this.locateWord(0);
       } else {
-        this.resetMainContent();
+        this.updateSetCurrentDictAsContent()
       }
     },
     // 更新main iframe内容
@@ -165,7 +176,16 @@ export const useDictQueryStore = defineStore('dictQuery', {
       this.selectDict = dictItem;
       if (this.inputSearchWord && this.inputSearchWord.trim() != '') {
         this.searchWord(this.inputSearchWord);
+      } else {
+        this.updateSetCurrentDictAsContent();
       }
+    },
+    updateSetCurrentDictAsContent() {
+        if (! this.selectDict || this.selectDict.id === '') {
+          this.mainContent = btoa(DefaultContentTemplpate);
+          return;
+        }
+        this.updateMainContent(this.selectDict.description.description);
     },
     setUpAPIBaseURL() {
       let count = 0;

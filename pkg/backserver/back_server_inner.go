@@ -113,6 +113,7 @@ func (bs *BackServer) setUpRouters() error {
 }
 
 func (bs *BackServer) setupHandlers() {
+	bs.handlerMap.Store("InitDicts", bs.DictCon.InitDicts)
 	bs.handlerMap.Store("GetAllDicts", bs.DictCon.GetAllDicts)
 	bs.handlerMap.Store("SearchWord", bs.DictCon.SearchWord)
 	bs.handlerMap.Store("BuildIndexByDictId", bs.DictCon.BuildIndexByDictId)

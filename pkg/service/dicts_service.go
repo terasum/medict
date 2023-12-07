@@ -19,12 +19,12 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/terasum/medict/internal/static/handler"
 	"os"
 	"path"
 	"sort"
 	"strings"
-
-	"github.com/op/go-logging"
+	"sync"
 
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/utils"
@@ -32,27 +32,23 @@ import (
 	"github.com/terasum/medict/pkg/service/support"
 )
 
-var log = logging.MustGetLogger("default")
-
 var singltonInstanceDictService *DictService
 
 type DictService struct {
-	config *config.Config
-	dicts  map[string]*model.DictionaryItem
+	config   *config.Config
+	dicts    map[string]*model.DictionaryItem
+	dictLock *sync.Mutex
 }
 
 func NewDictService(config *config.Config) (*DictService, error) {
 	if singltonInstanceDictService != nil {
 		return singltonInstanceDictService, nil
 	}
-	ds := &DictService{
-		config: config,
-		dicts:  make(map[string]*model.DictionaryItem),
-	}
 
-	err := ds.walkDicts()
-	if err != nil {
-		return nil, err
+	ds := &DictService{
+		config:   config,
+		dicts:    make(map[string]*model.DictionaryItem),
+		dictLock: new(sync.Mutex),
 	}
 
 	singltonInstanceDictService = ds
@@ -60,7 +56,15 @@ func NewDictService(config *config.Config) (*DictService, error) {
 	return ds, nil
 }
 
+// InitDicts initialize the dictionaries
+func (ds *DictService) InitDicts() error {
+	return ds.walkDicts()
+}
+
 func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[dictId]; ok {
 		key = strings.ReplaceAll(key, "\\", string(os.PathSeparator))
 		key = strings.TrimLeft(key, string("."))
@@ -77,10 +81,14 @@ func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 }
 
 func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	result := make([]*model.PlainDictionaryItem, len(ds.dicts))
 	i := 0
 	for _, dict := range ds.dicts {
 		result[i] = dict.ToPlain()
+		result[i].Description.Description = handler.WrapDesc(dict.ID, result[i].Name, result[i].Description.Description)
 		i++
 	}
 	list := (model.DictList)(result)
@@ -89,6 +97,9 @@ func (ds *DictService) Dicts() []*model.PlainDictionaryItem {
 }
 
 func (ds *DictService) GetDictById(id string) *model.DictionaryItem {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[id]; ok {
 		return dict
 	}
@@ -96,6 +107,9 @@ func (ds *DictService) GetDictById(id string) *model.DictionaryItem {
 }
 
 func (ds *DictService) BuildIndexById(dictId string) error {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[dictId]; ok {
 		err := dict.MainDict.BuildIndex()
 		if err != nil {
@@ -106,11 +120,17 @@ func (ds *DictService) BuildIndexById(dictId string) error {
 }
 
 func (ds *DictService) GetDictPlain(id string) (*model.PlainDictionaryItem, bool) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	dict, ok := ds.dicts[id]
 	return dict.ToPlain(), ok
 }
 
 func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
 	} else {
@@ -123,6 +143,9 @@ func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
 }
 
 func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[dictId]; !ok {
 		log.Infof("LookResource dict not found [%s]", keyword)
 		return nil, fmt.Errorf("dictionary (%s) not found", keyword)
@@ -139,6 +162,9 @@ func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, er
 }
 
 func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	if dict, ok := ds.dicts[dictid]; !ok {
 		return "", errors.New("dict not found")
 	} else {
@@ -158,6 +184,9 @@ func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, 
 }
 
 func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryIndex, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
 	log.Infof("search %s %s", dictId, keyword)
 	if dict, ok := ds.dicts[dictId]; !ok {
 		return nil, errors.New("dict not found")
@@ -185,7 +214,9 @@ func (ds *DictService) walkDicts() error {
 		if err1 != nil {
 			return fmt.Errorf("new dir item failed, %s", err1.Error())
 		}
+		ds.dictLock.Lock()
 		ds.dicts[dictItem.ID] = dictItem
+		ds.dictLock.Unlock()
 	}
 	return nil
 }

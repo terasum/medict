@@ -6,7 +6,6 @@
   display: flex;
   width: 100%;
   flex-direction: row;
-  background: #fafafa;
 
   .header {
 
@@ -15,16 +14,8 @@
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
-    background-color: $theme-top-header-background-color;
-    border-bottom: 1px solid #dcdcdc;
-
-    .header-main-function {
-      display: flex;
-      height: 54px;
-      padding: 0;
-      margin: 0;
-      min-width: 174px;
-    }
+    // background-color: $theme-top-header-background-color;
+    // border-bottom: 1px solid #dcdcdc;
 
     .header-nav-functions {
       max-width: 306px;
@@ -86,9 +77,7 @@
 <template>
   <div class="app-content-functions">
     <div class="header">
-      <div class="header-main-function">
-        <slot></slot>
-      </div>
+
 
       <div class="header-nav-functions">
         <div class="fn-box" @click="changeTab('search')"  :class="uiStore.currentTab == 'search'?'active':''">
@@ -112,6 +101,13 @@
           <span class="fn-box-text">插件</span>
         </div>
 
+        <div class="fn-box" @click="changeTab('debug')"  :class="uiStore.currentTab == 'debug'?'active':''">
+          <span class="fn-box-icon">
+            <Bug />
+          </span>
+          <span class="fn-box-text">调试</span>
+        </div>
+
         <div class="fn-box" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
           <span class="fn-box-icon">
             <ToggleOn />
@@ -124,7 +120,7 @@
 </template>
 
 <script setup>
-import { Search, Book, ToggleOn, Toolbox } from '@vicons/fa';
+import { Search, Book, ToggleOn, Toolbox, Bug } from '@vicons/fa';
 import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
 import { useRouter } from "vue-router";
@@ -139,8 +135,9 @@ const router = useRouter();
 const tabRouters = {
   search: '/',
   dict: '/dict',
-  setting: '/setting',
   plugins:'/plugins',
+  debug:'/debug',
+  setting: '/setting',
 };
 
 function changeTab(tabName) {

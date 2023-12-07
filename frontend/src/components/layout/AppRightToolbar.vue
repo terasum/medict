@@ -23,16 +23,6 @@
   height: 100%;
   width: $layout-right-toolbar-width;
 
-  .toolbar-top {
-    height: calc($layout-header-height - 1px);
-    width: 100%;
-
-
-    display: flex;
-    padding: 0 10px;
-    background-color: $theme-top-header-background-color;
-    border-bottom: 1px solid #dcdcdc;
-  }
 
   .toolbar-content {
     display: flex;
@@ -48,7 +38,6 @@
 </style>
 <template>
   <div id="app-right-toolbar" class="app-right-toolbar">
-    <div class="toolbar-top"></div>
     <div class="toolbar-content">
       <slot></slot>
     </div>

@@ -32,7 +32,6 @@
 </style>
 <template>
   <div class="app-content" id="app-content">
-    <AppFunctions />
     <div class="app-content-main">
       <slot></slot>
     </div>
@@ -40,5 +39,4 @@
 </template>
 
 <script lang="ts" setup>
-import AppFunctions from './AppFunctions.vue';
 </script>

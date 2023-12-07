@@ -19,6 +19,7 @@
 import MainWindow from '@/view/main/index.vue';
 import DictWindow from '@/view/dict/index.vue';
 import PluginsWindow from '@/view/plugins/index.vue';
+import DebugWindow from '@/view/debug/index.vue';
 import SettingWindow from '@/view/setting/index.vue';
 import DocWindow from '@/view/docs/index.vue';
 
@@ -34,6 +35,9 @@ import SettingSoftware from "@/view/setting/SettingSoftware.vue";
 import SettingTheme from "@/view/setting/SettingTheme.vue";
 import SettingPlugin from "@/view/setting/SettingPlugin.vue";
 import SettingUpdater from "@/view/setting/SettingUpdate.vue";
+
+import DebugResourceSearchView from "@/view/debug/DebugResourceSearch.vue";
+import DebugEditDictView from "@/view/debug/DebugEditDict.vue";
 
 export default [
   { path: '/', component: MainWindow },
@@ -52,6 +56,12 @@ export default [
     
   ]},
   { path: '/plugins', component: PluginsWindow },
+  { path: '/debug', component: DebugWindow,
+    children: [
+      {path:"", component: DebugResourceSearchView},
+      {path:"resource-search", component: DebugResourceSearchView},
+      {path:"edit-dict", component: DebugEditDictView},
+    ] },
   {
     path: '/docs',
     component: DocWindow,

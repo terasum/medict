@@ -7,8 +7,17 @@ import (
 
 // GetAllDicts
 func (dc *DictsController) GetAllDicts(args map[string]interface{}) *model.Resp {
-	resp := dc.ds.Dicts()
-	return model.BuildSuccess(resp)
+	dicts := dc.ds.Dicts()
+	return model.BuildSuccess(dicts)
+}
+
+// InitDicts 初始化词典
+func (dc *DictsController) InitDicts(args map[string]interface{}) *model.Resp {
+	err := dc.ds.InitDicts()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(nil)
 }
 
 // buildIndex

@@ -1,14 +1,15 @@
 module github.com/terasum/medict
 
-go 1.18
+go 1.21.0
 
 require github.com/wailsapp/wails/v2 v2.6.0
 
-require github.com/stretchr/testify v1.8.3
+require github.com/stretchr/testify v1.8.4
 
 require (
 	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10
 	github.com/creasty/go-levenshtein v0.0.0-20161128082938-38ce641d5030
+	github.com/dghubble/trie v0.0.0-20230729160116-2bc358f28a8b
 	github.com/fatih/color v1.16.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
@@ -19,6 +20,8 @@ require (
 	github.com/silenceper/pool v1.0.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/viper v1.10.1
+	github.com/sym01/htmlsanitizer v1.0.1
+	github.com/syndtr/goleveldb v1.0.0
 	go.etcd.io/etcd/client/pkg/v3 v3.5.1
 	golang.org/x/text v0.13.0
 )
@@ -36,6 +39,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect

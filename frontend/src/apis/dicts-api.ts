@@ -32,6 +32,17 @@ try{
     }
 }
 
+export const InitDicts = async function(): Promise<model.Resp> {
+    try{
+        let resp = await requestBackend("InitDicts", {})
+        console.log("[dicts-api] InitDicts: ", resp)
+        return resp.data as unknown as model.Resp
+    } catch (error) {
+        console.error("[dicts-api] InitDicts: " ,error)
+        return Promise.reject(error)
+    }
+}
+
 
 export const GetAllDicts = async function (): Promise<Array<IDict>> {
     try{
