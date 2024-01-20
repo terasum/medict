@@ -33,7 +33,7 @@
     "naive-ui": "^2.34.4",
     "sass": "^1.66.1",
     "vfonts": "^0.0.3",
-    "vite": "^4.4.9",
+    "vite": "^4.5.2",
     "vite-plugin-inspect": "^0.7.38",
     "vite-plugin-md": "^0.21.5"
   }
