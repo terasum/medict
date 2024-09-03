@@ -142,7 +142,7 @@ jobs:
           prerelease: false
 
       - name: Download all release packages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
 
       - name: Attach darwin disk image
         uses: actions/upload-release-asset@v1
