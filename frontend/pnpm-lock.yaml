@@ -348,6 +348,11 @@ packages:
     dev: true
     optional: true
 
+  /@fastify/busboy@2.0.0:
+    resolution: {integrity: sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==, tarball: https://registry.npmjs.org/@fastify/busboy/-/busboy-2.0.0.tgz}
+    engines: {node: '>=14'}
+    dev: true
+
   /@iconify/types@2.0.0:
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
     dev: true
@@ -1401,7 +1406,7 @@ packages:
       destr: 1.2.2
       node-fetch-native: 0.1.8
       ufo: 0.8.6
-      undici: registry.npmjs.org/undici@5.26.3
+      undici: 5.28.4
     dev: true
 
   /open@9.1.0:
@@ -1579,7 +1584,15 @@ packages:
       mlly: 1.4.2
     dev: true
 
+  /undici@5.28.4:
+    resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==, tarball: https://registry.npmjs.org/undici/-/undici-5.28.4.tgz}
+    engines: {node: '>=14.0'}
+    dependencies:
+      '@fastify/busboy': 2.0.0
+    dev: true
+
   /unocss@0.47.6(vite@4.5.3):
+
     resolution: {integrity: sha512-cc+m2h/Iky24zwAKir9ElmIhkPYNjZEUTemInctWlVN8QX9qpzsRZahAl7ZmKsBorXPFtux/JYoUCCtXftyxOw==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -2759,12 +2772,3 @@ packages:
     name: source-map-js
     version: 1.0.2
     engines: {node: '>=0.10.0'}
-
-  registry.npmjs.org/undici@5.26.3:
-    resolution: {integrity: sha512-H7n2zmKEWgOllKkIUkLvFmsJQj062lSm3uA4EYApG8gLuiOM0/go9bIoC3HVaSnfg4xunowDE2i9p8drkXuvDw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/undici/-/undici-5.26.3.tgz}
-    name: undici
-    version: 5.26.3
-    engines: {node: '>=14.0'}
-    dependencies:
-      '@fastify/busboy': registry.npmjs.org/@fastify/busboy@2.0.0
-    dev: true
