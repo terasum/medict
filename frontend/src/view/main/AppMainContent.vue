@@ -99,7 +99,7 @@ function cerateIframe() {
   iframe.width = '100%';
   iframe.height = '100%';
   iframe.id = 'app-content-main-iframe';
-  iframe.style = 'border: 0px;';
+  iframe.style = 'border: 0px; padding: 0px; margin: 0px; overflow: hidden;';
   iframe_container.appendChild(iframe);
 }
 

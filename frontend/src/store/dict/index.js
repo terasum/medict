@@ -33,11 +33,14 @@ const countDownJs = `
 <head>
 <style>
   html, body {
-     width: 100%;
+    width: 100%;
     height: 100%;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
   }
   #skeleton{
     width: 100%;
@@ -47,6 +50,8 @@ const countDownJs = `
     display: flex;
     justify-content: center;
     flex-direction: column;
+    padding: 0;
+    margin: 0;
     
   }
   #skeleton > h1 {
