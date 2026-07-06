@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/op/go-logging"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/terasum/medict/internal/utils"
@@ -44,12 +45,29 @@ func WalkDir(dirpath string) ([]*model.DirItem, error) {
 			return nil
 		}
 
-		// skip non-dir
+		// filepath.WalkDir does not follow symlinks, and a symlink's DirEntry
+		// reports ModeSymlink (not a directory) even when it points to one.
+		// Resolve symlinks so a dictionary linked into the dicts dir is scanned.
+		scanPath := path
 		if !d.IsDir() {
-			return nil
+			if d.Type()&fs.ModeSymlink == 0 {
+				// a real, non-directory file at this level: skip
+				return nil
+			}
+			resolved, rerr := filepath.EvalSymlinks(path)
+			if rerr != nil {
+				log.Errorf("resolve symlink failed, path:[%s], %s", path, rerr.Error())
+				return nil
+			}
+			fi, serr := os.Stat(resolved)
+			if serr != nil || !fi.IsDir() {
+				// broken link or link to a non-directory: skip
+				return nil
+			}
+			scanPath = resolved
 		}
 		// 遍历第二层
-		item, err := innerWalkLevel2(dirpath, path)
+		item, err := innerWalkLevel2(dirpath, scanPath)
 		if err != nil {
 			// 二层遍历失败，继续遍历下一个
 			log.Errorf("inner walker failed , path:[%s], %s", path, err.Error())
