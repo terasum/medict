@@ -22,6 +22,7 @@ import (
 )
 
 func TestMdict_Lookup(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdx")
 	mdict, err := New("testdata/dict/oale8.mdx")
 	if err != nil {
 		t.Fatal(err)
@@ -36,10 +37,11 @@ func TestMdict_Lookup(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf(string(def))
+	t.Logf("%s", string(def))
 }
 
 func TestMdict_Lookup2(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdx")
 	mdict, err := New("testdata/dict/oale8.mdx")
 	if err != nil {
 		t.Fatal(err)
@@ -53,10 +55,11 @@ func TestMdict_Lookup2(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf(string(def))
+	t.Logf("%s", string(def))
 }
 
 func TestMdict_LookupMdd3(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdd")
 	mdict, err := New("testdata/dict/oale8.mdd")
 	if err != nil {
 		t.Fatal(err)
@@ -86,6 +89,7 @@ func TestMdict_LookupMdd3(t *testing.T) {
 }
 
 func TestMdict_LookupMdd4(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdd")
 	mdict, err := New("testdata/dict/oale8.mdd")
 	if err != nil {
 		t.Fatal(err)
@@ -115,6 +119,7 @@ func TestMdict_LookupMdd4(t *testing.T) {
 }
 
 func TestMdict_LookupMdd5(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdd")
 	mdict, err := New("testdata/dict/oale8.mdd")
 	if err != nil {
 		t.Fatal(err)
@@ -148,6 +153,7 @@ func TestMdict_LookupMdd5(t *testing.T) {
 }
 
 func TestMdict_LookupMdd6(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/ode3e.mdd")
 	mdict, err := New("testdata/dict/ode3e.mdd")
 	if err != nil {
 		t.Fatal(err)

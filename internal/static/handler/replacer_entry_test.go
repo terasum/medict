@@ -23,5 +23,5 @@ import (
 func TestReplacerEntry_Replace(t *testing.T) {
 	entry := &ReplacerEntry{}
 	_, html := entry.Replace("X182310003", nil, TESTENTRYHTML)
-	t.Logf(html)
+	t.Logf("%s", html)
 }

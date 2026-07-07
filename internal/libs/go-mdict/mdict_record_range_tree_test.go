@@ -39,6 +39,7 @@ func TestBuildRangeTree(t *testing.T) {
 }
 
 func TestBuildRangeTree2(t *testing.T) {
+	skipIfMissingTestData(t, "./testdata/mdx/testdict.mdx")
 	root := new(RecordBlockRangeTreeNode)
 	dict, err := New("./testdata/mdx/testdict.mdx")
 	if err != nil {

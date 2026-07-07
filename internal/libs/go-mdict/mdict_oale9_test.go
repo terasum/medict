@@ -5,6 +5,7 @@ import (
 )
 
 func TestOALE9(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/mdx/testdict.mdx")
 	dict, err := New("testdata/mdx/testdict.mdx")
 	if err != nil {
 		t.Error(err)

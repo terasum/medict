@@ -17,6 +17,7 @@
 package service
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,6 +25,9 @@ import (
 )
 
 func TestDictService_Dicts(t *testing.T) {
+	if _, err := os.Stat("./testdata/dicts"); err != nil {
+		t.Skip("testdata directory not present: ./testdata/dicts")
+	}
 	ds, err := NewDictService(&config.Config{
 		ConfigStruct: &config.ConfigStruct{
 			BaseDictDir: "./testdata/dicts",
@@ -37,6 +41,9 @@ func TestDictService_Dicts(t *testing.T) {
 }
 
 func TestDictService_Dicts2(t *testing.T) {
+	if _, err := os.Stat("./testdata/dicts"); err != nil {
+		t.Skip("testdata directory not present: ./testdata/dicts")
+	}
 	ds, err := NewDictService(&config.Config{
 		ConfigStruct: &config.ConfigStruct{
 			BaseDictDir: "./testdata/dicts",

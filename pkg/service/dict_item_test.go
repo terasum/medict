@@ -18,11 +18,19 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/terasum/medict/pkg/model"
+	"os"
 	"testing"
+
+	"github.com/terasum/medict/pkg/model"
 )
 
 func TestNewByDirItem(t *testing.T) {
+	// The embedded testdata uses absolute paths from the original author's
+	// macOS machine; skip when those paths are not present (CI / other
+	// contributors) so this does not block the build/test pipeline.
+	if _, err := os.Stat("/Users/chenquan/Workspace/go/src/github.com/terasum/medict/pkg/service/support/testdata/dicts/ccedit/ccedit.ifo"); err != nil {
+		t.Skip("testdata uses machine-specific absolute paths that are not present on this host")
+	}
 
 	const testDirItemData = `[
 	{
