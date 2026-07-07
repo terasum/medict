@@ -117,7 +117,7 @@ func (dict *DictionaryItem) ToPlain() *PlainDictionaryItem {
 }
 
 const IndexTypeMdict = "IndexTypeMdict"
-const IndexTypeStardict = "IndexTypeMdict"
+const IndexTypeStardict = "IndexTypeStardict"
 
 type KeyQueryIndex struct {
 	IndexType string `json:"index_type"`
