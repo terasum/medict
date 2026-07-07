@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare module 'vue-friendly-iframe'
-
 declare module '*.md' {
   import type { ComponentOptions } from 'vue'
   const Component: ComponentOptions<any>
