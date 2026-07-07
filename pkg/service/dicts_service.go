@@ -126,75 +126,80 @@ func (ds *DictService) GetDictPlain(id string) (*model.PlainDictionaryItem, bool
 }
 
 func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
+	// 锁内仅从 dicts map 取出 *model.DictionaryItem 指针（快），
+	// 慢 I/O（dict.MainDict.Lookup：磁盘/解压）放到锁外执行，避免持锁序列化。
 	ds.dictLock.Lock()
-	defer ds.dictLock.Unlock()
+	dict, ok := ds.dicts[dictId]
+	ds.dictLock.Unlock()
 
-	if dict, ok := ds.dicts[dictId]; !ok {
+	if !ok {
 		return nil, errors.New("dict not found")
-	} else {
-		data, err := dict.MainDict.Lookup(keyword)
-		if err != nil {
-			return nil, err
-		}
-		return data, nil
 	}
+	data, err := dict.MainDict.Lookup(keyword)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, error) {
+	// 锁内仅取出 dict 指针，资源查询（磁盘/解压）在锁外进行。
 	ds.dictLock.Lock()
-	defer ds.dictLock.Unlock()
+	dict, ok := ds.dicts[dictId]
+	ds.dictLock.Unlock()
 
-	if dict, ok := ds.dicts[dictId]; !ok {
+	if !ok {
 		log.Infof("LookResource dict not found [%s]", keyword)
 		return nil, fmt.Errorf("dictionary (%s) not found", keyword)
-	} else {
-		keyword = strings.TrimSpace(keyword)
-		data, err := dict.MainDict.LookupResource(keyword)
-		if err != nil {
-			log.Infof("LookupResource search (%s):[%s] failed, err: %s\n", dict.ToPlain().Name, keyword, err.Error())
-			return nil, err
-		}
-		log.Infof("LookupResource search  (%s)[%s] success\n", dict.ToPlain().Name, keyword)
-		return data, nil
 	}
+	keyword = strings.TrimSpace(keyword)
+	data, err := dict.MainDict.LookupResource(keyword)
+	if err != nil {
+		log.Infof("LookupResource search (%s):[%s] failed, err: %s\n", dict.ToPlain().Name, keyword, err.Error())
+		return nil, err
+	}
+	log.Infof("LookupResource search  (%s)[%s] success\n", dict.ToPlain().Name, keyword)
+	return data, nil
 }
 
 func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, error) {
+	// 锁内仅取出 dict 指针；Locate 内部的磁盘/解压读取在锁外执行。
 	ds.dictLock.Lock()
-	defer ds.dictLock.Unlock()
+	dict, ok := ds.dicts[dictid]
+	ds.dictLock.Unlock()
 
-	if dict, ok := ds.dicts[dictid]; !ok {
+	if !ok {
 		return "", errors.New("dict not found")
-	} else {
-		idxType := model.IndexTypeMdict
-		if dict.DictType == (string)(model.DictTypeStarDict) {
-			idxType = model.IndexTypeStardict
-		}
-		defData, err := dict.MainDict.Locate(&model.KeyQueryIndex{
-			IndexType:         idxType,
-			MdictKeyWordIndex: idx.MdictKeyWordIndex,
-		})
-		if err != nil {
-			return "", err
-		}
-		return string(defData), nil
 	}
+	idxType := model.IndexTypeMdict
+	if dict.DictType == (string)(model.DictTypeStarDict) {
+		idxType = model.IndexTypeStardict
+	}
+	defData, err := dict.MainDict.Locate(&model.KeyQueryIndex{
+		IndexType:         idxType,
+		MdictKeyWordIndex: idx.MdictKeyWordIndex,
+	})
+	if err != nil {
+		return "", err
+	}
+	return string(defData), nil
 }
 
 func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryIndex, error) {
-	ds.dictLock.Lock()
-	defer ds.dictLock.Unlock()
-
 	log.Infof("search %s %s", dictId, keyword)
-	if dict, ok := ds.dicts[dictId]; !ok {
+	// 锁内仅取出 dict 指针；Search（遍历索引、构建新切片）在锁外执行。
+	ds.dictLock.Lock()
+	dict, ok := ds.dicts[dictId]
+	ds.dictLock.Unlock()
+
+	if !ok {
 		return nil, errors.New("dict not found")
-	} else {
-		results, err := dict.MainDict.Search(keyword)
-		if err != nil {
-			return nil, err
-		}
-		return results, nil
 	}
+	results, err := dict.MainDict.Search(keyword)
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 /**
