@@ -32,7 +32,10 @@ import (
 	"github.com/terasum/medict/pkg/service/support"
 )
 
-var singltonInstanceDictService *DictService
+var (
+	singltonInstanceDictService *DictService
+	singletonOnce               sync.Once
+)
 
 type DictService struct {
 	config   *config.Config
@@ -41,19 +44,14 @@ type DictService struct {
 }
 
 func NewDictService(config *config.Config) (*DictService, error) {
-	if singltonInstanceDictService != nil {
-		return singltonInstanceDictService, nil
-	}
-
-	ds := &DictService{
-		config:   config,
-		dicts:    make(map[string]*model.DictionaryItem),
-		dictLock: new(sync.Mutex),
-	}
-
-	singltonInstanceDictService = ds
-
-	return ds, nil
+	singletonOnce.Do(func() {
+		singltonInstanceDictService = &DictService{
+			config:   config,
+			dicts:    make(map[string]*model.DictionaryItem),
+			dictLock: new(sync.Mutex),
+		}
+	})
+	return singltonInstanceDictService, nil
 }
 
 // InitDicts initialize the dictionaries
