@@ -21,7 +21,27 @@ import { defineStore } from 'pinia';
 import { InitDicts, GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
 
-function constructQueryURL(entry) {
+/**
+ * 历史栈条目类型。统一字段命名为 `keyword`，避免历史上 `keyword` / `key_word`
+ * 混用导致的去重失效与后退/前进读不到字段的问题（issue #699）。
+ */
+export interface HistoryEntry {
+  baseurl: string;
+  dict_id: string;
+  dict: any;
+  keyword: string;
+  record_start_offset: number;
+  record_end_offset: number;
+  key_block_idx?: number;
+  entry_id: number;
+  record_block_data_start_offset: number;
+  record_block_data_compress_size: number;
+  record_block_data_decompress_size: number;
+  keyword_data_start_offset: number;
+  keyword_data_end_offset: number;
+}
+
+function constructQueryURL(entry: HistoryEntry) {
   let {
     baseurl,
     dict_id,
@@ -250,7 +270,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
 
 
-      const locateQuerier = {
+      const locateQuerier: HistoryEntry = {
           baseurl: this.dictApiBaseURL,
           dict_id: this.selectDict.id,
           dict: this.selectDict,
@@ -272,7 +292,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       this._locateWord(locateQuerier);
 
     },
-    _locateWord(locateQuerier) {
+    _locateWord(locateQuerier: HistoryEntry) {
       console.log("frontend _locateWord", locateQuerier)
       let definitionURL = constructQueryURL(locateQuerier);
       this.updateMainContentURL(definitionURL);
@@ -280,17 +300,17 @@ export const useDictQueryStore = defineStore('dictQuery', {
     resetMainContent() {
       this.updateMainContent(btoa(DefaultContentTemplpate));
     },
-    pushHistory(qurier: any) {
-      if (qurier.key_word === '') {
+    pushHistory(qurier: HistoryEntry) {
+      if (!qurier.keyword || qurier.keyword === '') {
         return;
       }
       if (qurier.baseurl === '') {
         return;
       }
-      if (!this.historyStack.isEmpty() && this.historyStack.peek().key_word === qurier.key_word) {
+      if (!this.historyStack.isEmpty() && this.historyStack.peek().keyword === qurier.keyword) {
         return
       }
-      
+
       this.historyStack.push(qurier);
     },
     pushHistoryByEntryIDx(entry_idx){
@@ -299,53 +319,58 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
       const entry = this.queryPendingList[entry_idx];
 
-      const locateQuerier = {
+      const locateQuerier: HistoryEntry = {
         baseurl: this.dictApiBaseURL,
         dict_id: this.selectDict.id,
         dict: this.selectDict,
-        key_word: entry.key_word,
+        keyword: entry.keyword,
         record_start_offset: entry.record_start_offset,
         record_end_offset: entry.record_end_offset,
         key_block_idx: entry.key_block_idx,
         entry_id: entry_idx,
+        record_block_data_start_offset: entry.record_block_data_start_offset,
+        record_block_data_compress_size: entry.record_block_data_compress_size,
+        record_block_data_decompress_size: entry.record_block_data_decompress_size,
+        keyword_data_start_offset: entry.keyword_data_start_offset,
+        keyword_data_end_offset: entry.keyword_data_end_offset,
     }
 
       this.pushHistory(locateQuerier);
     },
     backHistory() {
-      let locateQuerier = this.historyStack.back();
-      if (this.inputSearchWord == locateQuerier.keyword) {
+      let locateQuerier: HistoryEntry | '' = this.historyStack.back();
+      if (!locateQuerier || this.inputSearchWord == locateQuerier.keyword) {
         return;
       }
-      this.updateInputSearchWord(locateQuerier.key_word)
+      this.updateInputSearchWord(locateQuerier.keyword)
 
       if (this.selectDict.id != locateQuerier.dict_id) {
         this.selectDict = locateQuerier.dict;
       }
 
-      SearchWord(locateQuerier.dict_id, locateQuerier.key_word ).then((res) => {
-        console.info('[store-action]{forwardHistory} success', locateQuerier.key_word, res);
+      SearchWord(locateQuerier.dict_id, locateQuerier.keyword ).then((res) => {
+        console.info('[store-action]{backHistory} success', locateQuerier.keyword, res);
         this.queryPendingList = res;
       }).catch((err) => {
-        console.info('[store-action]{forwardHistory} failed', err);
+        console.info('[store-action]{backHistory} failed', err);
       });
       this._locateWord(locateQuerier);
     },
 
     forwardHistory() {
-      let locateQuerier = this.historyStack.forward();
-      if (this.inputSearchWord == locateQuerier.key_word) {
+      let locateQuerier: HistoryEntry | '' = this.historyStack.forward();
+      if (!locateQuerier || this.inputSearchWord == locateQuerier.keyword) {
         return;
       }
 
-      this.updateInputSearchWord(locateQuerier.key_word)
+      this.updateInputSearchWord(locateQuerier.keyword)
 
       if (this.selectDict.id != locateQuerier.dict_id) {
         this.selectDict = locateQuerier.dict;
       }
 
-      SearchWord(locateQuerier.dict_id, locateQuerier.key_word ).then((res) => {
-        console.info('[store-action]{forwardHistory} success', locateQuerier.key_word, res);
+      SearchWord(locateQuerier.dict_id, locateQuerier.keyword ).then((res) => {
+        console.info('[store-action]{forwardHistory} success', locateQuerier.keyword, res);
         this.queryPendingList = res;
       }).catch((err) => {
         console.info('[store-action]{forwardHistory} failed', err);
@@ -357,10 +382,10 @@ export const useDictQueryStore = defineStore('dictQuery', {
 });
 
 class HistoryStack {
-  items: any[] = [];
+  items: HistoryEntry[] = [];
   pointer: number = -1;
 
-  push(element: any) {
+  push(element: HistoryEntry) {
     console.log('push', this.pointer, this.items);
     if (
       this.items.length > 0 &&
@@ -373,7 +398,7 @@ class HistoryStack {
     this.pointer = this.items.length - 1;
   }
 
-  back() {
+  back(): HistoryEntry | '' {
     console.log('back', this.pointer, this.items);
     if (this.pointer >= 1) {
       this.pointer -= 1;
@@ -384,7 +409,7 @@ class HistoryStack {
     return '';
   }
 
-  forward() {
+  forward(): HistoryEntry | '' {
     console.log('forward', this.pointer, this.items);
     if (this.pointer < this.items.length - 1) {
       this.pointer += 1;
@@ -403,7 +428,7 @@ class HistoryStack {
   size() {
     return this.items.length;
   }
-  peek(){
+  peek(): HistoryEntry {
     return this.items[this.items.length - 1];
   }
 }
