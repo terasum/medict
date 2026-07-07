@@ -2,11 +2,15 @@ package mdict
 
 import (
 	"errors"
+	"sort"
+	"strconv"
+	"sync"
+
+	"github.com/creasty/go-levenshtein"
+	"github.com/terasum/medict/internal/libs/bktree"
 	gomdict "github.com/terasum/medict/internal/libs/go-mdict"
 	"github.com/terasum/medict/pkg/model"
 	idxer "github.com/terasum/medict/pkg/service/mdict/mdict-idxer"
-	"strconv"
-	"sync"
 )
 
 type mdictHolder struct {
@@ -15,6 +19,26 @@ type mdictHolder struct {
 	dictFilePath string
 	idxer        idxer.Indexer
 	rawdict      *gomdict.Mdict
+
+	bktree     *bktree.BKTree // 模糊搜索用;BuildIndex 或首次模糊查询时构建
+	bktreeDone bool           // BK-tree 是否已构建(lazy 守卫)
+}
+
+const (
+	fuzzyTolerance = 2 // Levenshtein 容差：覆盖 1-2 字符拼写差异
+	fuzzyLimit     = 100
+)
+
+// fuzzyEntry 包装 *MdictKeyWordIndex 用于 BK-tree 模糊搜索。
+// 不复用 MdictKeyWordIndex.Distance：后者基于 utils.StrToUnicode 转义串（每个 rune 展开为 6 字符的 \uXXXX），
+// 会把 1 个 rune 的差异放大成 6 个字符的 Levenshtein 距离，使 tolerance 语义失效。
+// 这里直接在原始 KeyWord 上算字符级 Levenshtein（与 stardict 的 bkString 一致）。
+type fuzzyEntry struct {
+	*model.MdictKeyWordIndex
+}
+
+func (e *fuzzyEntry) Distance(other bktree.Entry) int {
+	return levenshtein.Distance(e.KeyWord, other.(*fuzzyEntry).KeyWord)
 }
 
 func newMdictHolder(filePath string) (*mdictHolder, error) {
@@ -195,9 +219,44 @@ func (mh *mdictHolder) BuildIndex() error {
 			log.Error(err1.Error())
 			continue
 		}
+		mh.bktreeAdd(idx)
 	}
+	mh.bktreeDone = true
 
 	err = mh.idxer.SetMeta("entries_num", strconv.FormatInt(mh.rawdict.GetKeyWordEntriesSize(), 10))
+	return nil
+}
+
+// bktreeAdd 向模糊搜索 BK-tree 添加一个词项（BuildIndex 时逐条调用）。
+func (mh *mdictHolder) bktreeAdd(e *model.MdictKeyWordIndex) {
+	if mh.bktree == nil {
+		mh.bktree = &bktree.BKTree{}
+	}
+	mh.bktree.Add(&fuzzyEntry{e})
+}
+
+// ensureBkTree 按需构建 BK-tree，兜底 .melev 缓存命中（幂等守卫跳过 BuildIndex）的场景。
+// 由 mh.lock 保护；eager 路径已在 BuildIndex 构建时本函数是 no-op。
+func (mh *mdictHolder) ensureBkTree() error {
+	mh.lock.Lock()
+	defer mh.lock.Unlock()
+	if mh.bktreeDone {
+		return nil
+	}
+	entries, err := mh.rawdict.GetKeyWordEntries()
+	if err != nil {
+		return err
+	}
+	tree := &bktree.BKTree{}
+	for _, entry := range entries {
+		idx, err1 := mh.ConvertKeyWordIndex(entry)
+		if err1 != nil {
+			continue
+		}
+		tree.Add(&fuzzyEntry{idx})
+	}
+	mh.bktree = tree
+	mh.bktreeDone = true
 	return nil
 }
 
@@ -238,12 +297,29 @@ func (mh *mdictHolder) GenerateEngineVersion() string {
 }
 
 func (mh *mdictHolder) Search(keyword string) ([]*model.MdictKeyWordIndex, error) {
-	result, err := mh.idxer.Search(keyword)
-	if err != nil {
-		return nil, err
+	// 精确前缀优先：命中直接返回
+	if result, err := mh.idxer.Search(keyword); err == nil && len(result) > 0 {
+		for idx, re := range result {
+			re.ID = idx
+		}
+		return result, nil
 	}
-	for idx, re := range result {
-		re.ID = idx
+	// 前缀为空（拼错/记不清词头）→ BK-tree 模糊兜底
+	if err := mh.ensureBkTree(); err != nil {
+		return nil, errors.New("result not found")
 	}
-	return result, nil
+	// needle 必须是 *fuzzyEntry：Distance 依赖其类型断言
+	needle := &fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: keyword}}
+	raw := mh.bktree.Search(needle, fuzzyTolerance, fuzzyLimit)
+	if len(raw) == 0 {
+		return nil, errors.New("result not found")
+	}
+	sort.Slice(raw, func(i, j int) bool { return raw[i].Distance < raw[j].Distance })
+	out := make([]*model.MdictKeyWordIndex, 0, len(raw))
+	for i, r := range raw {
+		e := r.Entry.(*fuzzyEntry).MdictKeyWordIndex
+		e.ID = i
+		out = append(out, e)
+	}
+	return out, nil
 }
