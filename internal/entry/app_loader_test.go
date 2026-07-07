@@ -26,9 +26,9 @@ func TestDefaultConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf(config.ConfigPath)
-	t.Logf(config.BaseDictDir)
-	t.Logf(config.ConfigStruct.BaseDictDir)
+	t.Logf("%s", config.ConfigPath)
+	t.Logf("%s", config.BaseDictDir)
+	t.Logf("%s", config.ConfigStruct.BaseDictDir)
 }
 
 func TestEnsureConfigDir(t *testing.T) {
@@ -36,10 +36,10 @@ func TestEnsureConfigDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf(config.ConfigPath)
-	t.Logf(config.BaseDictDir)
-	t.Logf(config.ConfigStruct.BaseDictDir)
-	t.Logf(config.EnsureDictsDir())
+	t.Logf("%s", config.ConfigPath)
+	t.Logf("%s", config.BaseDictDir)
+	t.Logf("%s", config.ConfigStruct.BaseDictDir)
+	t.Logf("%s", config.EnsureDictsDir())
 }
 
 func TestLoadApp(t *testing.T) {
@@ -49,7 +49,7 @@ func TestLoadApp(t *testing.T) {
 	}
 
 	dir := conf.EnsureDictsDir()
-	t.Logf(dir)
+	t.Logf("%s", dir)
 
 	svc, err := service.NewDictService(conf)
 	if err != nil {

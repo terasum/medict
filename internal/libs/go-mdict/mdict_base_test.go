@@ -26,7 +26,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// skipIfMissingTestData skips the calling test when the given testdata file is
+// absent. The go-mdict package's testdata consists of real .mdx/.mdd
+// dictionaries that are not checked into the repository, so tests that depend
+// on them skip gracefully in CI / clean checkouts instead of failing.
+func skipIfMissingTestData(t *testing.T, path string) {
+	t.Helper()
+	if _, err := os.Stat(path); err != nil {
+		t.Skipf("testdata missing: %s", path)
+	}
+}
+
 func TestReadMDictFile(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/mdx/testdict.mdx")
 	mdict, err := readMDictFileHeader("testdata/mdx/testdict.mdx")
 	if err != nil {
 		t.Error(err)
@@ -42,6 +54,7 @@ func TestReadMDictFile(t *testing.T) {
 }
 
 func TestReadMDictFile2(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/wlghyzd2000.mdx")
 	mdict, err := readMDictFileHeader("testdata/dict/wlghyzd2000.mdx")
 	if err != nil {
 		t.Error(err)
@@ -55,6 +68,7 @@ func TestReadMDictFile2(t *testing.T) {
 }
 
 func TestMdictBase_ReadDictHeader(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/testdict.mdx")
 	mdictBase := &MdictBase{
 		filePath: "testdata/dict/testdict.mdx",
 	}
@@ -71,6 +85,7 @@ func TestMdictBase_ReadDictHeader(t *testing.T) {
 }
 
 func TestMdictBase_ReadDictHeader2(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/testdict.mdx")
 	mdictBase := &MdictBase{
 		filePath: "testdata/dict/testdict.mdx",
 	}
@@ -99,6 +114,7 @@ func TestMdictBase_ReadDictHeader2(t *testing.T) {
 	//t.Logf("Dictionary header keyBlockStartOffset %d / meta KeyBlockHeaderStartOffset %d\n", mdictBase.header.KeyBlockOffset, mdictBase.meta.KeyBlockHeaderStartOffset)
 }
 func TestMdictBase_ReadDictHeader3(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/dict/oale8.mdx")
 	mdictBase := &MdictBase{
 		filePath: "testdata/dict/oale8.mdx",
 	}
@@ -163,6 +179,7 @@ func TestMdictBase_ReadDictHeader3(t *testing.T) {
 }
 
 func TestMdictBase_ReadDictFixBug1(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/bugdict/教育部重編國語辭典(第五版)/教育部重編國語辭典(第五版).mdx")
 	mdictBase := &MdictBase{
 		filePath: "testdata/bugdict/教育部重編國語辭典(第五版)/教育部重編國語辭典(第五版).mdx",
 	}
@@ -227,6 +244,7 @@ func TestMdictBase_ReadDictFixBug1(t *testing.T) {
 }
 
 func TestExtractContentByRecordIndex(t *testing.T) {
+	skipIfMissingTestData(t, "testdata/mdx/testdict.mdx")
 	keyWord := "a"
 	//recordStartOffset := 30239433
 	//recordEndOffset := 30255629

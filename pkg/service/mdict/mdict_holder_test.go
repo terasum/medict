@@ -1,11 +1,16 @@
 package mdict
 
 import (
-	"github.com/terasum/medict/pkg/model"
+	"os"
 	"testing"
+
+	"github.com/terasum/medict/pkg/model"
 )
 
 func TestMdictHolder_BuildIndex(t *testing.T) {
+	if _, err := os.Stat("./testdata/mdx/testdict.mdx"); err != nil {
+		t.Skip("requires real mdx testdata: ./testdata/mdx/testdict.mdx")
+	}
 	holder, err := newMdictHolder("./testdata/mdx/testdict.mdx")
 	if err != nil {
 		t.Fatal(err)

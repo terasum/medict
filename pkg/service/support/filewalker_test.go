@@ -50,5 +50,5 @@ func TestWalkDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf(string(data))
+	t.Logf("%s", string(data))
 }
