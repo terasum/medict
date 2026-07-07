@@ -1,0 +1,133 @@
+package mdict
+
+import (
+	"errors"
+	"sync"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/terasum/medict/internal/libs/bktree"
+	"github.com/terasum/medict/pkg/model"
+)
+
+// fakeIdxer implements idxer.Indexer; its Search always misses, forcing the
+// holder's Search onto the fuzzy fallback path. (interface defined in
+// pkg/service/mdict/mdict-idxer/indexer.go)
+type fakeIdxer struct{}
+
+func (f *fakeIdxer) Lookup(keyword string) (*model.MdictKeyWordIndex, error) {
+	return nil, errors.New("not found")
+}
+func (f *fakeIdxer) SetMeta(key, value string) error { return nil }
+func (f *fakeIdxer) GetMeta(key string) (string, error) {
+	return "", errors.New("not found")
+}
+func (f *fakeIdxer) AddRecord(record *model.MdictKeyWordIndex) error { return nil }
+func (f *fakeIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, error) {
+	return nil, errors.New("result not found")
+}
+
+// TestFuzzyFallback verifies that a prefix miss routes through the BK-tree
+// fallback and returns the closest matches (sorted by distance).
+func TestFuzzyFallback(t *testing.T) {
+	mh := &mdictHolder{
+		lock:       &sync.Mutex{},
+		idxer:      &fakeIdxer{},
+		bktree:     &bktree.BKTree{},
+		bktreeDone: true,
+	}
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "hello", RecordLocateStartOffset: 100})
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "help", RecordLocateStartOffset: 200})
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "hallo", RecordLocateStartOffset: 300})
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "world", RecordLocateStartOffset: 400})
+
+	// "helo" is a typo of "hello" (distance 1) → fuzzy must surface it.
+	res, err := mh.Search("helo")
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(res), 1)
+
+	// "world" is far (> tolerance 2) → must NOT appear.
+	for _, r := range res {
+		assert.NotEqual(t, "world", r.KeyWord, "world is beyond tolerance, should not match")
+	}
+
+	// The nearest hit ("hello", distance 1) must rank first.
+	assert.Equal(t, "hello", res[0].KeyWord)
+
+	// Results carry their offsets through (frontend Locate depends on these).
+	assert.Equal(t, int64(100), res[0].RecordLocateStartOffset)
+
+	// Distances non-decreasing (ascending).
+	for i := 1; i < len(res); i++ {
+		assert.GreaterOrEqual(t, res[i].ID, res[i-1].ID)
+	}
+}
+
+// TestFuzzyRanking builds a small BK-tree directly and asserts distance ordering
+// and that an exact hit has distance 0.
+func TestFuzzyRanking(t *testing.T) {
+	tree := &bktree.BKTree{}
+	words := []struct {
+		word string
+		off  int64
+	}{
+		{"hello", 100},
+		{"hell", 200},
+		{"help", 300},
+		{"heloo", 400},
+		{"hallo", 600},
+	}
+	for _, w := range words {
+		tree.Add(&fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: w.word, RecordLocateStartOffset: w.off}})
+	}
+
+	raw := tree.Search(&fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: "hello"}}, fuzzyTolerance, fuzzyLimit)
+	assert.GreaterOrEqual(t, len(raw), 4)
+
+	// 必含精确匹配 hello (distance 0)，且 offset 保留（BK-tree 不保证顺序，遍历查找）
+	var exact *fuzzyEntry
+	for _, r := range raw {
+		if r.Distance == 0 {
+			exact = r.Entry.(*fuzzyEntry)
+		}
+	}
+	assert.NotNil(t, exact, "应含 distance 0 的精确匹配")
+	assert.Equal(t, "hello", exact.KeyWord)
+	assert.Equal(t, int64(100), exact.RecordLocateStartOffset, "offset 应保留")
+
+	// 所有结果 distance <= tolerance
+	for _, r := range raw {
+		assert.LessOrEqual(t, r.Distance, fuzzyTolerance)
+	}
+}
+
+// TestFuzzyTypoCorrection: a single-edit typo resolves to the target word.
+func TestFuzzyTypoCorrection(t *testing.T) {
+	mh := &mdictHolder{
+		lock:       &sync.Mutex{},
+		idxer:      &fakeIdxer{},
+		bktree:     &bktree.BKTree{},
+		bktreeDone: true,
+	}
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "hello", RecordLocateStartOffset: 100})
+
+	res, err := mh.Search("helo") // missing one 'l'
+	assert.NoError(t, err)
+	assert.Len(t, res, 1)
+	assert.Equal(t, "hello", res[0].KeyWord)
+}
+
+// TestFuzzyNoMatch: when neither prefix nor fuzzy matches, returns "result not found".
+func TestFuzzyNoMatch(t *testing.T) {
+	mh := &mdictHolder{
+		lock:       &sync.Mutex{},
+		idxer:      &fakeIdxer{},
+		bktree:     &bktree.BKTree{},
+		bktreeDone: true,
+	}
+	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "hello"})
+
+	_, err := mh.Search("zzzzzzzz") // far from everything
+	assert.Error(t, err)
+}

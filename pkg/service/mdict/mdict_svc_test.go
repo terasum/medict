@@ -36,7 +36,7 @@ func TestCreateSqliteIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf(mdict.Name())
+	t.Logf("%s", mdict.Name())
 	err = mdict.BuildIndex()
 	if err != nil {
 		t.Fatal(err)
