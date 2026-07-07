@@ -109,7 +109,7 @@ func (bs *BackServer) GracefulStop() {
 		return
 	}
 	if err := bs.Srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		log.Errorf("Server Shutdown: %s", err)
 	}
 	// catching ctx.Done(). timeout of 0.4 seconds.
 	select {
