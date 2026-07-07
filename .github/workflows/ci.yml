@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.25.x
+
+      - name: Build
+        run: go build ./pkg/... ./internal/...
+
+      - name: Vet
+        run: go vet ./pkg/... ./internal/...
+
+      - name: Test
+        run: go test ./pkg/... ./internal/...
+
+  frontend:
+    name: Frontend (Bun)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: frontend
+
+      - name: Build
+        run: bun run build
+        working-directory: frontend
