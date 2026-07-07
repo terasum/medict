@@ -21,7 +21,7 @@ import (
 	"github.com/terasum/medict/pkg/model"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("static.handler")
 
 type Replacer interface {
 	Replace(dictId string, entry *model.MdictKeyWordIndex, htmlContent string) (*model.MdictKeyWordIndex, string)

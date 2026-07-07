@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("mdict.idxer")
 
 func logstart(method string, args interface{}) time.Time {
 	log.Infof("%s|STR|: %v", method, args)

@@ -15,7 +15,7 @@ import (
 	"github.com/terasum/medict/pkg/service"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("apis")
 
 type DictsController struct {
 	ds *service.DictService

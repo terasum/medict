@@ -28,7 +28,7 @@ import (
 	"github.com/terasum/medict/pkg/model"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("service.filewalker")
 
 // WalkDir 遍历第一层的所有文件夹，忽略文件
 func WalkDir(dirpath string) ([]*model.DirItem, error) {

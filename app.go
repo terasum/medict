@@ -29,7 +29,7 @@ import (
 	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("app")
 
 // App struct
 type App struct {
