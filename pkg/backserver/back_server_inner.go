@@ -67,11 +67,36 @@ func (bs *BackServer) startStaticServer(listenAddr string) {
 
 }
 
+// allowedOrigin reports whether the given Origin is permitted to make
+// cross-origin requests to the embedded resource server.
+//
+// 正式功能不依赖跨域：前端控制面走 Wails IPC，释义 HTML 及其子资源经同源
+// iframe（http://localhost:<port>）加载，本身不需要 CORS。此处仅放行本地
+// wails webview 与 loopback 调试来源，避免原实现反射任意 Origin 的安全隐患。
+func allowedOrigin(origin string) bool {
+	if origin == "" {
+		return false
+	}
+	switch origin {
+	case "http://wails.localhost", "https://wails.localhost",
+		"wails://wails.localhost", "wails://localhost":
+		return true
+	}
+	for _, scheme := range []string{"http", "https"} {
+		for _, host := range []string{"localhost", "127.0.0.1"} {
+			if origin == scheme+"://"+host || strings.HasPrefix(origin, scheme+"://"+host+":") {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
 		origin := c.Request.Header.Get("Origin")
-		if origin != "" {
+		if allowedOrigin(origin) {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
 			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session")
