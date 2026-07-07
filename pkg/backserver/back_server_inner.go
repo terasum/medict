@@ -27,7 +27,7 @@ import (
 	"github.com/terasum/medict/internal/static"
 )
 
-var log = logging.MustGetLogger("default")
+var log = logging.MustGetLogger("backserver")
 
 func (bs *BackServer) startStaticServer(listenAddr string) {
 
