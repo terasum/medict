@@ -49,7 +49,6 @@
 import { defineComponent, ref, reactive, onMounted, computed } from 'vue';
 import { StaticDictServerURL } from '@/apis/apis';
 import { useDictQueryStore } from '@/store/dict';
-import axios from 'axios';
 
 const dictQueryStore = useDictQueryStore();
 let selectedDict = ref(null);
@@ -98,16 +97,19 @@ function searchResource() {
   var req_url = composeReqURL();
   console.log(req_url);
 
-  axios.get(req_url).then((res) => {
-    console.log(res);
-    result.content_length = res.headers['content-length'];
-    result.content_type = res.headers['content-type'];
-    result.resp_msg = "success";
-  }).catch((err) => {
-    result.status_code = 404;
-    result.resp_msg = err;
-    console.log(err);
-  })
+  fetch(req_url)
+    .then((res) => {
+      console.log(res);
+      result.status_code = res.status;
+      result.content_length = Number(res.headers.get('content-length') || 0);
+      result.content_type = res.headers.get('content-type') || '';
+      result.resp_msg = 'success';
+    })
+    .catch((err) => {
+      result.status_code = 404;
+      result.resp_msg = err;
+      console.log(err);
+    });
   
 }
 
