@@ -38,7 +38,12 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 	keyWordDataStartOffset := c.Query("keyword_data_start_offset")
 	keyWordDataEndOffset := c.Query("keyword_data_end_offset")
 
-	entry, err := convertKeyIndex("medict", entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset)
+	// 根据词典实际类型决定索引类型，避免 stardict 被当作 mdict 处理（见 #678）
+	dictType := "medict"
+	if d := dc.ds.GetDictById(dictId); d != nil && d.DictType == string(model.DictTypeStarDict) {
+		dictType = "stardict"
+	}
+	entry, err := convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset)
 	if err != nil {
 
 		fmt.Printf("NoRoute REQ ABORT: %s (%s:%s)\n", c.Request.RequestURI, "bad param convert", err.Error())
