@@ -286,7 +286,7 @@ func wrapContentType(c *gin.Context, key string, data []byte) {
 	} else if strings.HasSuffix(key, ".woff") {
 		c.Data(http.StatusOK, "font/woff", data)
 	} else if strings.HasSuffix(key, ".woff2") {
-		c.Data(http.StatusOK, "font/woff", data)
+		c.Data(http.StatusOK, "font/woff2", data)
 	} else {
 		c.AbortWithStatus(http.StatusUnsupportedMediaType)
 	}
