@@ -34,7 +34,7 @@ export const StaticDictServerURL = function (): Promise<string> {
   if (window['go']) {
     return ResourceServerAddr();
   } else {
-    Promise.resolve("http://localhost:1")
+    return Promise.resolve("http://localhost:1")
   }
 };
 
@@ -42,7 +42,7 @@ export const OpenDirOrFile = function(filepath :string):Promise<void>{
   if (window['go']) {
     return OpenFinder(filepath)
   } else {
-    Promise.resolve()
+    return Promise.resolve()
   }
 }
 
@@ -50,7 +50,7 @@ export const BaseDictDirectory = function():Promise<string>{
   if (window['go']) {
     return BaseDictDir()
   } else {
-    Promise.resolve("internal error")
+    return Promise.resolve("internal error")
   }
 }
 
