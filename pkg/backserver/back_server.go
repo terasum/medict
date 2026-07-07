@@ -124,7 +124,7 @@ func (bs *BackServer) StaticServerBaseUrl() string {
 	listenAddr := ""
 	if bs.Ready {
 		listenAddr = bs.ListenAddr.String() + static.ContentRootUrl
-		if !strings.HasSuffix(listenAddr, "http://") {
+		if !strings.HasPrefix(listenAddr, "http://") {
 			return "http://" + listenAddr
 		}
 		return listenAddr
