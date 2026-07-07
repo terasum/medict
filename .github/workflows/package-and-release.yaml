@@ -26,11 +26,8 @@ jobs:
 #        run: |
 #          echo "::set-output name=tag::v3.0.1-alpha-temp"
 
-      - name: Inall pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8.7.4
-          run_install: false
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install Go
         uses: actions/setup-go@v2
