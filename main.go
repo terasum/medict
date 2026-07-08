@@ -33,6 +33,14 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
+// Version 是应用版本号，CI 通过 ldflags 注入：
+//
+//	wails build -ldflags "-X main.Version=<tag>"
+//
+// 之前 main 包没有该变量，链接器静默丢弃注入，版本号始终为空。
+// 本地构建未注入时显示 "dev"。
+var Version = "dev"
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()

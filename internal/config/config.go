@@ -62,7 +62,7 @@ func (c *Config) Write() error {
 	return c.ViperInstance.WriteConfig()
 }
 
-func (c *Config) EnsureDictsDir() string {
+func (c *Config) EnsureDictsDir() (string, error) {
 	dirPath := c.BaseDictDir
 	defer func() {
 		fmt.Printf("[medict-init]: ensure app config directory: %s\n", dirPath)
@@ -78,12 +78,12 @@ func (c *Config) EnsureDictsDir() string {
 	appdir, _ := utils.AppConfigDir()
 	dirPath = strings.ReplaceAll(dirPath, "$APPCONFDIR", appdir)
 	if utils.FileExists(dirPath) {
-		return dirPath
+		return dirPath, nil
 	}
 	// 不存在就创建
 	err := os.MkdirAll(dirPath, 0755)
 	if err == nil {
-		return dirPath
+		return dirPath, nil
 	}
 	// 依旧创建失败, 选择默认配置
 	if !strings.HasPrefix(dirPath, home) || strings.HasPrefix(dirPath, appdir) {
@@ -94,9 +94,9 @@ func (c *Config) EnsureDictsDir() string {
 	if !utils.FileExists(dirPath) {
 		err := os.MkdirAll(dirPath, 0755)
 		if err != nil {
-			panic(err)
+			return "", err
 		}
 	}
 
-	return dirPath
+	return dirPath, nil
 }
