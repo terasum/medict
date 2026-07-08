@@ -43,8 +43,14 @@ This is the single most important thing to understand. The Go side talks to the 
 ### Dictionaries are directories, auto-scanned
 A dictionary = one directory under `BaseDictDir` (config `medict.toml`, default per-OS app-data `.../medict/dicts`). `pkg/service/support/filewalker.go` walks the dir; `DirItem` (`pkg/model/dict_def.go`) captures mdx/mdd or stardict (dz/ifo/idx) files plus optional `_cover.jpg`, `_mdict.dtype`/`_stardict.dtype`. Type is auto-detected by file presence.
 
-### Mdict indexing
-`internal/libs/go-mdict` parses the binary format; `pkg/service/mdict/mdict-idxer` (SQLite-backed, `sqlite_indexer.go`) builds a `.melev` sidecar index next to each `.mdx`. Fuzzy suggestions use a BK-tree of `MdictKeyWordIndex` (Levenshtein distance in `model/dict_def.go`). Supporting data-structure libs (ART, patricia trie, bktree) live under `internal/libs/` and are vendored/local — treat them as part of this repo, not external deps.
+### Mdict indexing & search
+`internal/libs/go-mdict` parses the binary format. The **active indexer is leveldb** (`pkg/service/mdict/mdict-idxer/leveldb_indexer.go`, via `NewIndexer`); the sqlite indexer in the same dir is dead/test-only. It builds a `.melev` sidecar next to each `.mdx`.
+
+`mdictHolder.BuildIndex` (`pkg/service/mdict/mdict_holder.go`) drives the build: pulls all keywords via `rawdict.GetKeyWordEntries()`, converts each to an offset-bearing `*MdictKeyWordIndex` (`ConvertKeyWordIndex`), and `AddRecord`s it. Idempotency: if meta `entries_num` is set, the build is skipped.
+
+`mdictHolder.Search` is **prefix-first + fuzzy fallback** (#697): the leveldb indexer does a prefix scan; on a miss it falls back to an in-memory **BK-tree** (Levenshtein, tolerance 2, limit 100, sorted by distance). The BK-tree is built eagerly in `BuildIndex` and lazily rebuilt by `ensureBkTree()` on first miss (covers users whose `.melev` cache skips `BuildIndex`). It wraps entries in a `fuzzyEntry` whose `Distance` uses **direct character-level Levenshtein** — deliberately NOT `MdictKeyWordIndex.Distance`, which runs on `utils.StrToUnicode`-escaped strings (every rune → 6 chars, inflating distance 6× and breaking tolerance).
+
+Supporting data-structure libs (ART, patricia trie, bktree) live under `internal/libs/` and are vendored/local — treat them as part of this repo, not external deps.
 
 ### Content pipeline (resource URL rewriting)
 Mdict HTML references resources by relative paths that only resolve inside the embedded Gin server. `internal/static/handler/` is a pipeline of `replacer_*` passes (css, image, javascript, link, sound, entry) that rewrite those references and inline/transform content. `handler.WrapContent` and `handler.WrapResource` are the entry points called from `pkg/apis/dicts_controller.go`. `entry://` jumps and `@@@LINK=` redirects are handled in `HandleWordQueryReq`.
