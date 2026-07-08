@@ -69,7 +69,7 @@
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 
 import { useDictQueryStore } from '@/store/dict';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 const dictQueryStore = useDictQueryStore();
 const selected_id = ref('0');
 
@@ -78,29 +78,50 @@ function selectItem(entry_id) {
   dictQueryStore.locateWord(entry_id);
 }
 
+// 焦点守卫：当用户正在输入框 / 文本域 / contenteditable 中输入时，不劫持方向键
+function isTextInputActive() {
+  const ae = document.activeElement;
+  if (!ae) {
+    return false;
+  }
+  const tag = ae.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || ae.isContentEditable;
+}
 
-onMounted(()=>{
-  // const list = document.getElementById('word-pending-list');
-  document.addEventListener('keydown', (e) => {
-     if (e.key == 'ArrowUp') {
-      if (selected_id.value == '0') {
-        selected_id.value = dictQueryStore.queryPendingList.length - 1;
-      } else {
-        selected_id.value = parseInt(selected_id.value) - 1;
-      }
-      dictQueryStore.locateWord(selected_id.value);
-    } else if (e.key == 'ArrowDown') {
-      if (selected_id.value == dictQueryStore.queryPendingList.length - 1) {
-        selected_id.value = '0';
-      } else {
-        selected_id.value = parseInt(selected_id.value) + 1;
-      }
-      dictQueryStore.locateWord(selected_id.value);
+function onKeyDown(e) {
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') {
+    return;
+  }
+  if (isTextInputActive()) {
+    return;
+  }
+  const len = dictQueryStore.queryPendingList.length;
+  if (!len || len <= 0) {
+    return;
+  }
+  if (e.key == 'ArrowUp') {
+    if (selected_id.value == '0') {
+      selected_id.value = len - 1;
+    } else {
+      selected_id.value = parseInt(selected_id.value) - 1;
     }
+    dictQueryStore.locateWord(selected_id.value);
+  } else if (e.key == 'ArrowDown') {
+    if (selected_id.value == len - 1) {
+      selected_id.value = '0';
+    } else {
+      selected_id.value = parseInt(selected_id.value) + 1;
+    }
+    dictQueryStore.locateWord(selected_id.value);
+  }
+}
 
-  });
-  
+onMounted(() => {
+  document.addEventListener('keydown', onKeyDown);
+});
 
-})
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeyDown);
+});
 
 </script>

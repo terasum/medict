@@ -92,12 +92,21 @@
       ></span>
      </div>
     </div>
-    <div id="app-content-main-iframe-wrapper"></div>
+    <div id="app-content-main-iframe-wrapper">
+      <iframe
+        ref="iframeRef"
+        class="app-content-main-iframe"
+        :src="iframeSrc"
+        frameborder="0"
+        style="border: 0;"
+        @load="onIframeLoad"
+      ></iframe>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useDictQueryStore } from '@/store/dict';
 import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
 import { NIcon } from 'naive-ui';
@@ -114,65 +123,50 @@ const TOP_WIN_MSG_REFRESH = '__Medict_TOP_WIN_MSG_EVTP_REFRESH';
 const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
 
+// 声明式 iframe：通过 Vue 响应式驱动 src，避免命令式 createElement / 手动设 .src
+const iframeRef = ref<HTMLIFrameElement | null>(null);
 
-
-function cerateIframe() {
-  if (document.getElementById('app-content-main-iframe')) {
-    document.getElementById('app-content-main-iframe').remove();
+// iframe 的 src：优先使用 mainContentURL（释义查询 URL），否则用 mainContent 构造 data URL。
+// 由 Vue 响应式驱动，store 中 mainContent / mainContentURL 变化时自动更新。
+const iframeSrc = computed(() => {
+  if (dictQueryStore.mainContentURL) {
+    return dictQueryStore.mainContentURL;
   }
-  const iframe_container = document.getElementById(
-    'app-content-main-iframe-wrapper'
-  );
-  const iframe = document.createElement('iframe');
-  iframe.src = 'data:text/html;base64,' + dictQueryStore.mainContent;
-  iframe.frameBorder = '0';
-  iframe.width = '100%';
-  iframe.height = '100%';
-  iframe.id = 'app-content-main-iframe';
-  iframe.setAttribute('style', 'border: 0px;');
-  iframe_container.appendChild(iframe);
-}
+  // mainContent 为 base64，经 unicode 安全的编解码往返后构造 data URL
+  const decoded = b64DecodeUnicode(dictQueryStore.mainContent);
+  return 'data:text/html;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(decoded)));
+});
 
-function updateIframeContent(content, is_base64 = true) {
-  const iframe = document.getElementById(
-    'app-content-main-iframe'
-  ) as unknown as HTMLIFrameElement;
-  if (!iframe) {
+// iframe 加载完成后发送 setup 消息（替代原来的 1s setTimeout）
+function onIframeLoad() {
+  const win = iframeRef.value?.contentWindow;
+  if (!win) {
     return;
   }
-  if (is_base64) {
-    let encodedStr = unescape(encodeURIComponent(content));
-    let src = 'data:text/html;charset=utf-8;base64,';
-    iframe.src = src + btoa(encodedStr);
-  } else {
-    iframe.src = content;
-  }
-  setTimeout(() => {
-    iframe.contentWindow.postMessage(TOP_WIN_MSG_SETUP, '*');
-  }, 1000);
+  win.postMessage(TOP_WIN_MSG_SETUP, '*');
 }
 
-function listenInnerFrameMessage() {
-  window.onmessage = function (e) {
-    console.debug('[TOPWIN GOT INNERFRAME MSG] ', e);
-    if (!e || !e.data || !e.data.evtype) {
-      return;
-    }
+// 监听内嵌 iframe 的消息（entry:// 跳转等）。
+// 使用具名函数 + addEventListener，便于在 onUnmounted 中精确移除，避免 window.onmessage 覆盖与泄漏。
+function onInnerFrameMessage(e: MessageEvent) {
+  console.debug('[TOPWIN GOT INNERFRAME MSG] ', e);
+  if (!e || !e.data || !e.data.evtype) {
+    return;
+  }
 
-    switch (e.data.evtype) {
-      // entry:// 跳转
-      case INNER_FRAME_MSG_ENTRY_JUMP: {
-        console.log('inner frame jump to entry: ', e.data);
-        let keyWord = e.data.word;
-        keyWord = keyWord.split('#')[0];
-        dictQueryStore.updateInputSearchWord(keyWord);
-        dictQueryStore.searchWord(keyWord);
-        dictQueryStore.pushHistoryByEntryIDx(0);
+  switch (e.data.evtype) {
+    // entry:// 跳转
+    case INNER_FRAME_MSG_ENTRY_JUMP: {
+      console.log('inner frame jump to entry: ', e.data);
+      let keyWord = e.data.word;
+      keyWord = keyWord.split('#')[0];
+      dictQueryStore.updateInputSearchWord(keyWord);
+      dictQueryStore.searchWord(keyWord);
+      dictQueryStore.pushHistoryByEntryIDx(0);
 
-        break;
-      }
+      break;
     }
-  };
+  }
 }
 
 function todo() {
@@ -181,44 +175,23 @@ function todo() {
 
 // 缩小
 function zoomOut() {
-  const evtype = TOP_WIN_MSG_ZOOM_OUT;
-  const iframe = document.getElementById(
-    'app-content-main-iframe'
-  ) as unknown as HTMLIFrameElement;
-  if (!iframe) {
-    return;
-  }
-  iframe.contentWindow.postMessage(
-    { evtype: evtype, ts: new Date().getTime() },
+  iframeRef.value?.contentWindow?.postMessage(
+    { evtype: TOP_WIN_MSG_ZOOM_OUT, ts: new Date().getTime() },
     '*'
   );
 }
 
 function refresh() {
-  const iframe = document.getElementById(
-    'app-content-main-iframe'
-  ) as unknown as HTMLIFrameElement;
-  if (!iframe) {
-    return;
-  }
-  const evtype = TOP_WIN_MSG_REFRESH;
-  iframe.contentWindow.postMessage(
-    { evtype: evtype, ts: new Date().getTime() },
+  iframeRef.value?.contentWindow?.postMessage(
+    { evtype: TOP_WIN_MSG_REFRESH, ts: new Date().getTime() },
     '*'
   );
 }
 
 // 放大
 function zoomIn() {
-  const evtype = TOP_WIN_MSG_ZOOM_IN;
-  const iframe = document.getElementById(
-    'app-content-main-iframe'
-  ) as unknown as HTMLIFrameElement;
-  if (!iframe) {
-    return;
-  }
-  iframe.contentWindow.postMessage(
-    { evtype: evtype, ts: new Date().getTime() },
+  iframeRef.value?.contentWindow?.postMessage(
+    { evtype: TOP_WIN_MSG_ZOOM_IN, ts: new Date().getTime() },
     '*'
   );
 }
@@ -234,50 +207,15 @@ function showInspector() {
   }
 }
 
-
-let storeChangeUnscribe = null;
-function listenContentUpdate() {
-  storeChangeUnscribe = dictQueryStore.$onAction(({name, store, after}) => {
-      after((result: any) => {
-        switch (name) {
-          case 'updateMainContent': {
-            const content = b64DecodeUnicode(store.mainContent);
-            updateIframeContent(content, true);
-            break;
-          }
-          case 'updateMainContentURL': {
-            if (store.mainContentURL === '') {
-              const content = b64DecodeUnicode(store.mainContent);
-              updateIframeContent(content, true);
-            }
-
-            updateIframeContent(store.mainContentURL, false);
-            break;
-          }
-        }
-      });
-    }
-  );
-}
-
 onMounted(() => {
-  cerateIframe();
-  if (storeChangeUnscribe) {
-    storeChangeUnscribe();
-    storeChangeUnscribe = null;
-  }
-  listenContentUpdate();
-  listenInnerFrameMessage();
+  window.addEventListener('message', onInnerFrameMessage);
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
 });
 
-onUnmounted(()=>{
-  if(storeChangeUnscribe) {
-    storeChangeUnscribe();
-    storeChangeUnscribe = null;
-  }
+onUnmounted(() => {
+  window.removeEventListener('message', onInnerFrameMessage);
 })
 
 ///----------------------------
