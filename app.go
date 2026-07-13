@@ -111,16 +111,16 @@ func (b *App) shutdown(ctx context.Context) {
 
 // Typed IPC handlers (issue #729): each frontend call maps to a typed App
 // method, replacing the old string-dispatched Dispatch / handlerMap.
-func (b *App) InitDicts() *model.Resp { return b.bs.DictCon.InitDicts() }
+func (b *App) InitDicts() *model.Resp { return b.bs.Controller.InitDicts() }
 
-func (b *App) GetAllDicts() *model.Resp { return b.bs.DictCon.GetAllDicts() }
+func (b *App) GetAllDicts() *model.Resp { return b.bs.Controller.GetAllDicts() }
 
 func (b *App) SearchWord(dictId, word string) *model.Resp {
-	return b.bs.DictCon.SearchWord(dictId, word)
+	return b.bs.Controller.SearchWord(dictId, word)
 }
 
 func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
-	return b.bs.DictCon.BuildIndexByDictId(dictid)
+	return b.bs.Controller.BuildIndexByDictId(dictid)
 }
 
 func (b *App) ResourceServerAddr() string {

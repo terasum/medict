@@ -96,7 +96,7 @@ type PlainDictionaryInfo struct {
 
 type DictionaryItem struct {
 	*PlainDictionaryItem
-	MainDict GeneralDictionary
+	Dict GeneralDictionary
 	PathInfo *DirItem
 }
 

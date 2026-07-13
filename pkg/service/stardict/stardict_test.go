@@ -57,11 +57,11 @@ func TestStarDict_Lookup(t *testing.T) {
 			Description: dict.Description(),
 		},
 		PathInfo: dirItem,
-		MainDict: dict,
+		Dict: dict,
 	}
 	t.Logf("%+v", item.ToPlain())
 	t.Logf("%+v", item.Name)
-	words, err := item.MainDict.Search("impair")
+	words, err := item.Dict.Search("impair")
 	if err != nil {
 		t.Fatal(err)
 	}

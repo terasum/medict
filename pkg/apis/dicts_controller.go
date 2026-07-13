@@ -19,11 +19,11 @@ import (
 var log = logging.MustGetLogger("apis")
 
 type DictsController struct {
-	ds *service.DictService
+	svc *service.DictService
 }
 
-func NewDictsController(ds *service.DictService) *DictsController {
-	return &DictsController{ds: ds}
+func NewDictsController(svc *service.DictService) *DictsController {
+	return &DictsController{svc: svc}
 }
 
 func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
@@ -41,7 +41,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 
 	// 根据词典实际类型决定索引类型，避免 stardict 被当作 mdict 处理（见 #678）
 	dictType := "medict"
-	if d := dc.ds.GetDictById(dictId); d != nil && d.DictType == string(model.DictTypeStarDict) {
+	if d := dc.svc.GetDictById(dictId); d != nil && d.DictType == string(model.DictTypeStarDict) {
 		dictType = "stardict"
 	}
 	entry, err := convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset)
@@ -52,7 +52,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		return
 	}
 
-	def, err := dc.ds.Locate(dictId, entry)
+	def, err := dc.svc.Locate(dictId, entry)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -64,10 +64,10 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		log.Infof("search @@@LINK=>[%s], hex:[%s]", def, hex.EncodeToString([]byte(def)))
 		newWord := strings.TrimPrefix(def, "@@@LINK=")
 		newWord = strings.TrimRight(newWord, "\r\n\000")
-		result, err1 := dc.ds.Search(dictId, newWord)
+		result, err1 := dc.svc.Search(dictId, newWord)
 		if err1 == nil && len(result) > 0 {
 			newEntry := result[0]
-			def1, err2 := dc.ds.Locate(dictId, newEntry)
+			def1, err2 := dc.svc.Locate(dictId, newEntry)
 			// handle link jump
 			if err2 == nil {
 				def = def1
@@ -77,7 +77,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		}
 	}
 
-	dict, ok := dc.ds.GetDictPlain(dictId)
+	dict, ok := dc.svc.GetDictPlain(dictId)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -121,7 +121,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	log.Debugf("innerResourceQuery key: [%s]", key)
 
 	// 1) dict folder first (css / cover image / etc. shipped alongside the .mdx).
-	if raw, err := dc.ds.FindFromDir(dictId, key); err == nil {
+	if raw, err := dc.svc.FindFromDir(dictId, key); err == nil {
 		log.Debugf("resource hit dir: [%s]", key)
 		dc.serveResource(c, dictId, key, raw)
 		return
@@ -130,7 +130,7 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 	// 2) resource lookup across key variants (dicts may store paths with
 	//    backslashes or a leading separator).
 	for _, candidate := range resourceKeyCandidates(key) {
-		if raw, err := dc.ds.LookupResource(dictId, candidate); err == nil {
+		if raw, err := dc.svc.LookupResource(dictId, candidate); err == nil {
 			log.Debugf("resource hit: [%s]", candidate)
 			dc.serveResource(c, dictId, candidate, raw)
 			return
