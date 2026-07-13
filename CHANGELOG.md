@@ -4,6 +4,40 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.1
+
+Patch release: fixes a **live crash** during index build, `entry://` link
+navigation, and a class of keyword-index correctness bugs from the indexer
+review (#722), plus architecture cleanups. No data-format breakage (existing
+`.melev` caches are rebuilt once on the new schema).
+
+### Fixed
+- **Live panic on index build (#724)**: the leveldb connection pool could hand
+  out a nil connection and panic during `BuildIndex`. Pool removed; a single
+  shared `*leveldb.DB` handle is used (goleveldb is concurrency-safe).
+- **`entry://` links with `=`/`/`/`.` (#718/#723)**: no longer trigger an OS
+  "There is no application set to open the URL" dialog; in-iframe jumps work.
+- **Prefix search for P/F/K/W-initial words (#723)**: a `TrimLeft`-vs-`TrimPrefix`
+  bug had collapsed distinct words onto one key and broken prefix search.
+- **Same-headword entries / homographs (#742)**: the leveldb key now carries the
+  record offset, so "bank" sense 1 & 2 no longer overwrite each other — both
+  surface in search. (One-time index rebuild via `schema_version` bump.)
+- **Dictionary list ordering (#740)**: sorted by name, not by dir-path MD5.
+- **stardict (#739)**: `Lookup`/`LookupResource` return a clean `ErrNotFound`
+  instead of swallowing errors / returning empty 200s.
+- macOS release now ships a `.app.zip` alongside the `.dmg` (#721).
+
+### Changed
+- Indexer `Close` lifecycle end-to-end (LvDB → indexer → holder → service →
+  `App.shutdown`); the `.mdx` parser opens/closes per op, so no handle leak (#731).
+- Index built via a single leveldb **batch** write; the fuzzy BK-tree is built
+  from the leveldb index (no `.mdx` re-parse on cache hit) (#741).
+- `model.ErrNotFound` sentinel — a normal miss is distinguishable from a real
+  error via `errors.Is` (#732).
+- Word lookup is now an **explicit Gin route** (`GET /__mdict/__tcidem_query`);
+  resource lookups stay a catch-all (#728).
+- Boilerplate reduction, dead-code removal, log consolidation (#734/#735/#736/#737/#738).
+
 ## v3.1.0
 
 First release since v3.0.1. Bundles the reliability, fuzzy-search, and build
