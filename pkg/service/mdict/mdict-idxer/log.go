@@ -8,10 +8,10 @@ import (
 var log = logging.MustGetLogger("mdict.idxer")
 
 func logstart(method string, args interface{}) time.Time {
-	log.Infof("%s|STR|: %v", method, args)
+	log.Debugf("%s|STR|: %v", method, args)
 	return time.Now()
 }
 
 func logend(method string, startTime time.Time, err error) {
-	log.Infof("%s|END|%s|E:%v", method, time.Now().Sub(startTime).String(), err)
+	log.Debugf("%s|END|%s|E:%v", method, time.Now().Sub(startTime).String(), err)
 }

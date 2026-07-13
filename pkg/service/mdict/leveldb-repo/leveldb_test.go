@@ -47,12 +47,12 @@ func TestLvDB_PutGetPrefix(t *testing.T) {
 		t.Fatalf("Get = %q, want %q", got, "a")
 	}
 
-	keys, err := db.Prefix("PFKW#_app")
+	kvs, err := db.Prefix("PFKW#_app")
 	if err != nil {
 		t.Fatalf("Prefix: %v", err)
 	}
-	if len(keys) != 2 {
-		t.Fatalf("Prefix returned %d keys, want 2: %v", len(keys), keys)
+	if len(kvs) != 2 {
+		t.Fatalf("Prefix returned %d pairs, want 2: %v", len(kvs), kvs)
 	}
 }
 
@@ -123,11 +123,11 @@ func TestLvDB_ConcurrentAccess(t *testing.T) {
 
 	wg.Wait()
 
-	keys, err := db.Prefix("k")
+	kvs, err := db.Prefix("k")
 	if err != nil {
 		t.Fatalf("final Prefix: %v", err)
 	}
-	if got, want := len(keys), writers*perWriter; got != want {
-		t.Fatalf("after concurrent writes got %d keys, want %d", got, want)
+	if got, want := len(kvs), writers*perWriter; got != want {
+		t.Fatalf("after concurrent writes got %d pairs, want %d", got, want)
 	}
 }

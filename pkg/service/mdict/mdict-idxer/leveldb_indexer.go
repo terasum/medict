@@ -2,7 +2,7 @@ package mdict_idxer
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/terasum/medict/pkg/model"
 	lvdb "github.com/terasum/medict/pkg/service/mdict/leveldb-repo"
 	"strings"
@@ -96,42 +96,50 @@ func (m *MedictDBIndexer) AddRecord(record *model.MdictKeyWordIndex) (resErr err
 	//return m.searchTree.addKeyValue(key, data)
 }
 
+func (m *MedictDBIndexer) AddRecords(records []*model.MdictKeyWordIndex) (resErr error) {
+	startTime := logstart("MedictDBIndexer.AddRecords", len(records))
+	defer logend("MedictDBIndexer.AddRecords", startTime, resErr)
+
+	if len(records) == 0 {
+		return nil
+	}
+	batch := new(leveldb.Batch)
+	for _, r := range records {
+		data, err := json.Marshal(r)
+		if err != nil {
+			return err
+		}
+		batch.Put([]byte(strip(r.KeyWord)), data)
+	}
+	return m.lvdb.Write(batch)
+}
+
 func (m *MedictDBIndexer) Search(keyword string) (res []*model.MdictKeyWordIndex, resErr error) {
 	startTime := logstart("MedictDBIndexer.Search", keyword)
 	defer logend("MedictDBIndexer.Search", startTime, resErr)
 
-	keyword = strip(keyword)
-	//values, err := m.searchTree.search(keyword)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	values, err := m.lvdb.Prefix(keyword)
+	// Single iteration: Prefix now returns key+value, so we avoid the previous
+	// N+1 (one Prefix scan then one Get per key) — issue #722 P2.
+	kvs, err := m.lvdb.Prefix(strip(keyword))
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]*model.MdictKeyWordIndex, 0)
-	for idx, value := range values {
-		data, err1 := m.lvdb.Get(value)
-		if err1 != nil {
-			log.Errorf("query db failed, key: %s", value)
-			continue
-		}
-
+	list := make([]*model.MdictKeyWordIndex, 0, len(kvs))
+	for idx, kv := range kvs {
 		vi := new(model.MdictKeyWordIndex)
-		err1 = json.Unmarshal(data, vi)
-		if err1 != nil {
-			log.Errorf("unmarshal value failed, %s, data: %s", err1.Error(), data)
+		if err1 := json.Unmarshal(kv.Value, vi); err1 != nil {
+			log.Errorf("unmarshal value failed, %s", err1)
 			continue
 		}
 		vi.ID = idx
 		list = append(list, vi)
 	}
 
+	// Empty result is not an error (issue #722 P3 error-as-control-flow) —
+	// callers check len(result), not the error.
 	if len(list) == 0 {
-		return nil, errors.New("result not found")
+		return nil, nil
 	}
-
 	return list, nil
 }

@@ -46,7 +46,7 @@ func TestIndexer_CloseReleasesHandle(t *testing.T) {
 
 func TestLookup(t *testing.T) {
 
-	idxer, err := NewIndexer("./testdata/testleveldb")
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "testleveldb"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,6 +75,62 @@ func TestLookup(t *testing.T) {
 	}
 	for _, w := range list {
 		t.Logf("search word: %s", w.KeyWord)
+	}
+}
+
+// TestAddRecords_BatchEquivalence: AddRecords (leveldb batch) writes records
+// that are individually lookable-up and carry their fields through — i.e. the
+// batch path produces the same observable state as per-record AddRecord.
+func TestAddRecords_BatchEquivalence(t *testing.T) {
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "batch"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	words := []string{"apple", "apply", "banana", "cherry"}
+	records := make([]*model.MdictKeyWordIndex, len(words))
+	for i, w := range words {
+		records[i] = &model.MdictKeyWordIndex{KeyWord: w, RecordLocateStartOffset: int64(i * 100)}
+	}
+	if err := idxer.AddRecords(records); err != nil {
+		t.Fatalf("AddRecords: %v", err)
+	}
+	for i, w := range words {
+		got, err := idxer.Lookup(w)
+		if err != nil {
+			t.Fatalf("Lookup(%s): %v", w, err)
+		}
+		if got.KeyWord != w {
+			t.Fatalf("Lookup(%s) keyword = %q", w, got.KeyWord)
+		}
+		if got.RecordLocateStartOffset != int64(i*100) {
+			t.Fatalf("Lookup(%s) offset = %d, want %d", w, got.RecordLocateStartOffset, i*100)
+		}
+	}
+	res, err := idxer.Search("app")
+	if err != nil {
+		t.Fatalf("Search(app): %v", err)
+	}
+	if len(res) != 2 {
+		t.Fatalf("Search(app) returned %d, want 2 (apple, apply)", len(res))
+	}
+}
+
+// TestSearch_EmptyResultIsNotError: a prefix that matches nothing returns
+// (nil, nil), not an error (issue #722 P3 error-as-control-flow).
+func TestSearch_EmptyResultIsNotError(t *testing.T) {
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "empty"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.AddRecords([]*model.MdictKeyWordIndex{{KeyWord: "hello"}}); err != nil {
+		t.Fatal(err)
+	}
+	res, err := idxer.Search("zzz")
+	if err != nil {
+		t.Fatalf("Search(zzz) error: %v (issue #722 P3: empty != error)", err)
+	}
+	if len(res) != 0 {
+		t.Fatalf("Search(zzz) = %v, want empty", res)
 	}
 }
 

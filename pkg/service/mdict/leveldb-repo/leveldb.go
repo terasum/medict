@@ -29,19 +29,35 @@ func NewLvDB(fpath string) (*LvDB, error) {
 	}, nil
 }
 
-// Prefix returns the keys with the given prefix, in leveldb's sorted order.
-func (lvdb *LvDB) Prefix(prefix string) ([]string, error) {
+// KV is a single leveldb key-value pair returned by Prefix.
+type KV struct {
+	Key   []byte
+	Value []byte
+}
+
+// Prefix returns all key-value pairs whose key starts with prefix, in leveldb's
+// sorted order. Keys and values are copied (the iterator's buffers are
+// invalidated on Next), so the returned slices are safe to retain.
+func (lvdb *LvDB) Prefix(prefix string) ([]KV, error) {
 	ite := lvdb.db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
 	defer ite.Release()
 
-	result := make([]string, 0)
+	result := make([]KV, 0)
 	for ite.Next() {
-		result = append(result, string(ite.Key()))
+		result = append(result, KV{
+			Key:   append([]byte(nil), ite.Key()...),
+			Value: append([]byte(nil), ite.Value()...),
+		})
 	}
 	if err := ite.Error(); err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+// Write applies a batch atomically. Used for bulk index builds.
+func (lvdb *LvDB) Write(batch *leveldb.Batch) error {
+	return lvdb.db.Write(batch, nil)
 }
 
 // Put a key-value pair into leveldb.
