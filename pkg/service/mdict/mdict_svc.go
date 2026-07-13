@@ -126,7 +126,7 @@ func (md *mdictSvcImpl) LookupResource(keyword string) ([]byte, error) {
 		if err != nil {
 			log.Infof("mdict.LookupResource failed, key [%s] not found, error: %s", keyword, err.Error())
 		}
-		return nil, fmt.Errorf("mdict resource not found: [%s]", keyword)
+		return nil, fmt.Errorf("mdict resource not found [%s]: %w", keyword, model.ErrNotFound)
 	}
 
 	return def, nil

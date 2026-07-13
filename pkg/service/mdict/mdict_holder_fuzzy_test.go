@@ -69,6 +69,21 @@ func TestFuzzyFallback(t *testing.T) {
 	}
 }
 
+// TestLookup_MissReturnsErrNotFound: a keyword miss returns the sentinel
+// model.ErrNotFound (not a plain string error), so callers can errors.Is it
+// (issue #732).
+func TestLookup_MissReturnsErrNotFound(t *testing.T) {
+	idx, err := idxer.NewIndexer(filepath.Join(t.TempDir(), "miss"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	mh := &mdictHolder{lock: &sync.Mutex{}, idxer: idx}
+	_, err = mh.Lookup("does-not-exist")
+	if !assert.True(t, errors.Is(err, model.ErrNotFound), "want ErrNotFound, got %v", err) {
+		t.FailNow()
+	}
+}
+
 // TestIndexUpToDate: the schema migration trigger — a populated but old-schema
 // (or schema-less) index is NOT up to date, forcing a rebuild; current schema +
 // entries is up to date (issue #722 #1).
