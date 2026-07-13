@@ -17,6 +17,7 @@
 package handler
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -24,4 +25,35 @@ func TestReplacerEntry_Replace(t *testing.T) {
 	entry := &ReplacerEntry{}
 	_, html := entry.Replace("X182310003", nil, TESTENTRYHTML)
 	t.Logf("%s", html)
+}
+
+// Regression for #718: entry:// IDs may contain '=' and other non-word chars
+// ('.', '/', ':', ...). The old whitelist [\w#_ -] did not match them, so the
+// raw entry:// href survived into the page and the webview handed it to the OS.
+func TestReplacerEntry_HandlesNonWordCharsInEntryURL(t *testing.T) {
+	entry := &ReplacerEntry{}
+	in := `<a href="entry://topic_transport-by-water_level=c1">x</a>`
+	_, out := entry.Replace("dict123", nil, in)
+
+	if strings.Contains(out, "entry://") {
+		t.Fatalf("raw entry:// href must be rewritten away, got: %s", out)
+	}
+	want := `__medict_entry_jump('topic_transport-by-water_level=c1', 'dict123')`
+	if !strings.Contains(out, want) {
+		t.Fatalf("expected rewritten jump call containing %q, got: %s", want, out)
+	}
+}
+
+// A captured entry word is spliced into a single-quoted JS literal, so quotes
+// and backslashes must be escaped or they break/inject into the href.
+func TestReplacerEntry_EscapesWordForJSLiteral(t *testing.T) {
+	entry := &ReplacerEntry{}
+	_, out := entry.Replace("d1", nil, `<a href="entry://it's">x</a>`)
+
+	if strings.Contains(out, `('it's`) {
+		t.Fatalf("single quote in entry word must be escaped, got: %s", out)
+	}
+	if !strings.Contains(out, `it\'s`) {
+		t.Fatalf("expected escaped quote in output, got: %s", out)
+	}
 }

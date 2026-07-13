@@ -42,6 +42,7 @@ function __medict_play_sound(mp3url) {
 // top-inner frame communication
 //**************************
 var __TOPFRAME_SECURE_ORIGIN__ = "*";
+var __MEDICT_DICT_ID__ = "%s";
 function __medict_entry_jump(word, dict_id) {
 	console.log("[inner frame] jump entry => ", word, dict_id);
 	if (window.top){
@@ -77,6 +78,24 @@ function __medict_entry_jump(word, dict_id) {
 		}
     })
 }())
+
+// Defense-in-depth (#718): intercept any entry:// link the backend replacer did
+// NOT rewrite to javascript:__medict_entry_jump(...) (e.g. hrefs that use single
+// quotes, or entry IDs the regex still misses). Without this guard the webview
+// hands the unknown entry:// scheme to the OS, producing
+// "There is no application set to open the URL entry://...".
+!(function(){
+	var ENTRY_PREFIX = "entry://";
+	document.addEventListener("click", function(e) {
+		var t = e.target;
+		var a = t && t.closest ? t.closest("a") : null;
+		if (!a) return;
+		var href = a.getAttribute("href") || "";
+		if (href.indexOf(ENTRY_PREFIX) !== 0) return;
+		e.preventDefault();
+		__medict_entry_jump(href.slice(ENTRY_PREFIX.length), __MEDICT_DICT_ID__);
+	});
+}());
 
 </script>
 </head>
