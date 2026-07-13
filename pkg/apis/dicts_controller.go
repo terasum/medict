@@ -2,7 +2,6 @@ package apis
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/terasum/medict/internal/static/handler"
 	"net/http"
 	"strconv"
@@ -46,7 +45,7 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 	entry, err := convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset)
 	if err != nil {
 
-		fmt.Printf("NoRoute REQ ABORT: %s (%s:%s)\n", c.Request.RequestURI, "bad param convert", err.Error())
+		log.Errorf("NoRoute REQ ABORT: %s (bad param convert: %s)", c.Request.RequestURI, err.Error())
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
