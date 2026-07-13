@@ -193,41 +193,21 @@ func (mh *mdictHolder) BuildIndex() error {
 		return nil
 	}
 
-	err = mh.idxer.SetMeta("Title", mh.rawdict.Title())
-	if err != nil {
-		return err
+	metas := []struct{ k, v string }{
+		{"Title", mh.rawdict.Title()},
+		{"Description", mh.rawdict.Description()},
+		{"CreationDate", mh.rawdict.CreationDate()},
+		{"GenerateEngineVersion", mh.rawdict.GeneratedByEngineVersion()},
+		{"filepath", mh.dictFilePath},
+		{"idx_filepath", mh.idxFilePath},
+		{"is_utf16", strconv.FormatBool(mh.rawdict.IsUTF16())},
+		{"is_mdd", strconv.FormatBool(mh.rawdict.IsMDD())},
+		{"is_record_encrypt", strconv.FormatBool(mh.rawdict.IsRecordEncrypted())},
 	}
-	err = mh.idxer.SetMeta("Description", mh.rawdict.Description())
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("CreationDate", mh.rawdict.CreationDate())
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("GenerateEngineVersion", mh.rawdict.GeneratedByEngineVersion())
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("filepath", mh.dictFilePath)
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("idx_filepath", mh.idxFilePath)
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("is_utf16", strconv.FormatBool(mh.rawdict.IsUTF16()))
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("is_mdd", strconv.FormatBool(mh.rawdict.IsMDD()))
-	if err != nil {
-		return err
-	}
-	err = mh.idxer.SetMeta("is_record_encrypt", strconv.FormatBool(mh.rawdict.IsRecordEncrypted()))
-	if err != nil {
-		return err
+	for _, m := range metas {
+		if err = mh.idxer.SetMeta(m.k, m.v); err != nil {
+			return err
+		}
 	}
 
 	entries, err := mh.rawdict.GetKeyWordEntries()
