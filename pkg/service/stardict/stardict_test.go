@@ -2,11 +2,26 @@ package stardict
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"testing"
 
 	"github.com/terasum/medict/pkg/model"
 )
+
+// TestStarDict_NotReadyAndResourceNotFound: a not-built StarDict surfaces
+// ErrNotFound from Lookup, and LookupResource returns ErrNotFound (stardict
+// resource loading isn't implemented — #739). No testdata required.
+func TestStarDict_NotReadyAndResourceNotFound(t *testing.T) {
+	s := &StarDict{ready: false}
+
+	if _, err := s.Lookup("anything"); !errors.Is(err, model.ErrNotFound) {
+		t.Fatalf("Lookup not-ready: want ErrNotFound, got %v", err)
+	}
+	if _, err := s.LookupResource("anything"); !errors.Is(err, model.ErrNotFound) {
+		t.Fatalf("LookupResource: want ErrNotFound, got %v", err)
+	}
+}
 
 func TestStarDict_Lookup(t *testing.T) {
 	// stardict testdata is not checked into the repo; skip when absent so CI
