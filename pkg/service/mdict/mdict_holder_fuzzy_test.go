@@ -2,6 +2,7 @@ package mdict
 
 import (
 	"errors"
+	"path/filepath"
 	"sync"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 
 	"github.com/terasum/medict/internal/libs/bktree"
 	"github.com/terasum/medict/pkg/model"
+	idxer "github.com/terasum/medict/pkg/service/mdict/mdict-idxer"
 )
 
 // fakeIdxer implements idxer.Indexer; its Search always misses, forcing the
@@ -25,6 +27,7 @@ func (f *fakeIdxer) GetMeta(key string) (string, error) {
 }
 func (f *fakeIdxer) AddRecord(record *model.MdictKeyWordIndex) error { return nil }
 func (f *fakeIdxer) AddRecords(records []*model.MdictKeyWordIndex) error { return nil }
+func (f *fakeIdxer) AllRecords() ([]*model.MdictKeyWordIndex, error)      { return nil, nil }
 func (f *fakeIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, error) {
 	return nil, errors.New("result not found")
 }
@@ -63,6 +66,31 @@ func TestFuzzyFallback(t *testing.T) {
 	// Distances non-decreasing (ascending).
 	for i := 1; i < len(res); i++ {
 		assert.GreaterOrEqual(t, res[i].ID, res[i-1].ID)
+	}
+}
+
+// TestEnsureBkTree_FromIndexer: with bktreeDone=false (the .melev cache-hit
+// case), ensureBkTree builds the BK-tree from the leveldb index — not by
+// re-parsing the mdx — so fuzzy search still works (issue #722 #2).
+func TestEnsureBkTree_FromIndexer(t *testing.T) {
+	idx, err := idxer.NewIndexer(filepath.Join(t.TempDir(), "bktree"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.NoError(t, idx.AddRecords([]*model.MdictKeyWordIndex{
+		{KeyWord: "hello", RecordLocateStartOffset: 100},
+		{KeyWord: "help", RecordLocateStartOffset: 200},
+	}))
+
+	mh := &mdictHolder{lock: &sync.Mutex{}, idxer: idx} // bktreeDone defaults to false
+	assert.NoError(t, mh.ensureBkTree())
+	assert.True(t, mh.bktreeDone)
+
+	// "helo" (typo of hello) resolves via the indexer-built BK-tree.
+	res, err := mh.Search("helo")
+	assert.NoError(t, err)
+	if assert.NotEmpty(t, res) {
+		assert.Equal(t, "hello", res[0].KeyWord)
 	}
 }
 

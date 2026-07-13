@@ -114,6 +114,27 @@ func (m *MedictDBIndexer) AddRecords(records []*model.MdictKeyWordIndex) (resErr
 	return m.lvdb.Write(batch)
 }
 
+// AllRecords returns every indexed keyword record by scanning the whole
+// PFKW#_ keyspace (meta keys use a different prefix and are excluded). Used to
+// build the in-memory fuzzy BK-tree without re-parsing the source dict
+// (issue #722 #2).
+func (m *MedictDBIndexer) AllRecords() ([]*model.MdictKeyWordIndex, error) {
+	kvs, err := m.lvdb.Prefix(prefixKeyword)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*model.MdictKeyWordIndex, 0, len(kvs))
+	for _, kv := range kvs {
+		r := new(model.MdictKeyWordIndex)
+		if err := json.Unmarshal(kv.Value, r); err != nil {
+			log.Errorf("AllRecords unmarshal failed: %s", err)
+			continue
+		}
+		out = append(out, r)
+	}
+	return out, nil
+}
+
 func (m *MedictDBIndexer) Search(keyword string) (res []*model.MdictKeyWordIndex, resErr error) {
 	startTime := logstart("MedictDBIndexer.Search", keyword)
 	defer logend("MedictDBIndexer.Search", startTime, resErr)
