@@ -39,6 +39,7 @@ type App struct {
 	errorChannel chan error
 	stopChannel  chan int
 	bs           *backserver.BackServer
+	dictSvc      *service.DictService
 	// initErr 捕获 appInit 同步阶段的错误，由 errorChanListen 在 Wails
 	// startup() 生命周期里确定性地产出，避免向无缓冲 channel 塞值带来的时序赌博。
 	initErr error
@@ -62,13 +63,18 @@ func (b *App) appInit() error {
 		return err
 	}
 
+	dictsSvc, err := service.NewDictService(conf)
+	if err != nil {
+		return err
+	}
+	b.dictSvc = dictsSvc
+
 	bs, err := backserver.NewStaticServer(conf)
 	if err != nil {
 		return err
 	}
 
-	err = bs.SetUp()
-	if err != nil {
+	if err := bs.SetUp(dictsSvc); err != nil {
 		return err
 	}
 	// assign backend server
@@ -96,8 +102,8 @@ func (b *App) shutdown(ctx context.Context) {
 	close(b.errorChannel)
 	b.bs.GracefulStop()
 	// Release per-dictionary resources (leveldb handles, etc.).
-	if ds := service.GetDictService(); ds != nil {
-		if err := ds.Close(); err != nil {
+	if b.dictSvc != nil {
+		if err := b.dictSvc.Close(); err != nil {
 			log.Errorf("shutdown: close dictionaries failed: %s", err.Error())
 		}
 	}

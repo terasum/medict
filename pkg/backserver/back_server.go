@@ -62,18 +62,13 @@ func NewStaticServer(conf *config.Config) (*BackServer, error) {
 	return bs, nil
 }
 
-func (bs *BackServer) SetUp() error {
-	dictsSvc, err := service.NewDictService(bs.Config)
-	if err != nil {
-		return fmt.Errorf("back_server setup failed, err: %s", err.Error())
-	}
-
-	dictCon := apis.NewDictsController(dictsSvc)
-	bs.DictCon = dictCon
+// SetUp wires the injected DictService into the controller and registers
+// handlers/routes. The DictService is owned by App and passed in (issue #727).
+func (bs *BackServer) SetUp(dictsSvc *service.DictService) error {
+	bs.DictCon = apis.NewDictsController(dictsSvc)
 	bs.setupHandlers()
 
-	err = bs.setUpRouters()
-	if err != nil {
+	if err := bs.setUpRouters(); err != nil {
 		return err
 	}
 	return nil
