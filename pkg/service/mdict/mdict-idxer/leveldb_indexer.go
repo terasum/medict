@@ -2,6 +2,7 @@ package mdict_idxer
 
 import (
 	"encoding/json"
+	"strconv"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/terasum/medict/pkg/model"
 	lvdb "github.com/terasum/medict/pkg/service/mdict/leveldb-repo"
@@ -12,6 +13,19 @@ var _ Indexer = &MedictDBIndexer{}
 
 const prefixKeyword = "PFKW#_"
 const prefixMeta = "PFMT#_"
+
+// keySep separates the headword from the per-record disambiguator in a keyword
+// key. "\x1f" (ASCII Unit Separator) does not occur in dictionary keywords, so
+// it cleanly splits "typeahead prefix" from "exact match" (issue #722 #1).
+const keySep = "\x1f"
+
+// recordKey builds the unique leveldb key for one record: kwPrefix + keyword +
+// keySep + offset. The record offset disambiguates same-headword entries
+// (homographs) that previously collided and overwrote each other when the key
+// was just the headword (issue #722 #1).
+func recordKey(keyword string, offset int64) string {
+	return strip(keyword) + keySep + strconv.FormatInt(offset, 10)
+}
 
 type MedictDBIndexer struct {
 	indexFileDirPath string
@@ -53,18 +67,23 @@ func (m *MedictDBIndexer) Close() error {
 	return m.lvdb.Close()
 }
 
+// Lookup returns the first record whose headword exactly matches keyword (the
+// first sense of a homograph). entry:// jumps carry no sense info, so
+// first-match is the only sensible default. Returns (nil, nil) when there is
+// no such keyword (mdictHolder.Lookup maps nil -> "not found").
 func (m *MedictDBIndexer) Lookup(keyword string) (*model.MdictKeyWordIndex, error) {
-	key := strip(keyword)
-	data, err := m.lvdb.Get(key)
+	kvs, err := m.lvdb.Prefix(strip(keyword) + keySep)
 	if err != nil {
 		return nil, err
 	}
-	indexData := new(model.MdictKeyWordIndex)
-	err = json.Unmarshal(data, indexData)
-	if err != nil {
-		return nil, err
+	for _, kv := range kvs {
+		r := new(model.MdictKeyWordIndex)
+		if err := json.Unmarshal(kv.Value, r); err != nil {
+			continue
+		}
+		return r, nil
 	}
-	return indexData, nil
+	return nil, nil
 }
 
 func (m *MedictDBIndexer) SetMeta(key, value string) error {
@@ -87,7 +106,7 @@ func (m *MedictDBIndexer) AddRecord(record *model.MdictKeyWordIndex) (resErr err
 		return err
 	}
 
-	key := strip(record.KeyWord)
+	key := recordKey(record.KeyWord, record.RecordLocateStartOffset)
 	err = m.lvdb.Put(key, data)
 	if err != nil {
 		return err
@@ -109,7 +128,7 @@ func (m *MedictDBIndexer) AddRecords(records []*model.MdictKeyWordIndex) (resErr
 		if err != nil {
 			return err
 		}
-		batch.Put([]byte(strip(r.KeyWord)), data)
+		batch.Put([]byte(recordKey(r.KeyWord, r.RecordLocateStartOffset)), data)
 	}
 	return m.lvdb.Write(batch)
 }

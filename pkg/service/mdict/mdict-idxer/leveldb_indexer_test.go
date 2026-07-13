@@ -78,6 +78,48 @@ func TestLookup(t *testing.T) {
 	}
 }
 
+// TestDuplicateKeywords_NotCollapsed: same-headword entries (homographs) are
+// kept distinct via the offset-suffix key. Lookup returns the first sense;
+// Search surfaces all senses plus any longer matches (issue #722 #1).
+// On the legacy headword-only key this would collapse to one "bank".
+func TestDuplicateKeywords_NotCollapsed(t *testing.T) {
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "dup"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.AddRecords([]*model.MdictKeyWordIndex{
+		{KeyWord: "bank", RecordLocateStartOffset: 100}, // sense 1
+		{KeyWord: "bank", RecordLocateStartOffset: 200}, // sense 2 (same headword)
+		{KeyWord: "bankrupt", RecordLocateStartOffset: 300},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Lookup returns the first sense of "bank" (offset 100).
+	got, err := idxer.Lookup("bank")
+	if err != nil {
+		t.Fatalf("Lookup(bank): %v", err)
+	}
+	if got == nil || got.KeyWord != "bank" || got.RecordLocateStartOffset != 100 {
+		t.Fatalf("Lookup(bank) = %+v, want first sense (offset 100)", got)
+	}
+
+	// Search("bank") surfaces BOTH senses (100, 200) plus the longer "bankrupt".
+	res, err := idxer.Search("bank")
+	if err != nil {
+		t.Fatalf("Search(bank): %v", err)
+	}
+	seen := map[int64]bool{}
+	for _, r := range res {
+		seen[r.RecordLocateStartOffset] = true
+	}
+	for _, want := range []int64{100, 200, 300} {
+		if !seen[want] {
+			t.Fatalf("Search(bank) missing offset %d (homograph collapsed?); got %v", want, seen)
+		}
+	}
+}
+
 // TestAllRecords: AllRecords returns every keyword record (and excludes the
 // PFMT#_ meta keys). Used by the holder to build the fuzzy BK-tree without
 // re-parsing the source dict (issue #722 #2).
