@@ -72,7 +72,7 @@ func WrapDesc(dictid, title, desc string) string {
 
 func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
 	content := handleContent(dict, keyEntry, definition)
-	return []byte(fmt.Sprintf(tmpl.WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, content)), nil
+	return []byte(fmt.Sprintf(tmpl.WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, dict.ID, content)), nil
 }
 
 func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error) {

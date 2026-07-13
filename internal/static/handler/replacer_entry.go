@@ -30,11 +30,22 @@ var ENTRY_REG *regexp.Regexp
 
 func init() {
 	var err error
-	ENTRY_REG, err = regexp.Compile(`href=\"entry://([\w#_ -]+)\"`)
+	// Capture the entry word as "anything up to the closing quote". The old
+	// whitelist [\w#_ -] skipped entry IDs containing '=', '.', '/', ':', ...
+	// (e.g. entry://topic_transport-by-water_level=c1, issue #718): the href
+	// stayed a raw entry:// link, the webview passed the unknown scheme to the
+	// OS, and the user saw "There is no application set to open the URL
+	// entry://...".
+	ENTRY_REG, err = regexp.Compile(`href=\"entry://([^\"]+)\"`)
 	if err != nil {
 		panic(err)
 	}
 }
+
+// entryWordEscaper makes a captured entry word safe to splice into the
+// single-quoted JS string literal emitted below. Backslash and single quote
+// are the only characters that can break out of that literal.
+var entryWordEscaper = strings.NewReplacer(`\`, `\\`, `'`, `\'`)
 
 type ReplacerEntry struct {
 }
@@ -51,13 +62,11 @@ func (r *ReplacerEntry) Replace(dictId string, entry *model.MdictKeyWordIndex, h
 		if len(matched) != 2 {
 			continue
 		}
-		oldStr := matched[0]
-		oldWord := strings.TrimRight(matched[0], "\"")
-		oldWord = strings.TrimPrefix(oldWord, "href=\"entry://")
+		oldStr := matched[0]  // href="entry://<word>"
+		oldWord := matched[1] // <word>
+		escapedWord := entryWordEscaper.Replace(oldWord)
 
-		newStr := fmt.Sprintf("href=\"javascript:__medict_entry_jump('%s', '%s');\"", oldWord, dictId)
-		fmt.Printf("old %s => new %s\n", oldStr, newStr)
-
+		newStr := fmt.Sprintf("href=\"javascript:__medict_entry_jump('%s', '%s');\"", escapedWord, dictId)
 		newhtml = strings.ReplaceAll(newhtml, oldStr, newStr)
 	}
 
