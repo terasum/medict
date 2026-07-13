@@ -17,10 +17,31 @@
 package apis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/terasum/medict/pkg/model"
 )
+
+// TestResourceKeyCandidates locks the candidate-key variants the resource
+// lookup tries (key as-is, "/" -> "\", leading "\"), with dedup (#736).
+func TestResourceKeyCandidates(t *testing.T) {
+	cases := []struct {
+		in   string
+		want []string
+	}{
+		{"css/x.css", []string{"css/x.css", "css\\x.css", "\\css\\x.css"}},
+		{"x.css", []string{"x.css", "\\x.css"}},    // no slash: backslash == key, deduped
+		{"/x.css", []string{"/x.css", "\\x.css"}},  // leading slash -> backslash already has leading "\"
+		{"\\x.css", []string{"\\x.css"}},           // already backslash + leading: single candidate
+	}
+	for _, tc := range cases {
+		got := resourceKeyCandidates(tc.in)
+		if !reflect.DeepEqual(got, tc.want) {
+			t.Fatalf("resourceKeyCandidates(%q) = %#v, want %#v", tc.in, got, tc.want)
+		}
+	}
+}
 
 // TestConvertKeyIndex locks the 8-param → struct conversion after the loop
 // refactor (#738): every param lands in the right field, empty params default
