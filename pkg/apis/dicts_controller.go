@@ -2,14 +2,16 @@ package apis
 
 import (
 	"encoding/hex"
-	"github.com/terasum/medict/internal/static/handler"
+	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 	"github.com/terasum/medict/internal/static"
+	"github.com/terasum/medict/internal/static/handler"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 )
@@ -199,99 +201,62 @@ func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordB
 		idxtype = model.IndexTypeStardict
 	}
 
-	ientryId, err := strconv.Atoi(entryId)
-	if err != nil {
-		return nil, err
+	// Parse the 8 integer params via one loop instead of 8× repeat Atoi+err.
+	raws := []string{entryId, recordStart, recordEnd, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset}
+	vals := make([]int64, len(raws))
+	for i, s := range raws {
+		v, err1 := strconv.Atoi(s)
+		if err1 != nil {
+			return nil, fmt.Errorf("convertKeyIndex param %d (%q): %w", i, s, err1)
+		}
+		vals[i] = int64(v)
 	}
-	irecordStart, err := strconv.Atoi(recordStart)
-	if err != nil {
-		return nil, err
-	}
-	irecordEnd, err := strconv.Atoi(recordEnd)
-	if err != nil {
-		return nil, err
-	}
-
-	iRecordBlockDataStartOffset, err := strconv.Atoi(recordBlockDataStartOffset)
-	if err != nil {
-		return nil, err
-	}
-	iRecordBlockDataCompressSize, err := strconv.Atoi(recordBlockDataCompressSize)
-	if err != nil {
-		return nil, err
-	}
-	iRecordBlockDataDeCompressSize, err := strconv.Atoi(recordBlockDataDeCompressSize)
-	if err != nil {
-		return nil, err
-	}
-	iKeyWordDataStartOffset, err := strconv.Atoi(keyWordDataStartOffset)
-	if err != nil {
-		return nil, err
-	}
-	iKeyWordDataEndOffset, err := strconv.Atoi(keyWordDataEndOffset)
-	if err != nil {
-		return nil, err
-	}
-
 	queryIndex := &model.KeyQueryIndex{
 		IndexType: idxtype,
 		MdictKeyWordIndex: &model.MdictKeyWordIndex{
-			ID:                            ientryId,
+			ID:                            int(vals[0]),
 			KeyWord:                       keyWord,
-			RecordLocateStartOffset:       int64(irecordStart),
-			RecordLocateEndOffset:         int64(irecordEnd),
-			RecordBlockDataStartOffset:    int64(iRecordBlockDataStartOffset),
-			RecordBlockDataCompressSize:   int64(iRecordBlockDataCompressSize),
-			RecordBlockDataDeCompressSize: int64(iRecordBlockDataDeCompressSize),
-			KeyWordDataStartOffset:        int64(iKeyWordDataStartOffset),
-			KeyWordDataEndOffset:          int64(iKeyWordDataEndOffset),
+			RecordLocateStartOffset:       vals[1],
+			RecordLocateEndOffset:         vals[2],
+			RecordBlockDataStartOffset:    vals[3],
+			RecordBlockDataCompressSize:   vals[4],
+			RecordBlockDataDeCompressSize: vals[5],
+			KeyWordDataStartOffset:        vals[6],
+			KeyWordDataEndOffset:          vals[7],
 		},
 	}
-	log.Infof("KeyWord: %s", keyWord)
-	log.Infof("RecordLocateStartOffset: %d", int64(irecordStart))
-	log.Infof("RecordLocateEndOffset: %d", int64(irecordEnd))
-	log.Infof("RecordBlockDataStartOffset: %d", int64(iRecordBlockDataStartOffset))
-	log.Infof("RecordBlockDataCompressSize: %d", int64(iRecordBlockDataCompressSize))
-	log.Infof("RecordBlockDataDeCompressSize: %d", int64(iRecordBlockDataDeCompressSize))
-	log.Infof("KeyWordDataStartOffset: %d", int64(iKeyWordDataStartOffset))
-	log.Infof("KeyWordDataEndOffset: %d", int64(iKeyWordDataEndOffset))
+	log.Debugf("query index: kw=%s offsets=%v", keyWord, vals)
 	return queryIndex, nil
 }
 
+// contentTypes maps resource file extensions to their MIME types, looked up by
+// the extension of the resource key (#738 — replaced a 16-branch if chain).
+var contentTypes = map[string]string{
+	".css":   "text/css",
+	".js":    "text/javascript",
+	".jpeg":  "image/jpeg",
+	".jpg":   "image/jpeg",
+	".png":   "image/png",
+	".gif":   "image/gif",
+	".svg":   "image/svg+xml",
+	".webp":  "image/webp",
+	".mp4":   "video/mp4",
+	".wav":   "audio/wav",
+	".mp3":   "audio/mpeg", // correct MIME for MP3 (was "audio/mp3")
+	".ogg":   "audio/ogg",
+	".flac":  "audio/flac",
+	".spx":   "audio/speex",
+	".ttf":   "font/ttf",
+	".otf":   "font/otf",
+	".woff":  "font/woff",
+	".woff2": "font/woff2",
+}
+
 func wrapContentType(c *gin.Context, key string, data []byte) {
-	if strings.HasSuffix(key, ".css") {
-		c.Data(http.StatusOK, "text/css", data)
-	} else if strings.HasSuffix(key, ".js") {
-		c.Data(http.StatusOK, "text/javascript", data)
-	} else if strings.HasSuffix(key, ".jpeg") {
-		c.Data(http.StatusOK, "image/jpeg", data)
-	} else if strings.HasSuffix(key, ".png") {
-		c.Data(http.StatusOK, "image/png", data)
-	} else if strings.HasSuffix(key, ".gif") {
-		c.Data(http.StatusOK, "image/gif", data)
-	} else if strings.HasSuffix(key, ".jpg") {
-		c.Data(http.StatusOK, "image/jpeg", data)
-	} else if strings.HasSuffix(key, ".svg") {
-		c.Data(http.StatusOK, "image/svg+xml", data)
-	} else if strings.HasSuffix(key, ".webp") {
-		c.Data(http.StatusOK, "image/webp", data)
-	} else if strings.HasSuffix(key, ".mp4") {
-		c.Data(http.StatusOK, "video/mp4", data)
-	} else if strings.HasSuffix(key, ".wav") {
-		c.Data(http.StatusOK, "audio/wav", data)
-	} else if strings.HasSuffix(key, ".mp3") {
-		c.Data(http.StatusOK, "audio/mp3", data)
-	} else if strings.HasSuffix(key, ".ogg") {
-		c.Data(http.StatusOK, "audio/ogg", data)
-	} else if strings.HasSuffix(key, ".ttf") {
-		c.Data(http.StatusOK, "font/ttf", data)
-	} else if strings.HasSuffix(key, ".otf") {
-		c.Data(http.StatusOK, "font/otf", data)
-	} else if strings.HasSuffix(key, ".woff") {
-		c.Data(http.StatusOK, "font/woff", data)
-	} else if strings.HasSuffix(key, ".woff2") {
-		c.Data(http.StatusOK, "font/woff2", data)
-	} else {
-		c.AbortWithStatus(http.StatusUnsupportedMediaType)
+	if ct, ok := contentTypes[strings.ToLower(filepath.Ext(key))]; ok {
+		c.Data(http.StatusOK, ct, data)
+		return
 	}
+	// Unknown extension: sniff from the content instead of hard-failing with 415.
+	c.Data(http.StatusOK, http.DetectContentType(data), data)
 }
