@@ -18,13 +18,15 @@ package entry
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/op/go-logging"
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/utils"
 )
+
+var log = logging.MustGetLogger("entry")
 
 var cfg *config.Config
 
@@ -34,7 +36,7 @@ func defaultConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("[medict-init]: default config dir: %s\n", appConfigDir)
+	log.Infof("[medict-init]: default config dir: %s", appConfigDir)
 
 	configFile := filepath.Join(appConfigDir, "medict.toml")
 	if _, err = os.Stat(configFile); errors.Is(err, os.ErrNotExist) {
@@ -44,7 +46,7 @@ func defaultConfigPath() (string, error) {
 		}
 	}
 
-	fmt.Printf("[medict-init]: default config file: %s\n", configFile)
+	log.Infof("[medict-init]: default config file: %s", configFile)
 	return configFile, nil
 }
 
@@ -64,7 +66,7 @@ func loadConfig() (*config.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("[medict-init]: config dicts dir: %s\n", cfg.BaseDictDir)
+	log.Infof("[medict-init]: config dicts dir: %s", cfg.BaseDictDir)
 	return cfg, nil
 }
 
