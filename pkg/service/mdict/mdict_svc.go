@@ -52,6 +52,22 @@ func (md *mdictSvcImpl) Description() *model.PlainDictionaryInfo {
 	}
 }
 
+// Close releases the underlying indexers of the mdx and all mdd holders.
+func (md *mdictSvcImpl) Close() error {
+	var errs []error
+	if md.mdx != nil {
+		if err := md.mdx.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	for _, mdd := range md.mdds {
+		if err := mdd.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
 func (md *mdictSvcImpl) BuildIndex() error {
 	if md.hasBuildIndex {
 		return nil

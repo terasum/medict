@@ -44,6 +44,12 @@ func (bs *bkString) Distance(entry bktree.Entry) int {
 	return levenshtein.Distance(bs.w, entry.(*bkString).w)
 }
 
+// Close is a no-op for StarDict: it holds no leveldb/database handles, only
+// in-memory structures (BKTree) and the parsed stardict data.
+func (s *StarDict) Close() error {
+	return nil
+}
+
 func (s *StarDict) BuildIndex() error {
 	if s.ready {
 		return nil

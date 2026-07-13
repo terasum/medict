@@ -8,4 +8,7 @@ type Indexer interface {
 	GetMeta(key string) (value string, err error)
 	AddRecord(record *model.MdictKeyWordIndex) error
 	Search(keyword string) ([]*model.MdictKeyWordIndex, error)
+	// Close releases the underlying store handle. Use after Close returns an
+	// error (not a panic).
+	Close() error
 }

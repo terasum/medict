@@ -45,6 +45,14 @@ func NewIndexer(fpath string) (*MedictDBIndexer, error) {
 
 }
 
+// Close releases the underlying leveldb handle.
+func (m *MedictDBIndexer) Close() error {
+	if m.lvdb == nil {
+		return nil
+	}
+	return m.lvdb.Close()
+}
+
 func (m *MedictDBIndexer) Lookup(keyword string) (*model.MdictKeyWordIndex, error) {
 	key := strip(keyword)
 	data, err := m.lvdb.Get(key)

@@ -26,6 +26,7 @@ import (
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/backserver"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service"
 	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 )
 
@@ -94,6 +95,12 @@ func (b *App) shutdown(ctx context.Context) {
 	close(b.stopChannel)
 	close(b.errorChannel)
 	b.bs.GracefulStop()
+	// Release per-dictionary resources (leveldb handles, etc.).
+	if ds := service.GetDictService(); ds != nil {
+		if err := ds.Close(); err != nil {
+			log.Errorf("shutdown: close dictionaries failed: %s", err.Error())
+		}
+	}
 }
 
 func (b *App) Dispatch(apiName string, args map[string]interface{}) *model.Resp {

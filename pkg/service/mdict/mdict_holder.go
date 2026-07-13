@@ -124,6 +124,15 @@ func (mh *mdictHolder) Locate(entry *model.MdictKeyWordIndex) ([]byte, error) {
 	return def, nil
 }
 
+// Close releases the indexer's leveldb handle. (The raw .mdx parser handle is
+// not released here — it exposes no Close; tracked separately.)
+func (mh *mdictHolder) Close() error {
+	if mh.idxer != nil {
+		return mh.idxer.Close()
+	}
+	return nil
+}
+
 func (mh *mdictHolder) Lookup(keyword string) ([]byte, error) {
 	entry, err := mh.idxer.Lookup(keyword)
 	if err != nil {

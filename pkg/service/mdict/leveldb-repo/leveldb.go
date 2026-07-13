@@ -53,3 +53,9 @@ func (lvdb *LvDB) Put(key string, value []byte) error {
 func (lvdb *LvDB) Get(key string) ([]byte, error) {
 	return lvdb.db.Get([]byte(key), nil)
 }
+
+// Close releases the leveldb handle. Operations after Close return leveldb's
+// ErrClosed rather than panicking.
+func (lvdb *LvDB) Close() error {
+	return lvdb.db.Close()
+}

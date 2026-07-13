@@ -27,6 +27,7 @@ func (f *fakeIdxer) AddRecord(record *model.MdictKeyWordIndex) error { return ni
 func (f *fakeIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, error) {
 	return nil, errors.New("result not found")
 }
+func (f *fakeIdxer) Close() error { return nil }
 
 // TestFuzzyFallback verifies that a prefix miss routes through the BK-tree
 // fallback and returns the closest matches (sorted by distance).

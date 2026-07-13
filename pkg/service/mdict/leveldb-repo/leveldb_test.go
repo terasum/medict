@@ -56,6 +56,24 @@ func TestLvDB_PutGetPrefix(t *testing.T) {
 	}
 }
 
+// TestLvDB_UseAfterCloseErrors verifies Close releases the handle and later
+// ops return an error (leveldb's ErrClosed) instead of panicking.
+func TestLvDB_UseAfterCloseErrors(t *testing.T) {
+	db, err := NewLvDB(filepath.Join(t.TempDir(), "close"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	if _, err := db.Get("anything"); err == nil {
+		t.Fatal("Get after Close: want error, got nil")
+	}
+	if err := db.Put("k", []byte("v")); err == nil {
+		t.Fatal("Put after Close: want error, got nil")
+	}
+}
+
 // TestLvDB_ConcurrentAccess guards the single-handle design (issue #722): the
 // old silenceper/pool wrapper could return a nil connection and panic in
 // acquire under concurrent load. The shared *leveldb.DB must tolerate
