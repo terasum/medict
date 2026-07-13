@@ -209,12 +209,12 @@ func TestSearch_EmptyResultIsNotError(t *testing.T) {
 	}
 }
 
-// Regression for issue #722 P0: strip() used strings.TrimLeft(cutset) where it
+// Regression for issue #722 P0: keywordKey() used strings.TrimLeft(cutset) where it
 // meant strings.TrimPrefix, which trimmed any leading P/F/K/W/#/_ off the
 // keyword. That collapsed distinct words onto one key ("King" and "ing" both =>
 // "PFKW#_ing", one overwriting the other) and made prefix searches for P/F/K/W
 // -initial words return the wrong cluster ("Kin" scanned "PFKW#_in").
-func TestStrip_NoCollisionForPrefixInitialWords(t *testing.T) {
+func TestKeywordKey_NoCollisionForPrefixInitialWords(t *testing.T) {
 	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "testleveldb"))
 	if err != nil {
 		t.Fatal(err)
@@ -225,7 +225,7 @@ func TestStrip_NoCollisionForPrefixInitialWords(t *testing.T) {
 			t.Fatalf("AddRecord(%q): %v", kw, err)
 		}
 	}
-	// "King" and "ing": the buggy strip() mapped both to "PFKW#_ing".
+	// "King" and "ing": the buggy keywordKey() mapped both to "PFKW#_ing".
 	add("King")
 	add("ing")
 
@@ -240,7 +240,7 @@ func TestStrip_NoCollisionForPrefixInitialWords(t *testing.T) {
 	}
 
 	// Prefix search "Kin" must return only King-prefixed words, never the "ing"
-	// cluster the buggy strip() produced (it scanned "PFKW#_in").
+	// cluster the buggy keywordKey() produced (it scanned "PFKW#_in").
 	res, err := idxer.Search("Kin")
 	if err != nil {
 		t.Fatalf("Search(Kin) error: %v", err)
