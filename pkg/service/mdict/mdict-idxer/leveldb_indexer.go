@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/terasum/medict/pkg/model"
 	lvdb "github.com/terasum/medict/pkg/service/mdict/leveldb-repo"
-	"regexp"
 	"strings"
 )
 
@@ -14,16 +13,18 @@ var _ Indexer = &MedictDBIndexer{}
 const prefixKeyword = "PFKW#_"
 const prefixMeta = "PFMT#_"
 
-var regex = regexp.MustCompile("/[., '\\\\@_\\$#\\%\\:\\/]/g")
-
 type MedictDBIndexer struct {
 	indexFileDirPath string
 	lvdb             *lvdb.LvDB
 	//searchTree       *searchTree
 }
 
+// strip namespaces a keyword under the PFKW#_ prefix so keyword keys never
+// collide with the PFMT#_-prefixed meta keys. TrimPrefix (not TrimLeft, which
+// treats its arg as a *cutset* and would silently eat leading P/F/K/W/#/_
+// chars off the keyword itself — see issue #722) avoids double-prefixing.
 func strip(key string) string {
-	return prefixKeyword + strings.TrimLeft(regex.ReplaceAllString(key, ""), prefixKeyword)
+	return prefixKeyword + strings.TrimPrefix(key, prefixKeyword)
 }
 
 func NewIndexer(fpath string) (*MedictDBIndexer, error) {
