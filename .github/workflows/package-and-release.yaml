@@ -64,11 +64,12 @@ jobs:
         run: wails build -platform ${{ matrix.target }} -ldflags "-X main.Version=${{ env.VERSION }}"
 
       # ---- macOS: always ship a zipped .app; dmg is best-effort ----
+      # Write the .zip to the repo root (GITHUB_WORKSPACE), same as the .dmg /
+      # .tar.gz / Windows .zip, so the shared upload-artifact step picks it up.
       - name: Package macOS (.app zip)
         if: runner.os == 'macOS'
         run: |
-          cd build/bin
-          ditto -c -k --keepParent Medict.app "../Medict_${{ env.VERSION }}_${{ matrix.name }}.zip"
+          ditto -c -k --keepParent build/bin/Medict.app "Medict_${{ env.VERSION }}_${{ matrix.name }}.zip"
 
       - name: Package macOS (.dmg)
         if: runner.os == 'macOS'
