@@ -18,10 +18,6 @@ package model
 
 import (
 	"strings"
-
-	"github.com/creasty/go-levenshtein"
-	"github.com/terasum/medict/internal/libs/bktree"
-	"github.com/terasum/medict/internal/utils"
 )
 
 type DirDcitType string
@@ -141,24 +137,4 @@ type MdictKeyWordIndex struct {
 	RecordBlockDataDeCompressSize int64  `json:"record_block_data_decompress_size"`
 	KeyWordDataStartOffset        int64  `json:"keyword_data_start_offset"`
 	KeyWordDataEndOffset          int64  `json:"keyword_data_end_offset"`
-}
-
-// Distance calculates levenshtein distance.
-func (x *MdictKeyWordIndex) Distance(e bktree.Entry) int {
-	a := x.KeyWord
-	b := e.(*MdictKeyWordIndex).KeyWord
-	a = utils.StrToUnicode(a)
-	b = utils.StrToUnicode(b)
-
-	return levenshtein.Distance(a, b)
-}
-
-type MdictMeta struct {
-	ID               string `json:"id"`
-	Title            string `json:"title"`
-	Filepath         string `json:"filepath"`
-	Description      string `json:"description"`
-	IsRecordEncoding bool   `json:"is_record_encoding"`
-	IsUTF16          bool   `json:"is_utf_16"`
-	IsMDD            bool   `json:"is_mdd"`
 }

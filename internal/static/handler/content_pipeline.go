@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/sym01/htmlsanitizer"
 	"github.com/terasum/medict/internal/static/tmpl"
 
 	"github.com/terasum/medict/pkg/model"
@@ -43,13 +42,7 @@ var handler = &ContentPreHandlePipeline{
 	},
 }
 
-var sanitizer = htmlsanitizer.NewHTMLSanitizer()
 var base64encoder = base64.StdEncoding
-
-func init() {
-	sanitizer.RemoveTag("a")
-	sanitizer.RemoveTag("img")
-}
 
 func WrapDesc(dictid, title, desc string) string {
 	rep1 := &ReplacerImage{}
@@ -63,11 +56,6 @@ func WrapDesc(dictid, title, desc string) string {
 
 	rawHtml = base64encoder.EncodeToString([]byte(rawHtml))
 	return rawHtml
-	//sanitizedHTML, err := s.SanitizeString(rawHtml)
-	//if err != nil {
-	//	return "[sanitized failed]"
-	//}
-	//return sanitizedHTML
 }
 
 func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
