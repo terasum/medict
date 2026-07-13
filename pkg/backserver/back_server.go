@@ -18,18 +18,15 @@ package backserver
 
 import (
 	"context"
-	"fmt"
 	"github.com/terasum/medict/pkg/apis"
 	"net"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/static"
-	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 )
 
@@ -48,8 +45,6 @@ type BackServer struct {
 
 	GinEngine *gin.Engine
 	DictCon   *apis.DictsController
-
-	handlerMap sync.Map
 }
 
 func NewStaticServer(conf *config.Config) (*BackServer, error) {
@@ -66,7 +61,6 @@ func NewStaticServer(conf *config.Config) (*BackServer, error) {
 // handlers/routes. The DictService is owned by App and passed in (issue #727).
 func (bs *BackServer) SetUp(dictsSvc *service.DictService) error {
 	bs.DictCon = apis.NewDictsController(dictsSvc)
-	bs.setupHandlers()
 
 	if err := bs.setUpRouters(); err != nil {
 		return err
@@ -84,17 +78,6 @@ func (bs *BackServer) Start() {
 	} else {
 		bs.startStaticServer("localhost:0")
 	}
-}
-
-func (bs *BackServer) DispatchIPCReq(apiName string, args map[string]interface{}) *model.Resp {
-	if handler, ok := bs.handlerMap.Load(apiName); ok {
-		handleFun, ok2 := handler.(func(map[string]interface{}) *model.Resp)
-		if !ok2 {
-			return model.BuildError(fmt.Errorf("[%s] Dispatch failed,type assertion of func( map) *model.Resp failed", apiName), model.InnerSysErrCode)
-		}
-		return handleFun(args)
-	}
-	return model.BuildError(fmt.Errorf("[%s] Dispatch failed, not found handler", apiName), model.BadReqCode)
 }
 
 func (bs *BackServer) GracefulStop() {

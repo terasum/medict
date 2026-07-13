@@ -16,87 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Typed IPC wrappers (issue #729): each call goes to a typed App method
+// (wailsjs binding) instead of the old string-dispatched requestBackend/Dispatch.
 import { IDict } from './types';
 import { model } from './model';
-import {requestBackend} from '@/apis/apis';
+import * as App from '../../wailsjs/go/main/App';
 
-
-export const GetDictCover = async function(dict_id: string, cover_name:string): Promise<model.Resp> {
-try{
-        let resp = await requestBackend("GetDictCover", {dict_id, cover_name})
-        console.log("[dicts-api] GetDictCover: ", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api] GetDictCover: " ,error)
-        return Promise.reject(error)
-    }
+export const InitDicts = async function (): Promise<model.Resp> {
+    const resp = await App.InitDicts();
+    return resp.data as unknown as model.Resp;
 }
-
-export const InitDicts = async function(): Promise<model.Resp> {
-    try{
-        let resp = await requestBackend("InitDicts", {})
-        console.log("[dicts-api] InitDicts: ", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api] InitDicts: " ,error)
-        return Promise.reject(error)
-    }
-}
-
 
 export const GetAllDicts = async function (): Promise<Array<IDict>> {
-    try{
-        let resp = await requestBackend("GetAllDicts", {})
-        console.log("[dicts-api] GetAllDicts: ", resp)
-        return resp.data as unknown as Array<IDict>
-    } catch (error) {
-        console.error("[dicts-api] GetAllDicts: " ,error)
-        return Promise.reject(error)
-    }
+    const resp = await App.GetAllDicts();
+    return resp.data as unknown as Array<IDict>;
 }
 
 // BuildIndex
 export const BuildIndex = async function (dictid: string): Promise<model.Resp> {
-    try{
-        let resp = await requestBackend("BuildIndexByDictId", {dictid: dictid})
-        console.log("[dicts-api] BuildIndex: ", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api] BuildIndex: " ,error)
-        return Promise.reject(error)
-    }
+    const resp = await App.BuildIndexByDictId(dictid);
+    return resp.data as unknown as model.Resp;
 }
 
-
-export const LookupWord = async function (dictid:string, word: string) : Promise<model.Resp> {
-    try{
-        let resp = await requestBackend("LookupWord", {dict_id:dictid, word:word})
-        console.log("[dicts-api]", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api]" ,error)
-        return Promise.reject(error)
-    }
-}
-
-export const SearchWord = async function(dictid:string, word: string) :Promise<model.Resp> {
-    try{
-        let resp = await requestBackend("SearchWord", {dict_id: dictid, word: word})
-        console.log("[dicts-api]", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api]" ,error)
-        return Promise.reject(error)
-    }
-}
-
-export const LocateWord = async function(dictid:string, keyBlockEntry: model.KeyBlockEntry): Promise<model.Resp> {
-    try{
-        let resp = await requestBackend("LocateWord", {dict_id: dictid, key_block_entry: keyBlockEntry})
-        console.log("[dicts-api]", resp)
-        return resp.data as unknown as model.Resp
-    } catch (error) {
-        console.error("[dicts-api]" ,error)
-        return Promise.reject(error)
-    }
+export const SearchWord = async function (dictid: string, word: string): Promise<model.Resp> {
+    const resp = await App.SearchWord(dictid, word);
+    return resp.data as unknown as model.Resp;
 }
