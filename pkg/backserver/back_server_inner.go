@@ -121,18 +121,18 @@ func cors() gin.HandlerFunc {
 
 func (bs *BackServer) setUpRouters() error {
 	bs.GinEngine.Use(cors())
-	bs.GinEngine.NoRoute(func(c *gin.Context) {
-		log.Infof("NoRoute REQ REQUEST URI: [%s]\n", c.Request.RequestURI)
 
-		if strings.HasPrefix(c.Request.RequestURI, static.ContentRootUrl+static.WordQueryMagicPath) {
-			log.Infof("NoRoute REQ REQUEST URI(word): [%s]\n", c.Request.RequestURI)
-			bs.DictCon.HandleWordQueryReq(c)
-			return
-		} else {
-			log.Infof("NoRoute REQ REQUEST URI(resource): [%s]\n", c.Request.RequestURI)
-			bs.DictCon.HandleResourceQueryReq(c)
-			return
-		}
+	// Word lookup: an explicit route (previously a string-HasPrefix branch
+	// inside NoRoute — issue #728). Discoverable, middleware-able, structured
+	// errors via the handler instead of catch-all dispatch.
+	bs.GinEngine.GET(static.ContentRootUrl+static.WordQueryMagicPath, bs.DictCon.HandleWordQueryReq)
+
+	// Everything else is a resource lookup. Resource paths are arbitrary
+	// (css / images / fonts / ... under the content root), so they stay a
+	// catch-all rather than enumerated routes.
+	bs.GinEngine.NoRoute(func(c *gin.Context) {
+		log.Debugf("resource request: %s", c.Request.RequestURI)
+		bs.DictCon.HandleResourceQueryReq(c)
 	})
 	return nil
 }
