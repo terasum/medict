@@ -133,16 +133,16 @@ func innerWalkLevel2(level1Path, level2Path string) (*model.DirItem, error) {
 			item.MdictMdxAbsPath, _ = filepath.Abs(path)
 			item.MdictMdxFileName = utils.FileNameWithoutExt(path)
 			baseDir := utils.FileBaseDir(path)
-			fmt.Printf("path is %s, basedir is %s\n", path, baseDir)
+			log.Debugf("mdx path: %s, basedir: %s", path, baseDir)
 			pngPath := filepath.Join(baseDir, item.MdictMdxFileName+"."+"png")
-			fmt.Printf("pngpath: %s\n", pngPath)
+			log.Debugf("cover png candidate: %s", pngPath)
 			if utils.FileExists(pngPath) {
 				item.CoverImgPath = utils.FileAbs(pngPath)
 				item.CoverImgType = model.ImgTypePNG
 			}
 
 			jpgPath := filepath.Join(baseDir, item.MdictMdxFileName+"."+"jpg")
-			fmt.Printf("jpgpath: %s\n", pngPath)
+			log.Debugf("cover jpg candidate: %s", jpgPath)
 			if utils.FileExists(jpgPath) {
 				item.CoverImgPath = utils.FileAbs(jpgPath)
 				item.CoverImgType = model.ImgTypeJPG

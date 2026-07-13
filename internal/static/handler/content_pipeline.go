@@ -78,7 +78,7 @@ func handleContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWord
 func handleResource(dictId string, keyWord string, resource []byte) []byte {
 	for _, han := range handler.handlers {
 		if han.Match(dictId, keyWord) {
-			fmt.Printf("resource handle matched [%s](%s)\n", keyWord, dictId)
+			log.Debugf("resource handle matched [%s](%s)", keyWord, dictId)
 			keyWord, resource = han.Replace(dictId, keyWord, resource)
 		}
 	}
