@@ -118,71 +118,58 @@ func (dc *DictsController) innerResourceQuery(c *gin.Context, key, dictId string
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	log.Infof("innerResourceQuery(0) search key: [%s]", key)
+	log.Debugf("innerResourceQuery key: [%s]", key)
 
-	// 先从文件夹搜索
-	resultBytes, err := dc.ds.FindFromDir(dictId, key)
-	if err == nil {
-		log.Infof("innerResourceQuery search key hit dir: [%s]", key)
-		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
-		if err != nil {
-			wrapContentType(c, key, resultBytes)
+	// 1) dict folder first (css / cover image / etc. shipped alongside the .mdx).
+	if raw, err := dc.ds.FindFromDir(dictId, key); err == nil {
+		log.Debugf("resource hit dir: [%s]", key)
+		dc.serveResource(c, dictId, key, raw)
+		return
+	}
+
+	// 2) resource lookup across key variants (dicts may store paths with
+	//    backslashes or a leading separator).
+	for _, candidate := range resourceKeyCandidates(key) {
+		if raw, err := dc.ds.LookupResource(dictId, candidate); err == nil {
+			log.Debugf("resource hit: [%s]", candidate)
+			dc.serveResource(c, dictId, candidate, raw)
 			return
 		}
-		wrapContentType(c, key, resultBytes)
-		return
 	}
 
-	log.Infof("innerResourceQuery(1) search from resource [%s]", key)
-	// 再从文件资源中搜索
-	resultBytes, err = dc.ds.LookupResource(dictId, key)
-	if err == nil {
-		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
-		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
-		if err != nil {
-			wrapContentType(c, key, resultBytes)
-			return
+	c.AbortWithStatus(http.StatusNotFound)
+}
+
+// resourceKeyCandidates returns the key variants to try for a resource lookup:
+// the key as-is, then "/" -> "\", then the same with a leading "\". Duplicates
+// are removed so a key without slashes isn't looked up three times (#736).
+func resourceKeyCandidates(key string) []string {
+	seen := make(map[string]struct{})
+	cands := make([]string, 0, 3)
+	add := func(s string) {
+		if _, ok := seen[s]; !ok {
+			seen[s] = struct{}{}
+			cands = append(cands, s)
 		}
-
-		wrapContentType(c, key, resultBytes)
-		return
 	}
-
-	key = strings.ReplaceAll(key, "/", "\\")
-	log.Infof("innerResourceQuery(2) search from resource [%s]", key)
-	resultBytes, err = dc.ds.LookupResource(dictId, key)
-	if err == nil {
-		log.Infof("innerResourceQuery search key hit resource: [%s]", key)
-		resultBytes, err = handler.WrapResource(dictId, key, resultBytes)
-		if err != nil {
-			wrapContentType(c, key, resultBytes)
-			return
-		}
-
-		wrapContentType(c, key, resultBytes)
-		return
+	add(key)
+	backslash := strings.ReplaceAll(key, "/", "\\")
+	add(backslash)
+	if !strings.HasPrefix(backslash, "\\") {
+		add("\\" + backslash)
 	}
+	return cands
+}
 
-	// 补全路径重新搜索
-	if !strings.HasPrefix(key, "\\") {
-		key = "\\" + key
+// serveResource applies the resource pipeline and writes the response. WrapResource
+// currently never errors (it transforms in place); if it ever can, fall back to
+// the raw bytes rather than dropping the response (#736).
+func (dc *DictsController) serveResource(c *gin.Context, dictId, key string, raw []byte) {
+	out := raw
+	if wrapped, err := handler.WrapResource(dictId, key, raw); err == nil {
+		out = wrapped
 	}
-
-	log.Infof("innerResourceQuery(3) search from resource [%s]", key)
-
-	resultBytes, err = dc.ds.LookupResource(dictId, key)
-	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	log.Infof("innerResourceQuery(4) search key hit resource with '\\' prefix: [%s]", key)
-	result, err := handler.WrapResource(dictId, key, resultBytes)
-	if err != nil {
-		wrapContentType(c, key, result)
-		return
-	}
-	wrapContentType(c, key, result)
+	wrapContentType(c, key, out)
 }
 
 func convertKeyIndex(dictType, entryId, recordStart, recordEnd, keyWord, recordBlockDataStartOffset, recordBlockDataCompressSize, recordBlockDataDeCompressSize, keyWordDataStartOffset, keyWordDataEndOffset string) (*model.KeyQueryIndex, error) {
