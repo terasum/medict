@@ -4,6 +4,34 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.2
+
+Maintenance release: internal architecture cleanup — no user-visible behavior
+change. Three refactors land together (all backend builds + frontend `bun build`
+green; CI passing).
+
+### Changed
+- **Typed IPC (#729)**: the frontend↔backend call path no longer goes through a
+  string-dispatched `App.Dispatch(apiName, map)` + runtime type assertions. Each
+  handler is now a typed `App` method (`InitDicts` / `GetAllDicts` /
+  `SearchWord(dictId, word)` / `BuildIndexByDictId(dictid)`), the same proven
+  Wails native-binding pattern the app already used for `ResourceServerAddr` etc.
+  Removes `Dispatch` / `handlerMap` / `DispatchIPCReq` and three dead
+  no-backend frontend calls.
+- **`DictService` dependency injection (#727)**: removed the package-global
+  singleton (`sync.Once` + `GetDictService()`); `App` now owns the `*DictService`
+  and injects it into `BackServer.SetUp`. Improves testability and constructor
+  injection.
+- **Startup/query log trimming (#735)**: per-Locate/Lookup `INFO` logs in go-mdict
+  and the holder downgraded to `DEBUG`; two stray `fmt.Printf` removed. Reduces
+  log I/O and noise during startup/indexing. (BuildIndex's per-keyword path was
+  already log-free.)
+
+> Note: typed IPC changes the frontend↔backend binding contract internally; the
+> typed-binding mechanism is already in use app-wide, so runtime behavior is
+> unchanged. `model.Resp.data` typing (`as unknown as` casts) is unaffected —
+> that's tracked separately in #702.
+
 ## v3.1.1
 
 Patch release: fixes a **live crash** during index build, `entry://` link
