@@ -16,19 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Dispatch, ResourceServerAddr, OpenFinder, BaseDictDir } from '../../wailsjs/go/main/App';
-
-import { model } from '../../wailsjs/go/models';
-
-function objectToPathParams(obj) {
-  const params = [];
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      params.push(`${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`);
-    }
-  }
-  return params.join('&');
-}
+import { ResourceServerAddr, OpenFinder, BaseDictDir } from '../../wailsjs/go/main/App';
 
 export const StaticDictServerURL = function (): Promise<string> {
   if (window['go']) {
@@ -51,21 +39,5 @@ export const BaseDictDirectory = function():Promise<string>{
     return BaseDictDir()
   } else {
     return Promise.resolve("internal error")
-  }
-}
-
-
-
-export async function requestBackend(apiName, data): Promise<model.Resp> {
-  if (window['go']) {
-    console.log(`[dicts-api] ipc call, dispatch [${apiName}] event, args:`, data)
-    return Dispatch(apiName, data);
-  } else {
-    return Promise.resolve({
-      data:"",
-      err: "browser not support or system not initialzd yet",
-      code: 500,
-    })
-
   }
 }

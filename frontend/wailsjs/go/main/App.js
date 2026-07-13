@@ -6,8 +6,16 @@ export function BaseDictDir() {
   return window['go']['main']['App']['BaseDictDir']();
 }
 
-export function Dispatch(arg1, arg2) {
-  return window['go']['main']['App']['Dispatch'](arg1, arg2);
+export function BuildIndexByDictId(arg1) {
+  return window['go']['main']['App']['BuildIndexByDictId'](arg1);
+}
+
+export function GetAllDicts() {
+  return window['go']['main']['App']['GetAllDicts']();
+}
+
+export function InitDicts() {
+  return window['go']['main']['App']['InitDicts']();
 }
 
 export function OpenFinder(arg1) {
@@ -16,4 +24,8 @@ export function OpenFinder(arg1) {
 
 export function ResourceServerAddr() {
   return window['go']['main']['App']['ResourceServerAddr']();
+}
+
+export function SearchWord(arg1, arg2) {
+  return window['go']['main']['App']['SearchWord'](arg1, arg2);
 }

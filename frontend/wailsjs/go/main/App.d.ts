@@ -4,8 +4,14 @@ import {model} from '../models';
 
 export function BaseDictDir():Promise<string>;
 
-export function Dispatch(arg1:string,arg2:{[key: string]: any}):Promise<model.Resp>;
+export function BuildIndexByDictId(arg1:string):Promise<model.Resp>;
+
+export function GetAllDicts():Promise<model.Resp>;
+
+export function InitDicts():Promise<model.Resp>;
 
 export function OpenFinder(arg1:string):Promise<void>;
 
 export function ResourceServerAddr():Promise<string>;
+
+export function SearchWord(arg1:string,arg2:string):Promise<model.Resp>;

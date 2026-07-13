@@ -109,9 +109,18 @@ func (b *App) shutdown(ctx context.Context) {
 	}
 }
 
-func (b *App) Dispatch(apiName string, args map[string]interface{}) *model.Resp {
-	log.Infof("[wails] IPC request dispatch [%s] | args: %v\n", apiName, args)
-	return b.bs.DispatchIPCReq(apiName, args)
+// Typed IPC handlers (issue #729): each frontend call maps to a typed App
+// method, replacing the old string-dispatched Dispatch / handlerMap.
+func (b *App) InitDicts() *model.Resp { return b.bs.DictCon.InitDicts() }
+
+func (b *App) GetAllDicts() *model.Resp { return b.bs.DictCon.GetAllDicts() }
+
+func (b *App) SearchWord(dictId, word string) *model.Resp {
+	return b.bs.DictCon.SearchWord(dictId, word)
+}
+
+func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
+	return b.bs.DictCon.BuildIndexByDictId(dictid)
 }
 
 func (b *App) ResourceServerAddr() string {
