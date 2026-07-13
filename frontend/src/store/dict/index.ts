@@ -104,6 +104,13 @@ const DefaultContentTemplpate = `
 
 `;
 
+/**
+ * searchWord 的请求序号（last-write-wins）。
+ * 快速连续 Enter 或 iframe entry:// 跳转会触发多次 searchWord，
+ * 仅最后一次（序号最大者）的响应会真正写入 pending list，避免乱序覆盖。
+ */
+let searchWordRequestId = 0;
+
 export const useDictQueryStore = defineStore('dictQuery', {
   state: () => ({
     dictApiBaseURL: '',
@@ -147,11 +154,21 @@ export const useDictQueryStore = defineStore('dictQuery', {
         return;
       }
 
+      // last-write-wins：分配本次请求的序号，响应回来时若已过期则丢弃
+      const reqId = ++searchWordRequestId;
       SearchWord(this.selectDict.id, word).then((res) => {
+        if (reqId !== searchWordRequestId) {
+          console.info('[store-action]{searchWord} stale response, ignoring', word);
+          return;
+        }
         console.info('[store-action]{searchWord} success', word, res);
-        
+
         this.updatePendingList(res);
       }).catch((err) => {
+        if (reqId !== searchWordRequestId) {
+          console.info('[store-action]{searchWord} stale error, ignoring', word);
+          return;
+        }
         console.info('[store-action]{searchWord} failed', err);
         this.updateSetCurrentDictAsContent();
       });
@@ -209,8 +226,18 @@ export const useDictQueryStore = defineStore('dictQuery', {
     },
     setUpAPIBaseURL() {
       let count = 0;
+      const MAX_RETRIES = 30;
       let that = this;
       let inv = setInterval(function () {
+        count++;
+        if (count > MAX_RETRIES) {
+          console.error(
+            `[app init] static server url polling exceeded max retries (${MAX_RETRIES}), giving up`
+          );
+          clearInterval(inv);
+          return;
+        }
+
         let urlPromise = StaticDictServerURL();
 
         if (!urlPromise) {
@@ -228,6 +255,9 @@ export const useDictQueryStore = defineStore('dictQuery', {
             }
             // browser
             if (url === 'http://localhost:1/') {
+              console.log(
+                `[app init] static server url is placeholder, retrying times: ${count}`
+              );
               return;
             }
             if (url.startsWith('http://localhost:0/')) {
