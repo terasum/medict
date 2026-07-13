@@ -73,13 +73,22 @@ func (s *StarDict) DictType() model.DictType {
 	return model.DictTypeStarDict
 }
 
+// Lookup returns the definition HTML for keyword. The underlying lib renders a
+// "Nothing Found" page on a miss; a not-yet-built dictionary surfaces as
+// ErrNotFound rather than an empty body (#739).
 func (s *StarDict) Lookup(keyword string) ([]byte, error) {
-	w := s.SDict.Lookup(keyword)
-	return []byte(w), nil
+	if !s.ready {
+		return nil, model.ErrNotFound
+	}
+	return []byte(s.SDict.Lookup(keyword)), nil
 }
 
+// LookupResource: stardict resources (css/images/audio under the <name>.res
+// folder) are not loaded by the underlying lib today, so there is nothing to
+// serve. Return ErrNotFound so the request fails cleanly instead of an empty
+// 200 (#739). Full .res/ loading is a future feature.
 func (s *StarDict) LookupResource(keyword string) ([]byte, error) {
-	return []byte{}, nil
+	return nil, model.ErrNotFound
 }
 
 func (s *StarDict) Locate(entry *model.KeyQueryIndex) ([]byte, error) {
