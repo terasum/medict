@@ -24,21 +24,21 @@ import * as App from '../../wailsjs/go/main/App';
 
 export const InitDicts = async function (): Promise<model.Resp> {
     const resp = await App.InitDicts();
-    return resp.data as unknown as model.Resp;
+    return resp.data as model.Resp;
 }
 
 export const GetAllDicts = async function (): Promise<Array<IDict>> {
     const resp = await App.GetAllDicts();
-    return resp.data as unknown as Array<IDict>;
+    return resp.data as Array<IDict>;
 }
 
 // BuildIndex
 export const BuildIndex = async function (dictid: string): Promise<model.Resp> {
     const resp = await App.BuildIndexByDictId(dictid);
-    return resp.data as unknown as model.Resp;
+    return resp.data as model.Resp;
 }
 
 export const SearchWord = async function (dictid: string, word: string): Promise<model.Resp> {
     const resp = await App.SearchWord(dictid, word);
-    return resp.data as unknown as model.Resp;
+    return resp.data as model.Resp;
 }

@@ -45,3 +45,7 @@ jobs:
       - name: Build
         run: bun run build
         working-directory: frontend
+
+      - name: Typecheck
+        run: bun run typecheck
+        working-directory: frontend
