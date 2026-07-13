@@ -119,7 +119,7 @@ func (mh *mdictHolder) Locate(entry *model.MdictKeyWordIndex) ([]byte, error) {
 		},
 	}
 
-	log.Infof("holder %+v", index.RecordBlock)
+	log.Debugf("holder %+v", index.RecordBlock)
 
 	def, err := mh.rawdict.LocateByKeywordIndex(index)
 	if err != nil {
