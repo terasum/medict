@@ -32,32 +32,21 @@ import (
 	"github.com/terasum/medict/pkg/service/support"
 )
 
-var (
-	singltonInstanceDictService *DictService
-	singletonOnce               sync.Once
-)
-
 type DictService struct {
 	config   *config.Config
 	dicts    map[string]*model.DictionaryItem
 	dictLock *sync.Mutex
 }
 
+// NewDictService constructs a DictService. It is a plain constructor — no
+// process-wide singleton — so the caller (App) owns the instance and injects
+// it where needed (issue #727).
 func NewDictService(config *config.Config) (*DictService, error) {
-	singletonOnce.Do(func() {
-		singltonInstanceDictService = &DictService{
-			config:   config,
-			dicts:    make(map[string]*model.DictionaryItem),
-			dictLock: new(sync.Mutex),
-		}
-	})
-	return singltonInstanceDictService, nil
-}
-
-// GetDictService returns the process-wide DictService singleton, or nil if
-// NewDictService has not run yet (e.g. app init failed before SetUp).
-func GetDictService() *DictService {
-	return singltonInstanceDictService
+	return &DictService{
+		config:   config,
+		dicts:    make(map[string]*model.DictionaryItem),
+		dictLock: new(sync.Mutex),
+	}, nil
 }
 
 // Close releases resources held by all loaded dictionaries (e.g. leveldb

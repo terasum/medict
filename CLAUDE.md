@@ -38,7 +38,7 @@ This is the single most important thing to understand. The Go side talks to the 
 ### Dictionary abstraction
 `pkg/model/dict_interface.go` defines `GeneralDictionary` (`BuildIndex/Lookup/Locate/Search/LookupResource/DictType`). `mdict` (`pkg/service/mdict`) and `stardict` (`pkg/service/stardict`) implement it. `mdictSvcImpl` wraps one `mdx` holder plus N `mdd` holders (mdds are searched in order for resources).
 
-`pkg/service/dicts_service.go` `DictService` is a **package-global singleton** (`singltonInstanceDictService`) holding `map[string]*model.DictionaryItem`. The map key is the MD5 of the dictionary directory path (see `pkg/service/dict_item.go` `NewByDirItem`). Every method takes `dictLock`. Lookup/Search/Locate all **require `BuildIndex` to have run first** or they return `"dictionary not ready"`.
+`pkg/service/dicts_service.go` `DictService` holds `map[string]*model.DictionaryItem`; it's constructed by `App` via `NewDictService` and injected into `BackServer.SetUp` (no longer a package-global singleton — #727). The map key is the MD5 of the dictionary directory path (see `pkg/service/dict_item.go` `NewByDirItem`). Every method takes `dictLock`. Lookup/Search/Locate all **require `BuildIndex` to have run first** or they return `"dictionary not ready"`.
 
 ### Dictionaries are directories, auto-scanned
 A dictionary = one directory under `BaseDictDir` (config `medict.toml`, default per-OS app-data `.../medict/dicts`). `pkg/service/support/filewalker.go` walks the dir; `DirItem` (`pkg/model/dict_def.go`) captures mdx/mdd or stardict (dz/ifo/idx) files plus optional `_cover.jpg`, `_mdict.dtype`/`_stardict.dtype`. Type is auto-detected by file presence.
