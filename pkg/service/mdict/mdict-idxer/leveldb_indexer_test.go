@@ -78,6 +78,39 @@ func TestLookup(t *testing.T) {
 	}
 }
 
+// TestAllRecords: AllRecords returns every keyword record (and excludes the
+// PFMT#_ meta keys). Used by the holder to build the fuzzy BK-tree without
+// re-parsing the source dict (issue #722 #2).
+func TestAllRecords(t *testing.T) {
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "all"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.SetMeta("Title", "demo"); err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.AddRecords([]*model.MdictKeyWordIndex{
+		{KeyWord: "apple", RecordLocateStartOffset: 10},
+		{KeyWord: "banana", RecordLocateStartOffset: 20},
+		{KeyWord: "cherry", RecordLocateStartOffset: 30},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := idxer.AllRecords()
+	if err != nil {
+		t.Fatalf("AllRecords: %v", err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("AllRecords returned %d records, want 3 (meta must be excluded)", len(got))
+	}
+	for _, r := range got {
+		if r.KeyWord == "" {
+			t.Fatalf("AllRecords returned a record with empty keyword: %+v", r)
+		}
+	}
+}
+
 // TestAddRecords_BatchEquivalence: AddRecords (leveldb batch) writes records
 // that are individually lookable-up and carry their fields through — i.e. the
 // batch path produces the same observable state as per-record AddRecord.

@@ -10,6 +10,9 @@ type Indexer interface {
 	// AddRecords bulk-writes records (used during index builds).
 	AddRecords(records []*model.MdictKeyWordIndex) error
 	Search(keyword string) ([]*model.MdictKeyWordIndex, error)
+	// AllRecords returns every indexed keyword record, used to build in-memory
+	// structures (e.g. the fuzzy BK-tree) without re-parsing the source dict.
+	AllRecords() ([]*model.MdictKeyWordIndex, error)
 	// Close releases the underlying store handle. Use after Close returns an
 	// error (not a panic).
 	Close() error

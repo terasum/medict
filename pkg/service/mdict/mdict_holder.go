@@ -256,25 +256,23 @@ func (mh *mdictHolder) bktreeAdd(e *model.MdictKeyWordIndex) {
 	mh.bktree.Add(&fuzzyEntry{e})
 }
 
-// ensureBkTree 按需构建 BK-tree，兜底 .melev 缓存命中（幂等守卫跳过 BuildIndex）的场景。
-// 由 mh.lock 保护；eager 路径已在 BuildIndex 构建时本函数是 no-op。
+// ensureBkTree 按需从 leveldb 索引构建 BK-tree（不再重解 mdx），兜底 .melev 缓存
+// 命中、跳过 BuildIndex 的场景：用户也能拿到模糊搜索，且不付全量 mdx 解析代价
+// (issue #722 #2)。由 mh.lock 保护；eager 路径已在 BuildIndex 构建并置 bktreeDone，
+// 本函数对该路径是 no-op。
 func (mh *mdictHolder) ensureBkTree() error {
 	mh.lock.Lock()
 	defer mh.lock.Unlock()
 	if mh.bktreeDone {
 		return nil
 	}
-	entries, err := mh.rawdict.GetKeyWordEntries()
+	records, err := mh.idxer.AllRecords()
 	if err != nil {
 		return err
 	}
 	tree := &bktree.BKTree{}
-	for _, entry := range entries {
-		idx, err1 := mh.ConvertKeyWordIndex(entry)
-		if err1 != nil {
-			continue
-		}
-		tree.Add(&fuzzyEntry{idx})
+	for _, r := range records {
+		tree.Add(&fuzzyEntry{r})
 	}
 	mh.bktree = tree
 	mh.bktreeDone = true
