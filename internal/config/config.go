@@ -17,14 +17,16 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/op/go-logging"
 	"github.com/spf13/viper"
 	"github.com/terasum/medict/internal/utils"
 )
+
+var log = logging.MustGetLogger("config")
 
 type ConfigStruct struct {
 	BaseDictDir string `toml:"BaseDictDir"`
@@ -65,7 +67,7 @@ func (c *Config) Write() error {
 func (c *Config) EnsureDictsDir() (string, error) {
 	dirPath := c.BaseDictDir
 	defer func() {
-		fmt.Printf("[medict-init]: ensure app config directory: %s\n", dirPath)
+		log.Infof("[medict-init]: ensure app config directory: %s", dirPath)
 	}()
 
 	if dirPath == "" {
