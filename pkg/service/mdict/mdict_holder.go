@@ -1,7 +1,7 @@
 package mdict
 
 import (
-	"errors"
+	"fmt"
 	"sort"
 	"strconv"
 	"sync"
@@ -145,7 +145,7 @@ func (mh *mdictHolder) Lookup(keyword string) ([]byte, error) {
 	}
 
 	if entry == nil {
-		return nil, errors.New("not found")
+		return nil, model.ErrNotFound
 	}
 	index := &gomdict.MDictKeywordIndex{
 		KeywordEntry: gomdict.MDictKeywordEntry{
@@ -325,7 +325,7 @@ func (mh *mdictHolder) Search(keyword string) ([]*model.MdictKeyWordIndex, error
 	}
 	// 前缀为空（拼错/记不清词头）→ BK-tree 模糊兜底
 	if err := mh.ensureBkTree(); err != nil {
-		return nil, errors.New("result not found")
+		return nil, fmt.Errorf("build fuzzy index: %w", err)
 	}
 	// needle 必须是 *fuzzyEntry：Distance 依赖其类型断言
 	needle := &fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: keyword}}
