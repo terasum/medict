@@ -134,7 +134,7 @@ func (mdict *Mdict) Lookup(word string) ([]byte, error) {
 	word = strings.TrimSpace(word)
 	for id, keyBlockEntry := range mdict.keyBlockData.keyEntries {
 		if keyBlockEntry.KeyWord == word {
-			log.Infof("mdict.Lookup hit entries[%d/%d] key:(%s), entry-key:(%s), equals(%v)", id, len(mdict.keyBlockData.keyEntries), word, keyBlockEntry.KeyWord, keyBlockEntry.KeyWord == word)
+			log.Debugf("mdict.Lookup hit entries[%d/%d] key:(%s), entry-key:(%s), equals(%v)", id, len(mdict.keyBlockData.keyEntries), word, keyBlockEntry.KeyWord, keyBlockEntry.KeyWord == word)
 			return mdict.LocateByKeywordEntry(keyBlockEntry)
 		}
 	}

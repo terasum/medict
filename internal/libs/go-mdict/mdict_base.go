@@ -887,7 +887,6 @@ func (mdict *MdictBase) keywordEntryToIndex1(item *MDictKeywordEntry) (*MDictKey
 	}
 
 	if recordBlockInfo == nil {
-		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last recordBlockInfo: %+v\n", item, mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1])
 		return nil, errors.New("key-item record info not found")
 	}
 
@@ -924,7 +923,7 @@ func (mdict *MdictBase) locateByKeywordIndex(index *MDictKeywordIndex) ([]byte, 
 }
 
 func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncrypted, isMdd, isUtf16 bool) ([]byte, error) {
-	log.Infof("locateDefByKWIndex invoked %+v, filepath %s, isRecordEncrypted %v, isMdd %v, isUTF16 %v", index, filePath, isRecordEncrypted, isMdd, isUtf16)
+	log.Debugf("locateDefByKWIndex invoked %+v, filepath %s, isRecordEncrypted %v, isMdd %v, isUTF16 %v", index, filePath, isRecordEncrypted, isMdd, isUtf16)
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Errorf("open file err %s", err.Error())
@@ -1008,12 +1007,12 @@ func locateDefByKWIndex(index *MDictKeywordIndex, filePath string, isRecordEncry
 	data := recordBlock[start:end]
 
 	if isMdd {
-		log.Errorf("return mdd data")
+		log.Debugf("return mdd data")
 		return data, nil
 	}
 
 	if isUtf16 {
-		log.Infof("keyword %s, data len %d", index.KeywordEntry.KeyWord, len(data))
+		log.Debugf("keyword %s, data len %d", index.KeywordEntry.KeyWord, len(data))
 		datastr, err1 := decodeLittleEndianUtf16(data)
 		if err1 != nil {
 			return nil, err
@@ -1051,7 +1050,6 @@ func (mdict *MdictBase) locateByKeywordEntry(item *MDictKeywordEntry) ([]byte, e
 	}
 
 	if recordBlockInfo == nil {
-		fmt.Printf("record block info is nil, current keyBlockEntry: %+v, last recordBlockInfo: %+v\n", item, mdict.recordBlockInfo.recordInfoList[len(mdict.recordBlockInfo.recordInfoList)-1])
 		return nil, errors.New("key-item record info not found")
 	}
 
