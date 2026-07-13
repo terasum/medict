@@ -1,15 +1,27 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./",  
-        "paths": { 
-            "@/*": ["src/*"],
-            "$/*": ["wails/*"]
-        },
-        "lib": [ "dom","es2015", "es2017" ]
-
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "$/*": ["wails/*"]
     },
-    "include": [
-        "src",
-        "wailsjs"
-    ]
+    "types": ["vite/client"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "wailsjs"
+  ]
 }

@@ -15,10 +15,15 @@
     </div>
   </div>
 </template>
-<script setup>
-import { defineProps } from 'vue';
-
+<script setup lang="ts">
 defineProps(['title', 'value']);
+
+// Type the named slots so consumers' #desc / #action are recognized (vue-tsc, #702).
+defineSlots<{
+	desc(): void;
+	action(): void;
+	default(): void;
+}>();
 </script>
 <style lang="scss" scoped>
 .setting-group {
