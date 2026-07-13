@@ -17,6 +17,8 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/creasty/go-levenshtein"
 	"github.com/terasum/medict/internal/libs/bktree"
 	"github.com/terasum/medict/internal/utils"
@@ -84,7 +86,9 @@ func (dlist DictList) Swap(i, j int) {
 }
 
 func (dlist DictList) Less(i, j int) bool {
-	return dlist[i].ID > dlist[j].ID
+	// 按名称大小写不敏感升序。旧实现按 ID（目录路径 MD5）倒序，顺序无意义且每次
+	// 新增词典都跳变（#740）。
+	return strings.ToLower(dlist[i].Name) < strings.ToLower(dlist[j].Name)
 }
 
 type PlainDictionaryInfo struct {
