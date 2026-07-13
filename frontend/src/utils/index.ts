@@ -130,15 +130,15 @@ export function makeID(length: number) {
 // debounce 防抖函数
 // desc: 减少函数多次调用问题
 // borrowed from David Walsh : https://davidwalsh.name/javascript-debounce-function
-export function debounce(func, wait, immediate) {
-  let timeout;
+export function debounce(func: any, wait: number, immediate?: boolean) {
+  let timeout: any;
 
-  return function () {
+  return function (this: any) {
     const context = this;
 
     const args = arguments;
 
-    const later = function () {
+    const later = function (this: any) {
       timeout = null;
       if (!immediate) func.apply(context, args);
     };

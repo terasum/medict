@@ -95,7 +95,7 @@ const uiStore = useUIStore();
 uiStore.updateCurrentTab("docs");
 
 
-const routerMap = {
+const routerMap: Record<number, string> = {
   0: "/docs/index",
   1: "/docs/select_and_use",
   2: "/docs/faq",

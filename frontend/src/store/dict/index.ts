@@ -114,10 +114,10 @@ let searchWordRequestId = 0;
 export const useDictQueryStore = defineStore('dictQuery', {
   state: () => ({
     dictApiBaseURL: '',
-    queryPendingList: [],
+    queryPendingList: [] as any[],
     mainContent: btoa(DefaultContentTemplpate),
     mainContentURL: '',
-    selectDict: { id: '', name: '', path: '' },
+    selectDict: { id: '', name: '', path: '' } as any,
     inputSearchWord: '',
 
     historyStack: new HistoryStack(),
@@ -174,7 +174,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       });
     },
     // 更新 pending list
-    updatePendingList(wordList) {
+    updatePendingList(wordList: any) {
       console.log(`[app-event](store-action), updatePendingList`, wordList);
 
       this.queryPendingList = wordList;
@@ -186,7 +186,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
     },
     // 更新main iframe内容
-    updateMainContent(content) {
+    updateMainContent(content: string) {
       // 防止循环嵌入 frame
       if (this.dictApiBaseURL === "") {
         return;
@@ -198,7 +198,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
     },
     // 更新 main iframe url
-    updateMainContentURL(url) {
+    updateMainContentURL(url: string) {
       // 防止循环嵌入 frame
       if (this.dictApiBaseURL === "") {
         return;
@@ -209,7 +209,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
     },
     // 更新选中的词典
-    updateSelectDict(dictItem) {
+    updateSelectDict(dictItem: any) {
       this.selectDict = dictItem;
       if (this.inputSearchWord && this.inputSearchWord.trim() != '') {
         this.searchWord(this.inputSearchWord);
@@ -278,12 +278,12 @@ export const useDictQueryStore = defineStore('dictQuery', {
           });
       }, 1000);
     },
-    updateBaseURL(url) {
+    updateBaseURL(url: string) {
       console.log(url);
       this.dictApiBaseURL = url;
     },
     // 定位单词并返回释义
-    locateWord(entry_idx, skipPushHistory: boolean = false) {
+    locateWord(entry_idx: number, skipPushHistory: boolean = false) {
       if (this.dictApiBaseURL === '' || this.selectDict.id === '') {
         console.log(
           "app or dictionary has not ready, skipped"
@@ -343,7 +343,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
       this.historyStack.push(qurier);
     },
-    pushHistoryByEntryIDx(entry_idx){
+    pushHistoryByEntryIDx(entry_idx: number){
       if (entry_idx < 0 || entry_idx >= this.queryPendingList.length) {
         return;
       }
@@ -380,7 +380,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
       SearchWord(locateQuerier.dict_id, locateQuerier.keyword ).then((res) => {
         console.info('[store-action]{backHistory} success', locateQuerier.keyword, res);
-        this.queryPendingList = res;
+        this.queryPendingList = res as any;
       }).catch((err) => {
         console.info('[store-action]{backHistory} failed', err);
       });
@@ -401,7 +401,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
 
       SearchWord(locateQuerier.dict_id, locateQuerier.keyword ).then((res) => {
         console.info('[store-action]{forwardHistory} success', locateQuerier.keyword, res);
-        this.queryPendingList = res;
+        this.queryPendingList = res as any;
       }).catch((err) => {
         console.info('[store-action]{forwardHistory} failed', err);
       });

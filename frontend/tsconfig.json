@@ -3,7 +3,11 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "jsx": "preserve",
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -12,10 +16,17 @@
     "isolatedModules": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "$/*": ["wails/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "$/*": [
+        "wails/*"
+      ]
     },
-    "types": ["vite/client"]
+    "types": [
+      "vite/client"
+    ],
+    "strict": true
   },
   "include": [
     "src/**/*.ts",
