@@ -29,6 +29,11 @@ const (
 	fuzzyLimit     = 100
 )
 
+// indexSchemaVersion tags the .melev index format. Bumping it forces a one-time
+// rebuild on existing installs (and repairs legacy collision-broken indexes) —
+// issue #722 #1 (headword-only key -> offset-suffix key).
+const indexSchemaVersion = "2"
+
 // fuzzyEntry 包装 *MdictKeyWordIndex 用于 BK-tree 模糊搜索。
 // 不复用 MdictKeyWordIndex.Distance：后者基于 utils.StrToUnicode 转义串（每个 rune 展开为 6 字符的 \uXXXX），
 // 会把 1 个 rune 的差异放大成 6 个字符的 Levenshtein 距离，使 tolerance 语义失效。
@@ -161,19 +166,31 @@ func (mh *mdictHolder) Lookup(keyword string) ([]byte, error) {
 	return mh.rawdict.LocateByKeywordIndex(index)
 }
 
+// indexUpToDate reports whether the persisted .melev index is populated AND at
+// the current schema, so BuildIndex can skip the rebuild. Exposed as a helper
+// so the migration trigger is unit-testable without a source dict (issue #722 #1).
+func indexUpToDate(idx idxer.Indexer) bool {
+	v, err := idx.GetMeta("entries_num")
+	if err != nil || v == "" {
+		return false
+	}
+	sv, _ := idx.GetMeta("schema_version")
+	return sv == indexSchemaVersion
+}
+
 func (mh *mdictHolder) BuildIndex() error {
 	err := mh.rawdict.BuildIndex()
 	if err != nil {
 		return err
 	}
-	// has already built
-	value, err := mh.idxer.GetMeta("entries_num")
-	if err == nil && value != "" {
-		num, err1 := strconv.ParseInt(value, 10, 64)
-		if err1 == nil {
-			log.Infof("index has already built, entries number is %d", num)
-			return nil
+	// Skip the rebuild only if the index is populated AND at the current schema.
+	// A schema bump forces a one-time rebuild, which also repairs legacy indexes
+	// built with the collision-prone headword-only key (issue #722 #1).
+	if indexUpToDate(mh.idxer) {
+		if v, _ := mh.idxer.GetMeta("entries_num"); v != "" {
+			log.Infof("index already built (schema %s), entries: %s", indexSchemaVersion, v)
 		}
+		return nil
 	}
 
 	err = mh.idxer.SetMeta("Title", mh.rawdict.Title())
@@ -244,6 +261,9 @@ func (mh *mdictHolder) BuildIndex() error {
 	mh.bktreeDone = true
 	mh.lock.Unlock()
 
+	if err := mh.idxer.SetMeta("schema_version", indexSchemaVersion); err != nil {
+		return err
+	}
 	err = mh.idxer.SetMeta("entries_num", strconv.FormatInt(mh.rawdict.GetKeyWordEntriesSize(), 10))
 	return nil
 }

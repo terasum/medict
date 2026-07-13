@@ -69,6 +69,23 @@ func TestFuzzyFallback(t *testing.T) {
 	}
 }
 
+// TestIndexUpToDate: the schema migration trigger — a populated but old-schema
+// (or schema-less) index is NOT up to date, forcing a rebuild; current schema +
+// entries is up to date (issue #722 #1).
+func TestIndexUpToDate(t *testing.T) {
+	idx, err := idxer.NewIndexer(filepath.Join(t.TempDir(), "schema"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.False(t, indexUpToDate(idx), "empty index should not be up to date")
+
+	assert.NoError(t, idx.SetMeta("entries_num", "100"))
+	assert.False(t, indexUpToDate(idx), "old/missing schema should force rebuild")
+
+	assert.NoError(t, idx.SetMeta("schema_version", indexSchemaVersion))
+	assert.True(t, indexUpToDate(idx), "current schema + entries should skip rebuild")
+}
+
 // TestEnsureBkTree_FromIndexer: with bktreeDone=false (the .melev cache-hit
 // case), ensureBkTree builds the BK-tree from the leveldb index — not by
 // re-parsing the mdx — so fuzzy search still works (issue #722 #2).
