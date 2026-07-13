@@ -24,7 +24,7 @@ const keySep = "\x1f"
 // (homographs) that previously collided and overwrote each other when the key
 // was just the headword (issue #722 #1).
 func recordKey(keyword string, offset int64) string {
-	return strip(keyword) + keySep + strconv.FormatInt(offset, 10)
+	return keywordKey(keyword) + keySep + strconv.FormatInt(offset, 10)
 }
 
 type MedictDBIndexer struct {
@@ -33,11 +33,11 @@ type MedictDBIndexer struct {
 	//searchTree       *searchTree
 }
 
-// strip namespaces a keyword under the PFKW#_ prefix so keyword keys never
+// keywordKey namespaces a keyword under the PFKW#_ prefix so keyword keys never
 // collide with the PFMT#_-prefixed meta keys. TrimPrefix (not TrimLeft, which
 // treats its arg as a *cutset* and would silently eat leading P/F/K/W/#/_
 // chars off the keyword itself — see issue #722) avoids double-prefixing.
-func strip(key string) string {
+func keywordKey(key string) string {
 	return prefixKeyword + strings.TrimPrefix(key, prefixKeyword)
 }
 
@@ -72,7 +72,7 @@ func (m *MedictDBIndexer) Close() error {
 // first-match is the only sensible default. Returns (nil, nil) when there is
 // no such keyword (mdictHolder.Lookup maps nil -> "not found").
 func (m *MedictDBIndexer) Lookup(keyword string) (*model.MdictKeyWordIndex, error) {
-	kvs, err := m.lvdb.Prefix(strip(keyword) + keySep)
+	kvs, err := m.lvdb.Prefix(keywordKey(keyword) + keySep)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (m *MedictDBIndexer) Search(keyword string) (res []*model.MdictKeyWordIndex
 
 	// Single iteration: Prefix now returns key+value, so we avoid the previous
 	// N+1 (one Prefix scan then one Get per key) — issue #722 P2.
-	kvs, err := m.lvdb.Prefix(strip(keyword))
+	kvs, err := m.lvdb.Prefix(keywordKey(keyword))
 	if err != nil {
 		return nil, err
 	}
