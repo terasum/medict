@@ -62,6 +62,6 @@ Mdict HTML references resources by relative paths that only resolve inside the e
 
 These are non-obvious behaviors that span multiple files:
 
-- **`back_server.go` vs `back_server_inner.go` split isn't obvious from the names**: `StaticServerBaseUrl`/`GracefulStop`/`Start`/`SetUp`/`DispatchIPCReq` live in `back_server.go`; `startStaticServer`/`cors()`/`setUpRouters`/`setupHandlers` live in `back_server_inner.go`.
+- **`pkg/backserver/back_server.go`** holds the whole embedded Gin server: `BackServer` struct, `NewStaticServer`/`SetUp(dictsSvc)`/`Start`/`GracefulStop`/`StaticServerBaseUrl`, plus `startStaticServer`/`cors()`/`setUpRouters` (the old `back_server_inner.go` split was merged — #737). IPC is typed `App` methods now, not a `Dispatch`/`handlerMap` (#729).
 - **Dev-mode Gin port is `localhost:9081`**, but `SetDebug()` is never called on the current startup path, so production always binds a random port resolved via `ResourceServerAddr()`.
 - Frontend `frontend/wailsjs/` is **generated** by Wails from the `App` struct — do not hand-edit; it regenerates on `wails dev`/`wails build`.

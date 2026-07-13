@@ -64,7 +64,7 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		dictItem.MainDict = dict
+		dictItem.Dict = dict
 		dictItem.Name = dict.Name()
 	} else if dirItem.DictType == model.DictTypeStarDict {
 		dict, err := stardict.NewStardict(dirItem)
@@ -72,12 +72,12 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 			return nil, err
 		}
 		dictItem.Name = dict.Name()
-		dictItem.MainDict = dict
+		dictItem.Dict = dict
 	} else {
 		return nil, errors.New("not recognized dictionary type")
 	}
 
-	dictItem.Description = dictItem.MainDict.Description()
+	dictItem.Description = dictItem.Dict.Description()
 
 	return dictItem, nil
 

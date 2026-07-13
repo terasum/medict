@@ -58,10 +58,10 @@ func (ds *DictService) Close() error {
 
 	var errs []error
 	for _, dict := range ds.dicts {
-		if dict.MainDict == nil {
+		if dict.Dict == nil {
 			continue
 		}
-		if err := dict.MainDict.Close(); err != nil {
+		if err := dict.Dict.Close(); err != nil {
 			log.Errorf("close dict %s failed: %s", dict.ID, err.Error())
 			errs = append(errs, err)
 		}
@@ -124,7 +124,7 @@ func (ds *DictService) BuildIndexById(dictId string) error {
 	defer ds.dictLock.Unlock()
 
 	if dict, ok := ds.dicts[dictId]; ok {
-		err := dict.MainDict.BuildIndex()
+		err := dict.Dict.BuildIndex()
 		if err != nil {
 			return err
 		}
@@ -142,7 +142,7 @@ func (ds *DictService) GetDictPlain(id string) (*model.PlainDictionaryItem, bool
 
 func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
 	// 锁内仅从 dicts map 取出 *model.DictionaryItem 指针（快），
-	// 慢 I/O（dict.MainDict.Lookup：磁盘/解压）放到锁外执行，避免持锁序列化。
+	// 慢 I/O（dict.Dict.Lookup：磁盘/解压）放到锁外执行，避免持锁序列化。
 	ds.dictLock.Lock()
 	dict, ok := ds.dicts[dictId]
 	ds.dictLock.Unlock()
@@ -150,7 +150,7 @@ func (ds *DictService) Lookup(dictId string, keyword string) ([]byte, error) {
 	if !ok {
 		return nil, errors.New("dict not found")
 	}
-	data, err := dict.MainDict.Lookup(keyword)
+	data, err := dict.Dict.Lookup(keyword)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (ds *DictService) LookupResource(dictId string, keyword string) ([]byte, er
 		return nil, fmt.Errorf("dictionary (%s) not found", keyword)
 	}
 	keyword = strings.TrimSpace(keyword)
-	data, err := dict.MainDict.LookupResource(keyword)
+	data, err := dict.Dict.LookupResource(keyword)
 	if err != nil {
 		log.Infof("LookupResource search (%s):[%s] failed, err: %s\n", dict.ToPlain().Name, keyword, err.Error())
 		return nil, err
@@ -190,7 +190,7 @@ func (ds *DictService) Locate(dictid string, idx *model.KeyQueryIndex) (string, 
 	if dict.DictType == (string)(model.DictTypeStarDict) {
 		idxType = model.IndexTypeStardict
 	}
-	defData, err := dict.MainDict.Locate(&model.KeyQueryIndex{
+	defData, err := dict.Dict.Locate(&model.KeyQueryIndex{
 		IndexType:         idxType,
 		MdictKeyWordIndex: idx.MdictKeyWordIndex,
 	})
@@ -210,7 +210,7 @@ func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryI
 	if !ok {
 		return nil, errors.New("dict not found")
 	}
-	results, err := dict.MainDict.Search(keyword)
+	results, err := dict.Dict.Search(keyword)
 	if err != nil {
 		return nil, err
 	}
