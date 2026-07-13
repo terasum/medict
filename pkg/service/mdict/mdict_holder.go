@@ -217,20 +217,32 @@ func (mh *mdictHolder) BuildIndex() error {
 	if err != nil {
 		return err
 	}
+	records := make([]*model.MdictKeyWordIndex, 0, len(entries))
 	for _, entry := range entries {
 		idx, err1 := mh.ConvertKeyWordIndex(entry)
 		if err1 != nil {
 			log.Error(err1.Error())
 			continue
 		}
-		err1 = mh.idxer.AddRecord(idx)
-		if err1 != nil {
-			log.Error(err1.Error())
-			continue
-		}
+		records = append(records, idx)
+	}
+
+	// Bulk-write all keyword records in a single leveldb batch — far faster
+	// than one Put per record during a full index build.
+	if err := mh.idxer.AddRecords(records); err != nil {
+		return err
+	}
+
+	// Build the in-memory BK-tree under mh.lock so Search / ensureBkTree (which
+	// take the same lock) can never observe a half-built tree. Previously
+	// BuildIndex mutated bktree/bktreeDone unlocked, relying on the caller to
+	// serialize — fragile (issue #722 P3).
+	mh.lock.Lock()
+	for _, idx := range records {
 		mh.bktreeAdd(idx)
 	}
 	mh.bktreeDone = true
+	mh.lock.Unlock()
 
 	err = mh.idxer.SetMeta("entries_num", strconv.FormatInt(mh.rawdict.GetKeyWordEntriesSize(), 10))
 	return nil
@@ -321,7 +333,7 @@ func (mh *mdictHolder) Search(keyword string) ([]*model.MdictKeyWordIndex, error
 	needle := &fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: keyword}}
 	raw := mh.bktree.Search(needle, fuzzyTolerance, fuzzyLimit)
 	if len(raw) == 0 {
-		return nil, errors.New("result not found")
+		return nil, nil
 	}
 	sort.Slice(raw, func(i, j int) bool { return raw[i].Distance < raw[j].Distance })
 	out := make([]*model.MdictKeyWordIndex, 0, len(raw))

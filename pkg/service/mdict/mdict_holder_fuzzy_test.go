@@ -24,6 +24,7 @@ func (f *fakeIdxer) GetMeta(key string) (string, error) {
 	return "", errors.New("not found")
 }
 func (f *fakeIdxer) AddRecord(record *model.MdictKeyWordIndex) error { return nil }
+func (f *fakeIdxer) AddRecords(records []*model.MdictKeyWordIndex) error { return nil }
 func (f *fakeIdxer) Search(keyword string) ([]*model.MdictKeyWordIndex, error) {
 	return nil, errors.New("result not found")
 }
@@ -119,7 +120,8 @@ func TestFuzzyTypoCorrection(t *testing.T) {
 	assert.Equal(t, "hello", res[0].KeyWord)
 }
 
-// TestFuzzyNoMatch: when neither prefix nor fuzzy matches, returns "result not found".
+// TestFuzzyNoMatch: when neither prefix nor fuzzy matches, Search returns an
+// empty result with no error (empty != error, issue #722 P3).
 func TestFuzzyNoMatch(t *testing.T) {
 	mh := &mdictHolder{
 		lock:       &sync.Mutex{},
@@ -129,6 +131,7 @@ func TestFuzzyNoMatch(t *testing.T) {
 	}
 	mh.bktreeAdd(&model.MdictKeyWordIndex{KeyWord: "hello"})
 
-	_, err := mh.Search("zzzzzzzz") // far from everything
-	assert.Error(t, err)
+	res, err := mh.Search("zzzzzzzz") // far from everything
+	assert.NoError(t, err)
+	assert.Empty(t, res)
 }
