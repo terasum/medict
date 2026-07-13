@@ -33,7 +33,7 @@ This is the single most important thing to understand. The Go side talks to the 
 
 2. **Embedded Gin HTTP server (data plane)** — dictionary definitions are rendered as full HTML inside an `<iframe>` in the webview. Those HTML payloads, plus their resources (css/js/images/fonts/audio), must be served same-origin, so a **Gin server is started on `localhost:0` (random port)** at app init. The frontend learns the port at runtime via the `App.ResourceServerAddr()` IPC call. URL root is `static.ContentRootUrl = "/__mdict"`. Word lookups use magic path `/__tcidem_query`.
 
-   Dispatch of HTTP requests happens entirely in a **`NoRoute` handler** (`back_server.go setUpRouters`): if the URI starts with `/__mdict/__tcidem_query` it is a word query (`HandleWordQueryReq`), otherwise it is a resource lookup (`HandleResourceQueryReq`). There are no explicit routes.
+   Word lookups go through an **explicit route** `GET /__mdict/__tcidem_query` (`HandleWordQueryReq`); everything else under the content root is a resource lookup handled by a `NoRoute` catch-all (`HandleResourceQueryReq`) (`back_server_inner.go setUpRouters`). Resource paths are arbitrary (css/images/fonts/...), so they stay a catch-all rather than enumerated routes.
 
 ### Dictionary abstraction
 `pkg/model/dict_interface.go` defines `GeneralDictionary` (`BuildIndex/Lookup/Locate/Search/LookupResource/DictType`). `mdict` (`pkg/service/mdict`) and `stardict` (`pkg/service/stardict`) implement it. `mdictSvcImpl` wraps one `mdx` holder plus N `mdd` holders (mdds are searched in order for resources).
