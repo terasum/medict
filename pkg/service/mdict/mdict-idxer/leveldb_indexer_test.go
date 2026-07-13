@@ -24,6 +24,26 @@ import (
 	"github.com/terasum/medict/pkg/model"
 )
 
+// TestIndexer_CloseReleasesHandle verifies Close releases the leveldb handle;
+// operations after Close return an error (not a panic). Guards the Close
+// lifecycle added for issue #722.
+func TestIndexer_CloseReleasesHandle(t *testing.T) {
+	idxer, err := NewIndexer(filepath.Join(t.TempDir(), "idxclose"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.AddRecord(&model.MdictKeyWordIndex{KeyWord: "x"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := idxer.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	// After Close, operations must error (leveldb ErrClosed), not panic.
+	if _, err := idxer.Lookup("x"); err == nil {
+		t.Fatal("Lookup after Close: want error, got nil")
+	}
+}
+
 func TestLookup(t *testing.T) {
 
 	idxer, err := NewIndexer("./testdata/testleveldb")

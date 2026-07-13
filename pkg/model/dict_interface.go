@@ -25,4 +25,6 @@ type GeneralDictionary interface {
 	Locate(entry *KeyQueryIndex) ([]byte, error)
 	// Search 返回近似词条索引列表，用于后续 Locate
 	Search(keyword string) ([]*KeyQueryIndex, error)
+	// Close 释放该词典持有的底层资源（如 leveldb 句柄），供应用关闭时调用
+	Close() error
 }

@@ -54,6 +54,32 @@ func NewDictService(config *config.Config) (*DictService, error) {
 	return singltonInstanceDictService, nil
 }
 
+// GetDictService returns the process-wide DictService singleton, or nil if
+// NewDictService has not run yet (e.g. app init failed before SetUp).
+func GetDictService() *DictService {
+	return singltonInstanceDictService
+}
+
+// Close releases resources held by all loaded dictionaries (e.g. leveldb
+// handles). Intended for app shutdown: errors from individual dicts are logged
+// and joined, and never block closing the rest.
+func (ds *DictService) Close() error {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+
+	var errs []error
+	for _, dict := range ds.dicts {
+		if dict.MainDict == nil {
+			continue
+		}
+		if err := dict.MainDict.Close(); err != nil {
+			log.Errorf("close dict %s failed: %s", dict.ID, err.Error())
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
 // InitDicts initialize the dictionaries
 func (ds *DictService) InitDicts() error {
 	return ds.walkDicts()
