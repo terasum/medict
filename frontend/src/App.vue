@@ -127,13 +127,13 @@ function listenStoreChange(store: any) {
       args, // 传递给 action 的参数数组
       after, // 在 action 返回或解决后的钩子
       onError, // action 抛出或拒绝的钩子
-    }) => {
+    }: any) => {
       let startTime = Date.now();
       console.debug(`[store-action] {${name}} triggered started, args: {${args}}`);
 
       // 这将在 action 成功并完全运行后触发。
       // 它等待着任何返回的 promise
-      after((result) => {
+      after((result: any) => {
         console.debug(
           `[store-action] {${name}} triggered success, after ${
             Date.now() - startTime
@@ -142,7 +142,7 @@ function listenStoreChange(store: any) {
       });
 
       // 如果 action 抛出或返回一个拒绝的 promise，这将触发
-      onError((error) => {
+      onError((error: any) => {
         console.warn(
           `[store-action] {${name}} trigger faild, after ${
             Date.now() - startTime
@@ -154,7 +154,7 @@ function listenStoreChange(store: any) {
   return unscribe;
 }
 
-let unscribeDictQueryStore = null;
+let unscribeDictQueryStore: (() => void) | null = null;
 const dictQueryStore = useDictQueryStore();
 onMounted(()=>{
   unscribeDictQueryStore = listenStoreChange(dictQueryStore);

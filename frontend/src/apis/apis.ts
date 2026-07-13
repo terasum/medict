@@ -19,7 +19,7 @@
 import { ResourceServerAddr, OpenFinder, BaseDictDir } from '../../wailsjs/go/main/App';
 
 export const StaticDictServerURL = function (): Promise<string> {
-  if (window['go']) {
+  if ((window as any)['go']) {
     return ResourceServerAddr();
   } else {
     return Promise.resolve("http://localhost:1")
@@ -27,7 +27,7 @@ export const StaticDictServerURL = function (): Promise<string> {
 };
 
 export const OpenDirOrFile = function(filepath :string):Promise<void>{
-  if (window['go']) {
+  if ((window as any)['go']) {
     return OpenFinder(filepath)
   } else {
     return Promise.resolve()
@@ -35,7 +35,7 @@ export const OpenDirOrFile = function(filepath :string):Promise<void>{
 }
 
 export const BaseDictDirectory = function():Promise<string>{
-  if (window['go']) {
+  if ((window as any)['go']) {
     return BaseDictDir()
   } else {
     return Promise.resolve("internal error")

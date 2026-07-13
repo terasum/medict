@@ -222,7 +222,7 @@ onUnmounted(() => {
 // utils function
 ///----------------------------
 
-function b64DecodeUnicode(str) {
+function b64DecodeUnicode(str: string) {
   return decodeURIComponent(
     atob(str)
       .split('')

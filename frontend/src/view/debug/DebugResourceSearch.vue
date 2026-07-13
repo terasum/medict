@@ -51,8 +51,8 @@ import { StaticDictServerURL } from '@/apis/apis';
 import { useDictQueryStore } from '@/store/dict';
 
 const dictQueryStore = useDictQueryStore();
-let selectedDict = ref(null);
-let optionDicts = reactive([]);
+let selectedDict = ref<any>(null);
+let optionDicts = reactive<{ label: string; value: string }[]>([]);
 let staticServerUrl = ref('');
 let resourceInputValue = ref('');
 let result = reactive({
