@@ -73,7 +73,11 @@ func LoadApp() (*config.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	conf.BaseDictDir = conf.EnsureDictsDir()
+	baseDictDir, err := conf.EnsureDictsDir()
+	if err != nil {
+		return nil, err
+	}
+	conf.BaseDictDir = baseDictDir
 
 	err = WritePresetDictionary(conf.BaseDictDir)
 	if err != nil {

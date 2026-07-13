@@ -207,7 +207,10 @@ func (ds *DictService) Search(dictId string, keyword string) ([]*model.KeyQueryI
  * @return error
  */
 func (ds *DictService) walkDicts() error {
-	baseDir := ds.config.EnsureDictsDir()
+	baseDir, err := ds.config.EnsureDictsDir()
+	if err != nil {
+		return fmt.Errorf("ensure dicts dir failed: %s", err.Error())
+	}
 	items, err := support.WalkDir(baseDir)
 	if err != nil {
 		return fmt.Errorf("walk dir failed, basedir %s,  %s", baseDir, err.Error())

@@ -23,6 +23,11 @@ import (
 )
 
 func (b *App) errorChanListen(ctx context.Context) {
+	// 优先处理 NewApp()/appInit() 同步阶段捕获的错误：此时 listener
+	// 已经在 Wails startup() 生命周期内运行，ctx 可用，可确定性地产出错误对话框。
+	if b.initErr != nil {
+		panicWithErrorMessageDialog(ctx, b.initErr)
+	}
 	for {
 		select {
 		case err := <-b.errorChannel:

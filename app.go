@@ -38,6 +38,9 @@ type App struct {
 	errorChannel chan error
 	stopChannel  chan int
 	bs           *backserver.BackServer
+	// initErr 捕获 appInit 同步阶段的错误，由 errorChanListen 在 Wails
+	// startup() 生命周期里确定性地产出，避免向无缓冲 channel 塞值带来的时序赌博。
+	initErr error
 }
 
 // NewApp creates a new App application struct
@@ -48,12 +51,7 @@ func NewApp() *App {
 		bs:           &backserver.BackServer{Ready: false},
 	}
 
-	err := app.appInit()
-	if err != nil {
-		go func() {
-			app.errorChannel <- err
-		}()
-	}
+	app.initErr = app.appInit()
 	return app
 }
 
