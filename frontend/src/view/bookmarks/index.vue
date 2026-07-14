@@ -1,30 +1,41 @@
 <template>
-  <div class="bookmarks-page">
-    <div class="bookmarks-header">
-      <h2>生词本</h2>
-      <n-input v-model:value="filter" placeholder="搜索生词..." size="small" style="width: 200px;">
-        <template #suffix>
-          <n-icon :component="Search" />
-        </template>
-      </n-input>
-    </div>
-    <div class="bookmarks-list" v-if="filtered.length > 0">
-      <div
-        v-for="(item, idx) in filtered"
-        :key="idx"
-        class="bookmark-item"
-        @click="lookupWord(item)"
-      >
-        <span class="bookmark-word">{{ item.word }}</span>
-        <span class="bookmark-dict">{{ item.dict_name }}</span>
-        <span class="bookmark-time">{{ formatTime(item.saved_at) }}</span>
-        <n-button quaternary size="tiny" @click.stop="removeItem(item)">
-          <n-icon><Times /></n-icon>
-        </n-button>
+  <div class="x-space">
+    <div class="x-layout">
+      <div class="x-layout-header">
+        <AppHeader />
       </div>
-    </div>
-    <div class="bookmarks-empty" v-else>
-      <p>暂无生词。在搜索时点击星标按钮收藏单词。</p>
+      <div class="x-layout-main-area">
+        <div class="x-layout-content">
+          <div class="bookmarks-page">
+            <div class="bookmarks-header">
+              <h2>生词本</h2>
+              <n-input v-model:value="filter" placeholder="搜索生词..." size="small" style="width: 200px;">
+                <template #suffix>
+                  <n-icon :component="Search" />
+                </template>
+              </n-input>
+            </div>
+            <div class="bookmarks-list" v-if="filtered.length > 0">
+              <div
+                v-for="(item, idx) in filtered"
+                :key="idx"
+                class="bookmark-item"
+                @click="lookupWord(item)"
+              >
+                <span class="bookmark-word">{{ item.word }}</span>
+                <span class="bookmark-dict">{{ item.dict_name }}</span>
+                <span class="bookmark-time">{{ formatTime(item.saved_at) }}</span>
+                <n-button quaternary size="tiny" @click.stop="removeItem(item)">
+                  <n-icon><Times /></n-icon>
+                </n-button>
+              </div>
+            </div>
+            <div class="bookmarks-empty" v-else>
+              <p>暂无生词。在搜索时点击星标按钮收藏单词。</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -34,6 +45,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { NInput, NButton, NIcon } from 'naive-ui';
 import { Search, Times } from '@vicons/fa';
+import AppHeader from '@/components/layout/AppHeader.vue';
 import { getBookmarks, removeBookmark, type Bookmark } from '@/apis/bookmark-api';
 import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
@@ -68,7 +80,6 @@ async function removeItem(item: Bookmark) {
 }
 
 function lookupWord(item: Bookmark) {
-  // switch to search tab and look up the word
   uiStore.updateCurrentTab('search');
   router.push('/');
   dictQueryStore.updateInputSearchWord(item.word);
