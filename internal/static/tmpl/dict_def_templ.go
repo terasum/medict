@@ -95,6 +95,14 @@ function __medict_entry_jump(word, dict_id) {
 		e.preventDefault();
 		__medict_entry_jump(href.slice(ENTRY_PREFIX.length), __MEDICT_DICT_ID__);
 	});
+	// Double-click → look up the browser-selected word (#258). The native
+	// selection (CJK word-boundary aware) fires on dblclick.
+	document.addEventListener("dblclick", function(e) {
+		var sel = window.getSelection ? String(window.getSelection()).trim() : "";
+		if (sel) {
+			window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_DBLCLICK_LOOKUP", "word": sel}, __TOPFRAME_SECURE_ORIGIN__);
+		}
+	});
 }());
 
 </script>

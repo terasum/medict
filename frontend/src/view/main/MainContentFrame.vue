@@ -92,7 +92,7 @@
       ></span>
      </div>
     </div>
-    <div id="app-content-main-iframe-wrapper">
+    <div id="app-content-main-iframe-wrapper" ref="wrapperRef">
       <iframe
         ref="iframeRef"
         class="app-content-main-iframe"
@@ -122,9 +122,11 @@ const TOP_WIN_MSG_ZOOM_IN =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN';
 const TOP_WIN_MSG_REFRESH = '__Medict_TOP_WIN_MSG_EVTP_REFRESH';
 const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
+const INNER_FRAME_MSG_DBLCLICK_LOOKUP = '__Medict_INNER_FRAME_MSG_EVTP_DBLCLICK_LOOKUP';
 
 // 声明式 iframe：通过 Vue 响应式驱动 src，避免命令式 createElement / 手动设 .src
 const iframeRef = ref<HTMLIFrameElement | null>(null);
+const wrapperRef = ref<HTMLDivElement | null>(null);
 
 // iframe 的 src：优先使用 mainContentURL（释义查询 URL），否则用 mainContent 构造 data URL。
 // 由 Vue 响应式驱动，store 中 mainContent / mainContentURL 变化时自动更新。
@@ -166,6 +168,16 @@ function onInnerFrameMessage(e: MessageEvent) {
 
       break;
     }
+    // 双击选词查词（#258）
+    case INNER_FRAME_MSG_DBLCLICK_LOOKUP: {
+      let keyWord = (e.data.word || '').split('#')[0];
+      if (keyWord) {
+        dictQueryStore.updateInputSearchWord(keyWord);
+        dictQueryStore.searchWord(keyWord);
+        dictQueryStore.pushHistoryByEntryIDx(0);
+      }
+      break;
+    }
   }
 }
 
@@ -196,6 +208,18 @@ function zoomIn() {
   );
 }
 
+// Ctrl/Cmd + =/- 与 Ctrl/Cmd + 滚轮缩放词典 iframe（#260）
+function onZoomKey(e: KeyboardEvent) {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
+  else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomOut(); }
+}
+function onIframeWheel(e: WheelEvent) {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  if (e.deltaY < 0) zoomIn(); else zoomOut();
+}
+
 // devtools
 function showInspector() {
   const wailsEvent = "wails:showInspector";
@@ -209,6 +233,8 @@ function showInspector() {
 
 onMounted(() => {
   window.addEventListener('message', onInnerFrameMessage);
+  window.addEventListener('keydown', onZoomKey);
+  wrapperRef.value?.addEventListener('wheel', onIframeWheel, { passive: false });
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
@@ -216,6 +242,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('message', onInnerFrameMessage);
+  window.removeEventListener('keydown', onZoomKey);
+  wrapperRef.value?.removeEventListener('wheel', onIframeWheel);
 })
 
 ///----------------------------
