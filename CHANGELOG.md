@@ -4,6 +4,36 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.3
+
+New features + bug fixes from the stale-issue review (#258/#259/#260), plus the
+TypeScript strict-mode type-safety gate (#702) and backend/frontend cleanup.
+
+### Added
+- **Double-click to look up a word** (#258): double-clicking text in a
+  dictionary entry selects it (using the browser's CJK-aware word-boundary
+  selection) and looks it up — matching macOS Dictionary.app behavior.
+- **Keyboard & wheel zoom** (#260): `Ctrl/Cmd + =/-` and `Ctrl/Cmd + scroll`
+  now zoom the definition iframe (previously only toolbar buttons).
+
+### Fixed
+- **`@@@LINK` multi-target & chained redirects** (#260): a headword redirecting
+  to multiple targets (e.g. 滋 → 滋 + 滋) no longer shows blank; chained
+  redirects (A→B→C) now follow through instead of stopping at the first hop or
+  leaking raw `@@@LINK=` text. Cycle-guarded, max depth 8.
+- **Dictionary name truncation** (#259): `mdict.Name()` used `TrimRight` (cutset)
+  which ate trailing `m`/`d`/`x` chars — `mad.mdx` became `ma`. Fixed to
+  `TrimSuffix` of the actual extension.
+
+### Changed
+- **TypeScript strict mode** (#702): `tsconfig.json` now has `strict: true`;
+  `vue-tsc --noEmit` passes with zero errors and runs as a CI gate. All 66
+  strict errors fixed (typed `queryPendingList`/`selectDict`, debounce params,
+  `$onAction` callback, `*.vue` shim, etc.).
+- **Backend naming consistency** (#737): `back_server.go` + `back_server_inner.go`
+  merged into one file; `DictCon → Controller`, `MainDict → Dict`, `dc.ds → svc`.
+- **Startup logging** (#735): `[medict-init]` bootstrap `fmt.Printf` → logger.
+
 ## v3.1.2
 
 Maintenance release: internal architecture cleanup — no user-visible behavior
