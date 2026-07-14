@@ -4,6 +4,21 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.6
+
+Header UI redesign + bookmarks nav-rail fix.
+
+### Fixed
+- **Bookmarks page missing navigation** (#768): 生词本 page lacked `<AppHeader>`,
+  making it impossible to switch tabs. Fixed.
+- **macOS double title bar**: removed the redundant 26px fake-title-bar
+  (`Frameless:false` already provides a native title bar).
+
+### Changed
+- **Header redesign**: logo shrunk (h1 24px→16px, area 120px→72px), search bar
+  now `flex:1` (fills width), back/forward/star buttons restyled (transparent bg,
+  hover, gap spacing), header height 60px→48px.
+
 ## v3.1.5
 
 Hotfix: bookmarks page navigation.
