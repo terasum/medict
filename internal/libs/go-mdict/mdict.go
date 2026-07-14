@@ -93,11 +93,11 @@ func (mdict *Mdict) BuildIndex() error {
 
 func (mdict *Mdict) Name() string {
 	_, rawpath := filepath.Split(mdict.filePath)
-	rawpath = strings.TrimRight(rawpath, ".mdx")
-	if len(rawpath) > 0 {
-		return rawpath
-	}
-	return rawpath
+	// TrimSuffix, not TrimRight: TrimRight treats ".mdx" as a *cutset* and would
+	// eat trailing m/d/x chars off the name (e.g. "mad.mdx" -> "ma", "foox.mdd"
+	// -> "foo"). TrimSuffix of the actual extension is correct for both mdx/mdd.
+	// (#259)
+	return strings.TrimSuffix(rawpath, filepath.Ext(rawpath))
 }
 
 func (mdict *Mdict) Title() string {
