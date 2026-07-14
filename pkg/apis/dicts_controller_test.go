@@ -43,6 +43,34 @@ func TestResourceKeyCandidates(t *testing.T) {
 	}
 }
 
+// TestLinkTargets covers MDict @@@LINK target parsing — single, multi-target
+// (newline and "</>" sub-record separators), trailing whitespace/CR, and the
+// non-redirect case. This is the core of the #260 multi-target/chain fix.
+func TestLinkTargets(t *testing.T) {
+	cases := []struct {
+		name string
+		def  string
+		want []string
+	}{
+		{"single", "@@@LINK=foo", []string{"foo"}},
+		{"multi-newline", "@@@LINK=foo\n@@@LINK=bar", []string{"foo", "bar"}},
+		{"multi-record-sep", "@@@LINK=滋</>@@@LINK=滋", []string{"滋", "滋"}},
+		{"trailing-crlf", "@@@LINK=foo\r\n", []string{"foo"}},
+		{"trim-spaces", "@@@LINK=  foo  ", []string{"foo"}},
+		{"not-a-redirect", "<p>real definition</p>", nil},
+		{"empty-link-ignored", "@@@LINK=", nil},
+	}
+	for _, tc := range cases {
+		got := linkTargets(tc.def)
+		if len(got) == 0 && len(tc.want) == 0 {
+			continue
+		}
+		if !reflect.DeepEqual(got, tc.want) {
+			t.Fatalf("%s: linkTargets(%q) = %#v, want %#v", tc.name, tc.def, got, tc.want)
+		}
+	}
+}
+
 // TestConvertKeyIndex locks the 8-param → struct conversion after the loop
 // refactor (#738): every param lands in the right field, empty params default
 // to 0, a bad integer errors, and dictType maps to IndexType.
