@@ -63,6 +63,10 @@
                     <span class="icon icon-rocket"></span>
                     <a> 插件设置</a>
                   </span>
+                  <span class="nav-group-item" @click='changeTab("/debug")'>
+                    <span class="icon icon-bug"></span>
+                    <a> 调试工具</a>
+                  </span>
                 </nav>
                 <nav class="nav-group">
                   <h5 class="nav-group-title">关于信息</h5>
