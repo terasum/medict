@@ -22,6 +22,7 @@ import PluginsWindow from '@/view/plugins/index.vue';
 import DebugWindow from '@/view/debug/index.vue';
 import SettingWindow from '@/view/setting/index.vue';
 import DocWindow from '@/view/docs/index.vue';
+import BookmarksWindow from '@/view/bookmarks/index.vue';
 
 import index_md from '@/assets/docs/index.md';
 import select_and_use_md from '@/assets/docs/select_and_use_dict.md';
@@ -55,6 +56,7 @@ export default [
       { path: 'update', component: SettingUpdater },
     
   ]},
+  { path: '/bookmarks', component: BookmarksWindow },
   { path: '/plugins', component: PluginsWindow },
   { path: '/debug', component: DebugWindow,
     children: [
