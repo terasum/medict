@@ -4,6 +4,15 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.5
+
+Hotfix: bookmarks page navigation.
+
+### Fixed
+- **Bookmarks page missing navigation rail** (#768): the 生词本 page was missing
+  `<AppHeader>` (which contains `AppFunctions`), so users could not switch tabs
+  after entering it. Now wrapped in the standard `x-layout` shell.
+
 ## v3.1.4
 
 Bookmarks / saved-words feature + navigation restructure.
