@@ -18,22 +18,23 @@
     // border-bottom: 1px solid #dcdcdc;
 
     .header-nav-functions {
-      max-width: 306px;
+      max-width: 280px;
       height: auto;
       padding: 0;
       margin: 0;
-      margin-left: 20px;
-      margin-top: 12px;
+      margin-left: 8px;
+      margin-top: 0;
       display: flex;
+      align-items: center;
       flex-direction: row;
       .fn-box-active {
         background-color: $theme-function-box-active-color;
       }
       .fn-box {
-        width: 52px;
-        height: 44px;
-        margin-top: -6px;
-        padding-top: 6px;
+        width: 46px;
+        height: 40px;
+        margin-top: 0;
+        padding-top: 4px;
         cursor: pointer;
         border-radius: 4px;
         margin-left: 2px;
@@ -46,8 +47,8 @@
         }
 
         .fn-box-icon {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           display: block;
           font-size: 16px;
           line-height: 18px;

@@ -2,69 +2,67 @@
 @import '@/style/variables.scss';
     .header-search-box {
       display: flex;
-      height: 54px;
+      align-items: center;
+      height: 100%;
+      width: 100%;
       padding: 0;
       margin: 0;
 
       .header-navigate-btns {
-        height: 54px;
-        max-width: 120px;
-        padding: 0;
-        margin-left: 16px;
-        margin-right: 14px;
+        height: 100%;
         display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0 4px 0 0;
+        gap: 2px;
 
         .btn-nav {
-          height: 26px;
-          width: 26px;
-          margin-top: 14px;
+          height: 28px;
+          width: 28px;
           padding: 0;
           text-align: center;
-          font-size: 12px;
-          color: #333;
+          font-size: 13px;
+          color: #555;
           outline: none;
-          border: 1px solid #fefefe;
-          background-color: #fff;
-          box-shadow: none;
+          border: none;
+          background-color: transparent;
+          border-radius: 6px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-          &:active {
-            box-shadow: none;
-            border: rgba(63, 80, 236, 0.452) 1px solid;
-            // background-color: #d80034;
-            background-color: #fff;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.06);
           }
-        }
-        .btn-nav-left {
-          border-radius: 10px 0px 0px 10px;
-          margin-left: 9px;
-        }
-        .btn-nav-right {
-          border-radius: 0px 10px 10px 0px;
-          margin-left: 0px;
+          &:active {
+            background-color: rgba(0, 0, 0, 0.1);
+          }
         }
       }
       .header-search-input {
-        height: 54px;
+        flex: 1;
+        height: 32px;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        align-items: center;
 
         .n-input {
-          height: 26px;
-          padding: 0 8px;
+          height: 32px;
+          padding: 0 10px;
           margin: 0;
           box-shadow: none;
-          font-size: 15px;
-          // border: 1px solid #f1f1f1;
-          border: none;
-
+          font-size: 14px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
           background-color: #fff;
-          padding-left: 5px;
+
           &:active {
             outline: none;
+            border-color: #bbb;
           }
           &:focus {
             outline: none;
+            border-color: #999;
           }
         }
       }
