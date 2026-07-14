@@ -174,3 +174,24 @@ func TestMdict_LookupMdd6(t *testing.T) {
 
 	file.Close()
 }
+
+// TestMdict_Name: regression for #259 — Name() used TrimRight(cutset) which
+// ate trailing m/d/x chars ("mad.mdx" -> "ma"). TrimSuffix of the extension is
+// correct for both .mdx and .mdd.
+func TestMdict_Name(t *testing.T) {
+	cases := []struct {
+		path string
+		want string
+	}{
+		{"/dicts/mad.mdx", "mad"},
+		{"/dicts/OALD10.mdx", "OALD10"},
+		{"/dicts/foox.mdd", "foox"},
+		{"/dicts/标题词典.mdx", "标题词典"},
+	}
+	for _, tc := range cases {
+		m := &Mdict{MdictBase: &MdictBase{filePath: tc.path}}
+		if got := m.Name(); got != tc.want {
+			t.Fatalf("Name(%q) = %q, want %q", tc.path, got, tc.want)
+		}
+	}
+}
