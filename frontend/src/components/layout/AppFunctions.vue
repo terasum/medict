@@ -94,18 +94,11 @@
           <span class="fn-box-text">词典</span>
         </div>
 
-      <div class="fn-box" @click="changeTab('plugins')" :class="uiStore.currentTab == 'plugins'?'active':''">
+        <div class="fn-box" @click="changeTab('bookmarks')" :class="uiStore.currentTab == 'bookmarks'?'active':''">
           <span class="fn-box-icon">
-            <Toolbox />
+            <Star />
           </span>
-          <span class="fn-box-text">插件</span>
-        </div>
-
-        <div class="fn-box" @click="changeTab('debug')"  :class="uiStore.currentTab == 'debug'?'active':''">
-          <span class="fn-box-icon">
-            <Bug />
-          </span>
-          <span class="fn-box-text">调试</span>
+          <span class="fn-box-text">生词</span>
         </div>
 
         <div class="fn-box" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
@@ -120,7 +113,7 @@
 </template>
 
 <script setup>
-import { Search, Book, ToggleOn, Toolbox, Bug } from '@vicons/fa';
+import { Search, Book, ToggleOn, Star } from '@vicons/fa';
 import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
 import { useRouter } from "vue-router";
@@ -135,8 +128,7 @@ const router = useRouter();
 const tabRouters = {
   search: '/',
   dict: '/dict',
-  plugins:'/plugins',
-  debug:'/debug',
+  bookmarks: '/bookmarks',
   setting: '/setting',
 };
 

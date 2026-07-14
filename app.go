@@ -40,6 +40,7 @@ type App struct {
 	stopChannel  chan int
 	bs           *backserver.BackServer
 	dictSvc      *service.DictService
+	bookmarks    *service.BookmarkStore
 	// initErr 捕获 appInit 同步阶段的错误，由 errorChanListen 在 Wails
 	// startup() 生命周期里确定性地产出，避免向无缓冲 channel 塞值带来的时序赌博。
 	initErr error
@@ -68,6 +69,13 @@ func (b *App) appInit() error {
 		return err
 	}
 	b.dictSvc = dictsSvc
+
+	// Bookmark store (#643): persisted in app config dir.
+	configDir, err := utils.AppConfigDir()
+	if err != nil {
+		return err
+	}
+	b.bookmarks = service.NewBookmarkStore(configDir)
 
 	bs, err := backserver.NewStaticServer(conf)
 	if err != nil {
@@ -121,6 +129,21 @@ func (b *App) SearchWord(dictId, word string) *model.Resp {
 
 func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
 	return b.bs.Controller.BuildIndexByDictId(dictid)
+}
+
+// Bookmark IPC (#643)
+func (b *App) AddBookmark(word, dictId, dictName string) *model.Resp {
+	b.bookmarks.Add(word, dictId, dictName)
+	return model.BuildSuccess(nil)
+}
+
+func (b *App) RemoveBookmark(word, dictId string) *model.Resp {
+	b.bookmarks.Remove(word, dictId)
+	return model.BuildSuccess(nil)
+}
+
+func (b *App) GetBookmarks() *model.Resp {
+	return model.BuildSuccess(b.bookmarks.All())
 }
 
 func (b *App) ResourceServerAddr() string {

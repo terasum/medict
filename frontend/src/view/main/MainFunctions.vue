@@ -89,6 +89,15 @@
           >
             <n-icon><AngleRight /></n-icon>
           </button>
+
+          <button
+            type="button"
+            class="button btn btn-light btn-nav"
+            @click="toggleBookmark()"
+            title="收藏"
+          >
+            <n-icon><Star /></n-icon>
+          </button>
         </div>
         <div class="header-search-input">
           <n-input
@@ -109,10 +118,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { NIcon } from 'naive-ui';
-import { Search, AngleLeft, AngleRight } from '@vicons/fa';
+import { Search, AngleLeft, AngleRight, Star } from '@vicons/fa';
 import AppFunctions from '@/components/layout/AppFunctions.vue';
 
 import { useDictQueryStore } from '@/store/dict';
+import { addBookmark } from '@/apis/bookmark-api';
 import { useUIStore } from '@/store/ui';
 import { useRouter } from "vue-router";
 
@@ -130,6 +140,13 @@ function backHistory() {
 
 function forwardHistory() {
   dictQueryStore.forwardHistory();
+}
+
+async function toggleBookmark() {
+  const word = dictQueryStore.inputSearchWord;
+  const dict = dictQueryStore.selectDict;
+  if (!word || !dict.id) return;
+  await addBookmark(word, dict.id, dict.name || '');
 }
 
 let storeChangeUnscribe = null;
