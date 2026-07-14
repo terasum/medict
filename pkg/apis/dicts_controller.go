@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -24,6 +23,59 @@ type DictsController struct {
 
 func NewDictsController(svc *service.DictService) *DictsController {
 	return &DictsController{svc: svc}
+}
+
+// linkTargets returns the @@@LINK target words in an MDict definition, handling
+// multiple targets and "</>"/newline sub-record separators. Empty if def is not
+// a redirect. (Extracted for unit testing — #260.)
+func linkTargets(def string) []string {
+	normalized := strings.ReplaceAll(strings.TrimSpace(def), "</>", "\n")
+	var targets []string
+	for _, line := range strings.Split(normalized, "\n") {
+		line = strings.TrimSpace(line)
+		if t := strings.TrimPrefix(line, "@@@LINK="); t != line && t != "" {
+			targets = append(targets, strings.TrimSpace(t))
+		}
+	}
+	return targets
+}
+
+// resolveLinkRedirects resolves MDict @@@LINK cross-references in a definition.
+// A def may contain one or more "@@@LINK=<word>" lines (sub-records separated
+// by "</>" or newlines); each target is located recursively (depth- and
+// cycle-guarded), and multi-target defs concatenate. Fixes #260: the old code
+// followed only the first target of a single hop, so multi-target redirects
+// showed blank and chained redirects (A→B→C) stopped at the first hop or leaked
+// the raw "@@@LINK=" text.
+func (dc *DictsController) resolveLinkRedirects(dictId, def string, depth int, visited map[string]bool) string {
+	const maxDepth = 8
+	if depth > maxDepth {
+		return def
+	}
+	targets := linkTargets(def)
+	if len(targets) == 0 {
+		return def // not a redirect; show original
+	}
+	var resolved []string
+	for _, target := range targets {
+		if visited[target] {
+			continue // cycle guard
+		}
+		visited[target] = true
+		result, err := dc.svc.Search(dictId, target)
+		if err != nil || len(result) == 0 {
+			continue
+		}
+		targetDef, err := dc.svc.Locate(dictId, result[0])
+		if err != nil {
+			continue
+		}
+		resolved = append(resolved, dc.resolveLinkRedirects(dictId, targetDef, depth+1, visited))
+	}
+	if len(resolved) == 0 {
+		return def // nothing resolved; show original rather than blank
+	}
+	return strings.Join(resolved, "\n")
 }
 
 func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
@@ -57,25 +109,8 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	// handle @@@Link=${word}
-	def = strings.TrimSpace(def)
-
-	if strings.HasPrefix(def, "@@@LINK=") {
-		log.Infof("search @@@LINK=>[%s], hex:[%s]", def, hex.EncodeToString([]byte(def)))
-		newWord := strings.TrimPrefix(def, "@@@LINK=")
-		newWord = strings.TrimRight(newWord, "\r\n\000")
-		result, err1 := dc.svc.Search(dictId, newWord)
-		if err1 == nil && len(result) > 0 {
-			newEntry := result[0]
-			def1, err2 := dc.svc.Locate(dictId, newEntry)
-			// handle link jump
-			if err2 == nil {
-				def = def1
-			} else {
-				log.Errorf("search @@@link jump failed %s, %v", def, err2)
-			}
-		}
-	}
+	// handle @@@Link=${word} redirects (single, multi-target, and chained)
+	def = dc.resolveLinkRedirects(dictId, strings.TrimSpace(def), 0, map[string]bool{})
 
 	dict, ok := dc.svc.GetDictPlain(dictId)
 	if !ok {
