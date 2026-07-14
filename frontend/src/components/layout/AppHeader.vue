@@ -64,7 +64,7 @@ import AppFunctions from './AppFunctions.vue';
   .app-header-logo {
     display: flex;
     height: calc($layout-sidebar-logo-height - 1px);
-    width: 120px;
+    width: 72px;
     .logo {
       display: flex;
       flex-direction: row;
@@ -76,26 +76,25 @@ import AppFunctions from './AppFunctions.vue';
       }
       h1 {
         color: $theme-logo-font-color;
-        font-style: italic;
-        font-size: 24px;
+        font-size: 16px;
+        font-weight: 600;
       }
     }
   }
   .app-header-func-box{
     display: flex;
     justify-content: space-between;
-    width: calc(100% - 120px);
+    align-items: center;
+    width: calc(100% - 72px);
     .app-header-func-solt{
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: center;
-      min-width: 120px;
-      height: 54px;
+      flex: 1;
+      height: 100%;
       padding: 0;
       margin: 0;
-      min-width: 174px;
-      margin-left: 40px;
+      margin-left: 4px;
     }
     .app-header-func-nav{
     }
