@@ -4,6 +4,23 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.4
+
+Bookmarks / saved-words feature + navigation restructure.
+
+### Added
+- **Bookmarks / 生词本** (#643): save words while looking them up (star button in
+  the search bar), then browse and re-lookup them in a dedicated **「生词」tab**.
+  - Star button next to back/forward in the search bar — saves the current word
+    + dictionary context.
+  - Full-page bookmarks list with search/filter, click-to-lookup, and delete.
+  - Persisted to `bookmarks.json` in the app config directory.
+
+### Changed
+- **Navigation restructure**: the left sidebar tabs are now **搜索 / 生词 / 词典 /
+  设置**. Plugins and Debug moved into the Settings page as sub-navigation items
+  (插件设置 already existed; 调试工具 newly added).
+
 ## v3.1.3
 
 New features + bug fixes from the stale-issue review (#258/#259/#260), plus the
