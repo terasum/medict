@@ -38,6 +38,14 @@
           &:active {
             background-color: rgba(0, 0, 0, 0.1);
           }
+          &:disabled {
+            color: #bbb;
+            cursor: not-allowed;
+            opacity: 0.5;
+            &:hover {
+              background-color: transparent;
+            }
+          }
         }
       }
       .header-search-input {
@@ -66,15 +74,74 @@
           }
         }
       }
+
+      // 非搜索页时输入框置灰（naive-ui 的 disabled 已处理文字与交互）
+      &.is-disabled {
+        .header-search-input {
+          .n-input {
+            background-color: #f5f5f5;
+            border-color: #e8e8e8;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+
+    // 星标弹出的生词本选择浮层（n-popover 会 teleport 到 body，需放在非 scoped 样式里）
+    .nb-picker {
+      .nb-picker-title {
+        font-size: 12px;
+        color: #999;
+        padding: 2px 4px 6px;
+      }
+      .nb-picker-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #444;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.06);
+        }
+        .nb-picker-icon {
+          font-size: 14px;
+          flex-shrink: 0;
+        }
+        .nb-picker-name {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .nb-picker-tag {
+          font-size: 10px;
+          color: #aaa;
+          border: 1px solid #ddd;
+          border-radius: 3px;
+          padding: 0 4px;
+          flex-shrink: 0;
+        }
+      }
+      .nb-picker-empty {
+        text-align: center;
+        color: #aaa;
+        font-size: 12px;
+        padding: 12px 0;
+      }
     }
 
 </style>
 <template>
-   <div class="header-search-box">
+   <div class="header-search-box" :class="{ 'is-disabled': searchDisabled }">
         <div class="header-navigate-btns">
           <button
             type="button"
             class="button btn btn-light btn-nav btn-nav-left"
+            :disabled="searchDisabled"
             @click="backHistory()"
           >
             <n-icon><AngleLeft /></n-icon>
@@ -83,25 +150,56 @@
           <button
             type="button"
             class="button btn btn-light btn-nav btn-nav-right"
+            :disabled="searchDisabled"
             @click="forwardHistory()"
           >
             <n-icon><AngleRight /></n-icon>
           </button>
 
-          <button
-            type="button"
-            class="button btn btn-light btn-nav"
-            @click="toggleBookmark()"
-            title="收藏"
+          <n-popover
+            trigger="click"
+            v-model:show="bookmarkPopoverShow"
+            placement="bottom-start"
+            :width="200"
+            @update:show="onBookmarkPopoverShow"
           >
-            <n-icon><Star /></n-icon>
-          </button>
+            <template #trigger>
+              <button
+                type="button"
+                class="button btn btn-light btn-nav"
+                :disabled="searchDisabled"
+                title="收藏"
+              >
+                <n-icon><Star /></n-icon>
+              </button>
+            </template>
+            <div class="nb-picker">
+              <div class="nb-picker-title">加入生词本</div>
+              <div
+                v-for="nb in bookmarkStore.notebooks"
+                :key="nb.id"
+                class="nb-picker-item"
+                @click="addToNotebook(nb)"
+              >
+                <n-icon class="nb-picker-icon">
+                  <Star v-if="nb.is_default" />
+                  <Book v-else />
+                </n-icon>
+                <span class="nb-picker-name">{{ nb.name }}</span>
+                <span v-if="nb.is_default" class="nb-picker-tag">默认</span>
+              </div>
+              <div v-if="bookmarkStore.notebooks.length === 0" class="nb-picker-empty">
+                暂无生词本
+              </div>
+            </div>
+          </n-popover>
         </div>
         <div class="header-search-input">
           <n-input
             type="text"
             size="small"
             placeholder="搜索"
+            :disabled="searchDisabled"
             @keydown.enter="handleChange"
             v-model:value="inputWord"
           >
@@ -114,22 +212,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { NIcon } from 'naive-ui';
-import { Search, AngleLeft, AngleRight, Star } from '@vicons/fa';
+import { ref, computed, onMounted } from 'vue';
+import { NIcon, NPopover, useMessage } from 'naive-ui';
+import { Search, AngleLeft, AngleRight, Star, Book } from '@vicons/fa';
 import AppFunctions from '@/components/layout/AppFunctions.vue';
 
 import { useDictQueryStore } from '@/store/dict';
-import { addBookmark } from '@/apis/bookmark-api';
+import { useBookmarkStore } from '@/store/bookmark';
 import { useUIStore } from '@/store/ui';
 import { useRouter } from "vue-router";
 
 const dictQueryStore = useDictQueryStore();
+const bookmarkStore = useBookmarkStore();
 const uiStore = useUIStore();
 const router = useRouter();
+const message = useMessage();
 
 let inputWord = ref('');
 let inputActive = ref(false);
+
+// 非搜索页（切换到词典/生词/设置等 FunctionTab）时，搜索框与导航按钮禁用而非隐藏
+const searchDisabled = computed(() => !uiStore.isSearchInputActive());
 
 
 function backHistory() {
@@ -140,11 +243,29 @@ function forwardHistory() {
   dictQueryStore.forwardHistory();
 }
 
-async function toggleBookmark() {
+// 星标 → 弹出生词本选择浮层（默认本置顶并标记）
+const bookmarkPopoverShow = ref(false);
+
+function onBookmarkPopoverShow(show) {
+  if (show) {
+    bookmarkStore.ensureLoaded();
+  }
+}
+
+async function addToNotebook(nb) {
   const word = dictQueryStore.inputSearchWord;
   const dict = dictQueryStore.selectDict;
-  if (!word || !dict.id) return;
-  await addBookmark(word, dict.id, dict.name || '');
+  if (!word || !dict.id) {
+    message.warning('请先输入单词');
+    return;
+  }
+  try {
+    await bookmarkStore.addBookmark(word, dict.id, nb.id);
+    message.success(`已加入「${nb.name}」`);
+    bookmarkPopoverShow.value = false;
+  } catch (e) {
+    message.error((e && e.message) || '收藏失败');
+  }
 }
 
 let storeChangeUnscribe = null;

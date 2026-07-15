@@ -14,12 +14,28 @@ export function BuildIndexByDictId(arg1) {
   return window['go']['main']['App']['BuildIndexByDictId'](arg1);
 }
 
+export function CreateNotebook(arg1) {
+  return window['go']['main']['App']['CreateNotebook'](arg1);
+}
+
+export function DeleteNotebook(arg1) {
+  return window['go']['main']['App']['DeleteNotebook'](arg1);
+}
+
 export function GetAllDicts() {
   return window['go']['main']['App']['GetAllDicts']();
 }
 
+export function GetBookmarkSnapshot(arg1, arg2, arg3) {
+  return window['go']['main']['App']['GetBookmarkSnapshot'](arg1, arg2, arg3);
+}
+
 export function GetBookmarks() {
   return window['go']['main']['App']['GetBookmarks']();
+}
+
+export function GetNotebooks() {
+  return window['go']['main']['App']['GetNotebooks']();
 }
 
 export function InitDicts() {
@@ -30,8 +46,12 @@ export function OpenFinder(arg1) {
   return window['go']['main']['App']['OpenFinder'](arg1);
 }
 
-export function RemoveBookmark(arg1, arg2) {
-  return window['go']['main']['App']['RemoveBookmark'](arg1, arg2);
+export function RemoveBookmark(arg1, arg2, arg3) {
+  return window['go']['main']['App']['RemoveBookmark'](arg1, arg2, arg3);
+}
+
+export function RenameNotebook(arg1, arg2) {
+  return window['go']['main']['App']['RenameNotebook'](arg1, arg2);
 }
 
 export function ResourceServerAddr() {
@@ -40,4 +60,8 @@ export function ResourceServerAddr() {
 
 export function SearchWord(arg1, arg2) {
   return window['go']['main']['App']['SearchWord'](arg1, arg2);
+}
+
+export function SetDefaultNotebook(arg1) {
+  return window['go']['main']['App']['SetDefaultNotebook'](arg1);
 }

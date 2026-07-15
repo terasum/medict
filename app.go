@@ -70,12 +70,15 @@ func (b *App) appInit() error {
 	}
 	b.dictSvc = dictsSvc
 
-	// Bookmark store (#643): persisted in app config dir.
+	// Bookmark store (#643): persisted in app config dir (SQLite).
 	configDir, err := utils.AppConfigDir()
 	if err != nil {
 		return err
 	}
-	b.bookmarks = service.NewBookmarkStore(configDir)
+	b.bookmarks, err = service.NewBookmarkStore(configDir)
+	if err != nil {
+		return err
+	}
 
 	bs, err := backserver.NewStaticServer(conf)
 	if err != nil {
@@ -115,6 +118,12 @@ func (b *App) shutdown(ctx context.Context) {
 			log.Errorf("shutdown: close dictionaries failed: %s", err.Error())
 		}
 	}
+	// Close the bookmark SQLite store.
+	if b.bookmarks != nil {
+		if err := b.bookmarks.Close(); err != nil {
+			log.Errorf("shutdown: close bookmark store failed: %s", err.Error())
+		}
+	}
 }
 
 // Typed IPC handlers (issue #729): each frontend call maps to a typed App
@@ -131,19 +140,87 @@ func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
 	return b.bs.Controller.BuildIndexByDictId(dictid)
 }
 
-// Bookmark IPC (#643)
-func (b *App) AddBookmark(word, dictId, dictName string) *model.Resp {
-	b.bookmarks.Add(word, dictId, dictName)
+// Bookmark / notebook IPC (#643)
+func (b *App) AddBookmark(word, dictId, notebookId string) *model.Resp {
+	dictName := ""
+	if d, ok := b.dictSvc.GetDictPlain(dictId); ok {
+		dictName = d.Name
+	}
+	// Render a self-contained HTML snapshot so the word is still viewable if the
+	// dictionary is later unloaded. Snapshot failure is non-fatal: the word is
+	// saved without a snapshot and falls back to a live lookup.
+	html := ""
+	if h, err := b.bs.Controller.RenderSnapshot(dictId, word); err != nil {
+		log.Errorf("AddBookmark: snapshot %q failed: %s", word, err)
+	} else {
+		html = h
+	}
+	if err := b.bookmarks.Add(word, dictId, dictName, notebookId, html); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
 	return model.BuildSuccess(nil)
 }
 
-func (b *App) RemoveBookmark(word, dictId string) *model.Resp {
-	b.bookmarks.Remove(word, dictId)
+func (b *App) RemoveBookmark(word, dictId, notebookId string) *model.Resp {
+	if err := b.bookmarks.Remove(word, dictId, notebookId); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
 	return model.BuildSuccess(nil)
 }
 
 func (b *App) GetBookmarks() *model.Resp {
-	return model.BuildSuccess(b.bookmarks.All())
+	items, err := b.bookmarks.All()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(items)
+}
+
+// GetBookmarkSnapshot returns the stored HTML snapshot for a bookmark ("" if none).
+func (b *App) GetBookmarkSnapshot(word, dictId, notebookId string) *model.Resp {
+	html, err := b.bookmarks.GetSnapshot(word, dictId, notebookId)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(html)
+}
+
+// Notebook management: list / create / rename / delete / set-default.
+func (b *App) GetNotebooks() *model.Resp {
+	items, err := b.bookmarks.Notebooks()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(items)
+}
+
+func (b *App) CreateNotebook(name string) *model.Resp {
+	nb, err := b.bookmarks.AddNotebook(name)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(nb)
+}
+
+func (b *App) RenameNotebook(id, name string) *model.Resp {
+	if err := b.bookmarks.RenameNotebook(id, name); err != nil {
+		return model.BuildError(err, model.BadParamErrCode)
+	}
+	return model.BuildSuccess(nil)
+}
+
+func (b *App) DeleteNotebook(id string) *model.Resp {
+	if err := b.bookmarks.RemoveNotebook(id); err != nil {
+		return model.BuildError(err, model.BadParamErrCode)
+	}
+	return model.BuildSuccess(nil)
+}
+
+func (b *App) SetDefaultNotebook(id string) *model.Resp {
+	if err := b.bookmarks.SetDefaultNotebook(id); err != nil {
+		return model.BuildError(err, model.BadParamErrCode)
+	}
+	return model.BuildSuccess(nil)
 }
 
 func (b *App) ResourceServerAddr() string {
