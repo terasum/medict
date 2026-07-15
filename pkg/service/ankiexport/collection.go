@@ -44,8 +44,12 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// ankiSchemaVer is the collection schema version Anki 2.1 expects.
-const ankiSchemaVer = 18
+// ankiSchemaVer is the collection schema version we write. We deliberately use
+// the legacy value 11 (matching genanki): on open, Anki upgrades a v11
+// collection, migrating col.models JSON into the modern `notetypes` table.
+// Writing a newer ver without the `notetypes` table makes Anki fail with
+// "no such table: notetypes".
+const ankiSchemaVer = 11
 
 // modelID is the stable note-type id for the "Medict Word" model.
 const modelID int64 = 1700000000119
@@ -305,7 +309,10 @@ func buildColRow(models, decks, dconf, conf map[string]any, modMs, crtSec int64)
 	if err != nil {
 		return nil, fmt.Errorf("anki: marshal dconf: %w", err)
 	}
-	return []any{crtSec, modMs, crtSec * 1000, ankiSchemaVer, 0, -1, 0, confJ, modelsJ, decksJ, dconfJ, ""}, nil
+	// tags column is parsed as JSON by Anki's backend on open (ver=11 upgrade),
+	// so it must be a valid JSON object ("{}"), not an empty string (which throws
+	// "EOF while parsing a value").
+	return []any{crtSec, modMs, crtSec * 1000, ankiSchemaVer, 0, -1, 0, confJ, modelsJ, decksJ, dconfJ, "{}"}, nil
 }
 
 // medictModel returns the "Medict Word" note type: fields Word/Definition/Dict,
@@ -330,9 +337,9 @@ func medictModel(modMs int64) map[string]any {
 			"mode":  0,
 		}},
 		"flds": []map[string]any{
-			{"name": "Word", "ord": 0, "sticky": false, "rtl": false, "font": "Arial", "size": 28},
-			{"name": "Definition", "ord": 1, "sticky": false, "rtl": false, "font": "Arial", "size": 20},
-			{"name": "Dict", "ord": 2, "sticky": false, "rtl": false, "font": "Arial", "size": 14},
+			{"name": "Word", "ord": 0, "sticky": false, "rtl": false, "font": "Arial", "size": 28, "media": []any{}},
+			{"name": "Definition", "ord": 1, "sticky": false, "rtl": false, "font": "Arial", "size": 20, "media": []any{}},
+			{"name": "Dict", "ord": 2, "sticky": false, "rtl": false, "font": "Arial", "size": 14, "media": []any{}},
 		},
 		"css":           `.card{font-family:Arial;font-size:20px;text-align:left;color:#222;background:#fff;line-height:1.5;}`,
 		"req":           [][]any{{"Word-Definition", "any", []any{0}}},
