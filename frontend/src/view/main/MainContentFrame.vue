@@ -63,6 +63,11 @@
       width: 100%;
       height: 100%;
     }
+    // 多词典模式:各词典释义节纵向堆叠,整体滚动
+    .multi-stack {
+      height: 100%;
+      overflow-y: auto;
+    }
   }
 }
 </style>
@@ -93,7 +98,18 @@
      </div>
     </div>
     <div id="app-content-main-iframe-wrapper" ref="wrapperRef">
+      <div v-if="showMulti" class="multi-stack">
+        <MainDictSection
+          v-for="(r, i) in dictQueryStore.multiResults"
+          :ref="el => { if (el) sectionRefs[i] = el as any; }"
+          :key="r.dictId"
+          :name="r.dictName"
+          :url="r.url"
+          :empty="r.empty"
+        />
+      </div>
       <iframe
+        v-else
         ref="iframeRef"
         class="app-content-main-iframe"
         :src="iframeSrc"
@@ -113,6 +129,7 @@ import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
+import MainDictSection from "./MainDictSection.vue";
 
 const dictQueryStore = useDictQueryStore();
 const message = useMessage();
@@ -127,6 +144,23 @@ const INNER_FRAME_MSG_DBLCLICK_LOOKUP = '__Medict_INNER_FRAME_MSG_EVTP_DBLCLICK_
 // 声明式 iframe：通过 Vue 响应式驱动 src，避免命令式 createElement / 手动设 .src
 const iframeRef = ref<HTMLIFrameElement | null>(null);
 const wrapperRef = ref<HTMLDivElement | null>(null);
+
+// 多词典模式：堆叠里各词典节的组件实例（暴露 iframeRef），用于广播缩放/刷新消息。
+const sectionRefs = ref<any[]>([]);
+const showMulti = computed(
+  () => dictQueryStore.multiMode && dictQueryStore.multiResults.length > 0
+);
+// 把消息广播给当前生效的 iframe：多模式发给所有 section，单模式发给唯一 iframe。
+function broadcast(evtype: string) {
+  const payload = { evtype, ts: new Date().getTime() };
+  if (showMulti.value) {
+    for (const s of sectionRefs.value) {
+      s?.iframeRef?.contentWindow?.postMessage(payload, '*');
+    }
+  } else {
+    iframeRef.value?.contentWindow?.postMessage(payload, '*');
+  }
+}
 
 // iframe 的 src：优先使用 mainContentURL（释义查询 URL），否则用 mainContent 构造 data URL。
 // 由 Vue 响应式驱动，store 中 mainContent / mainContentURL 变化时自动更新。
@@ -187,25 +221,16 @@ function todo() {
 
 // 缩小
 function zoomOut() {
-  iframeRef.value?.contentWindow?.postMessage(
-    { evtype: TOP_WIN_MSG_ZOOM_OUT, ts: new Date().getTime() },
-    '*'
-  );
+  broadcast(TOP_WIN_MSG_ZOOM_OUT);
 }
 
 function refresh() {
-  iframeRef.value?.contentWindow?.postMessage(
-    { evtype: TOP_WIN_MSG_REFRESH, ts: new Date().getTime() },
-    '*'
-  );
+  broadcast(TOP_WIN_MSG_REFRESH);
 }
 
 // 放大
 function zoomIn() {
-  iframeRef.value?.contentWindow?.postMessage(
-    { evtype: TOP_WIN_MSG_ZOOM_IN, ts: new Date().getTime() },
-    '*'
-  );
+  broadcast(TOP_WIN_MSG_ZOOM_IN);
 }
 
 // Ctrl/Cmd + =/- 与 Ctrl/Cmd + 滚轮缩放词典 iframe（#260）

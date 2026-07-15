@@ -27,6 +27,7 @@
 
   .dictionary-item {
     display: block;
+    position: relative;
     width: 32px;
     height: 32px;
     text-align: center;
@@ -55,11 +56,53 @@
     box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
       rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
   }
+  // 多词典模式开关
+  .multi-toggle {
+    width: 32px;
+    height: 24px;
+    margin: 4px auto 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    &:hover {
+      background-color: #f1f1f1;
+    }
+  }
+  .multi-toggle-active {
+    background: #11a8ff;
+    color: #fff;
+    border-color: #11a8ff;
+  }
+  // 多模式下激活词典的角标
+  .dict-check {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #11a8ff;
+    color: #fff;
+    font-size: 10px;
+    line-height: 14px;
+    text-align: center;
+    box-shadow: 0 0 0 1px #fff;
+  }
 }
 </style>
 <template>
   <AppRightToolbar>
     <div class="dictionaries">
+      <button
+        class="multi-toggle"
+        :class="{ 'multi-toggle-active': dictQueryStore.multiMode }"
+        title="多词典查询(开启后点词典图标多选)"
+        @click="dictQueryStore.setMultiMode(!dictQueryStore.multiMode)"
+      >多</button>
       <n-popover
         v-for="item in state.dictList"
         :overlap="false"
@@ -69,15 +112,11 @@
         <template #trigger>
           <span
             class="dictionary-item"
-            :class="
-              item.id == dictQueryStore.selectDict.id
-                ? 'dictionary-item-active'
-                : ''
-            "
+            :class="isActive(item) ? 'dictionary-item-active' : ''"
             :key="item.id"
             @click="chooseDict(item)"
             :style="getBackground(item)"
-          ></span>
+          ><span v-if="dictQueryStore.multiMode && isInMultiSet(item.id)" class="dict-check">✓</span></span>
         </template>
         <div class="large-text">
           <div>
@@ -112,7 +151,23 @@ const state = reactive({
 });
 
 function chooseDict(item) {
-  dictQueryStore.updateSelectDict(item);
+  // 多词典模式:点图标增/减激活集;否则单词典切换。
+  if (dictQueryStore.multiMode) {
+    dictQueryStore.toggleMultiDict(item);
+  } else {
+    dictQueryStore.updateSelectDict(item);
+  }
+}
+
+// 选中态:多模式下=在激活集里;单模式下=当前 selectDict。
+function isActive(item) {
+  if (dictQueryStore.multiMode) {
+    return dictQueryStore.multiSelectedDicts.some((d) => d.id === item.id);
+  }
+  return item.id == dictQueryStore.selectDict.id;
+}
+function isInMultiSet(id) {
+  return dictQueryStore.multiSelectedDicts.some((d) => d.id === id);
 }
 
 function getBackground(item) {
