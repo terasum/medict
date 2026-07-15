@@ -25,7 +25,7 @@
     </div>
     <div class="app-header-func-box">
     <div class="app-header-func-solt">
-        <slot></slot>
+        <MainFunctions />
     </div>
 
     <div class="app-header-func-nav">
@@ -37,6 +37,7 @@
 
 <script lang="ts" setup>
 import AppFunctions from './AppFunctions.vue';
+import MainFunctions from '@/view/main/MainFunctions.vue';
 </script>
 
 <style lang="scss" scoped>
