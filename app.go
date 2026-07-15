@@ -24,6 +24,7 @@ import (
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/entry"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/backserver"
@@ -44,6 +45,7 @@ type App struct {
 	bs           *backserver.BackServer
 	dictSvc      *service.DictService
 	bookmarks    *service.BookmarkStore
+	conf         *config.Config // app config (medict.toml);用于偏好回写
 	// initErr 捕获 appInit 同步阶段的错误，由 errorChanListen 在 Wails
 	// startup() 生命周期里确定性地产出，避免向无缓冲 channel 塞值带来的时序赌博。
 	initErr error
@@ -66,6 +68,7 @@ func (b *App) appInit() error {
 	if err != nil {
 		return err
 	}
+	b.conf = conf
 
 	dictsSvc, err := service.NewDictService(conf)
 	if err != nil {
@@ -142,6 +145,33 @@ func (b *App) SearchWord(dictId, word string) *model.Resp {
 
 func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
 	return b.bs.Controller.BuildIndexByDictId(dictid)
+}
+
+// GetPreferences returns all persisted settings (medict.toml + runtime overrides)
+// as a flat map, for the frontend to read back. b.conf may be nil if appInit
+// failed — return an empty map in that case.
+//
+// Note: viper normalizes keys to lowercase, so returned keys are lowercase
+// regardless of the casing used when saving.
+func (b *App) GetPreferences() *model.Resp {
+	if b.conf == nil {
+		return model.BuildSuccess(map[string]any{})
+	}
+	return model.BuildSuccess(b.conf.Preferences())
+}
+
+// SavePreferences merges the given key/value pairs into medict.toml and writes
+// it back to disk; existing keys are preserved. Generic write-back path for user
+// preferences (multi-dict active set, theme, font size, …). Keys are
+// case-insensitive (viper lowercases them).
+func (b *App) SavePreferences(prefs map[string]any) *model.Resp {
+	if b.conf == nil {
+		return model.BuildError(errors.New("config not initialized"), model.InnerSysErrCode)
+	}
+	if err := b.conf.WritePreferences(prefs); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(nil)
 }
 
 // Bookmark / notebook IPC (#643)

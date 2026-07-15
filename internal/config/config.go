@@ -64,6 +64,23 @@ func (c *Config) Write() error {
 	return c.ViperInstance.WriteConfig()
 }
 
+// WritePreferences merges prefs into the config (viper.Set each key) and writes
+// the whole file back to disk; existing keys are preserved. This is the generic
+// write-back path for user preferences (multi-dict active set, theme, font size,
+// …): callers pass whatever keys they want to persist, no new IPC per setting.
+func (c *Config) WritePreferences(prefs map[string]any) error {
+	for k, v := range prefs {
+		c.ViperInstance.Set(k, v)
+	}
+	return c.ViperInstance.WriteConfig()
+}
+
+// Preferences returns all currently-held settings (file + any runtime Set
+// overrides) as a map, for the frontend to read back.
+func (c *Config) Preferences() map[string]any {
+	return c.ViperInstance.AllSettings()
+}
+
 func (c *Config) EnsureDictsDir() (string, error) {
 	dirPath := c.BaseDictDir
 	defer func() {

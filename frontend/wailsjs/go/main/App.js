@@ -42,6 +42,10 @@ export function GetNotebooks() {
   return window['go']['main']['App']['GetNotebooks']();
 }
 
+export function GetPreferences() {
+  return window['go']['main']['App']['GetPreferences']();
+}
+
 export function InitDicts() {
   return window['go']['main']['App']['InitDicts']();
 }
@@ -60,6 +64,10 @@ export function RenameNotebook(arg1, arg2) {
 
 export function ResourceServerAddr() {
   return window['go']['main']['App']['ResourceServerAddr']();
+}
+
+export function SavePreferences(arg1) {
+  return window['go']['main']['App']['SavePreferences'](arg1);
 }
 
 export function SearchWord(arg1, arg2) {
