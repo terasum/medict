@@ -91,3 +91,6 @@ testdict/
 
 *.mdx
 *.meidx
+
+# Claude Code local agent config
+.claude/
