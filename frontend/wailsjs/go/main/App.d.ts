@@ -22,6 +22,8 @@ export function GetBookmarks():Promise<model.Resp>;
 
 export function GetNotebooks():Promise<model.Resp>;
 
+export function GetPreferences():Promise<model.Resp>;
+
 export function InitDicts():Promise<model.Resp>;
 
 export function OpenFinder(arg1:string):Promise<void>;
@@ -31,6 +33,8 @@ export function RemoveBookmark(arg1:string,arg2:string,arg3:string):Promise<mode
 export function RenameNotebook(arg1:string,arg2:string):Promise<model.Resp>;
 
 export function ResourceServerAddr():Promise<string>;
+
+export function SavePreferences(arg1:{[key: string]: any}):Promise<model.Resp>;
 
 export function SearchWord(arg1:string,arg2:string):Promise<model.Resp>;
 
