@@ -54,6 +54,17 @@ type Bookmark struct {
 	SavedAt    int64  `json:"saved_at"`
 }
 
+// ExportRow is one saved word bundled with its notebook name and stored HTML
+// snapshot — everything the Anki exporter needs to build a card. Returned by
+// ExportRows; unlike Bookmark it carries the (potentially large) snapshot HTML.
+type ExportRow struct {
+	Word         string `json:"word"`
+	DictName     string `json:"dict_name"`
+	NotebookName string `json:"notebook_name"`
+	HTML         string `json:"html"`
+	SavedAt      int64  `json:"saved_at"`
+}
+
 // BookmarkStore persists notebooks + saved words (with self-contained HTML
 // snapshots) to a SQLite file (bookmarks.db) in the app config dir. Uses the
 // pure-Go modernc.org/sqlite driver — no CGO. Single serialized connection
@@ -209,6 +220,34 @@ func (s *BookmarkStore) All() ([]Bookmark, error) {
 			return nil, err
 		}
 		out = append(out, b)
+	}
+	return out, rows.Err()
+}
+
+// ExportRows returns saved words with their notebook name + stored HTML snapshot,
+// newest first. notebookId == "" returns words from every notebook. Used by the
+// Anki exporter; each row is one card, each notebook is one deck.
+func (s *BookmarkStore) ExportRows(notebookId string) ([]ExportRow, error) {
+	q := `SELECT b.word, b.dict_name, n.name, b.content_html, b.saved_at
+	      FROM bookmarks b JOIN notebooks n ON n.id = b.notebook_id`
+	var args []any
+	if notebookId != "" {
+		q += ` WHERE b.notebook_id = ?`
+		args = append(args, notebookId)
+	}
+	q += ` ORDER BY b.saved_at DESC, b.id DESC`
+	rows, err := s.db.Query(q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]ExportRow, 0)
+	for rows.Next() {
+		var r ExportRow
+		if err := rows.Scan(&r.Word, &r.DictName, &r.NotebookName, &r.HTML, &r.SavedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
 	}
 	return out, rows.Err()
 }

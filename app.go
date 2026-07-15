@@ -19,14 +19,17 @@ package main
 import (
 	"context"
 	"errors"
+	"os"
 
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/terasum/medict/internal/entry"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/backserver"
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
+	"github.com/terasum/medict/pkg/service/ankiexport"
 	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 )
 
@@ -97,6 +100,7 @@ func (b *App) appInit() error {
 
 // startup is called at application startup
 func (b *App) startup(ctx context.Context) {
+	b.ctx = ctx
 	go b.stopChanListen(ctx)
 	go b.errorChanListen(ctx)
 }
@@ -221,6 +225,52 @@ func (b *App) SetDefaultNotebook(id string) *model.Resp {
 		return model.BuildError(err, model.BadParamErrCode)
 	}
 	return model.BuildSuccess(nil)
+}
+
+// ExportAnki exports the given notebook's saved words (all notebooks if id is
+// empty) to a native Anki .apkg. Each word becomes a card carrying its stored
+// HTML snapshot (images extracted as Anki media); each notebook becomes a deck.
+// Prompts the user for a save path via a native dialog.
+func (b *App) ExportAnki(notebookId string) *model.Resp {
+	rows, err := b.bookmarks.ExportRows(notebookId)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	if len(rows) == 0 {
+		return model.BuildError(errors.New("没有可导出的生词"), model.BadParamErrCode)
+	}
+
+	path, err := runtime.SaveFileDialog(b.ctx, runtime.SaveDialogOptions{
+		Title:           "导出 Anki 包",
+		DefaultFilename: "medict.apkg",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "Anki Package (*.apkg)", Pattern: "*.apkg"},
+		},
+	})
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	if path == "" {
+		return model.BuildSuccess(nil) // user cancelled the dialog
+	}
+
+	src := make([]ankiexport.ExportRow, len(rows))
+	for i, r := range rows {
+		src[i] = ankiexport.ExportRow{
+			Word:         r.Word,
+			DictName:     r.DictName,
+			NotebookName: r.NotebookName,
+			HTML:         r.HTML,
+		}
+	}
+	apkg, err := ankiexport.Build(src)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	if err := os.WriteFile(path, apkg, 0o644); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(path)
 }
 
 func (b *App) ResourceServerAddr() string {

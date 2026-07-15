@@ -22,6 +22,10 @@ export function DeleteNotebook(arg1) {
   return window['go']['main']['App']['DeleteNotebook'](arg1);
 }
 
+export function ExportAnki(arg1) {
+  return window['go']['main']['App']['ExportAnki'](arg1);
+}
+
 export function GetAllDicts() {
   return window['go']['main']['App']['GetAllDicts']();
 }

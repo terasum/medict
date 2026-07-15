@@ -74,3 +74,15 @@ export const deleteNotebook = async (id: string): Promise<void> => {
 export const setDefaultNotebook = async (id: string): Promise<void> => {
     await unwrap<void>(App.SetDefaultNotebook(id));
 };
+
+// exportAnkiToApkg builds a native Anki .apkg from the given notebook (all
+// notebooks if notebookId is empty) and writes it to a user-chosen path.
+// Returns the saved path, or '' if the user cancelled the save dialog.
+// Throws on backend error (code != 200).
+export const exportAnkiToApkg = async (notebookId: string): Promise<string> => {
+    const resp = await App.ExportAnki(notebookId);
+    if (resp.code !== 200) {
+        throw new Error(resp.err || '导出失败');
+    }
+    return (resp.data as string) || '';
+};
