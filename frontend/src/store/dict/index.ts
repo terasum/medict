@@ -39,31 +39,35 @@ export interface HistoryEntry {
   record_block_data_decompress_size: number;
   keyword_data_start_offset: number;
   keyword_data_end_offset: number;
+  // 多词典查询历史条目:multi=true 时用 keyword + multiDicts 重放,offsets 字段忽略。
+  multi?: boolean;
+  multiDicts?: any[];
+}
+
+// MultiResult 是多词典堆叠里的一节:某词典对该词首个匹配的释义 URL(无匹配则 empty)。
+export interface MultiResult {
+  dictId: string;
+  dictName: string;
+  url: string;
+  empty: boolean;
+}
+
+// buildEntryURL 把一个词条匹配(entry,含 keyword 与各 offset)拼成 Gin 的释义查询 URL。
+// 抽出来供单词典(locateWord)与多词典(searchWordMulti)共用,dictId 显式传入。
+function buildEntryURL(baseurl: string, dictId: string, entry: any, entryId: number): string {
+  return `${baseurl}/__tcidem_query?dict_id=${dictId}` +
+    `&keyword=${entry.keyword}&record_start_offset=${entry.record_start_offset}` +
+    `&entry_id=${entryId}` +
+    `&record_end_offset=${entry.record_end_offset}` +
+    `&record_block_data_start_offset=${entry.record_block_data_start_offset}` +
+    `&record_block_data_compress_size=${entry.record_block_data_compress_size}` +
+    `&record_block_data_decompress_size=${entry.record_block_data_decompress_size}` +
+    `&keyword_data_start_offset=${entry.keyword_data_start_offset}` +
+    `&keyword_data_end_offset=${entry.keyword_data_end_offset}`;
 }
 
 function constructQueryURL(entry: HistoryEntry) {
-  let {
-    baseurl,
-    dict_id,
-    keyword,
-    record_start_offset,
-    record_end_offset,
-    entry_id,
-    record_block_data_start_offset,
-    record_block_data_compress_size,
-    record_block_data_decompress_size,
-    keyword_data_start_offset,
-    keyword_data_end_offset
-} = entry;
-  return `${baseurl}/__tcidem_query?dict_id=${dict_id}`+
-    `&keyword=${keyword}&record_start_offset=${record_start_offset}`+
-    `&entry_id=${entry_id}`+
-    `&record_end_offset=${record_end_offset}`+
-    `&record_block_data_start_offset=${record_block_data_start_offset}`+
-    `&record_block_data_compress_size=${record_block_data_compress_size}`+
-    `&record_block_data_decompress_size=${record_block_data_decompress_size}`+
-    `&keyword_data_start_offset=${keyword_data_start_offset}`+
-    `&keyword_data_end_offset=${keyword_data_end_offset}`;
+  return buildEntryURL(entry.baseurl, entry.dict_id, entry, entry.entry_id);
 }
 
 const DefaultContentTemplpate = `
@@ -121,6 +125,11 @@ export const useDictQueryStore = defineStore('dictQuery', {
     inputSearchWord: '',
 
     historyStack: new HistoryStack(),
+
+    // 多词典查询(类 GoldenDict):开关、激活词典集、堆叠结果。
+    multiMode: false,
+    multiSelectedDicts: [] as any[],
+    multiResults: [] as MultiResult[],
   }),
   actions: {
     initDicts() {
@@ -147,6 +156,11 @@ export const useDictQueryStore = defineStore('dictQuery', {
     },
     // 搜索单词
     searchWord(word: string) {
+      // 多词典模式:分发到 searchWordMulti(对激活集每个词典各查一次)。
+      if (this.multiMode) {
+        this.searchWordMulti(word);
+        return;
+      }
       if (this.selectDict.id === '') {
         return;
       }
@@ -216,6 +230,119 @@ export const useDictQueryStore = defineStore('dictQuery', {
       } else {
         this.updateSetCurrentDictAsContent();
       }
+    },
+    // ===================== 多词典查询(类 GoldenDict)=====================
+    // 开/关多词典模式。开启时若激活集为空,用当前 selectDict 播种,并对当前词重跑;
+    // 关闭时清空多结果并切回单词典视图。
+    setMultiMode(on: boolean) {
+      this.multiMode = on;
+      if (on) {
+        if (this.multiSelectedDicts.length === 0 && this.selectDict && this.selectDict.id !== '') {
+          this.multiSelectedDicts = [this.selectDict];
+        }
+        if (this.inputSearchWord && this.inputSearchWord.trim() !== '') {
+          this.searchWordMulti(this.inputSearchWord);
+        }
+      } else {
+        this.multiResults = [];
+        if (this.selectDict && this.selectDict.id !== '' && this.inputSearchWord && this.inputSearchWord.trim() !== '') {
+          this.searchWord(this.inputSearchWord);
+        }
+      }
+    },
+    // 在激活集里增/减一个词典,并对当前词重跑。
+    toggleMultiDict(dictItem: any) {
+      const i = this.multiSelectedDicts.findIndex((d) => d.id === dictItem.id);
+      if (i >= 0) {
+        this.multiSelectedDicts.splice(i, 1);
+      } else {
+        this.multiSelectedDicts.push(dictItem);
+      }
+      if (this.inputSearchWord && this.inputSearchWord.trim() !== '' && this.multiSelectedDicts.length > 0) {
+        this.searchWordMulti(this.inputSearchWord);
+      } else {
+        this.multiResults = [];
+      }
+    },
+    // 多词典搜索:对激活集每个词典并行 SearchWord,各取首个匹配拼成释义 URL;无匹配则 empty。
+    searchWordMulti(word: string) {
+      if (this.multiSelectedDicts.length === 0) {
+        this.multiResults = [];
+        return;
+      }
+      if (!word || word.trim() === '') {
+        return;
+      }
+      const baseurl = this.dictApiBaseURL;
+      const reqId = ++searchWordRequestId;
+      const dicts = [...this.multiSelectedDicts];
+      Promise.all(
+        dicts.map((d) =>
+          SearchWord(d.id, word)
+            .then((res: any) => ({ dict: d, res: res as any[] }))
+            .catch(() => ({ dict: d, res: [] as any[] }))
+        )
+      ).then((settled) => {
+        if (reqId !== searchWordRequestId) {
+          console.info('[store-action]{searchWordMulti} stale response, ignoring', word);
+          return;
+        }
+        const results: MultiResult[] = settled.map(({ dict, res }) => {
+          const list = Array.isArray(res) ? res : [];
+          const name = dict.name || (dict.description && dict.description.title) || dict.id;
+          if (list.length > 0) {
+            return { dictId: dict.id, dictName: name, url: buildEntryURL(baseurl, dict.id, list[0], 0), empty: false };
+          }
+          return { dictId: dict.id, dictName: name, url: '', empty: true };
+        });
+        this.multiResults = results;
+        // 主词典(激活集首项)的完整匹配列表供 sidebar 浏览。
+        const primary = dicts[0];
+        this.queryPendingList = settled.find((s) => s.dict.id === primary.id)?.res || [];
+        this.pushHistoryMulti(word, dicts);
+      }).catch((err) => {
+        if (reqId !== searchWordRequestId) return;
+        console.info('[store-action]{searchWordMulti} failed', err);
+        this.multiResults = [];
+      });
+    },
+    // 多模式:用主词典匹配列表的第 entryIdx 条更新堆叠中主词典那节的释义 URL。
+    locateInMultiPrimary(entryIdx: number) {
+      if (entryIdx < 0 || entryIdx >= this.queryPendingList.length) return;
+      const primary = this.multiSelectedDicts[0];
+      if (!primary) return;
+      const entry = this.queryPendingList[entryIdx];
+      const i = this.multiResults.findIndex((r) => r.dictId === primary.id);
+      if (i >= 0) {
+        this.multiResults[i] = {
+          ...this.multiResults[i],
+          url: buildEntryURL(this.dictApiBaseURL, primary.id, entry, entryIdx),
+          empty: false,
+        };
+      }
+    },
+    // 压一条多词典历史(keyword + 当时的激活集),供后退/前进重放。
+    pushHistoryMulti(keyword: string, dicts: any[]) {
+      if (!keyword || dicts.length === 0) return;
+      if (!this.historyStack.isEmpty() && this.historyStack.peek().keyword === keyword && this.historyStack.peek().multi) {
+        return;
+      }
+      this.historyStack.push({
+        baseurl: this.dictApiBaseURL,
+        dict_id: dicts[0].id,
+        dict: dicts[0],
+        keyword,
+        record_start_offset: 0,
+        record_end_offset: 0,
+        entry_id: 0,
+        record_block_data_start_offset: 0,
+        record_block_data_compress_size: 0,
+        record_block_data_decompress_size: 0,
+        keyword_data_start_offset: 0,
+        keyword_data_end_offset: 0,
+        multi: true,
+        multiDicts: dicts,
+      });
     },
     updateSetCurrentDictAsContent() {
         if (! this.selectDict || this.selectDict.id === '') {
@@ -374,6 +501,13 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
       this.updateInputSearchWord(locateQuerier.keyword)
 
+      // 多词典历史条目:还原激活集并重跑多词典搜索,不走单词典 locate 分支。
+      if (locateQuerier.multi && locateQuerier.multiDicts) {
+        this.multiSelectedDicts = locateQuerier.multiDicts;
+        this.searchWordMulti(locateQuerier.keyword);
+        return;
+      }
+
       if (this.selectDict.id != locateQuerier.dict_id) {
         this.selectDict = locateQuerier.dict;
       }
@@ -394,6 +528,13 @@ export const useDictQueryStore = defineStore('dictQuery', {
       }
 
       this.updateInputSearchWord(locateQuerier.keyword)
+
+      // 多词典历史条目:还原激活集并重跑多词典搜索,不走单词典 locate 分支。
+      if (locateQuerier.multi && locateQuerier.multiDicts) {
+        this.multiSelectedDicts = locateQuerier.multiDicts;
+        this.searchWordMulti(locateQuerier.keyword);
+        return;
+      }
 
       if (this.selectDict.id != locateQuerier.dict_id) {
         this.selectDict = locateQuerier.dict;

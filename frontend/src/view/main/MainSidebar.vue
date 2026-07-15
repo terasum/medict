@@ -73,9 +73,18 @@ import { ref, onMounted, onUnmounted } from 'vue';
 const dictQueryStore = useDictQueryStore();
 const selected_id = ref('0');
 
+// 按 entry 定位:多词典模式更新主词典那节,单词典模式走 locateWord。
+function locateEntry(entry_id) {
+  if (dictQueryStore.multiMode) {
+    dictQueryStore.locateInMultiPrimary(entry_id);
+  } else {
+    dictQueryStore.locateWord(entry_id);
+  }
+}
+
 function selectItem(entry_id) {
   selected_id.value = entry_id;
-  dictQueryStore.locateWord(entry_id);
+  locateEntry(entry_id);
 }
 
 // 焦点守卫：当用户正在输入框 / 文本域 / contenteditable 中输入时，不劫持方向键
@@ -105,14 +114,14 @@ function onKeyDown(e) {
     } else {
       selected_id.value = parseInt(selected_id.value) - 1;
     }
-    dictQueryStore.locateWord(selected_id.value);
+    locateEntry(selected_id.value);
   } else if (e.key == 'ArrowDown') {
     if (selected_id.value == len - 1) {
       selected_id.value = '0';
     } else {
       selected_id.value = parseInt(selected_id.value) + 1;
     }
-    dictQueryStore.locateWord(selected_id.value);
+    locateEntry(selected_id.value);
   }
 }
 
