@@ -19,6 +19,15 @@
                 <n-icon :component="Search" />
               </template>
             </n-input>
+            <n-button
+              size="small"
+              :loading="exporting"
+              :disabled="store.currentBookmarks.length === 0"
+              @click="onExportAnki"
+            >
+              <template #icon><n-icon><Download /></n-icon></template>
+              导出 Anki
+            </n-button>
           </div>
           <div class="bm-list" v-if="filtered.length > 0">
             <div
@@ -47,14 +56,14 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { NInput, NButton, NIcon } from 'naive-ui';
-import { Search, Times } from '@vicons/fa';
+import { NInput, NButton, NIcon, useMessage } from 'naive-ui';
+import { Search, Times, Download } from '@vicons/fa';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import NotebookSidebar from '@/components/bookmarks/NotebookSidebar.vue';
 import { useBookmarkStore } from '@/store/bookmark';
 import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
-import { getBookmarkSnapshot, type Bookmark } from '@/apis/bookmark-api';
+import { getBookmarkSnapshot, exportAnkiToApkg, type Bookmark } from '@/apis/bookmark-api';
 
 const router = useRouter();
 const store = useBookmarkStore();
@@ -63,6 +72,8 @@ const uiStore = useUIStore();
 uiStore.updateCurrentTab('bookmarks');
 
 const filter = ref('');
+const message = useMessage();
+const exporting = ref(false);
 
 const filtered = computed(() => {
   const list = store.currentBookmarks;
@@ -85,6 +96,20 @@ function formatTime(ts: number): string {
 
 async function removeItem(item: Bookmark) {
   await store.removeBookmark(item.word, item.dict_id, item.notebook_id);
+}
+
+async function onExportAnki() {
+  exporting.value = true;
+  try {
+    const path = await exportAnkiToApkg(store.selectedNotebookId);
+    if (path) {
+      message.success(`已导出：${path}`);
+    } // 用户取消保存对话框时不提示
+  } catch (e) {
+    message.error((e as Error)?.message || '导出失败');
+  } finally {
+    exporting.value = false;
+  }
 }
 
 async function lookupWord(item: Bookmark) {
