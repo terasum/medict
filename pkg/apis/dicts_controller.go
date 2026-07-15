@@ -129,6 +129,54 @@ func (dc *DictsController) HandleWordQueryReq(c *gin.Context) {
 	return
 }
 
+// RenderSnapshot renders a self-contained HTML snapshot of a word's definition
+// for offline bookmarking: it re-runs the word-query pipeline (Search → Locate →
+// @@@LINK resolve → WrapContent) and inlines every resource (CSS/images/fonts)
+// as data: URLs so the snapshot still renders after the source dictionary is
+// unloaded. The first Search match is snapshotted; "" if no match. On error the
+// caller should fall back to bookmarking without a snapshot.
+func (dc *DictsController) RenderSnapshot(dictId, word string) (string, error) {
+	if dictId == "" || word == "" {
+		return "", fmt.Errorf("snapshot: dictId and word required")
+	}
+	result, err := dc.svc.Search(dictId, word)
+	if err != nil {
+		return "", fmt.Errorf("snapshot search %q: %w", word, err)
+	}
+	if len(result) == 0 {
+		return "", nil
+	}
+	entry := result[0]
+	def, err := dc.svc.Locate(dictId, entry)
+	if err != nil {
+		return "", fmt.Errorf("snapshot locate %q: %w", word, err)
+	}
+	def = dc.resolveLinkRedirects(dictId, strings.TrimSpace(def), 0, map[string]bool{})
+
+	dict, ok := dc.svc.GetDictPlain(dictId)
+	if !ok {
+		return "", fmt.Errorf("snapshot: dict %s not found", dictId)
+	}
+	htmlContent, err := handler.WrapContent(dict, entry.MdictKeyWordIndex, def)
+	if err != nil {
+		return "", fmt.Errorf("snapshot wrap %q: %w", word, err)
+	}
+
+	inlined := handler.InlineResources(htmlContent, func(key string) ([]byte, bool) {
+		// mirror innerResourceQuery: dict folder first, then key variants
+		if raw, ferr := dc.svc.FindFromDir(dictId, key); ferr == nil {
+			return raw, true
+		}
+		for _, cand := range resourceKeyCandidates(key) {
+			if raw, ferr := dc.svc.LookupResource(dictId, cand); ferr == nil {
+				return raw, true
+			}
+		}
+		return nil, false
+	})
+	return string(inlined), nil
+}
+
 func (dc *DictsController) HandleResourceQueryReq(c *gin.Context) {
 	dictId := c.Query("dict_id")
 	rawKeys := strings.SplitN(c.Request.RequestURI, "?", 2)

@@ -8,16 +8,28 @@ export function BaseDictDir():Promise<string>;
 
 export function BuildIndexByDictId(arg1:string):Promise<model.Resp>;
 
+export function CreateNotebook(arg1:string):Promise<model.Resp>;
+
+export function DeleteNotebook(arg1:string):Promise<model.Resp>;
+
 export function GetAllDicts():Promise<model.Resp>;
 
+export function GetBookmarkSnapshot(arg1:string,arg2:string,arg3:string):Promise<model.Resp>;
+
 export function GetBookmarks():Promise<model.Resp>;
+
+export function GetNotebooks():Promise<model.Resp>;
 
 export function InitDicts():Promise<model.Resp>;
 
 export function OpenFinder(arg1:string):Promise<void>;
 
-export function RemoveBookmark(arg1:string,arg2:string):Promise<model.Resp>;
+export function RemoveBookmark(arg1:string,arg2:string,arg3:string):Promise<model.Resp>;
+
+export function RenameNotebook(arg1:string,arg2:string):Promise<model.Resp>;
 
 export function ResourceServerAddr():Promise<string>;
 
 export function SearchWord(arg1:string,arg2:string):Promise<model.Resp>;
+
+export function SetDefaultNotebook(arg1:string):Promise<model.Resp>;

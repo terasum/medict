@@ -114,7 +114,7 @@ Medict version 3 is under developing, will refactor by wails framework, waiting 
   - [ ] 存在部分词典适配问题
 - [x] mdd/mdx 词典选择配置
   - [x] mdd 可选配置
-- [ ] 查词历史导航(</>)
+- [x] 查词历史导航(</>)
 - [ ] 功能 tab 页跳转
 - [ ] 多词典同时查询
 - [ ] 全文检索^1
@@ -122,7 +122,7 @@ Medict version 3 is under developing, will refactor by wails framework, waiting 
 - [ ] 插件功能
   - [ ] 词典扩展功能栏
   - [ ] 词频展示插件
-  - [ ] 生词本记录插件
+  - [x] 生词本记录插件
   - [ ] 导出anki卡片插件
 
 **Medict is made by terasum and xing with ❤️**

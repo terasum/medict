@@ -20,9 +20,7 @@
   <div class="x-space">
     <div class="x-layout">
      <div class="x-layout-header">
-            <AppHeader>
-            <MainFunctions />
-            </AppHeader>
+            <AppHeader />
       </div>
       <div class="x-layout-main-area">
         <div class="x-layout-sidebar">
@@ -52,7 +50,6 @@ import MainSidebar from './MainSidebar.vue';
 import MainRightToolbar from './MainRightToolbar.vue';
 import MainFooter from './MainFooter.vue';
 import MainContentFrame from './MainContentFrame.vue';
-import MainFunctions from './MainFunctions.vue';
 
 import { useUIStore } from '@/store/ui';
 
