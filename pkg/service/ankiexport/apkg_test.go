@@ -201,6 +201,21 @@ func TestBuild_endToEnd(t *testing.T) {
 	if err := col.QueryRow(`SELECT models, decks FROM col`).Scan(&modelsJSON, &decksJSON); err != nil {
 		t.Fatal(err)
 	}
+	// Anki-compat guards: ver must be 11 (older schema so Anki upgrades
+	// col.models JSON → notetypes table on open) and tags must be "{}" (the
+	// backend parses col.tags as JSON; an empty string throws EOF). These two
+	// are the exact bugs found by the AnkiPackageImporter validation.
+	var colVer int
+	var colTags string
+	if err := col.QueryRow(`SELECT ver, tags FROM col`).Scan(&colVer, &colTags); err != nil {
+		t.Fatal(err)
+	}
+	if colVer != 11 {
+		t.Fatalf("col.ver=%d want 11", colVer)
+	}
+	if colTags != "{}" {
+		t.Fatalf("col.tags=%q want {}", colTags)
+	}
 	if !strings.Contains(modelsJSON, "Medict Word") {
 		t.Fatalf("models JSON missing Medict Word: %s", modelsJSON)
 	}
