@@ -20,6 +20,7 @@ import { defineStore } from 'pinia';
 
 import { InitDicts, GetAllDicts, SearchWord } from '@/apis/dicts-api';
 import { StaticDictServerURL } from '@/apis/apis';
+import { getPreferences, savePreferences } from '@/apis/config';
 
 /**
  * 历史栈条目类型。统一字段命名为 `keyword`，避免历史上 `keyword` / `key_word`
@@ -249,6 +250,7 @@ export const useDictQueryStore = defineStore('dictQuery', {
           this.searchWord(this.inputSearchWord);
         }
       }
+      this._persistMulti();
     },
     // 在激活集里增/减一个词典,并对当前词重跑。
     toggleMultiDict(dictItem: any) {
@@ -262,6 +264,29 @@ export const useDictQueryStore = defineStore('dictQuery', {
         this.searchWordMulti(this.inputSearchWord);
       } else {
         this.multiResults = [];
+      }
+      this._persistMulti();
+    },
+    // 把当前多词典开关 + 激活集持久化到 medict.toml(fire-and-forget,失败仅告警)。
+    _persistMulti() {
+      savePreferences({
+        multimode: this.multiMode,
+        multidictids: this.multiSelectedDicts.map((d) => d.id),
+      }).catch((e: any) => console.warn('[multi-dict] persist failed', e));
+    },
+    // 启动时按已保存的偏好恢复多词典开关与激活集(用全量词典列表把 id 还原成对象)。
+    async restoreMultiSelection(allDicts: any[]) {
+      try {
+        const prefs = await getPreferences();
+        const ids = Array.isArray(prefs.multidictids) ? prefs.multidictids.map(String) : [];
+        const idset = new Set(ids);
+        this.multiSelectedDicts = allDicts.filter((d) => idset.has(String(d.id)));
+        // 仅在曾经开过多词典、且激活集非空时恢复开关,避免首次用户被强制进入多模式
+        if (prefs.multimode === true && this.multiSelectedDicts.length > 0) {
+          this.multiMode = true;
+        }
+      } catch (e) {
+        console.warn('[multi-dict] restore selection failed', e);
       }
     },
     // 多词典搜索:对激活集每个词典并行 SearchWord,各取首个匹配拼成释义 URL;无匹配则 empty。

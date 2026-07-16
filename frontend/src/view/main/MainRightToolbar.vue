@@ -219,6 +219,8 @@ function loadDictionaries() {
       state.dictList.push(res[i]);
       promiseArray.push(buildIndexPromise(i, res[i].id, res[i].name))
     }
+    // 词典列表就绪后,按已保存偏好恢复多词典开关与激活集
+    dictQueryStore.restoreMultiSelection(state.dictList);
     sequenceHandle(promiseArray);
   });
 }
