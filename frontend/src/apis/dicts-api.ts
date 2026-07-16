@@ -42,3 +42,14 @@ export const SearchWord = async function (dictid: string, word: string): Promise
     const resp = await App.SearchWord(dictid, word);
     return resp.data as model.Resp;
 }
+
+// exportCurrentEntry 把当前词条渲染为自包含 HTML(资源内联)并保存到用户选择的
+// 路径,便于调试复杂词条(#784)。返回保存路径;用户取消对话框返回 '';
+// 后端错误(code != 200)抛错,由调用方 message 提示。
+export const exportCurrentEntry = async function (dictid: string, word: string): Promise<string> {
+    const resp = await App.ExportCurrentEntry(dictid, word);
+    if (resp.code !== 200) {
+        throw new Error(resp.err || '导出失败');
+    }
+    return (resp.data as string) || '';
+}

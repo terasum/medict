@@ -26,6 +26,10 @@ export function ExportAnki(arg1) {
   return window['go']['main']['App']['ExportAnki'](arg1);
 }
 
+export function ExportCurrentEntry(arg1, arg2) {
+  return window['go']['main']['App']['ExportCurrentEntry'](arg1, arg2);
+}
+
 export function GetAllDicts() {
   return window['go']['main']['App']['GetAllDicts']();
 }

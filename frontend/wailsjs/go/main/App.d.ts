@@ -14,6 +14,8 @@ export function DeleteNotebook(arg1:string):Promise<model.Resp>;
 
 export function ExportAnki(arg1:string):Promise<model.Resp>;
 
+export function ExportCurrentEntry(arg1:string,arg2:string):Promise<model.Resp>;
+
 export function GetAllDicts():Promise<model.Resp>;
 
 export function GetBookmarkSnapshot(arg1:string,arg2:string,arg3:string):Promise<model.Resp>;
