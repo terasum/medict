@@ -4,6 +4,40 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.7
+
+Multi-dict query, Anki export, hover-popup lookup, and a bookmarks v2 overhaul.
+
+### Added
+- **Multi-dict simultaneous query** (#776, #778): a 「多」toggle in the dict
+  toolbar turns the dict icons into multi-select; searching then queries every
+  selected dictionary and stacks the definitions vertically (GoldenDict-style).
+  The active set is persisted across restarts via the settings write-back (#777).
+- **Export bookmarks to Anki** (#774, #775): the 生词本 page can export its words
+  to a native `.apkg` — each notebook becomes an Anki deck, and each card carries
+  the saved HTML snapshot with images extracted as Anki media (validated against
+  Anki's own importer).
+- **Hover-popup word lookup** (#780): hovering a word in a definition for ~0.4s
+  pops up its full definition near the cursor (macOS Dictionary / GoldenDict
+  style). Double-click lookup (#258) and `entry://` jumps are unchanged. Toggle
+  via the `hoverpopup` preference.
+- **Export current entry as HTML** (#784): a toolbar button saves the currently
+  displayed entry as a self-contained HTML file (resources inlined) for debugging
+  complex entries.
+- **Settings write-back** (#777): user preferences now persist to `medict.toml`
+  (the foundation used by multi-dict selection and the hover-popup toggle).
+
+### Changed
+- **Bookmarks v2** (#772): the 生词本 store migrated to a pure-Go SQLite store
+  with notebooks (create / rename / delete / set-default) and **offline HTML
+  snapshots** — saved words stay viewable even after the source dictionary is
+  unloaded.
+
+### Fixed
+- **Dictionary display name** (#782, #788): the dict list now shows the real
+  dictionary title (mdx header `Title` / stardict `bookname`) instead of the
+  file name — including at first load, before the index is built.
+
 ## v3.1.6
 
 Header UI redesign + bookmarks nav-rail fix.
