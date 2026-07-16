@@ -54,8 +54,8 @@ export interface MultiResult {
 }
 
 // buildEntryURL 把一个词条匹配(entry,含 keyword 与各 offset)拼成 Gin 的释义查询 URL。
-// 抽出来供单词典(locateWord)与多词典(searchWordMulti)共用,dictId 显式传入。
-function buildEntryURL(baseurl: string, dictId: string, entry: any, entryId: number): string {
+// 抽出来供单词典(locateWord)、多词典(searchWordMulti)与悬停弹窗共用,dictId 显式传入。
+export function buildEntryURL(baseurl: string, dictId: string, entry: any, entryId: number): string {
   return `${baseurl}/__tcidem_query?dict_id=${dictId}` +
     `&keyword=${entry.keyword}&record_start_offset=${entry.record_start_offset}` +
     `&entry_id=${entryId}` +
