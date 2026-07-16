@@ -279,22 +279,23 @@ func (mh *mdictHolder) ensureBkTree() error {
 	return nil
 }
 
+// Title returns the dictionary title. It prefers the leveldb meta (written
+// during BuildIndex) but falls back to the mdx header — which is parsed at load
+// (readDictHeader) — so the real title is available BEFORE indexing. Without
+// this fallback the dict list shows the filename, because GetMeta("Title") is
+// empty until BuildIndex runs (#782).
 func (mh *mdictHolder) Title() string {
-	value, err := mh.idxer.GetMeta("Title")
-	if err == nil {
-		return value
+	if v, err := mh.idxer.GetMeta("Title"); err == nil && v != "" {
+		return v
 	}
-	return ""
-
+	return mh.rawdict.Title()
 }
 
 func (mh *mdictHolder) Description() string {
-	value, err := mh.idxer.GetMeta("Description")
-	if err == nil {
-		return value
+	if v, err := mh.idxer.GetMeta("Description"); err == nil && v != "" {
+		return v
 	}
-	return ""
-
+	return mh.rawdict.Description()
 }
 
 func (mh *mdictHolder) CreationDate() string {
