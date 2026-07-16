@@ -303,6 +303,41 @@ func (b *App) ExportAnki(notebookId string) *model.Resp {
 	return model.BuildSuccess(path)
 }
 
+// ExportCurrentEntry renders the current word's definition as a self-contained
+// HTML (all resources inlined as data: URLs) and writes it to a user-chosen
+// file — for debugging complex entries (#784). Reuses RenderSnapshot (the same
+// Search→Locate→@@LINK→WrapContent→InlineResources path used by bookmark
+// snapshots). "" html means no match.
+func (b *App) ExportCurrentEntry(dictId, word string) *model.Resp {
+	if dictId == "" || word == "" {
+		return model.BuildError(errors.New("dictId 和 word 不能为空"), model.BadParamErrCode)
+	}
+	html, err := b.bs.Controller.RenderSnapshot(dictId, word)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	if html == "" {
+		return model.BuildError(errors.New("未找到该词条"), model.BadParamErrCode)
+	}
+	path, err := runtime.SaveFileDialog(b.ctx, runtime.SaveDialogOptions{
+		Title:           "导出词条 HTML",
+		DefaultFilename: word + ".html",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "HTML (*.html)", Pattern: "*.html"},
+		},
+	})
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	if path == "" {
+		return model.BuildSuccess(nil) // user cancelled the dialog
+	}
+	if err := os.WriteFile(path, []byte(html), 0o644); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(path)
+}
+
 func (b *App) ResourceServerAddr() string {
 	return b.bs.StaticServerBaseUrl()
 }

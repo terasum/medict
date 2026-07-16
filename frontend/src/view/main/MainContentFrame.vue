@@ -79,7 +79,7 @@
          <MainDictsToolbar/>
       </div>
       <div class="toolbar-boxes">
-      <span class="app-content-main-toolbar-box" @click="todo"
+      <span class="app-content-main-toolbar-box" title="导出当前词条 HTML(调试)" @click="onExportEntry"
         ><NIcon><Bug16Regular /></NIcon
       ></span>
       <span class="app-content-main-toolbar-box" @click="todo"
@@ -127,6 +127,7 @@ import { useDictQueryStore } from '@/store/dict';
 import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
 import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
+import { exportCurrentEntry } from '@/apis/dicts-api';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
 import MainDictSection from "./MainDictSection.vue";
@@ -212,6 +213,25 @@ function onInnerFrameMessage(e: MessageEvent) {
       }
       break;
     }
+  }
+}
+
+// 导出当前词条为自包含 HTML(资源内联)到本地文件,用于调试复杂词条(#784)。
+// 用当前选中词典 + 输入词;多词典模式下导出主词典的释义。
+async function onExportEntry() {
+  const dict = dictQueryStore.selectDict;
+  const word = dictQueryStore.inputSearchWord;
+  if (!dict?.id || !word?.trim()) {
+    message.warning('请先查一个词');
+    return;
+  }
+  try {
+    const path = await exportCurrentEntry(dict.id, word.trim());
+    if (path) {
+      message.success(`已导出：${path}`);
+    } // 用户取消保存对话框时不提示
+  } catch (e) {
+    message.error((e as Error)?.message || '导出失败');
   }
 }
 
