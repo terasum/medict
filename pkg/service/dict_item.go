@@ -24,6 +24,7 @@ import (
 	"github.com/terasum/medict/pkg/service/mdict"
 	"github.com/terasum/medict/pkg/service/stardict"
 	"os"
+	"strings"
 )
 
 func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
@@ -78,6 +79,14 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 	}
 
 	dictItem.Description = dictItem.Dict.Description()
+
+	// 优先用词典自带的 Title(mdx header 的 Title / stardict bookname)作显示名,
+	// 空则保持上面的文件名/目录名回退(dict.Name())。此前显示名一律取文件名。(#782)
+	if dictItem.Description != nil {
+		if t := strings.TrimSpace(dictItem.Description.Title); t != "" {
+			dictItem.Name = t
+		}
+	}
 
 	return dictItem, nil
 
