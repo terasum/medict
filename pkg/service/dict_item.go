@@ -21,6 +21,7 @@ import (
 	"errors"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service/ecdict"
 	"github.com/terasum/medict/pkg/service/mdict"
 	"github.com/terasum/medict/pkg/service/stardict"
 	"os"
@@ -74,6 +75,13 @@ func NewByDirItem(dirItem *model.DirItem) (*model.DictionaryItem, error) {
 		}
 		dictItem.Name = dict.Name()
 		dictItem.Dict = dict
+	} else if dirItem.DictType == model.DictTypeECDICT {
+		dict, err := ecdict.NewECDict(dirItem)
+		if err != nil {
+			return nil, err
+		}
+		dictItem.Dict = dict
+		dictItem.Name = dict.Name()
 	} else {
 		return nil, errors.New("not recognized dictionary type")
 	}

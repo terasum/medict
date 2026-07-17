@@ -5,6 +5,7 @@ type ImgType string
 
 const DictTypeMdict DictType = "Mdict"
 const DictTypeStarDict DictType = "StarDict"
+const DictTypeECDICT DictType = "ECDICT"
 const ImgTypeJPG ImgType = "jpg"
 const ImgTypePNG ImgType = "png"
 
