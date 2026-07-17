@@ -20,6 +20,9 @@ var PresetMdictCSSFile []byte
 //go:embed preset/cc-cedict/cover.png
 var PresetMdictCoverImg []byte
 
+//go:embed preset/ecdict/ecdict.db
+var PresetECDictDB []byte
+
 func WritePresetDictionary(baseDictDir string) error {
 	fullpath := filepath.Join(baseDictDir, "cc-cedict")
 	if !utils.FileExists(fullpath) {
@@ -56,6 +59,17 @@ func WritePresetDictionary(baseDictDir string) error {
 	if !utils.FileExists(coverfilePath) {
 		err := os.WriteFile(coverfilePath, PresetMdictCoverImg, 0644)
 		if err != nil {
+			return err
+		}
+	}
+
+	// ECDICT 离线英汉(默认英汉词典):首次解包 ecdict.db 到 BaseDictDir/ecdict/
+	ecdictDir := filepath.Join(baseDictDir, "ecdict")
+	if !utils.FileExists(filepath.Join(ecdictDir, "ecdict.db")) {
+		if err := os.MkdirAll(ecdictDir, 0755); err != nil {
+			return err
+		}
+		if err := os.WriteFile(filepath.Join(ecdictDir, "ecdict.db"), PresetECDictDB, 0644); err != nil {
 			return err
 		}
 	}
