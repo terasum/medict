@@ -29,6 +29,7 @@ import (
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
+	"github.com/terasum/medict/pkg/service/onlinedict"
 	"github.com/terasum/medict/pkg/service/support"
 )
 
@@ -71,7 +72,30 @@ func (ds *DictService) Close() error {
 
 // InitDicts initialize the dictionaries
 func (ds *DictService) InitDicts() error {
-	return ds.walkDicts()
+	if err := ds.walkDicts(); err != nil {
+		return err
+	}
+	ds.registerVirtualDicts()
+	return nil
+}
+
+// registerVirtualDicts adds non-file (online) dictionaries to the dict map, so
+// they appear in the dict list like file dicts. Currently: Bing (free, no key).
+func (ds *DictService) registerVirtualDicts() {
+	bing := onlinedict.NewBing()
+	item := &model.DictionaryItem{
+		PlainDictionaryItem: &model.PlainDictionaryItem{
+			ID:          "online-bing",
+			Name:        bing.Name(),
+			DictType:    string(model.DictTypeOnline),
+			Description: bing.Description(),
+		},
+		Dict: bing,
+		// PathInfo 留 nil:在线词典无目录。
+	}
+	ds.dictLock.Lock()
+	ds.dicts[item.ID] = item
+	ds.dictLock.Unlock()
 }
 
 func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
@@ -79,6 +103,9 @@ func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {
 	defer ds.dictLock.Unlock()
 
 	if dict, ok := ds.dicts[dictId]; ok {
+		if dict.PathInfo == nil {
+			return nil, errors.New("virtual dict has no directory")
+		}
 		key = strings.ReplaceAll(key, "\\", string(os.PathSeparator))
 		key = strings.TrimLeft(key, string("."))
 		key = strings.TrimLeft(key, string(os.PathSeparator))
