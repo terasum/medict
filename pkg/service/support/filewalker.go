@@ -170,6 +170,12 @@ func innerWalkLevel2(level1Path, level2Path string) (*model.DirItem, error) {
 			item.StarDictIdxAbsPath, _ = filepath.Abs(path)
 		}
 
+		// ecdict:离线英汉 preset(目录里有 ecdict.db 即识别)
+		if info.Name() == "ecdict.db" {
+			item.DictType = model.DictTypeECDICT
+			item.IsValid = true
+		}
+
 		return nil
 	})
 	return item, err1
