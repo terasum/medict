@@ -96,40 +96,39 @@ func innerWalkLevel2(level1Path, level2Path string) (*model.DirItem, error) {
 		IsValid:         false,
 	}
 
-	err1 := filepath.Walk(level2Path, func(path string, info fs.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("level2 inner walk dir failed, path %s, %s", path, err)
+	// 只看 DIRECT 子文件(不递归进子目录):一个目录直接含词典文件才算一个词典;
+	// 分类/分组目录(词典在更深层)由 WalkDir 在更深层各自评估,避免嵌套时重复发现
+	// 同一个词典、或把分类目录误当词典。(#257)
+	entries, err1 := os.ReadDir(level2Path)
+	if err1 != nil {
+		return item, err1
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
 		}
-
-		// skip directory
-		if info.IsDir() {
-			return nil
-		}
-
-		// verify multiple directory types, such as
-		// order0: medict.type file
-		// order1: medict type
-		// order2: stardict type
+		name := e.Name()
+		path := filepath.Join(level2Path, name)
 
 		// predefined file type
-		if info.Name() == "cover.jpg" {
+		if name == "cover.jpg" {
 			item.CoverImgPath = utils.FileAbs(path)
 			item.CoverImgType = model.ImgTypeJPG
-		} else if info.Name() == "cover.png" {
+		} else if name == "cover.png" {
 			item.CoverImgPath = utils.FileAbs(path)
 			item.CoverImgType = model.ImgTypePNG
-		} else if info.Name() == "mdict.toml" {
+		} else if name == "mdict.toml" {
 			item.DictType = model.DictTypeMdict
 			item.ConfigPath = utils.FileAbs(path)
-		} else if info.Name() == "stardict.toml" {
+		} else if name == "stardict.toml" {
 			item.DictType = model.DictTypeStarDict
 			item.ConfigPath = utils.FileAbs(path)
-		} else if info.Name() == "dict.license" {
+		} else if name == "dict.license" {
 			item.LicensePath = utils.FileAbs(path)
 		}
 
 		// if mdx
-		if filepath.Ext(info.Name()) == ".mdx" {
+		if filepath.Ext(name) == ".mdx" {
 			item.MdictMdxAbsPath, _ = filepath.Abs(path)
 			item.MdictMdxFileName = utils.FileNameWithoutExt(path)
 			baseDir := utils.FileBaseDir(path)
@@ -149,34 +148,32 @@ func innerWalkLevel2(level1Path, level2Path string) (*model.DirItem, error) {
 			}
 			item.DictType = model.DictTypeMdict
 			item.IsValid = true
-		} else if filepath.Ext(info.Name()) == ".mdd" {
+		} else if filepath.Ext(name) == ".mdd" {
 			// MDD append
 			mddAbs, _ := filepath.Abs(path)
 			item.MdictMddAbsPath = append(item.MdictMddAbsPath, mddAbs)
 		}
 
 		// if stardict
-		if filepath.Ext(info.Name()) == ".dz" {
+		if filepath.Ext(name) == ".dz" {
 			item.StarDictDzAbsPath, _ = filepath.Abs(path)
 			item.DictType = model.DictTypeStarDict
 			item.IsValid = true
-		} else if filepath.Ext(info.Name()) == ".dict" {
+		} else if filepath.Ext(name) == ".dict" {
 			item.StarDictAbsPath, _ = filepath.Abs(path)
 			item.DictType = model.DictTypeStarDict
 			item.IsValid = true
-		} else if filepath.Ext(info.Name()) == ".ifo" {
+		} else if filepath.Ext(name) == ".ifo" {
 			item.StarDictIfoAbsPath, _ = filepath.Abs(path)
-		} else if filepath.Ext(info.Name()) == ".idx" {
+		} else if filepath.Ext(name) == ".idx" {
 			item.StarDictIdxAbsPath, _ = filepath.Abs(path)
 		}
 
 		// ecdict:离线英汉 preset(目录里有 ecdict.db 即识别)
-		if info.Name() == "ecdict.db" {
+		if name == "ecdict.db" {
 			item.DictType = model.DictTypeECDICT
 			item.IsValid = true
 		}
-
-		return nil
-	})
-	return item, err1
+	}
+	return item, nil
 }
