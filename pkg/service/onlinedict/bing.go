@@ -35,8 +35,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/op/go-logging"
 	"github.com/terasum/medict/pkg/model"
 )
+
+var onlineLog = logging.MustGetLogger("service.onlinedict")
 
 // bingSearchURL is the desktop-client endpoint (ClientVer = Bing Dict TV client).
 const bingSearchURL = "https://cn.bing.com/dict/clientsearch?mkt=zh-CN&setLang=zh&form=BDVEHC&ClientVer=BDDTV3.5.1.4320&q="
@@ -97,10 +100,22 @@ func (b *Bing) Lookup(keyword string) ([]byte, error) {
 	}
 	page, err := b.fetch(keyword)
 	if err != nil {
-		return nil, err
+		// Definitions are loaded in an iframe. Propagating a transient provider
+		// failure makes the embedded Gin handler return HTTP 500 and leaves the
+		// whole dictionary section unusable. Keep the failure observable while
+		// rendering a safe, provider-local fallback instead.
+		onlineLog.Warningf("Bing lookup failed for %q: %v", keyword, err)
+		return []byte(renderBingUnavailable(keyword)), nil
 	}
 	card := parseBing(keyword, page)
 	return []byte(card), nil
+}
+
+func renderBingUnavailable(word string) string {
+	return fmt.Sprintf(`<style>
+.bi-unavailable{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:#6b7280;padding:16px 12px;line-height:1.6;}
+.bi-unavailable-word{color:#374151;font-weight:600;}
+</style><div class="bi-unavailable" role="status"><span class="bi-unavailable-word">%s</span>：在线词典暂时不可用，请稍后重试。</div>`, html.EscapeString(word))
 }
 
 // Locate serves the word carried by the entry.

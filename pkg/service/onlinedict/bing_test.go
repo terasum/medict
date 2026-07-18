@@ -6,9 +6,17 @@
 package onlinedict
 
 import (
+	"io"
+	"net/http"
 	"strings"
 	"testing"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (fn roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return fn(req)
+}
 
 // fixtureBing is a trimmed, realistic cn.bing.com/dict/clientsearch page for
 // "hello" (structure verified against the live endpoint 2026-07).
@@ -62,5 +70,27 @@ func TestBing_SearchSingle(t *testing.T) {
 	}
 	if res, _ := b.Search(""); len(res) != 0 {
 		t.Fatalf("Search('') should be empty")
+	}
+}
+
+func TestBingLookupUpstreamFailure(t *testing.T) {
+	b := &Bing{client: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       io.NopCloser(strings.NewReader("temporarily unavailable")),
+			Header:     make(http.Header),
+		}, nil
+	})}}
+
+	got, err := b.Lookup("㧯")
+	if err != nil {
+		t.Fatalf("Lookup should degrade an upstream failure instead of causing an iframe HTTP 500: %v", err)
+	}
+	if !strings.Contains(string(got), "在线词典暂时不可用") {
+		t.Fatalf("fallback should explain the temporary failure, got %q", got)
+	}
+	unsafe := renderBingUnavailable(`<script>alert("x")</script>`)
+	if strings.Contains(unsafe, "<script>") || !strings.Contains(unsafe, "&lt;script&gt;") {
+		t.Fatalf("fallback should escape the queried word, got %q", unsafe)
 	}
 }
