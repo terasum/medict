@@ -121,7 +121,6 @@ let currentMenu = ref(0);
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
 @import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
 
 
 .x-space {

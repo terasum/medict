@@ -103,7 +103,6 @@ onMounted(()=>{
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
 
 .setting-main-container {
   height: 100%;

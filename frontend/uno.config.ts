@@ -40,6 +40,18 @@ export default defineConfig({
     // hoverable list row (生词 / 词典列表条目)
     'list-row':
       'flex items-center gap-3 px-3 py-2 rounded cursor-pointer hover:bg-gray-100',
+    // ---- photon-equivalent classes (legacy GitHub photon framework retired in
+    // PR4; templates still use these names, so they resolve to UnoCSS utilities
+    // + token colors instead of the deleted photon SCSS). Best-effort matches.
+    'container': 'mx-auto px-4',
+    'btn': 'inline-block px-4 py-2.5 text-sm text-center rounded border border-gray-300 bg-white hover:bg-gray-100 cursor-pointer select-none',
+    'nav': 'relative block py-5 px-4',
+    'toolbar': 'min-h-[22px] flex items-center bg-gray-100 border-b border-gray-200',
+    'window': 'absolute inset-0 flex',
+    'pane': 'relative overflow-y-auto flex-1 border-l border-gray-200',
+    'content': 'block',
+    'header': 'block',
+    'footer': '-mt-px border-t border-gray-300',
   },
   preflights: [
     {

@@ -176,7 +176,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
 
 .x-space {
   width: 100%;
