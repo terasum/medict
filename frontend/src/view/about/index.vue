@@ -18,6 +18,7 @@
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
+@import '@/style/photon/photon.scss';
 
 
 .about-view {

@@ -1,5 +1,6 @@
 <style lang="scss">
 @import '@/style/variables.scss';
+@import '@/style/photon/photon.scss';
 
 .app-content-functions {
   height: $layout-header-height;

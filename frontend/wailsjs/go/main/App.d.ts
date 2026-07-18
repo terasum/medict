@@ -22,6 +22,8 @@ export function GetBookmarkSnapshot(arg1:string,arg2:string,arg3:string):Promise
 
 export function GetBookmarks():Promise<model.Resp>;
 
+export function GetDictUserCSS(arg1:string):Promise<model.Resp>;
+
 export function GetNotebooks():Promise<model.Resp>;
 
 export function GetPreferences():Promise<model.Resp>;
@@ -35,6 +37,8 @@ export function RemoveBookmark(arg1:string,arg2:string,arg3:string):Promise<mode
 export function RenameNotebook(arg1:string,arg2:string):Promise<model.Resp>;
 
 export function ResourceServerAddr():Promise<string>;
+
+export function SaveDictUserCSS(arg1:string,arg2:string):Promise<model.Resp>;
 
 export function SavePreferences(arg1:{[key: string]: any}):Promise<model.Resp>;
 

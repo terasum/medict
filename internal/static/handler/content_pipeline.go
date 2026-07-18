@@ -19,8 +19,10 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/terasum/medict/internal/static/tmpl"
+	"os"
+	"path/filepath"
 
+	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
 )
 
@@ -60,7 +62,25 @@ func WrapDesc(dictid, title, desc string) string {
 
 func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
 	content := handleContent(dict, keyEntry, definition)
+	// #783: inject per-dictionary user CSS override (sidecar _medict_user.css).
+	// Appended after all original CSS → highest override priority.
+	if css := readUserCSS(dict.DictDir); css != "" {
+		content += `<style id="medict-user-css">` + css + `</style>`
+	}
 	return []byte(fmt.Sprintf(tmpl.WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, dict.ID, content)), nil
+}
+
+// readUserCSS reads the per-dictionary user CSS override from a sidecar file
+// (_medict_user.css in the dict directory). Returns "" if absent/unreadable.
+func readUserCSS(dictDir string) string {
+	if dictDir == "" {
+		return ""
+	}
+	data, err := os.ReadFile(filepath.Join(dictDir, "_medict_user.css"))
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }
 
 func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error) {

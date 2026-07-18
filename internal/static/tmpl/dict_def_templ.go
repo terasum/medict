@@ -84,6 +84,17 @@ function __medict_entry_jump(word, dict_id) {
 			if (typeof e.data.hoverEnabled === "boolean") { __medictHoverEnabled = e.data.hoverEnabled; }
 			if (typeof e.data.hoverDelayMs === "number" && e.data.hoverDelayMs > 0) { __medictHoverDelayMs = e.data.hoverDelayMs; }
 		}
+		// #783: apply user CSS override (live preview from the CSS editor)
+		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_APPLY_USER_CSS"){
+			var ex = document.getElementById("medict-user-css");
+			if (ex) { ex.remove(); }
+			if (e.data.css) {
+				var st = document.createElement("style");
+				st.id = "medict-user-css";
+				st.textContent = e.data.css;
+				document.head.appendChild(st);
+			}
+		}
     })
 }())
 
