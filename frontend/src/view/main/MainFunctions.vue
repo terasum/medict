@@ -213,24 +213,34 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { NIcon, NPopover, useMessage } from 'naive-ui';
 import { Search, AngleLeft, AngleRight, Star, Book } from '@vicons/fa';
-import AppFunctions from '@/components/layout/AppFunctions.vue';
-
 import { useDictQueryStore } from '@/store/dict';
 import { useBookmarkStore } from '@/store/bookmark';
 import { useUIStore } from '@/store/ui';
-import { useRouter } from "vue-router";
 
 const dictQueryStore = useDictQueryStore();
 const bookmarkStore = useBookmarkStore();
 const uiStore = useUIStore();
-const router = useRouter();
 const message = useMessage();
 
-let inputWord = ref('');
-let inputActive = ref(false);
+const inputWord = ref(dictQueryStore.inputSearchWord);
+
+// 监听查询词更新动作而非仅监听状态值：即使用户在输入框里保留了未提交
+// 草稿、随后点击释义中的当前同一个词，也必须重新与实际查询词对齐。
+dictQueryStore.$onAction(({ name, args, after }) => {
+  if (name !== 'updateInputSearchWord') {
+    return;
+  }
+  const requestedWord = args[0];
+  if (typeof requestedWord !== 'string' || requestedWord.trim() === '') {
+    return;
+  }
+  after(() => {
+    inputWord.value = dictQueryStore.inputSearchWord;
+  });
+});
 
 // 非搜索页（切换到词典/生词/设置等 FunctionTab）时，搜索框与导航按钮禁用而非隐藏
 const searchDisabled = computed(() => !uiStore.isSearchInputActive());
@@ -268,37 +278,6 @@ async function addToNotebook(nb) {
     message.error((e && e.message) || '收藏失败');
   }
 }
-
-let storeChangeUnscribe = null;
-function listenInputWordUpdate() {
-  storeChangeUnscribe = dictQueryStore.$onAction(({name, store, after}) => {
-      after((result) => {
-        switch (name) {
-          case 'updateInputSearchWord': {
-            // inputWord.value = dictQueryStore.inputSearchWord;
-            break;
-          }
-          case 'forwardHistory': {
-            inputWord.value = dictQueryStore.inputSearchWord;
-            break;
-          }
-          case 'backHistory': {
-            inputWord.value = dictQueryStore.inputSearchWord;
-            break;
-          }
-        }
-      });
-    }
-  );
-}
-
-onMounted(() => {
-  if (storeChangeUnscribe) {
-    storeChangeUnscribe();
-    storeChangeUnscribe = null;
-  }
-  listenInputWordUpdate();
-})
 
 ///----------------------------
 // event listener function
