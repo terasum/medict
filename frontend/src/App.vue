@@ -57,7 +57,8 @@
     >
       <n-dialog-provider>
         <n-message-provider>
-          <router-view></router-view>
+          <CSSWindow v-if="windowMode === 'css-editor'" />
+          <router-view v-else-if="windowMode === 'main'"></router-view>
         </n-message-provider>
       </n-dialog-provider>
       <n-global-style />
@@ -78,8 +79,10 @@ import { zhCN, dateZhCN } from 'naive-ui';
 import { GlobalThemeOverrides } from 'naive-ui';
 import { useDictQueryStore } from './store/dict';
 import { BRAND, palette } from '@/style/tokens';
+import CSSWindow from '@/view/css-editor/index.vue';
 
 let isDark = ref(false);
+const windowMode = ref<'loading' | 'main' | 'css-editor'>('loading');
 let theme = reactive(light);
 
 if (isDark.value) {
@@ -151,6 +154,14 @@ function listenStoreChange(store: any) {
 let unscribeDictQueryStore: (() => void) | null = null;
 const dictQueryStore = useDictQueryStore();
 onMounted(()=>{
+  const modeCall = (window as any)?.go?.main?.App?.WindowMode;
+  if (typeof modeCall === 'function') {
+    modeCall().then((mode: string) => {
+      windowMode.value = mode === 'css-editor' ? 'css-editor' : 'main';
+    }).catch(() => { windowMode.value = 'main'; });
+  } else {
+    windowMode.value = 'main';
+  }
   unscribeDictQueryStore = listenStoreChange(dictQueryStore);
 
 })

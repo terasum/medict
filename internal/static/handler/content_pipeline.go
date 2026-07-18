@@ -19,6 +19,7 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
+	"sync"
 
 	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
@@ -62,9 +63,12 @@ func WrapDesc(dictid, title, desc string) string {
 // the app config dir at startup, updated by SaveDictUserCSS IPC). WrapContent
 // reads from here — no file I/O per render.
 var userCSSOverrides = map[string]string{}
+var userCSSOverridesMu sync.RWMutex
 
 // SetUserCSS stores a per-dictionary CSS override in the in-memory map.
 func SetUserCSS(dictId, css string) {
+	userCSSOverridesMu.Lock()
+	defer userCSSOverridesMu.Unlock()
 	if css == "" {
 		delete(userCSSOverrides, dictId)
 	} else {
@@ -74,6 +78,8 @@ func SetUserCSS(dictId, css string) {
 
 // GetUserCSS returns the in-memory override for a dictionary ("" if none).
 func GetUserCSS(dictId string) string {
+	userCSSOverridesMu.RLock()
+	defer userCSSOverridesMu.RUnlock()
 	return userCSSOverrides[dictId]
 }
 

@@ -20,12 +20,16 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	goruntime "runtime"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/entry"
 	"github.com/terasum/medict/internal/static/handler"
@@ -34,6 +38,7 @@ import (
 	"github.com/terasum/medict/pkg/model"
 	"github.com/terasum/medict/pkg/service"
 	"github.com/terasum/medict/pkg/service/ankiexport"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"go.etcd.io/etcd/client/pkg/v3/fileutil"
 )
 
@@ -52,7 +57,26 @@ type App struct {
 	// initErr 捕获 appInit 同步阶段的错误，由 errorChanListen 在 Wails
 	// startup() 生命周期里确定性地产出，避免向无缓冲 channel 塞值带来的时序赌博。
 	initErr error
+
+	// cssWindowMode keeps the helper process deliberately lightweight: the
+	// editor window can use the CSS persistence methods without loading any
+	// dictionaries or opening their indexes a second time.
+	cssWindowMode     bool
+	cssWindowDictID   string
+	cssWindowDictName string
+	cssWindowsMu      sync.Mutex
+	cssWindows        map[string]*exec.Cmd
+	cssSaveMu         sync.Mutex
+	cssCloseMu        sync.Mutex
+	cssWindowCanClose bool
 }
+
+const (
+	cssEditorChangedEvent        = "medict:css-editor-changed"
+	cssEditorCloseRequestedEvent = "medict:css-editor-close-requested"
+)
+
+var safeDictID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // NewApp creates a new App application struct
 func NewApp() *App {
@@ -60,10 +84,15 @@ func NewApp() *App {
 		errorChannel: make(chan error),
 		stopChannel:  make(chan int),
 		bs:           &backserver.BackServer{Ready: false},
+		cssWindows:   make(map[string]*exec.Cmd),
 	}
 
 	app.initErr = app.appInit()
 	return app
+}
+
+func newCSSWindowApp(dictID, dictName string) *App {
+	return &App{cssWindowMode: true, cssWindowDictID: dictID, cssWindowDictName: dictName}
 }
 
 func (b *App) appInit() error {
@@ -382,39 +411,190 @@ func loadUserCSSOverrides() {
 
 // GetDictUserCSS reads the per-dictionary user CSS override (#783).
 func (b *App) GetDictUserCSS(dictId string) *model.Resp {
-	cssDir, err := userCSSDir()
+	if !safeDictID.MatchString(dictId) {
+		return model.BuildError(errors.New("invalid dictionary id"), model.BadParamErrCode)
+	}
+	css, err := readDictUserCSS(dictId)
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
-	path := filepath.Join(cssDir, dictId+".css")
-	if !utils.FileExists(path) {
-		return model.BuildSuccess("")
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return model.BuildError(err, model.InnerSysErrCode)
-	}
-	return model.BuildSuccess(string(data))
+	return model.BuildSuccess(css)
 }
 
 // SaveDictUserCSS persists the per-dictionary user CSS override + updates the
 // in-memory map so WrapContent injects it immediately (#783).
 func (b *App) SaveDictUserCSS(dictId, css string) *model.Resp {
+	if !safeDictID.MatchString(dictId) {
+		return model.BuildError(errors.New("invalid dictionary id"), model.BadParamErrCode)
+	}
 	cssDir, err := userCSSDir()
 	if err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
 	path := filepath.Join(cssDir, dictId+".css")
+	b.cssSaveMu.Lock()
+	defer b.cssSaveMu.Unlock()
 	if css == "" {
-		os.Remove(path)
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return model.BuildError(err, model.InnerSysErrCode)
+		}
 		handler.SetUserCSS(dictId, "")
 		return model.BuildSuccess(nil)
 	}
-	if err := os.WriteFile(path, []byte(css), 0644); err != nil {
+	if err := writeFileAtomic(path, []byte(css), 0644); err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
 	handler.SetUserCSS(dictId, css)
 	return model.BuildSuccess(nil)
+}
+
+func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".medict-css-*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	defer os.Remove(tmpPath)
+	if err := tmp.Chmod(perm); err != nil {
+		tmp.Close()
+		return err
+	}
+	if _, err := tmp.Write(data); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmpPath, path)
+}
+
+// WindowMode lets the shared frontend select the compact editor surface in the
+// helper process. The main application keeps the normal router-driven shell.
+func (b *App) WindowMode() string {
+	if b.cssWindowMode {
+		return "css-editor"
+	}
+	return "main"
+}
+
+func (b *App) CSSWindowDictionary() map[string]string {
+	return map[string]string{"id": b.cssWindowDictID, "name": b.cssWindowDictName}
+}
+
+func (b *App) requestCSSWindowClose(ctx context.Context) bool {
+	b.cssCloseMu.Lock()
+	defer b.cssCloseMu.Unlock()
+	if b.cssWindowCanClose {
+		return false
+	}
+	runtime.EventsEmit(ctx, cssEditorCloseRequestedEvent)
+	return true
+}
+
+// CloseCSSWindow is called only after the editor has flushed pending content.
+func (b *App) CloseCSSWindow() {
+	b.cssCloseMu.Lock()
+	b.cssWindowCanClose = true
+	b.cssCloseMu.Unlock()
+	runtime.Quit(b.ctx)
+}
+
+// OpenDictCSSWindow launches a second, CSS-only instance of this executable.
+// Wails v2 has no public multi-window API; using the same signed executable
+// gives every platform a genuine independent native window without loading
+// dictionary indexes twice.
+func (b *App) OpenDictCSSWindow(dictID, dictName string) *model.Resp {
+	if !safeDictID.MatchString(dictID) {
+		return model.BuildError(errors.New("invalid dictionary id"), model.BadParamErrCode)
+	}
+	b.cssWindowsMu.Lock()
+	if cmd := b.cssWindows[dictID]; cmd != nil && cmd.Process != nil {
+		b.cssWindowsMu.Unlock()
+		return model.BuildSuccess(nil)
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		b.cssWindowsMu.Unlock()
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	baseline, _ := readDictUserCSS(dictID)
+	cmd := newCSSWindowCommand(executable, dictID, dictName)
+	// A wails dev child needs its own IPC/dev-server port, while it may keep
+	// using the parent's Vite URL and asset directory inherited in the env.
+	cmd.Env = replaceProcessEnv(os.Environ(), "devserver", "localhost:0")
+	if err := cmd.Start(); err != nil {
+		b.cssWindowsMu.Unlock()
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	b.cssWindows[dictID] = cmd
+	b.cssWindowsMu.Unlock()
+	go b.watchCSSWindow(dictID, baseline, cmd)
+	return model.BuildSuccess(nil)
+}
+
+func newCSSWindowCommand(executable, dictID, dictName string) *exec.Cmd {
+	// A packaged macOS GUI executable needs LaunchServices activation to create
+	// a visible NSWindow when started from another GUI process. `open -W` keeps
+	// the launcher alive so the parent can still observe window closure.
+	if goruntime.GOOS == "darwin" && strings.Contains(executable, ".app/Contents/MacOS/") {
+		bundle := filepath.Clean(filepath.Join(filepath.Dir(executable), "..", ".."))
+		return exec.Command("/usr/bin/open", "-n", "-W", bundle, "--args", cssEditorWindowFlag, dictID, dictName)
+	}
+	return exec.Command(executable, cssEditorWindowFlag, dictID, dictName)
+}
+
+func replaceProcessEnv(env []string, key, value string) []string {
+	prefix := key + "="
+	result := make([]string, 0, len(env)+1)
+	for _, item := range env {
+		if !strings.HasPrefix(item, prefix) {
+			result = append(result, item)
+		}
+	}
+	return append(result, prefix+value)
+}
+
+func (b *App) watchCSSWindow(dictID, lastCSS string, cmd *exec.Cmd) {
+	done := make(chan struct{})
+	go func() { _ = cmd.Wait(); close(done) }()
+	ticker := time.NewTicker(150 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			css, err := readDictUserCSS(dictID)
+			if err == nil && css != lastCSS {
+				lastCSS = css
+				handler.SetUserCSS(dictID, css)
+				runtime.EventsEmit(b.ctx, cssEditorChangedEvent, dictID, css)
+			}
+		case <-done:
+			css, _ := readDictUserCSS(dictID)
+			handler.SetUserCSS(dictID, css)
+			runtime.EventsEmit(b.ctx, cssEditorChangedEvent, dictID, css)
+			b.cssWindowsMu.Lock()
+			delete(b.cssWindows, dictID)
+			b.cssWindowsMu.Unlock()
+			return
+		}
+	}
+}
+
+func readDictUserCSS(dictID string) (string, error) {
+	cssDir, err := userCSSDir()
+	if err != nil {
+		return "", err
+	}
+	data, err := os.ReadFile(filepath.Join(cssDir, dictID+".css"))
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil
+	}
+	return string(data), err
 }
 
 func (b *App) ResourceServerAddr() string {

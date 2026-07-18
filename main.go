@@ -17,9 +17,11 @@
 package main
 
 import (
+	"context"
 	"embed"
-	"github.com/wailsapp/wails/v2/pkg/application"
+	"os"
 
+	"github.com/wailsapp/wails/v2/pkg/application"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -41,33 +43,78 @@ var icon []byte
 // 本地构建未注入时显示 "dev"。
 var Version = "dev"
 
+const cssEditorWindowFlag = "--medict-css-editor-window"
+
+func parseCSSWindowArgs(args []string) (dictID, dictName string, ok bool) {
+	if len(args) < 3 || args[0] != cssEditorWindowFlag || !safeDictID.MatchString(args[1]) {
+		return "", "", false
+	}
+	return args[1], args[2], true
+}
+
 func main() {
+	if dictID, dictName, ok := parseCSSWindowArgs(os.Args[1:]); ok {
+		runCSSWindow(dictID, dictName)
+		return
+	}
 	// Create an instance of the app structure
 	app := NewApp()
 
-	appOptions := &options.App{
-		Title:             "Medict",
-		Width:             800,
-		Height:            600,
-		MinWidth:          720,
-		MinHeight:         570,
-		MaxWidth:          1280,
-		MaxHeight:         740,
+	appOptions := newAppOptions(app, false)
+	appOptions.OnStartup = app.startup
+	appOptions.OnDomReady = app.domReady
+	appOptions.OnShutdown = app.shutdown
+
+	mainApp := application.NewWithOptions(appOptions)
+	if err := mainApp.Run(); err != nil {
+		panic(err)
+	}
+}
+
+func runCSSWindow(dictID, dictName string) {
+	app := newCSSWindowApp(dictID, dictName)
+	appOptions := newAppOptions(app, true)
+	appOptions.OnStartup = func(ctx context.Context) { app.ctx = ctx }
+	appOptions.OnBeforeClose = app.requestCSSWindowClose
+	mainApp := application.NewWithOptions(appOptions)
+	if err := mainApp.Run(); err != nil {
+		panic(err)
+	}
+}
+
+func newAppOptions(app *App, cssEditor bool) *options.App {
+	title, width, height := "Medict", 800, 600
+	minWidth, minHeight := 720, 570
+	maxWidth, maxHeight := 1280, 740
+	hideOnClose := true
+	background := &options.RGBA{R: 33, G: 37, B: 43, A: 255}
+	if cssEditor {
+		title, width, height = "词典 CSS 编辑器", 760, 560
+		minWidth, minHeight = 600, 420
+		maxWidth, maxHeight = 1920, 1200
+		hideOnClose = false
+		background = &options.RGBA{R: 248, G: 249, B: 250, A: 255}
+	}
+	return &options.App{
+		Title:             title,
+		Width:             width,
+		Height:            height,
+		MinWidth:          minWidth,
+		MinHeight:         minHeight,
+		MaxWidth:          maxWidth,
+		MaxHeight:         maxHeight,
 		DisableResize:     false,
 		Fullscreen:        false,
 		Frameless:         false,
 		StartHidden:       false,
-		HideWindowOnClose: true,
-		BackgroundColour:  &options.RGBA{R: 33, G: 37, B: 43, A: 255},
+		HideWindowOnClose: hideOnClose,
+		BackgroundColour:  background,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		Logger:             logger.NewDefaultLogger(),
 		LogLevel:           logger.INFO,
 		LogLevelProduction: logger.INFO,
-		OnStartup:          app.startup,
-		OnDomReady:         app.domReady,
-		OnShutdown:         app.shutdown,
 		CSSDragProperty:    "--wails-draggable",
 		CSSDragValue:       "drag",
 		Bind: []interface{}{
@@ -81,8 +128,8 @@ func main() {
 		},
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHidden(),
-			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
+			WebviewIsTransparent: !cssEditor,
+			WindowIsTranslucent:  !cssEditor,
 			About: &mac.AboutInfo{
 				Title:   "Medict APP",
 				Message: "Light weight dictionary app for professional",
@@ -90,11 +137,4 @@ func main() {
 			},
 		},
 	}
-
-	mainApp := application.NewWithOptions(appOptions)
-	err := mainApp.Run()
-	if err != nil {
-		panic(err)
-	}
-
 }

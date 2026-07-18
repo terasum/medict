@@ -118,21 +118,6 @@
         @load="onIframeLoad"
       ></iframe>
     </div>
-    <n-modal v-model:show="cssEditorVisible" preset="card" title="词典 CSS 编辑器" style="width: 760px;">
-      <Codemirror
-        :model-value="cssContent"
-        @update:model-value="onCSSChange"
-        :extensions="[cssLang()]"
-        :style="{ height: '380px', fontSize: '13px' }"
-        placeholder="/* 在此输入自定义 CSS,实时预览(防抖 300ms 注入 iframe);保存后下次查词自动生效 */"
-      />
-      <template #footer>
-        <div style="display: flex; justify-content: flex-end; gap: 8px;">
-          <n-button @click="cssEditorVisible = false">关闭</n-button>
-          <n-button type="primary" @click="onSaveCSS">保存</n-button>
-        </div>
-      </template>
-    </n-modal>
   </div>
 </template>
 
@@ -140,11 +125,10 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useDictQueryStore } from '@/store/dict';
 import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
-import { NIcon, NModal, NButton } from 'naive-ui';
+import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
-import { Codemirror } from 'vue-codemirror';
-import { css as cssLang } from '@codemirror/lang-css';
-import { exportCurrentEntry, getDictUserCSS, saveDictUserCSS } from '@/apis/dicts-api';
+import { EventsOn } from '../../../wailsjs/runtime/runtime';
+import { exportCurrentEntry } from '@/apis/dicts-api';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
 import MainDictSection from "./MainDictSection.vue";
@@ -266,9 +250,8 @@ function todo() {
 
 // ===== 词典 CSS 编辑器(#783)=====
 const TOP_WIN_MSG_APPLY_USER_CSS = '__Medict_TOP_WIN_MSG_EVTP_APPLY_USER_CSS';
-const cssEditorVisible = ref(false);
-const cssContent = ref('');
-let cssPreviewTimer: ReturnType<typeof setTimeout> | null = null;
+const CSS_EDITOR_CHANGED_EVENT = 'medict:css-editor-changed';
+let stopCSSChangedListener: (() => void) | null = null;
 
 async function onEditCSS() {
   const dict = dictQueryStore.selectDict;
@@ -276,19 +259,18 @@ async function onEditCSS() {
     message.warning('请先选择一个词典');
     return;
   }
-  cssEditorVisible.value = true;
   try {
-    cssContent.value = await getDictUserCSS(dict.id);
-  } catch {
-    cssContent.value = '';
+    const openWindow = (window as any)?.go?.main?.App?.OpenDictCSSWindow;
+    if (typeof openWindow !== 'function') {
+      throw new Error('CSS 编辑器窗口尚未生成，请重新运行 wails dev');
+    }
+    const resp = await openWindow(dict.id, dict.name || '');
+    if (resp?.code !== 200) {
+      throw new Error(resp?.err || '无法打开 CSS 编辑器');
+    }
+  } catch (e) {
+    message.error((e as Error)?.message || '无法打开 CSS 编辑器');
   }
-}
-
-// CodeMirror 内容变化 → 防抖 300ms → 客户端注入 iframe(实时预览,无 IPC 往返)
-function onCSSChange(value: string) {
-  cssContent.value = value;
-  if (cssPreviewTimer) clearTimeout(cssPreviewTimer);
-  cssPreviewTimer = setTimeout(() => applyUserCSS(value), 300);
 }
 
 function applyUserCSS(css: string) {
@@ -302,16 +284,6 @@ function applyUserCSS(css: string) {
   }
 }
 
-async function onSaveCSS() {
-  const dict = dictQueryStore.selectDict;
-  if (!dict?.id) return;
-  try {
-    await saveDictUserCSS(dict.id, cssContent.value);
-    message.success('CSS 已保存(下次查词自动生效)');
-  } catch (e) {
-    message.error((e as Error)?.message || '保存失败');
-  }
-}
 
 // 缩小
 function zoomOut() {
@@ -351,6 +323,11 @@ function showInspector() {
 }
 
 onMounted(() => {
+  stopCSSChangedListener = EventsOn(CSS_EDITOR_CHANGED_EVENT, (dictID: string, css: string) => {
+    if (dictQueryStore.selectDict?.id === dictID) {
+      applyUserCSS(css);
+    }
+  });
   window.addEventListener('message', onInnerFrameMessage);
   window.addEventListener('keydown', onZoomKey);
   wrapperRef.value?.addEventListener('wheel', onIframeWheel, { passive: false });
@@ -360,6 +337,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  stopCSSChangedListener?.();
+  stopCSSChangedListener = null;
   window.removeEventListener('message', onInnerFrameMessage);
   window.removeEventListener('keydown', onZoomKey);
   wrapperRef.value?.removeEventListener('wheel', onIframeWheel);

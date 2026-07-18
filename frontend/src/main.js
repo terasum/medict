@@ -45,7 +45,6 @@ const pinia = createPinia();
 
 const app = createApp(App);
 
-router.push({ path: '/' }); // store.state.defaultWindow });
 app.use(router);
 
 app.use(naive);

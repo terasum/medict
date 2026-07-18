@@ -16,8 +16,26 @@
 
 package handler
 
-import "testing"
+import (
+	"fmt"
+	"sync"
+	"testing"
+)
 
-func TestConvertDictHtml(t *testing.T) {
-	//handleContent("1", `<a href="www.baidu.com">123</a>`)
+func TestUserCSSOverridesConcurrentAccess(t *testing.T) {
+	const dictID = "race-test"
+	var wg sync.WaitGroup
+	for i := 0; i < 20; i++ {
+		wg.Add(2)
+		go func(i int) {
+			defer wg.Done()
+			SetUserCSS(dictID, fmt.Sprintf("body{%d}", i))
+		}(i)
+		go func() {
+			defer wg.Done()
+			_ = GetUserCSS(dictID)
+		}()
+	}
+	wg.Wait()
+	SetUserCSS(dictID, "")
 }
