@@ -4,6 +4,35 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.8
+
+Default EN-CN dictionary (offline ECDICT + free online Bing), recursive dict-scan fix, a frontend style unification (UnoCSS), and frontend test infrastructure.
+
+### Added
+- **Default English-Chinese dictionary** (#794, #795): Medict now ships with an
+  offline EN-CN dictionary out of the box — a curated **ECDICT** subset (~50k
+  high-frequency words, embedded, no key, no network) as the default, plus a
+  free **Bing online** dictionary (scrapes `cn.bing.com/dict/clientsearch`, no
+  API key). Both appear in the dict list and participate in multi-dict /
+  hover-popup / Anki export like any other dictionary.
+- **Frontend test infrastructure** (#801): introduced **vitest** + happy-dom +
+  `@vue/test-utils`; first batch of unit tests covering the 3 Pinia stores
+  (ui / bookmark getters / dict `buildEntryURL`).
+
+### Changed
+- **Frontend style unification — UnoCSS** (#800): adopted **UnoCSS**
+  (presetWind3, Tailwind-compatible) as the atomic CSS layer; established a
+  single design-token source (`tokens.ts`: brand `#326cb8`, gray scale,
+  danger, font stacks) shared by **both** UnoCSS and the naive-ui
+  `themeOverrides` — no more off-brand colors. All components' hardcoded
+  colors unified to tokens; the legacy GitHub **photon** CSS framework
+  retired (−2352 lines, classes replaced by UnoCSS shortcuts).
+
+### Fixed
+- **Recursive dict-scan** (#257, #797): nested dict directories (e.g.
+  `English/OALD9/oald9.mdx`) are now found exactly once — category folders are
+  no longer mis-attributed as dictionaries, and duplicates are eliminated.
+
 ## v3.1.7
 
 Multi-dict query, Anki export, hover-popup lookup, and a bookmarks v2 overhaul.
