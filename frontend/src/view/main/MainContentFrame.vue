@@ -128,7 +128,7 @@ import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular,
 import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
-import { exportCurrentEntry } from '@/apis/dicts-api';
+import { exportCurrentEntry, openDictCSSWindow } from '@/apis/dicts-api';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
 import MainDictSection from "./MainDictSection.vue";
@@ -260,14 +260,7 @@ async function onEditCSS() {
     return;
   }
   try {
-    const openWindow = (window as any)?.go?.main?.App?.OpenDictCSSWindow;
-    if (typeof openWindow !== 'function') {
-      throw new Error('CSS 编辑器窗口尚未生成，请重新运行 wails dev');
-    }
-    const resp = await openWindow(dict.id, dict.name || '');
-    if (resp?.code !== 200) {
-      throw new Error(resp?.err || '无法打开 CSS 编辑器');
-    }
+    await openDictCSSWindow(dict.id, dict.name || '', dictQueryStore.inputSearchWord || '');
   } catch (e) {
     message.error((e as Error)?.message || '无法打开 CSS 编辑器');
   }

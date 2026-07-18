@@ -109,6 +109,13 @@ func inlineCSSURLs(css string, fetch func(string) ([]byte, bool)) string {
 	})
 }
 
+// InlineCSSResources makes a standalone stylesheet self-contained by replacing
+// relative url(...) references with data URLs. It is used when dictionary CSS
+// becomes the editable user-override seed.
+func InlineCSSResources(css string, fetch func(string) ([]byte, bool)) string {
+	return inlineCSSURLs(css, fetch)
+}
+
 // skipURLKey leaves absolute/special references alone (can't or shouldn't inline).
 func skipURLKey(key string) bool {
 	low := strings.ToLower(key)

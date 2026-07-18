@@ -61,6 +61,23 @@ export const getDictUserCSS = async (dictid: string): Promise<string> => {
     return (resp.data as string) || '';
 };
 
+// getDictEditorCSS uses a saved override when present, otherwise the selected
+// dictionary's own CSS snapshot prepared by the main process.
+export const getDictEditorCSS = async (dictid: string): Promise<string> => {
+    const resp = await App.GetDictEditorCSS(dictid);
+    if (resp.code !== 200) {
+        throw new Error(resp.err || '加载词典 CSS 失败');
+    }
+    return (resp.data as string) || '';
+};
+
+export const openDictCSSWindow = async (dictid: string, dictName: string, word: string): Promise<void> => {
+    const resp = await App.OpenDictCSSWindow(dictid, dictName, word);
+    if (resp.code !== 200) {
+        throw new Error(resp.err || '无法打开 CSS 编辑器');
+    }
+};
+
 // saveDictUserCSS persists the per-dictionary user CSS override (#783). Empty
 // css deletes the sidecar file.
 export const saveDictUserCSS = async (dictid: string, css: string): Promise<void> => {

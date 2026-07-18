@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/terasum/medict/pkg/model"
+	"sync"
 )
 
 var _ model.GeneralDictionary = &mdictSvcImpl{}
 
 type mdictSvcImpl struct {
+	mu            sync.RWMutex
 	hasBuildIndex bool
 	mdx           *mdictHolder
 	mdds          []*mdictHolder
@@ -54,6 +56,8 @@ func (md *mdictSvcImpl) Description() *model.PlainDictionaryInfo {
 
 // Close releases the underlying indexers of the mdx and all mdd holders.
 func (md *mdictSvcImpl) Close() error {
+	md.mu.Lock()
+	defer md.mu.Unlock()
 	var errs []error
 	if md.mdx != nil {
 		if err := md.mdx.Close(); err != nil {
@@ -69,6 +73,8 @@ func (md *mdictSvcImpl) Close() error {
 }
 
 func (md *mdictSvcImpl) BuildIndex() error {
+	md.mu.Lock()
+	defer md.mu.Unlock()
 	if md.hasBuildIndex {
 		return nil
 	}
@@ -89,6 +95,8 @@ func (md *mdictSvcImpl) BuildIndex() error {
 }
 
 func (md *mdictSvcImpl) Locate(qIndex *model.KeyQueryIndex) ([]byte, error) {
+	md.mu.RLock()
+	defer md.mu.RUnlock()
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
@@ -96,6 +104,8 @@ func (md *mdictSvcImpl) Locate(qIndex *model.KeyQueryIndex) ([]byte, error) {
 }
 
 func (md *mdictSvcImpl) Lookup(keyword string) ([]byte, error) {
+	md.mu.RLock()
+	defer md.mu.RUnlock()
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
@@ -103,6 +113,8 @@ func (md *mdictSvcImpl) Lookup(keyword string) ([]byte, error) {
 }
 
 func (md *mdictSvcImpl) LookupResource(keyword string) ([]byte, error) {
+	md.mu.RLock()
+	defer md.mu.RUnlock()
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}
@@ -133,6 +145,8 @@ func (md *mdictSvcImpl) LookupResource(keyword string) ([]byte, error) {
 }
 
 func (md *mdictSvcImpl) Search(keyword string) ([]*model.KeyQueryIndex, error) {
+	md.mu.RLock()
+	defer md.mu.RUnlock()
 	if !md.hasBuildIndex {
 		return nil, errors.New("dictionary not ready, building index first")
 	}

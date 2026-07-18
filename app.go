@@ -18,12 +18,15 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	goruntime "runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -64,6 +67,7 @@ type App struct {
 	cssWindowMode     bool
 	cssWindowDictID   string
 	cssWindowDictName string
+	cssWindowSeedPath string
 	cssWindowsMu      sync.Mutex
 	cssWindows        map[string]*exec.Cmd
 	cssSaveMu         sync.Mutex
@@ -91,8 +95,8 @@ func NewApp() *App {
 	return app
 }
 
-func newCSSWindowApp(dictID, dictName string) *App {
-	return &App{cssWindowMode: true, cssWindowDictID: dictID, cssWindowDictName: dictName}
+func newCSSWindowApp(dictID, dictName, seedPath string) *App {
+	return &App{cssWindowMode: true, cssWindowDictID: dictID, cssWindowDictName: dictName, cssWindowSeedPath: seedPath}
 }
 
 func (b *App) appInit() error {
@@ -421,6 +425,40 @@ func (b *App) GetDictUserCSS(dictId string) *model.Resp {
 	return model.BuildSuccess(css)
 }
 
+// GetDictEditorCSS returns the saved user override when present. On first edit
+// it falls back to a private snapshot of the dictionary's own stylesheet,
+// resolved by the main process before the lightweight editor is launched.
+func (b *App) GetDictEditorCSS(dictID string) *model.Resp {
+	if !safeDictID.MatchString(dictID) || !b.cssWindowMode || dictID != b.cssWindowDictID {
+		return model.BuildError(errors.New("invalid CSS editor context"), model.BadParamErrCode)
+	}
+	cssDir, err := userCSSDir()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	css, err := readEditorCSS(filepath.Join(cssDir, dictID+".css"), b.cssWindowSeedPath)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(css)
+}
+
+func readEditorCSS(overridePath, seedPath string) (string, error) {
+	for _, path := range []string{overridePath, seedPath} {
+		if path == "" {
+			continue
+		}
+		data, err := os.ReadFile(path)
+		if err == nil {
+			return string(data), nil
+		}
+		if !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+	}
+	return "", nil
+}
+
 // SaveDictUserCSS persists the per-dictionary user CSS override + updates the
 // in-memory map so WrapContent injects it immediately (#783).
 func (b *App) SaveDictUserCSS(dictId, css string) *model.Resp {
@@ -508,7 +546,7 @@ func (b *App) CloseCSSWindow() {
 // Wails v2 has no public multi-window API; using the same signed executable
 // gives every platform a genuine independent native window without loading
 // dictionary indexes twice.
-func (b *App) OpenDictCSSWindow(dictID, dictName string) *model.Resp {
+func (b *App) OpenDictCSSWindow(dictID, dictName, word string) *model.Resp {
 	if !safeDictID.MatchString(dictID) {
 		return model.BuildError(errors.New("invalid dictionary id"), model.BadParamErrCode)
 	}
@@ -523,29 +561,59 @@ func (b *App) OpenDictCSSWindow(dictID, dictName string) *model.Resp {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
 	baseline, _ := readDictUserCSS(dictID)
-	cmd := newCSSWindowCommand(executable, dictID, dictName)
+	seedPath := ""
+	cssDir, cssDirErr := userCSSDir()
+	if cssDirErr != nil {
+		b.cssWindowsMu.Unlock()
+		return model.BuildError(cssDirErr, model.InnerSysErrCode)
+	}
+	if _, statErr := os.Stat(filepath.Join(cssDir, dictID+".css")); errors.Is(statErr, os.ErrNotExist) {
+		if baseCSS := b.dictionaryBaseCSS(dictID, word); baseCSS != "" {
+			seed, seedErr := os.CreateTemp("", "medict-editor-seed-*.css")
+			if seedErr != nil {
+				b.cssWindowsMu.Unlock()
+				return model.BuildError(seedErr, model.InnerSysErrCode)
+			}
+			seedPath = seed.Name()
+			if _, seedErr = seed.WriteString(baseCSS); seedErr == nil {
+				seedErr = seed.Close()
+			} else {
+				_ = seed.Close()
+			}
+			if seedErr != nil {
+				_ = os.Remove(seedPath)
+				b.cssWindowsMu.Unlock()
+				return model.BuildError(seedErr, model.InnerSysErrCode)
+			}
+		}
+	} else if statErr != nil {
+		b.cssWindowsMu.Unlock()
+		return model.BuildError(statErr, model.InnerSysErrCode)
+	}
+	cmd := newCSSWindowCommand(executable, dictID, dictName, seedPath)
 	// A wails dev child needs its own IPC/dev-server port, while it may keep
 	// using the parent's Vite URL and asset directory inherited in the env.
 	cmd.Env = replaceProcessEnv(os.Environ(), "devserver", "localhost:0")
 	if err := cmd.Start(); err != nil {
+		_ = os.Remove(seedPath)
 		b.cssWindowsMu.Unlock()
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
 	b.cssWindows[dictID] = cmd
 	b.cssWindowsMu.Unlock()
-	go b.watchCSSWindow(dictID, baseline, cmd)
+	go b.watchCSSWindow(dictID, baseline, seedPath, cmd)
 	return model.BuildSuccess(nil)
 }
 
-func newCSSWindowCommand(executable, dictID, dictName string) *exec.Cmd {
+func newCSSWindowCommand(executable, dictID, dictName, seedPath string) *exec.Cmd {
 	// A packaged macOS GUI executable needs LaunchServices activation to create
 	// a visible NSWindow when started from another GUI process. `open -W` keeps
 	// the launcher alive so the parent can still observe window closure.
 	if goruntime.GOOS == "darwin" && strings.Contains(executable, ".app/Contents/MacOS/") {
 		bundle := filepath.Clean(filepath.Join(filepath.Dir(executable), "..", ".."))
-		return exec.Command("/usr/bin/open", "-n", "-W", bundle, "--args", cssEditorWindowFlag, dictID, dictName)
+		return exec.Command("/usr/bin/open", "-n", "-W", bundle, "--args", cssEditorWindowFlag, dictID, dictName, seedPath)
 	}
-	return exec.Command(executable, cssEditorWindowFlag, dictID, dictName)
+	return exec.Command(executable, cssEditorWindowFlag, dictID, dictName, seedPath)
 }
 
 func replaceProcessEnv(env []string, key, value string) []string {
@@ -559,7 +627,8 @@ func replaceProcessEnv(env []string, key, value string) []string {
 	return append(result, prefix+value)
 }
 
-func (b *App) watchCSSWindow(dictID, lastCSS string, cmd *exec.Cmd) {
+func (b *App) watchCSSWindow(dictID, lastCSS, seedPath string, cmd *exec.Cmd) {
+	defer os.Remove(seedPath)
 	done := make(chan struct{})
 	go func() { _ = cmd.Wait(); close(done) }()
 	ticker := time.NewTicker(150 * time.Millisecond)
@@ -583,6 +652,146 @@ func (b *App) watchCSSWindow(dictID, lastCSS string, cmd *exec.Cmd) {
 			return
 		}
 	}
+}
+
+func (b *App) dictionaryBaseCSS(dictID, word string) string {
+	if b.dictSvc == nil {
+		return ""
+	}
+	dict := b.dictSvc.GetDictById(dictID)
+	if dict == nil || dict.Dict == nil {
+		return ""
+	}
+	// The current entry is the authoritative source for arbitrary and multiple
+	// stylesheet names (including nested loose files and MDD resources). Reuse
+	// the snapshot pipeline because it already resolves those references with
+	// the same directory-first/resource-candidate behavior as runtime serving.
+	if word = strings.TrimSpace(word); word != "" && b.bs != nil && b.bs.Controller != nil {
+		if snapshot, err := b.bs.Controller.RenderSnapshot(dictID, word); err == nil {
+			if css := extractInlinedCSS(snapshot); css != "" {
+				return css
+			}
+		} else {
+			log.Warningf("discover entry CSS for %s/%s failed: %s", dictID, word, err)
+		}
+	}
+	names := make([]string, 0, 2)
+	if dict.PathInfo != nil && dict.PathInfo.MdictMdxFileName != "" {
+		names = append(names, dict.PathInfo.MdictMdxFileName+".css")
+	}
+	if name := strings.TrimSpace(dict.Name); name != "" {
+		candidate := name + ".css"
+		if len(names) == 0 || names[0] != candidate {
+			names = append(names, candidate)
+		}
+	}
+	css, err := collectDictionaryCSS(dict.DictDir, names, dict.Dict.LookupResource)
+	if err != nil {
+		log.Warningf("load dictionary CSS for %s failed: %s", dictID, err)
+		return ""
+	}
+	return handler.InlineCSSResources(css, func(key string) ([]byte, bool) {
+		if raw, err := b.dictSvc.FindFromDir(dictID, key); err == nil {
+			return raw, true
+		}
+		for _, candidate := range dictionaryResourceCandidates(key) {
+			if raw, err := b.dictSvc.LookupResource(dictID, candidate); err == nil {
+				return raw, true
+			}
+		}
+		return nil, false
+	})
+}
+
+func dictionaryResourceCandidates(key string) []string {
+	clean := strings.TrimSpace(key)
+	trimmed := strings.TrimLeft(clean, `/\`)
+	candidates := []string{clean, trimmed, `\` + trimmed, `/` + trimmed}
+	seen := make(map[string]bool)
+	result := make([]string, 0, len(candidates))
+	for _, candidate := range candidates {
+		if candidate != "" && !seen[candidate] {
+			seen[candidate] = true
+			result = append(result, candidate)
+		}
+	}
+	return result
+}
+
+func collectDictionaryCSS(dir string, embeddedNames []string, lookup func(string) ([]byte, error)) (string, error) {
+	parts := make([]string, 0)
+	seen := make(map[string]bool)
+	if dir != "" {
+		names := make([]string, 0)
+		err := filepath.WalkDir(dir, func(path string, entry os.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			if !entry.IsDir() && strings.EqualFold(filepath.Ext(entry.Name()), ".css") {
+				rel, relErr := filepath.Rel(dir, path)
+				if relErr != nil {
+					return relErr
+				}
+				names = append(names, rel)
+			}
+			return nil
+		})
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			data, err := os.ReadFile(filepath.Join(dir, name))
+			if err != nil {
+				return "", err
+			}
+			content := string(data)
+			seen[content] = true
+			parts = append(parts, fmt.Sprintf("/* %s */\n%s", strings.ReplaceAll(filepath.ToSlash(name), "*/", "* /"), content))
+		}
+	}
+	if lookup != nil {
+		var lookupErr error
+		for _, name := range embeddedNames {
+			found := false
+			for _, candidate := range []string{name, `\` + name, `/` + name} {
+				data, err := lookup(candidate)
+				if err == nil && len(data) > 0 {
+					content := string(data)
+					if !seen[content] {
+						seen[content] = true
+						parts = append(parts, fmt.Sprintf("/* %s */\n%s", strings.ReplaceAll(name, "*/", "* /"), content))
+					}
+					found = true
+					break
+				}
+				if err != nil && !errors.Is(err, model.ErrNotFound) {
+					lookupErr = err
+					break
+				}
+			}
+			if !found && lookupErr != nil {
+				return "", lookupErr
+			}
+		}
+	}
+	return strings.Join(parts, "\n\n"), nil
+}
+
+var inlinedCSSPattern = regexp.MustCompile(`href="data:text/css;base64,([A-Za-z0-9+/=]+)"`)
+
+func extractInlinedCSS(snapshot string) string {
+	parts := make([]string, 0)
+	seen := make(map[string]bool)
+	for _, match := range inlinedCSSPattern.FindAllStringSubmatch(snapshot, -1) {
+		data, err := base64.StdEncoding.DecodeString(match[1])
+		if err != nil || len(data) == 0 || seen[string(data)] {
+			continue
+		}
+		seen[string(data)] = true
+		parts = append(parts, string(data))
+	}
+	return strings.Join(parts, "\n\n")
 }
 
 func readDictUserCSS(dictID string) (string, error) {

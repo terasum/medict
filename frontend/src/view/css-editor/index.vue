@@ -33,7 +33,7 @@ import { NButton, useMessage } from 'naive-ui';
 import { Codemirror } from 'vue-codemirror';
 import { css } from '@codemirror/lang-css';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
-import { getDictUserCSS, saveDictUserCSS } from '@/apis/dicts-api';
+import { getDictEditorCSS, saveDictUserCSS } from '@/apis/dicts-api';
 
 type SaveState = 'clean' | 'dirty' | 'saving' | 'error';
 const dictionary = ref({ id: '', name: '' });
@@ -120,7 +120,7 @@ onMounted(async () => {
   try {
     const context = await (window as any).go.main.App.CSSWindowDictionary();
     dictionary.value = context;
-    cssContent.value = await getDictUserCSS(context.id);
+    cssContent.value = await getDictEditorCSS(context.id);
     loaded.value = true;
   } catch (error) {
     saveState.value = 'error';

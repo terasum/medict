@@ -45,16 +45,16 @@ var Version = "dev"
 
 const cssEditorWindowFlag = "--medict-css-editor-window"
 
-func parseCSSWindowArgs(args []string) (dictID, dictName string, ok bool) {
-	if len(args) < 3 || args[0] != cssEditorWindowFlag || !safeDictID.MatchString(args[1]) {
-		return "", "", false
+func parseCSSWindowArgs(args []string) (dictID, dictName, seedPath string, ok bool) {
+	if len(args) < 4 || args[0] != cssEditorWindowFlag || !safeDictID.MatchString(args[1]) {
+		return "", "", "", false
 	}
-	return args[1], args[2], true
+	return args[1], args[2], args[3], true
 }
 
 func main() {
-	if dictID, dictName, ok := parseCSSWindowArgs(os.Args[1:]); ok {
-		runCSSWindow(dictID, dictName)
+	if dictID, dictName, seedPath, ok := parseCSSWindowArgs(os.Args[1:]); ok {
+		runCSSWindow(dictID, dictName, seedPath)
 		return
 	}
 	// Create an instance of the app structure
@@ -71,8 +71,8 @@ func main() {
 	}
 }
 
-func runCSSWindow(dictID, dictName string) {
-	app := newCSSWindowApp(dictID, dictName)
+func runCSSWindow(dictID, dictName, seedPath string) {
+	app := newCSSWindowApp(dictID, dictName, seedPath)
 	appOptions := newAppOptions(app, true)
 	appOptions.OnStartup = func(ctx context.Context) { app.ctx = ctx }
 	appOptions.OnBeforeClose = app.requestCSSWindowClose

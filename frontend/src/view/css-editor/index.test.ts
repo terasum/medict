@@ -7,7 +7,7 @@ const api = vi.hoisted(() => ({
 }));
 
 vi.mock('@/apis/dicts-api', () => ({
-  getDictUserCSS: api.get,
+  getDictEditorCSS: api.get,
   saveDictUserCSS: api.save,
 }));
 const runtime = vi.hoisted(() => ({ closeHandler: null as null | (() => void) }));

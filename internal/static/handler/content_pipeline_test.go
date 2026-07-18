@@ -18,6 +18,7 @@ package handler
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -38,4 +39,15 @@ func TestUserCSSOverridesConcurrentAccess(t *testing.T) {
 	}
 	wg.Wait()
 	SetUserCSS(dictID, "")
+}
+
+func TestSafeInlineCSSNeutralisesStyleEndTag(t *testing.T) {
+	malicious := `body{color:red}</style><script>alert(1)</script>`
+	safe := SafeInlineCSS(malicious)
+	if strings.Contains(strings.ToLower(safe), "</style") {
+		t.Fatalf("CSS still contains raw style terminator: %q", safe)
+	}
+	if !strings.Contains(safe, `<\/style><script>`) {
+		t.Fatalf("CSS content was not preserved safely: %q", safe)
+	}
 }

@@ -19,6 +19,7 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
+	"regexp"
 	"sync"
 
 	"github.com/terasum/medict/internal/static/tmpl"
@@ -64,6 +65,7 @@ func WrapDesc(dictid, title, desc string) string {
 // reads from here — no file I/O per render.
 var userCSSOverrides = map[string]string{}
 var userCSSOverridesMu sync.RWMutex
+var inlineStyleEndPattern = regexp.MustCompile(`(?i)</style`)
 
 // SetUserCSS stores a per-dictionary CSS override in the in-memory map.
 func SetUserCSS(dictId, css string) {
@@ -83,11 +85,19 @@ func GetUserCSS(dictId string) string {
 	return userCSSOverrides[dictId]
 }
 
+// SafeInlineCSS prevents CSS raw-text from terminating the surrounding style
+// element. Dictionary CSS is third-party input; `</style` is inert in a .css
+// response but would otherwise become executable HTML when used as an inline
+// user override.
+func SafeInlineCSS(css string) string {
+	return inlineStyleEndPattern.ReplaceAllString(css, `<\/style`)
+}
+
 func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
 	content := handleContent(dict, keyEntry, definition)
 	// #783: inject per-dictionary user CSS override from the in-memory map.
 	if css := GetUserCSS(dict.ID); css != "" {
-		content += `<style id="medict-user-css">` + css + `</style>`
+		content += `<style id="medict-user-css">` + SafeInlineCSS(css) + `</style>`
 	}
 	return []byte(fmt.Sprintf(tmpl.WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, dict.ID, content)), nil
 }
