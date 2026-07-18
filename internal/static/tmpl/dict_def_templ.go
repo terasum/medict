@@ -43,9 +43,6 @@ function __medict_play_sound(mp3url) {
 //**************************
 var __TOPFRAME_SECURE_ORIGIN__ = "*";
 var __MEDICT_DICT_ID__ = "%s";
-// hover 查词配置:由父窗经 SETUP 消息下发(#780)。默认开、400ms。
-var __medictHoverEnabled = true;
-var __medictHoverDelayMs = 400;
 function __medict_entry_jump(word, dict_id) {
 	console.log("[inner frame] jump entry => ", word, dict_id);
 	if (window.top){
@@ -79,11 +76,6 @@ function __medict_entry_jump(word, dict_id) {
 			console.log("refresh event", e);
 			window.location.reload();
 		}
-		// SETUP 携带 hover 设置(父侧经 #777 preferences 控制,免每请求注入模板)
-		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG__EVTY_SETUP__"){
-			if (typeof e.data.hoverEnabled === "boolean") { __medictHoverEnabled = e.data.hoverEnabled; }
-			if (typeof e.data.hoverDelayMs === "number" && e.data.hoverDelayMs > 0) { __medictHoverDelayMs = e.data.hoverDelayMs; }
-		}
 		// #783: apply user CSS override (live preview from the CSS editor)
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_APPLY_USER_CSS"){
 			var ex = document.getElementById("medict-user-css");
@@ -98,75 +90,162 @@ function __medict_entry_jump(word, dict_id) {
     })
 }())
 
-// Defense-in-depth (#718): intercept any entry:// link the backend replacer did
-// NOT rewrite to javascript:__medict_entry_jump(...) (e.g. hrefs that use single
-// quotes, or entry IDs the regex still misses). Without this guard the webview
-// hands the unknown entry:// scheme to the OS, producing
-// "There is no application set to open the URL entry://...".
+// Defense-in-depth (#718): intercept entry:// links and provide macOS Dictionary-
+// style word interaction: hover underlines a segmented word, click queries it.
 !(function(){
 	var ENTRY_PREFIX = "entry://";
+	var __wordHint = null;
+	var __hoveredWord = "";
+	var __hoverFrame = 0;
+	var __lastPointer = null;
+	var __hoveredNode = null;
+	var __hoveredStart = -1;
+	var __hoveredEnd = -1;
+	var __originalCursor = document.documentElement.style.cursor;
+	var __wordSegmenter = typeof Intl !== "undefined" && Intl.Segmenter
+		? new Intl.Segmenter(undefined, { granularity: "word" })
+		: null;
+
+	function __medict_clearWordHint() {
+		if (__wordHint) {
+			__wordHint.remove();
+			__wordHint = null;
+		}
+		__hoveredWord = "";
+		__hoveredNode = null;
+		__hoveredStart = -1;
+		__hoveredEnd = -1;
+		document.documentElement.style.cursor = __originalCursor;
+	}
+
+	function __medict_isCurrentWord(hit) {
+		return hit && hit.word === __hoveredWord && hit.node === __hoveredNode
+			&& hit.start === __hoveredStart && hit.end === __hoveredEnd;
+	}
+
+	function __medict_caretRangeFromPoint(x, y) {
+		if (document.caretRangeFromPoint) {
+			return document.caretRangeFromPoint(x, y);
+		}
+		if (document.caretPositionFromPoint) {
+			var pos = document.caretPositionFromPoint(x, y);
+			if (!pos) return null;
+			var range = document.createRange();
+			range.setStart(pos.offsetNode, pos.offset);
+			range.collapse(true);
+			return range;
+		}
+		return null;
+	}
+
+	function __medict_wordRangeAtPoint(x, y) {
+		var caret = __medict_caretRangeFromPoint(x, y);
+		if (!caret || !caret.startContainer || caret.startContainer.nodeType !== 3) return null;
+		var node = caret.startContainer;
+		var parent = node.parentElement;
+		if (!parent || parent.closest("a,button,input,textarea,select,option,script,style")) return null;
+		var text = node.textContent || "";
+		if (!text) return null;
+		var offset = Math.min(caret.startOffset, text.length - 1);
+		if (offset < 0 || /\s/.test(text.charAt(offset))) return null;
+		var start = -1, end = -1, word = "";
+
+		if (__wordSegmenter) {
+			var iterator = __wordSegmenter.segment(text)[Symbol.iterator]();
+			var step = iterator.next();
+			while (!step.done) {
+				var part = step.value;
+				if (part.isWordLike && offset >= part.index && offset < part.index + part.segment.length) {
+					start = part.index;
+					end = part.index + part.segment.length;
+					word = part.segment;
+					break;
+				}
+				step = iterator.next();
+			}
+		}
+
+		if (start < 0) {
+			var latin = /[A-Za-z0-9'-]/;
+			var ch = text.charAt(offset);
+			if (latin.test(ch)) {
+				start = offset;
+				end = offset + 1;
+				while (start > 0 && latin.test(text.charAt(start - 1))) start--;
+				while (end < text.length && latin.test(text.charAt(end))) end++;
+				word = text.slice(start, end);
+			} else if (/[\u3400-\uFAFF]/.test(ch)) {
+				start = offset;
+				end = offset + 1;
+				word = ch;
+			}
+		}
+
+		word = word.trim();
+		if (!word || start < 0 || end <= start) return null;
+		var range = document.createRange();
+		range.setStart(node, start);
+		range.setEnd(node, end);
+		var rects = Array.from(range.getClientRects()).filter(function(rect) {
+			return rect.width > 0 && rect.height > 0 && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+		});
+		if (rects.length === 0) return null;
+		return { word: word, range: range, node: node, start: start, end: end };
+	}
+
+	function __medict_showWordHint(hit) {
+		__medict_clearWordHint();
+		var hint = document.createElement("div");
+		hint.setAttribute("aria-hidden", "true");
+		hint.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:2147483647";
+		Array.from(hit.range.getClientRects()).forEach(function(rect) {
+			var line = document.createElement("span");
+			line.style.cssText = "position:fixed;pointer-events:none;border-bottom:1px solid currentColor;left:" + rect.left + "px;top:" + (rect.bottom - 1) + "px;width:" + rect.width + "px;height:1px";
+			hint.appendChild(line);
+		});
+		document.body.appendChild(hint);
+		__wordHint = hint;
+		__hoveredWord = hit.word;
+		__hoveredNode = hit.node;
+		__hoveredStart = hit.start;
+		__hoveredEnd = hit.end;
+		document.documentElement.style.cursor = "pointer";
+	}
+
 	document.addEventListener("click", function(e) {
 		var t = e.target;
 		var a = t && t.closest ? t.closest("a") : null;
-		if (!a) return;
-		var href = a.getAttribute("href") || "";
-		if (href.indexOf(ENTRY_PREFIX) !== 0) return;
-		e.preventDefault();
-		__medict_entry_jump(href.slice(ENTRY_PREFIX.length), __MEDICT_DICT_ID__);
-	});
-	// Double-click → look up the browser-selected word (#258). The native
-	// selection (CJK word-boundary aware) fires on dblclick.
-	document.addEventListener("dblclick", function(e) {
-		var sel = window.getSelection ? String(window.getSelection()).trim() : "";
-		if (sel) {
-			window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_DBLCLICK_LOOKUP", "word": sel}, __TOPFRAME_SECURE_ORIGIN__);
-		}
-	});
-	// ===== 悬停弹窗取词(#780)=====
-	// 取光标位置的「词」:caretRangeFromPoint 得文本节点 + offset;CJK(0x3400-0xFAFF)
-	// 按单字返回,拉丁/数字/连字符按词边界扩展。
-	function __medict_wordAtPoint(x, y) {
-		var rng = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
-		if (!rng || !rng.startContainer) { return ""; }
-		var node = rng.startContainer;
-		if (node.nodeType !== 3 /* TEXT_NODE */) { return ""; }
-		var text = node.textContent || "";
-		var off = rng.startOffset;
-		if (off < 0 || off >= text.length) { return ""; }
-		var ch = text.charCodeAt(off);
-		if (ch >= 0x3400 && ch <= 0xFAFF) { return text.charAt(off); } // CJK 单字
-		var re = /[A-Za-z0-9'-]/;
-		if (!re.test(text.charAt(off))) { return ""; }
-		var s = off, end = off;
-		while (s > 0 && re.test(text.charAt(s - 1))) { s--; }
-		while (end < text.length - 1 && re.test(text.charAt(end + 1))) { end++; }
-		return text.slice(s, end + 1);
-	}
-	var __hoverTimer = null;
-	var __lastHoverWord = "";
-	function __medict_hoverLeave() {
-		if (__hoverTimer) { clearTimeout(__hoverTimer); __hoverTimer = null; }
-		if (__lastHoverWord !== "") {
-			__lastHoverWord = "";
-			window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_HOVER_LEAVE"}, __TOPFRAME_SECURE_ORIGIN__);
-		}
-	}
-	document.addEventListener("mousemove", function(ev) {
-		if (!__medictHoverEnabled) { return; }
-		var x = ev.clientX, y = ev.clientY;
-		if (__hoverTimer) { clearTimeout(__hoverTimer); }
-		__hoverTimer = setTimeout(function() {
-			__hoverTimer = null;
-			var w = __medict_wordAtPoint(x, y);
-			if (w && w !== __lastHoverWord) {
-				__lastHoverWord = w;
-				window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_HOVER_LOOKUP", "word": w, "clientX": x, "clientY": y}, __TOPFRAME_SECURE_ORIGIN__);
+		if (a) {
+			var href = a.getAttribute("href") || "";
+			if (href.indexOf(ENTRY_PREFIX) === 0) {
+				e.preventDefault();
+				__medict_entry_jump(href.slice(ENTRY_PREFIX.length), __MEDICT_DICT_ID__);
 			}
-		}, __medictHoverDelayMs);
+			return;
+		}
+		var hit = __medict_wordRangeAtPoint(e.clientX, e.clientY);
+		if (!__medict_isCurrentWord(hit)) return;
+		window.top.postMessage({"evtype":"__Medict_INNER_FRAME_MSG_EVTP_CLICK_LOOKUP", "word": hit.word}, __TOPFRAME_SECURE_ORIGIN__);
+		__medict_clearWordHint();
 	});
-	document.addEventListener("mouseleave", __medict_hoverLeave);
-	window.addEventListener("scroll", __medict_hoverLeave, true);
-	window.addEventListener("keydown", function(ev){ if (ev.key === "Escape") __medict_hoverLeave(); });
+
+	document.addEventListener("mousemove", function(ev) {
+		__lastPointer = { x: ev.clientX, y: ev.clientY };
+		if (__hoverFrame) return;
+		__hoverFrame = requestAnimationFrame(function() {
+			__hoverFrame = 0;
+			if (!__lastPointer) return;
+			var hit = __medict_wordRangeAtPoint(__lastPointer.x, __lastPointer.y);
+			if (!hit) {
+				__medict_clearWordHint();
+				return;
+			}
+			if (!__medict_isCurrentWord(hit)) __medict_showWordHint(hit);
+		});
+	});
+	document.addEventListener("mouseleave", __medict_clearWordHint);
+	window.addEventListener("scroll", __medict_clearWordHint, true);
+	window.addEventListener("keydown", function(ev){ if (ev.key === "Escape") __medict_clearWordHint(); });
 }());
 
 </script>

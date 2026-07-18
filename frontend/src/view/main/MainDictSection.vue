@@ -93,7 +93,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-// 与 MainContentFrame 的 setup 消息约定一致(内嵌脚本据此挂载 entry:// 跳转/双击选词)。
+// 与 MainContentFrame 的 setup 消息约定一致，用于初始化 iframe 通信来源。
 const SETUP_MSG = '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 
 const props = defineProps<{
@@ -105,7 +105,7 @@ const props = defineProps<{
 const iframeRef = ref<HTMLIFrameElement | null>(null);
 
 function onLoad() {
-  iframeRef.value?.contentWindow?.postMessage(SETUP_MSG, '*');
+  iframeRef.value?.contentWindow?.postMessage({ evtype: SETUP_MSG }, '*');
 }
 
 // 暴露给父组件,用于多词典模式下广播缩放/刷新消息。

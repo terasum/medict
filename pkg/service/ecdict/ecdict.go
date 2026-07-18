@@ -18,11 +18,11 @@
 // ECDICT (https://github.com/skywind3000/ECDICT) SQLite subset, shipped as a
 // preset so Medict has a default EN-CN dictionary out of the box. It implements
 // model.GeneralDictionary, so it plugs into the existing dict list / search /
-// content pipeline (multi-dict, hover-popup, …) like mdict/stardict.
+// content pipeline (multi-dict, in-entry click lookup, …) like mdict/stardict.
 //
 // Content path: Locate/Lookup return an HTML *fragment* (the entry card); the
 // existing dicts_controller.HandleWordQueryReq → handler.WrapContent wraps it
-// into a full page (with the inner script that powers hover/dblclick lookup),
+// into a full page (with the inner script that powers hover hints/click lookup),
 // so no controller change is needed.
 package ecdict
 

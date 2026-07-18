@@ -118,15 +118,6 @@
         @load="onIframeLoad"
       ></iframe>
     </div>
-    <HoverDictPopup
-      ref="popupRef"
-      :visible="popupVisible"
-      :word="popupWord"
-      :dict-id="popupDictId"
-      :x="popupX"
-      :y="popupY"
-      @close="popupVisible = false"
-    />
     <n-modal v-model:show="cssEditorVisible" preset="card" title="词典 CSS 编辑器" style="width: 760px;">
       <Codemirror
         :model-value="cssContent"
@@ -154,11 +145,9 @@ import { useMessage } from 'naive-ui';
 import { Codemirror } from 'vue-codemirror';
 import { css as cssLang } from '@codemirror/lang-css';
 import { exportCurrentEntry, getDictUserCSS, saveDictUserCSS } from '@/apis/dicts-api';
-import { getPreferences } from '@/apis/config';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
 import MainDictSection from "./MainDictSection.vue";
-import HoverDictPopup from "@/components/dict/HoverDictPopup.vue";
 
 const dictQueryStore = useDictQueryStore();
 const message = useMessage();
@@ -168,9 +157,7 @@ const TOP_WIN_MSG_ZOOM_IN =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN';
 const TOP_WIN_MSG_REFRESH = '__Medict_TOP_WIN_MSG_EVTP_REFRESH';
 const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
-const INNER_FRAME_MSG_DBLCLICK_LOOKUP = '__Medict_INNER_FRAME_MSG_EVTP_DBLCLICK_LOOKUP';
-const INNER_FRAME_MSG_HOVER_LOOKUP = '__Medict_INNER_FRAME_MSG_EVTP_HOVER_LOOKUP';
-const INNER_FRAME_MSG_HOVER_LEAVE = '__Medict_INNER_FRAME_MSG_EVTP_HOVER_LEAVE';
+const INNER_FRAME_MSG_CLICK_LOOKUP = '__Medict_INNER_FRAME_MSG_EVTP_CLICK_LOOKUP';
 
 // 声明式 iframe：通过 Vue 响应式驱动 src，避免命令式 createElement / 手动设 .src
 const iframeRef = ref<HTMLIFrameElement | null>(null);
@@ -193,38 +180,6 @@ function broadcast(evtype: string) {
   }
 }
 
-// 悬停弹窗(#780):设置(从 preferences 读,默认开/400ms)+ 弹窗状态。
-const hoverEnabled = ref(true);
-const hoverDelayMs = ref(400);
-const popupVisible = ref(false);
-const popupWord = ref('');
-const popupDictId = ref('');
-const popupX = ref(0);
-const popupY = ref(0);
-const popupRef = ref<any>(null);
-
-// 弹窗用主/激活词典:多词典模式取激活集首项,否则当前选中词典。
-function activeDictId(): string {
-  if (dictQueryStore.multiMode && dictQueryStore.multiSelectedDicts.length > 0) {
-    return dictQueryStore.multiSelectedDicts[0]?.id || '';
-  }
-  return dictQueryStore.selectDict?.id || '';
-}
-// 找到消息来源 iframe(单 iframe 或多词典某节)的屏幕位置,用于坐标映射。
-function resolveSourceRect(e: MessageEvent): DOMRect | null {
-  const single = iframeRef.value;
-  if (single && e.source === single.contentWindow) {
-    return single.getBoundingClientRect();
-  }
-  for (const s of sectionRefs.value) {
-    const f = s?.iframeRef as HTMLIFrameElement | null;
-    if (f && e.source === f.contentWindow) {
-      return f.getBoundingClientRect();
-    }
-  }
-  return null;
-}
-
 // iframe 的 src：优先使用 mainContentURL（释义查询 URL），否则用 mainContent 构造 data URL。
 // 由 Vue 响应式驱动，store 中 mainContent / mainContentURL 变化时自动更新。
 const iframeSrc = computed(() => {
@@ -236,16 +191,20 @@ const iframeSrc = computed(() => {
   return 'data:text/html;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(decoded)));
 });
 
-// iframe 加载完成后发送 setup 消息（替代原来的 1s setTimeout），并下发 hover 设置(#780)
+// iframe 加载完成后发送 setup 消息（替代原来的 1s setTimeout）。
 function onIframeLoad() {
   const win = iframeRef.value?.contentWindow;
   if (!win) {
     return;
   }
-  win.postMessage(
-    { evtype: TOP_WIN_MSG_SETUP, hoverEnabled: hoverEnabled.value, hoverDelayMs: hoverDelayMs.value } as any,
-    '*'
-  );
+  win.postMessage({ evtype: TOP_WIN_MSG_SETUP } as any, '*');
+}
+
+function isKnownIframeSource(source: MessageEventSource | null): boolean {
+  if (iframeRef.value?.contentWindow === source) {
+    return true;
+  }
+  return sectionRefs.value.some((section) => section?.iframeRef?.contentWindow === source);
 }
 
 // 监听内嵌 iframe 的消息（entry:// 跳转等）。
@@ -255,10 +214,9 @@ function onInnerFrameMessage(e: MessageEvent) {
   if (!e || !e.data || !e.data.evtype) {
     return;
   }
-  // 弹窗自身 iframe 发来的消息:entry:///双击照常处理(并关弹窗),hover 一律忽略(防递归)
-  const popupIframe = popupRef.value?.iframeRef as HTMLIFrameElement | null;
-  const fromPopup = !!popupIframe && e.source === popupIframe.contentWindow;
-
+  if (!isKnownIframeSource(e.source)) {
+    return;
+  }
   switch (e.data.evtype) {
     // entry:// 跳转
     case INNER_FRAME_MSG_ENTRY_JUMP: {
@@ -268,40 +226,16 @@ function onInnerFrameMessage(e: MessageEvent) {
       dictQueryStore.updateInputSearchWord(keyWord);
       dictQueryStore.searchWord(keyWord);
       dictQueryStore.pushHistoryByEntryIDx(0);
-      if (fromPopup) popupVisible.value = false;
       break;
     }
-    // 双击选词查词（#258）
-    case INNER_FRAME_MSG_DBLCLICK_LOOKUP: {
+    // 悬停词单击查询：下划线由 iframe 内部负责，父窗口只执行主查询。
+    case INNER_FRAME_MSG_CLICK_LOOKUP: {
       let keyWord = (e.data.word || '').split('#')[0];
       if (keyWord) {
         dictQueryStore.updateInputSearchWord(keyWord);
         dictQueryStore.searchWord(keyWord);
         dictQueryStore.pushHistoryByEntryIDx(0);
       }
-      if (fromPopup) popupVisible.value = false;
-      break;
-    }
-    // 悬停取词(#780):坐标映射后弹窗
-    case INNER_FRAME_MSG_HOVER_LOOKUP: {
-      if (fromPopup || !hoverEnabled.value) break;
-      const word = String(e.data.word || '').trim();
-      const dictId = activeDictId();
-      if (!word || !dictId) break;
-      const r = resolveSourceRect(e);
-      const baseX = r ? r.left : 0;
-      const baseY = r ? r.top : 0;
-      popupWord.value = word;
-      popupDictId.value = dictId;
-      popupX.value = baseX + Number(e.data.clientX || 0);
-      popupY.value = baseY + Number(e.data.clientY || 0);
-      popupVisible.value = true;
-      break;
-    }
-    // 悬停离开(移出/滚动/ESC):关弹窗
-    case INNER_FRAME_MSG_HOVER_LEAVE: {
-      if (fromPopup) break;
-      popupVisible.value = false;
       break;
     }
   }
@@ -423,12 +357,6 @@ onMounted(() => {
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
-  // 读取悬停弹窗偏好(var(--c-gray-600)):hoverpopup 默认 true,hoverdelayms 默认 400
-  getPreferences().then((p: any) => {
-    hoverEnabled.value = p?.hoverpopup !== false;
-    const d = Number(p?.hoverdelayms);
-    hoverDelayMs.value = d > 0 ? d : 400;
-  }).catch(() => { /* 用默认值 */ });
 });
 
 onUnmounted(() => {
