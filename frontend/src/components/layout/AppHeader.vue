@@ -55,7 +55,7 @@ import MainFunctions from '@/view/main/MainFunctions.vue';
   -moz-user-select: none;
 
   background-color: $theme-top-header-background-color;
-  border-bottom: 1px solid #dcdcdc;
+  border-bottom: 1px solid var(--c-gray-300);
 
   justify-content: space-between;
   height: $layout-header-height;

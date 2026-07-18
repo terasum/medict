@@ -94,7 +94,7 @@ function onClickInternalLink(event: any) {
   position: absolute;
   bottom: 0;
   width: 100%;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--c-gray-300);
   height: 20px;
   overflow: hidden;
   padding: 0;
@@ -118,18 +118,18 @@ function onClickInternalLink(event: any) {
       line-height: 20px;
       display: block;
       font-size: 12px;
-      color: #666;
+      color: var(--c-gray-700);
     }
 
     &:hover {
-      color: #333;
+      color: var(--c-gray-900);
     }
   }
   
   span.split-line {
     &::before {
       content: '|';
-      color: #ccc;
+      color: var(--c-gray-300);
     }
     margin-left: 3px;
     margin-right: 3px;

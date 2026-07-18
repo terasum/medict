@@ -28,7 +28,7 @@
     display: flex;
     flex-direction: row;
     height: calc(100% - $layout-header-height);
-    border-left: 1px solid #dcdcdc;
+    border-left: 1px solid var(--c-gray-300);
     overflow-y: auto;
     &::-webkit-scrollbar {
     display: none;

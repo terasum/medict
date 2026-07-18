@@ -49,6 +49,9 @@ export default defineConfig({
           --c-primary: ${palette.primary};
           --c-primary-hover: ${palette.primaryHover};
           --c-danger: ${palette.danger};
+          ${Object.entries(palette.gray)
+            .map(([k, v]) => `--c-gray-${k}: ${v};`)
+            .join('\n          ')}
         }
         body {
           font-family: ${palette.fontSans.join(',')};

@@ -28,8 +28,8 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    box-shadow: inset 0 calc(max(1px, 0.0625rem) * -1) #d0d7de;
-    background-color: #f6f8fa;
+    box-shadow: inset 0 calc(max(1px, 0.0625rem) * -1) var(--c-gray-300);
+    background-color: var(--c-gray-100);
     .toolbar-dicts{
       width: calc(100% - 30px);
     }
@@ -40,7 +40,7 @@
       display: block;
       height: 24px;
       width: 24px;
-      border: 1px solid #d1d7dd;
+      border: 1px solid var(--c-gray-300);
       font-size: 16px;
       text-align: center;
       line-height: 24px;
@@ -48,8 +48,8 @@
       margin-right: 3px;
       margin-top: 2px;
       border-radius: 3px;
-      background-color: #f6f8fa;
-      color: #596059;
+      background-color: var(--c-gray-100);
+      color: var(--c-gray-600);
       svg {
         cursor: pointer;
       }
@@ -357,7 +357,7 @@ onMounted(() => {
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
-  // 读取悬停弹窗偏好(#777):hoverpopup 默认 true,hoverdelayms 默认 400
+  // 读取悬停弹窗偏好(var(--c-gray-600)):hoverpopup 默认 true,hoverdelayms 默认 400
   getPreferences().then((p: any) => {
     hoverEnabled.value = p?.hoverpopup !== false;
     const d = Number(p?.hoverdelayms);

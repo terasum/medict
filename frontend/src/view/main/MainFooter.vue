@@ -47,7 +47,7 @@ const percentage_hint = computed(() =>{
   margin: 0 5px ;
 
   font-style: normal;
-  color: #666;
+  color: var(--c-gray-700);
 
 }
   
