@@ -54,11 +54,11 @@
   <AppSidebar>
       <ul id="word-pending-list">
         <li
-          v-for="item in dictQueryStore.queryPendingList"
-          :data-id="item.id"
-          :key="item.id"
-          @click="selectItem(item.id)"
-          :class="selected_id == item.id ? 'active' : ''"
+          v-for="(item, entryIndex) in dictQueryStore.queryPendingList"
+          :data-id="entryIndex"
+          :key="`${item.keyword}-${entryIndex}`"
+          @click="selectItem(entryIndex)"
+          :class="selectedIndex === entryIndex ? 'active' : ''"
         >
           <span>{{ item.keyword }}</span>
         </li>
@@ -70,22 +70,29 @@
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 
 import { useDictQueryStore } from '@/store/dict';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 const dictQueryStore = useDictQueryStore();
-const selected_id = ref('0');
+const selectedIndex = ref(0);
+
+watch(
+  () => dictQueryStore.queryPendingList,
+  () => {
+    selectedIndex.value = 0;
+  }
+);
 
 // 按 entry 定位:多词典模式更新主词典那节,单词典模式走 locateWord。
-function locateEntry(entry_id) {
+function locateEntry(entryIndex) {
   if (dictQueryStore.multiMode) {
-    dictQueryStore.locateInMultiPrimary(entry_id);
+    dictQueryStore.locateInMultiPrimary(entryIndex);
   } else {
-    dictQueryStore.locateWord(entry_id);
+    dictQueryStore.locateWord(entryIndex);
   }
 }
 
-function selectItem(entry_id) {
-  selected_id.value = entry_id;
-  locateEntry(entry_id);
+function selectItem(entryIndex) {
+  selectedIndex.value = entryIndex;
+  locateEntry(entryIndex);
 }
 
 // 焦点守卫：当用户正在输入框 / 文本域 / contenteditable 中输入时，不劫持方向键
@@ -110,19 +117,19 @@ function onKeyDown(e) {
     return;
   }
   if (e.key == 'ArrowUp') {
-    if (selected_id.value == '0') {
-      selected_id.value = len - 1;
+    if (selectedIndex.value === 0) {
+      selectedIndex.value = len - 1;
     } else {
-      selected_id.value = parseInt(selected_id.value) - 1;
+      selectedIndex.value -= 1;
     }
-    locateEntry(selected_id.value);
+    locateEntry(selectedIndex.value);
   } else if (e.key == 'ArrowDown') {
-    if (selected_id.value == len - 1) {
-      selected_id.value = '0';
+    if (selectedIndex.value === len - 1) {
+      selectedIndex.value = 0;
     } else {
-      selected_id.value = parseInt(selected_id.value) + 1;
+      selectedIndex.value += 1;
     }
-    locateEntry(selected_id.value);
+    locateEntry(selectedIndex.value);
   }
 }
 
