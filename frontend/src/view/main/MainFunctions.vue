@@ -18,7 +18,7 @@
         gap: 2px;
 
         .btn-nav {
-          height: 28px;
+          height: 44px;
           width: 28px;
           padding: 0;
           text-align: center;

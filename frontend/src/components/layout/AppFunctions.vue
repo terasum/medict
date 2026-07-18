@@ -9,8 +9,7 @@
   flex-direction: row;
 
   .header {
-
-    height: calc($layout-header-height - 1px);
+    height: 100%;
     display: flex;
     width: 100%;
     flex-direction: row;
@@ -20,7 +19,7 @@
 
     .header-nav-functions {
       max-width: 280px;
-      height: auto;
+      height: 100%;
       padding: 0;
       margin: 0;
       margin-left: 8px;
