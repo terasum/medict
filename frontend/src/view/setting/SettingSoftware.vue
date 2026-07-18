@@ -1,59 +1,39 @@
 <template>
-  <div class="setting-main-container" ref="containerRef">
-    <div class="setting-main-container-header">
-      <h3>软件设置</h3>
-    </div>
-
-    <div class="setting-main-container-content">
-      <n-card class="setting-section">
-        <SettingItem title="全文搜索引擎">
-          <template #desc>
-          用于进行全文搜索的内置引擎
-          </template>
-          bleve
-        </SettingItem>
-        <SettingItem title="全文索引超时时间">
-          <template #desc>
-          全文搜索的内置引擎建立索引的超时时间
-          </template>
-          <template #action>
-            <button class="btn btn-default">修改</button>
-          </template>
-          10s
-        </SettingItem>
-      </n-card>
-    </div>
-  </div>
+  <SettingPage title="通用设置" description="配置搜索行为与应用级参数。">
+    <section class="settings-section">
+      <h2 class="settings-section-title">搜索</h2>
+      <SettingItem title="全文搜索引擎">
+        <template #desc>用于全文检索的内置索引引擎</template>
+        <span class="readonly-value">Bleve</span>
+      </SettingItem>
+      <SettingItem title="索引超时时间">
+        <template #desc>建立全文索引允许等待的最长时间，例如 10s 或 1m</template>
+        <EditableSettingValue
+          v-model="indexTimeout"
+          aria-label="全文索引超时时间"
+          :on-save="saveTimeout"
+        />
+      </SettingItem>
+    </section>
+  </SettingPage>
 </template>
-<script setup>
-import { NCard, NAffix, NTag } from 'naive-ui';
-import { ref } from 'vue';
-import SettingItem from '@/components/setting/SettingItem.vue';
 
-const containerRef = (ref < HTMLElement) | (undefined > undefined);
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { getPreferences, savePreferences } from '@/apis/config';
+import EditableSettingValue from '@/components/setting/EditableSettingValue.vue';
+import SettingItem from '@/components/setting/SettingItem.vue';
+import SettingPage from '@/components/setting/SettingPage.vue';
+
+const indexTimeout = ref('10s');
+const saveTimeout = (value: string) => savePreferences({ fulltextindextimeout: value });
+
+onMounted(async () => {
+  const preferences = await getPreferences();
+  indexTimeout.value = String(preferences.fulltextindextimeout ?? '10s');
+});
 </script>
 
-<style lang="scss" scoped>
-@use '@/style/variables.scss' as *;
-
-
-.setting-main-container {
-  height: 100%;
-  width: 100%;
-  overflow-y: auto;
-  margin: 0;
-  padding: 0;
-  .setting-main-container-header {
-    display: flex;
-    z-index: 99;
-    background: #fff;
-    padding-left: 10px;
-  }
-  .setting-main-container-content {
-    padding: 10px;
-    .setting-section{
-        margin: 6px auto;
-    }
-  }
-}
+<style scoped>
+.readonly-value { color: var(--c-gray-700); }
 </style>

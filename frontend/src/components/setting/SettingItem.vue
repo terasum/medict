@@ -27,46 +27,50 @@ defineSlots<{
 </script>
 <style lang="scss" scoped>
 .setting-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin: 8 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(220px, 1.2fr);
+  gap: 20px;
   border-bottom: 1px solid var(--c-gray-300);
   &:nth-last-child(1) {
     border-bottom: none;
   }
-  padding: 10px 0;
+  padding: 14px 16px;
 
   .setting-item {
-    min-width: 320px;
-    max-width: calc(100% - 40px);
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    min-width: 0;
     .setting-item-label {
       display: flex;
-      flex-direction: row;
-      padding-right: 30px;
-      margin-bottom: 15px;
+      flex-direction: column;
+      gap: 4px;
 
       .setting-item-title {
-        display: flex;
-        flex-direction: column;
-        min-width: 80px;
-        font-weight: bold;
-        justify-content: center;
+        color: var(--c-gray-900);
+        font-size: 13px;
+        font-weight: 600;
       }
       .setting-item-desc {
-        color: var(--c-gray-500);
-        font-size: 13px;
-        line-break: loose;
-        padding-left: 20px;
-        font-style: italic;
+        color: var(--c-gray-600);
+        font-size: 12px;
+        line-height: 1.45;
       }
     }
   }
+
+  .setting-item-content {
+    min-width: 0;
+    color: var(--c-gray-800);
+    font-size: 13px;
+  }
+
   .setting-item-action {
-    // width: 40px;
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .setting-group {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }
 </style>

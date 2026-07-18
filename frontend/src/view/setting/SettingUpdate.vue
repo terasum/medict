@@ -1,82 +1,43 @@
 <template>
-    <div class="setting-main-container" ref="containerRef">
-      <div class="setting-main-container-header">
-        <h3>检查更新</h3>
-      </div>
-  
-      <div class="setting-main-container-content">
-        <n-card class="setting-section">
-            <SettingItem title="最新版本">
-              <template #desc>
-              </template>
-              <template #action>
-              <button class="btn btn-default" @click="checkLatestVersion">检查新版本</button>
-              </template>
-                {{latestVersion}}
-            </SettingItem>
-  
-        </n-card>
-      </div>
-    </div>
-  </template>
-  <script lang="ts" setup>
-  import { NCard } from 'naive-ui';
-  import { useDialog,useMessage  } from 'naive-ui'
+  <SettingPage title="版本更新" description="查看当前版本并检查可用更新。" back>
+    <section class="settings-section">
+      <h2 class="settings-section-title">版本信息</h2>
+      <SettingItem title="当前版本">
+        <template #desc>Medict 当前安装的应用版本</template>
+        <div class="update-row">
+          <span>{{ latestVersion }}</span>
+          <button class="btn btn-default" type="button" @click="checkLatestVersion">检查更新</button>
+        </div>
+      </SettingItem>
+    </section>
+  </SettingPage>
+</template>
 
-  import { ref,onMounted } from 'vue';
-  import SettingItem from "@/components/setting/SettingItem.vue";
-  
-  const containerRef = ref<any>();
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { useDialog, useMessage } from 'naive-ui';
+import SettingItem from '@/components/setting/SettingItem.vue';
+import SettingPage from '@/components/setting/SettingPage.vue';
 
-  const latestVersion = ref("3.0.1-alpha");
+const latestVersion = ref('3.0.1-alpha');
+const dialog = useDialog();
+const message = useMessage();
 
-  const dialog = useDialog();
-  const message = useMessage();
+function checkLatestVersion() {
+  dialog.info({
+    title: '检查更新',
+    content: `当前版本 ${latestVersion.value}，暂未发现可用更新。`,
+    positiveText: '知道了',
+    onPositiveClick: () => message.success('已完成检查'),
+  });
+}
+</script>
 
-
-  function checkLatestVersion() {
-    dialog.success({
-          title: '检查更新',
-          content: 'message',
-          positiveText: '确认',
-          negativeText: "取消",
-          onPositiveClick: () => {
-            message.success('确认')
-          }
-        })
-  }
- 
-  onMounted(()=>{
- 
-  })
-  
-  
-  
-  </script>
-  
-  <style lang="scss" scoped>
-  @use '@/style/variables.scss' as *;
-
-  
-  .setting-main-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    .setting-main-container-header {
-      display: flex;
-      z-index: 99;
-      background: #fff;
-      padding-left: 10px;
-    }
-    .setting-main-container-content {
-      padding: 10px;
-      .setting-section{
-          margin: 6px auto;
-      }
-    }
-  
-  }
-  </style>
-  
+<style scoped>
+.update-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+</style>

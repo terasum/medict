@@ -1,0 +1,113 @@
+.settings-page {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--c-gray-50);
+}
+
+.settings-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--c-gray-300);
+}
+
+.settings-page-header h1 {
+  margin: 0;
+  color: var(--c-gray-900);
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.settings-page-header p {
+  margin: 5px 0 0;
+  color: var(--c-gray-600);
+  font-size: 12px;
+}
+
+.settings-page-content {
+  width: min(760px, calc(100% - 48px));
+  padding: 20px 24px 32px;
+}
+
+.settings-section {
+  margin: 0 0 16px;
+  border: 1px solid var(--c-gray-300);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.settings-section-title {
+  margin: 0;
+  padding: 14px 16px 4px;
+  color: var(--c-gray-800);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.settings-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 3px 8px;
+  color: var(--c-gray-700);
+  background: var(--c-gray-100);
+  border: 1px solid var(--c-gray-300);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.settings-back-button:hover {
+  background: var(--c-gray-200);
+}
+
+.settings-document.markdown-body {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  overflow: visible;
+  padding: 20px 24px;
+  border: 1px solid var(--c-gray-300);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.settings-document.markdown-body h1,
+.settings-document.markdown-body h2,
+.settings-document.markdown-body h3 {
+  color: var(--c-gray-900);
+  line-height: 1.35;
+}
+
+.settings-document.markdown-body h1 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.settings-document.markdown-body h2 {
+  margin-top: 24px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--c-gray-200);
+  font-size: 17px;
+}
+
+.settings-document.markdown-body p,
+.settings-document.markdown-body li {
+  color: var(--c-gray-800);
+  line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .settings-page-content {
+    width: auto;
+    padding: 16px;
+  }
+}

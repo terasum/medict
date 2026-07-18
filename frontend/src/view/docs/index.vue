@@ -62,6 +62,13 @@
         <div class="x-layout-content">
           <AppMainContent>
             <div class="docs-container">
+              <div class="docs-toolbar">
+                <button class="settings-back-button" type="button" aria-label="返回设置" @click="goBack">
+                  <span class="icon icon-left-open" aria-hidden="true"></span>
+                  返回设置
+                </button>
+                <strong>使用说明</strong>
+              </div>
               <div class="markdown-body">
                   <router-view></router-view>
               </div>
@@ -86,11 +93,12 @@ import AppHeader from '@/components/layout/AppHeader.vue';
 
 import AppMainContent from '@/components/layout/AppMainContent.vue';
 import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
-import {ref} from "vue"
-import { RouterView, useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { RouterView, useRoute, useRouter } from 'vue-router';
 import { useUIStore } from '@/store/ui';
 
 const router = useRouter();
+const route = useRoute();
 const uiStore = useUIStore();
 uiStore.updateCurrentTab("docs");
 
@@ -101,7 +109,12 @@ const routerMap: Record<number, string> = {
   2: "/docs/faq",
 };
 
-let currentMenu = ref(0);
+const currentMenu = computed(() => {
+  const path = route.path;
+  if (path.endsWith('/select_and_use')) return 1;
+  if (path.endsWith('/faq')) return 2;
+  return 0;
+});
 
 
     function onClickMenu(id: number) {
@@ -109,12 +122,15 @@ let currentMenu = ref(0);
       if (!routerMap[id]) {
         return;
       }
-      if (currentMenu.value == id) {
+      if (currentMenu.value === id) {
         return;
       }
-      currentMenu.value = id;
       router.replace({path: routerMap[id]});
     }
+
+function goBack() {
+  router.replace('/setting');
+}
   
 </script>
 
@@ -176,7 +192,18 @@ let currentMenu = ref(0);
   margin: 0;
   padding: 0 5px;
 
+  .docs-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 48px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--c-gray-300);
+    background: #fff;
+  }
+
   .markdown-body {
+    height: calc(100% - 48px);
     height: 100%;
     width: 100%;
     font-size: 100%;

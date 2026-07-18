@@ -1,82 +1,44 @@
 <template>
-    <div class="setting-main-container" ref="containerRef">
-      <div class="setting-main-container-header">
-        <h3>插件设置</h3>
-      </div>
-  
-      <div class="setting-main-container-content">
+  <SettingPage title="插件设置" description="管理插件目录和前端网络访问范围。">
+    <section class="settings-section">
+      <h2 class="settings-section-title">访问权限</h2>
+      <SettingItem title="允许访问的域名">
+        <template #desc>每行一个域名，不包含协议和路径</template>
+        <EditableSettingValue
+          v-model="allowedDomains"
+          aria-label="插件允许访问的域名"
+          multiline
+          :rows="5"
+          :on-save="saveDomains"
+        />
+      </SettingItem>
+    </section>
+    <section class="settings-section">
+      <h2 class="settings-section-title">插件目录</h2>
+      <SettingItem title="本地插件">
+        <template #desc>插件功能仍在完善中，目录将在启用后显示</template>
+        <span class="muted-value">尚未启用</span>
+      </SettingItem>
+    </section>
+  </SettingPage>
+</template>
 
-      <n-card class="setting-section">
-          <SettingItem title="前端域白名单" :value="dictDir">
-            <template #desc>
-            前端插件允许访问的域名 (不支持IP地址)
-            </template>
-            <template #action>
-            <button class="btn btn-default" @click="OpenDictDir">修改</button>
-            <button class="btn btn-default" @click="OpenDictDir">删除</button>
-            </template>
-              <table class="table-striped table-wrapper">
-                <thead><tr><th width="20">选择</th><th width="20">序号</th><th>允许域名</th></tr></thead>
-                <tbody>
-                  <tr><td><input width="20" type="checkbox"/></td><td width="20">1</td><td>localhost</td></tr>
-                  <tr><td><input width="20" type="checkbox"/></td><td width="20">1</td><td>localhost</td></tr>
-                  <tr><td><input width="20" type="checkbox"/></td><td width="20">1</td><td>localhost</td></tr>
-                </tbody>
-              </table>
-          </SettingItem>
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { getPreferences, savePreferences } from '@/apis/config';
+import EditableSettingValue from '@/components/setting/EditableSettingValue.vue';
+import SettingItem from '@/components/setting/SettingItem.vue';
+import SettingPage from '@/components/setting/SettingPage.vue';
 
-      </n-card>
-      <n-card class="setting-section">
-          <SettingItem title="插件目录">
-             <template #desc>
-              插件目录, 用于存储所有的插件
-            </template>
-            <template #action>
-            <button class="btn btn-default" @click="OpenDictDir">打开</button>
-            </template>
-            {{ PluginDir }}
-          </SettingItem>
-      </n-card>
+const allowedDomains = ref('localhost');
+const saveDomains = (value: string) => savePreferences({ plugindomainallowlist: value });
 
+onMounted(async () => {
+  const preferences = await getPreferences();
+  allowedDomains.value = String(preferences.plugindomainallowlist ?? 'localhost');
+});
+</script>
 
-      </div>
-    </div>
-  </template>
-  <script setup>
-  import { NCard, NAffix, NTag } from 'naive-ui';
-  import { ref } from 'vue';
-  import SettingItem from '@/components/setting/SettingItem.vue';
-  
-  const containerRef = (ref < HTMLElement) | (undefined > undefined);
-
-  let PluginDir = ref("C:\\Users\\Administrator\\AppData\\Roaming\\medict\\plugins");
-  </script>
-  
-  <style lang="scss" scoped>
-  @use '@/style/variables.scss' as *;
-
-  
-  .setting-main-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    .setting-main-container-header {
-      display: flex;
-      z-index: 99;
-      background: #fff;
-      padding-left: 10px;
-    }
-    .setting-main-container-content {
-      padding: 10px;
-      .setting-section{
-          margin: 6px auto;
-          .table-wrapper{
-            border: 1px solid var(--c-gray-300);
-          }
-      }
-    }
-  }
-  </style>
-  
+<style scoped>
+.muted-value { color: var(--c-gray-500); }
+</style>

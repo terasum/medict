@@ -22,8 +22,8 @@
 
 
 .about-view {
-  height: 100%;
-  overflow-y: auto;
+  height: auto;
+  overflow: visible;
   padding: 15px 10px;
   .about-title {
   }
@@ -116,7 +116,8 @@
 </style>
 
 <template>
-  <div class="container about-view">
+  <SettingPage title="关于 Medict" description="版本信息、项目主页与贡献者。" back>
+  <div class="container about-view settings-section">
     <div class="about-title">
       <!-- <h1>About</h1> -->
     </div>
@@ -191,12 +192,14 @@
       </section>
     </div>
   </div>
+  </SettingPage>
 </template>
 
 <script lang="ts" setup>
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 import { Code, PeopleCarry } from '@vicons/fa';
 import { NIcon } from 'naive-ui';
+import SettingPage from '@/components/setting/SettingPage.vue';
 
 function openExternal(url: string) {
   BrowserOpenURL(url);

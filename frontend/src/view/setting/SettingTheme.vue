@@ -1,45 +1,20 @@
 <template>
-    <div class="setting-main-container" ref="containerRef">
-      <div class="setting-main-container-header">
-        <h3>主题设置</h3>
-      </div>
-  
-      <div class="setting-main-container-content">
-        <n-card class="setting-section">
-        </n-card>
-      </div>
-    </div>
-  </template>
-  <script setup>
-  import { NCard, NAffix, NTag } from 'naive-ui';
-  import { ref } from 'vue';
-  import SettingItem from '@/components/setting/SettingItem.vue';
-  
-  const containerRef = (ref < HTMLElement) | (undefined > undefined);
-  </script>
-  
-  <style lang="scss" scoped>
-  @use '@/style/variables.scss' as *;
+  <SettingPage title="外观设置" description="调整 Medict 的显示方式。">
+    <section class="settings-section">
+      <h2 class="settings-section-title">主题</h2>
+      <SettingItem title="界面主题">
+        <template #desc>当前跟随系统外观；更多主题选项将在后续版本提供</template>
+        <span class="theme-status">跟随系统</span>
+      </SettingItem>
+    </section>
+  </SettingPage>
+</template>
 
-  
-  .setting-main-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    .setting-main-container-header {
-      display: flex;
-      z-index: 99;
-      background: #fff;
-      padding-left: 10px;
-    }
-    .setting-main-container-content {
-      padding: 10px;
-      .setting-section{
-          margin: 6px auto;
-      }
-    }
-  }
-  </style>
-  
+<script setup lang="ts">
+import SettingItem from '@/components/setting/SettingItem.vue';
+import SettingPage from '@/components/setting/SettingPage.vue';
+</script>
+
+<style scoped>
+.theme-status { color: var(--c-gray-700); }
+</style>

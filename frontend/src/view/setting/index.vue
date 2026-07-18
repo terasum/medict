@@ -1,396 +1,139 @@
 <!--
-
  Copyright (C) 2023 Quan Chen <chenquan_act@163.com>
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-<!--
-
- Copyright (C) 2023 Quan Chen <chenquan_act@163.com>
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ GPL-3.0.
 -->
 
 <template>
-  <div class="x-space">
+  <div class="x-space settings-shell">
     <div class="x-layout">
-      <div class="x-layout-header">
-            <AppHeader/>
-      </div>
+      <div class="x-layout-header"><AppHeader /></div>
       <div class="x-layout-main-area">
-        <div class="x-layout-sidebar">
+        <aside class="x-layout-sidebar">
           <AppSidebar>
-            <div class="dict-groups">
-              <div class="dict-group-list">
-                <nav class="nav-group">
-                  <h5 class="nav-group-title">APP 设置</h5>
-                  <!-- <a class="nav-group-item active"> -->
-                  <span class="nav-group-item" @click='changeTab("/setting/dict")'>
-                    <span class="icon icon-book"></span>
-                    <a> 词典设置 </a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/software")'>
-                    <span class="icon icon-cog"></span>
-                    <a> 软件设置 </a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/theme")'>
-                    <span class="icon icon-palette"></span>
-                    <a> 主题设置 </a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/plugin")'>
-                    <span class="icon icon-rocket"></span>
-                    <a> 插件设置</a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/debug")'>
-                    <span class="icon icon-bug"></span>
-                    <a> 调试工具</a>
-                  </span>
-                </nav>
-                <nav class="nav-group">
-                  <h5 class="nav-group-title">关于信息</h5>
-                  <span class="nav-group-item" @click='changeTab("/docs")'>
-                    <span class="icon icon-help-circled"></span>
-                    <a> 使用说明</a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/terms")'>
-                    <span class="icon icon-feather"></span>
-                    <a> 隐私声明</a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/about")'>
-                    <span class="icon icon-info-circled"></span>
-                    <a> 关于信息</a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/update")'>
-                    <span class="icon icon-arrows-ccw"></span>
-                    <a> 版本更新</a>
-                  </span>
-                  <span class="nav-group-item" @click='changeTab("/setting/license")'>
-                    <span class="icon icon-cc"></span>
-                    <a> 开源协议</a>
-                  </span>
-                </nav>
-              </div>
-            </div>
+            <nav v-for="group in settingsNavigation" :key="group.title" class="nav-group settings-nav-group">
+              <h2 class="nav-group-title">{{ group.title }}</h2>
+              <RouterLink
+                v-for="item in group.items"
+                :key="item.to"
+                :to="item.to"
+                class="nav-group-item settings-nav-item"
+              >
+                <span :class="['icon', item.icon]" aria-hidden="true" />
+                <span class="settings-nav-copy">
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.description }}</small>
+                </span>
+              </RouterLink>
+            </nav>
           </AppSidebar>
-        </div>
-        <div class="x-layout-content">
-          <AppMainContent>
-            <router-view></router-view>
-          </AppMainContent>
-        </div>
+        </aside>
+        <main class="x-layout-content">
+          <AppMainContent><RouterView /></AppMainContent>
+        </main>
       </div>
-      <div class="n-layout-footer">
-        <AppFooter> </AppFooter>
-      </div>
+      <div class="n-layout-footer"><AppFooter /></div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+import AppFooter from '@/components/layout/AppFooter.vue';
 import AppHeader from '@/components/layout/AppHeader.vue';
-import AppSidebar from '../../components/layout/AppSidebar.vue';
-import AppFooter from '../../components/layout/AppFooter.vue';
-import AppFunctions from '../../components/layout/AppFunctions.vue';
-import AppMainContent from '../../components/layout/AppMainContent.vue';
-import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
-import { RouterView, RouterLink, useRouter } from 'vue-router';
-
-import { NIcon, NButton, NButtonGroup } from 'naive-ui';
+import AppMainContent from '@/components/layout/AppMainContent.vue';
+import AppSidebar from '@/components/layout/AppSidebar.vue';
 import { useUIStore } from '@/store/ui';
-import { useDictQueryStore } from '@/store/dict';
-import { GetAllDicts } from '@/apis/dicts-api';
+import { settingsNavigation } from './settings-navigation';
 
-import { ref, onMounted } from 'vue';
-
-const dictsList = ref([]);
-const dictQueryStore = useDictQueryStore();
-const uiStore = useUIStore();
-const router = useRouter();
-
-uiStore.updateCurrentTab('setting');
-
-function changeTab(tablink) {
-  router.replace({path: tablink});
-}
+useUIStore().updateCurrentTab('setting');
 </script>
 
 <style lang="scss" scoped>
 @use '@/style/variables.scss' as *;
 
-
-.x-space {
+.x-space,
+.x-layout {
   width: 100%;
   height: 100%;
   padding: 0;
   margin: 0;
-
-  .x-layout {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    .x-layout-main-area {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      height: calc(100% - $layout-footer-height);
-      padding: 0;
-      margin: 0;
-      margin-right: -60px;
-
-      .x-layout-sidebar {
-        width: $layout-left-sidebar-width;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        background-color: var(--c-gray-100);
-      }
-
-      .x-layout-content {
-        width: calc(
-          100% - $layout-left-sidebar-width
-        );
-        height: 100%;
-        padding: 0;
-        margin: 0;
-      }
-
-      .x-layout-right-toolbar {
-        width: $layout-right-toolbar-width;
-      }
-    }
-    .n-layout-footer {
-      width: 100%;
-      height: $layout-footer-height;
-      padding: 0;
-      margin: 0;
-    }
-  }
 }
-.nav-group-item {
-  a {
-    color: var(--c-gray-700);
-    text-decoration: none;
-  }
-}
-</style>
-<style lang="scss">
-.markdown-body {
-  height: 100%;
+
+.x-layout-main-area {
+  display: flex;
   width: 100%;
-  font-size: 100%;
-  overflow-y: scroll;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  padding-bottom: 30px;
+  height: calc(100% - $layout-footer-height);
+}
 
-  color: var(--c-gray-800);
-  font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman',
-    serif;
-  font-size: 14px;
-  line-height: 20px;
-  padding: 1em;
-  margin: auto;
-  max-width: 45em;
-  a {
-    color: var(--c-primary);
-    text-decoration: none;
-  }
-  a:visited {
-    color: #0b0080;
-  }
-  a:hover {
-    color: #06e;
-  }
-  a:active {
-    color: #faa700;
-  }
-  a:focus {
-    outline: thin dotted;
-  }
-  a:hover,
-  a:active {
-    outline: 0;
-  }
+.x-layout-sidebar {
+  width: 210px;
+  height: 100%;
+  background: var(--c-gray-100);
+  border-right: 1px solid var(--c-gray-300);
+}
 
-  ::-moz-selection {
-    background: rgba(255, 255, 0, 0.3);
-    color: #000;
-  }
-  ::selection {
-    background: rgba(255, 255, 0, 0.3);
-    color: #000;
-  }
+.x-layout-content {
+  width: calc(100% - 210px);
+  height: 100%;
+  min-width: 0;
+}
 
-  a::-moz-selection {
-    background: rgba(255, 255, 0, 0.3);
-    color: var(--c-primary);
-  }
-  a::selection {
-    background: rgba(255, 255, 0, 0.3);
-    color: var(--c-primary);
-  }
+.n-layout-footer {
+  width: 100%;
+  height: $layout-footer-height;
+}
 
-  p {
-    margin: 1em 0;
-  }
+.settings-nav-group + .settings-nav-group {
+  margin-top: 8px;
+}
 
-  img {
-    max-width: 100%;
-    margin: 1em 0;
-  }
+.settings-nav-group .nav-group-title {
+  padding: 14px 14px 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: normal;
-    color: #343434;
-    line-height: 1em;
-    margin: 1em 0;
-  }
-  h4,
-  h5,
-  h6 {
-    font-weight: bold;
-  }
-  h1 {
-    font-size: 1.8em;
-    text-align: center;
-  }
-  h2 {
-    font-size: 1.5em;
-  }
-  h3 {
-    font-size: 1.3em;
-  }
-  h4 {
-    font-size: 1.1em;
-  }
-  h5 {
-    font-size: 1em;
-  }
-  h6 {
-    font-size: 1em;
-  }
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin: 1px 8px;
+  white-space: normal;
+}
 
-  blockquote {
-    color: var(--c-gray-700);
-    margin: 0;
-    padding-left: 3em;
-    border-left: 0.5em var(--c-gray-200) solid;
-  }
-  hr {
-    display: block;
-    height: 0;
-    border: 0;
-    border-top: 1px solid var(--c-gray-500);
-    border-bottom: 1px solid var(--c-gray-200);
-    margin: 1em 0;
-    padding: 0;
-  }
-  pre,
-  code,
-  kbd,
-  samp {
-    color: #000;
-    font-family: monospace, monospace;
-    _font-family: 'courier new', monospace;
-    font-size: 0.98em;
-  }
-  pre {
-    white-space: pre;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    code {
-      width: 100%;
-    }
-  }
+.settings-nav-item.router-link-active {
+  color: var(--c-gray-900);
+  background: var(--c-gray-300);
+}
 
-  b,
-  strong {
-    font-weight: bold;
-  }
+.settings-nav-item .icon {
+  flex: 0 0 22px;
+  float: none;
+  margin: 0 8px 0 0;
+}
 
-  dfn {
-    font-style: italic;
-  }
+.settings-nav-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.25;
+}
 
-  ins {
-    background: #ff9;
-    color: #000;
-    text-decoration: none;
-  }
+.settings-nav-copy strong {
+  font-size: 13px;
+  font-weight: 600;
+}
 
-  mark {
-    background: #ff0;
-    color: #000;
-    font-style: italic;
-    font-weight: bold;
-  }
-
-  sub,
-  sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-  }
-  sup {
-    top: -0.5em;
-  }
-  sub {
-    bottom: -0.25em;
-  }
-
-  ul,
-  ol {
-    margin: 1em 0;
-    padding: 0 0 0 2em;
-  }
-  li p:last-child {
-    margin: 0;
-  }
-  dd {
-    margin: 0 0 0 2em;
-  }
-
-  img {
-    border: 0;
-    -ms-interpolation-mode: bicubic;
-    vertical-align: middle;
-  }
-
-  table {
-    border-collapse: collapse;
-    border-spacing: 0;
-  }
-  td {
-    vertical-align: top;
-  }
+.settings-nav-copy small {
+  margin-top: 2px;
+  color: var(--c-gray-600);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

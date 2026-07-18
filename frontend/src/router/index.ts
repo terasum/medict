@@ -36,6 +36,7 @@ import SettingSoftware from "@/view/setting/SettingSoftware.vue";
 import SettingTheme from "@/view/setting/SettingTheme.vue";
 import SettingPlugin from "@/view/setting/SettingPlugin.vue";
 import SettingUpdater from "@/view/setting/SettingUpdate.vue";
+import SettingDocument from "@/components/setting/SettingDocument.vue";
 
 import DebugResourceSearchView from "@/view/debug/DebugResourceSearch.vue";
 import DebugEditDictView from "@/view/debug/DebugEditDict.vue";
@@ -45,13 +46,21 @@ export default [
   { path: '/dict', component: DictWindow },
   { path: '/setting', component: SettingWindow, children:[
     
-      { path: '', component: SettingDict },
+      { path: '', redirect: 'dict' },
       { path: 'dict', component: SettingDict },
       { path: 'software', component: SettingSoftware },
       { path: 'theme', component: SettingTheme },
       { path: 'plugin', component: SettingPlugin },
-      { path: 'terms', component: terms_and_service },
-      { path: 'license', component: license_md },
+      {
+        path: 'terms',
+        component: SettingDocument,
+        props: { title: '隐私声明', description: '了解 Medict 如何处理本地数据。', document: terms_and_service },
+      },
+      {
+        path: 'license',
+        component: SettingDocument,
+        props: { title: '开源许可', description: 'Medict 与第三方组件的开源协议。', document: license_md },
+      },
       { path: 'about', component: about_md },
       { path: 'update', component: SettingUpdater },
     
