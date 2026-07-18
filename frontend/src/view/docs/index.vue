@@ -63,9 +63,9 @@
           <AppMainContent>
             <div class="docs-container">
               <div class="docs-toolbar">
-                <button class="settings-back-button" type="button" aria-label="返回设置" @click="goBack">
+                <button class="settings-back-button" type="button" aria-label="返回上一页" @click="goBack">
                   <span class="icon icon-left-open" aria-hidden="true"></span>
-                  返回设置
+                  返回
                 </button>
                 <strong>使用说明</strong>
               </div>
@@ -129,7 +129,7 @@ const currentMenu = computed(() => {
     }
 
 function goBack() {
-  router.replace('/setting');
+  router.back();
 }
   
 </script>

@@ -27,6 +27,10 @@
             <AppSidebar>
               <div class="dict-groups">
                 <div class="dict-group-list">
+                  <button class="debug-back-button" type="button" aria-label="返回上一页" @click="goBack">
+                    <span class="icon icon-left-open" aria-hidden="true"></span>
+                    返回
+                  </button>
                   <nav class="nav-group">
                     <h5 class="nav-group-title">调试功能</h5>
                     <router-link to="/debug/resource-search" class="nav-group-item">
@@ -75,12 +79,18 @@
   import {LemonRegular} from "@vicons/fa"
   
   import { ref, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
   
   const dictsList = ref([]);
   
   const dictQueryStore = useDictQueryStore();
   const uiStore = useUIStore();
+  const router = useRouter();
   uiStore.updateCurrentTab('debug');
+
+  function goBack() {
+    router.back();
+  }
   
   onMounted(() => {
     GetAllDicts()
@@ -183,6 +193,28 @@
       }
     }
   }
+
+  .debug-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    margin: 10px 10px 4px;
+    padding: 3px 8px;
+    color: var(--c-gray-700);
+    background: var(--c-gray-100);
+    border: 1px solid var(--c-gray-300);
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--c-gray-200);
+    }
+
+    .icon {
+      margin: 0;
+    }
+  }
   
   .dict-main-area {
     width: 100%;
@@ -200,4 +232,3 @@
     line-height: 20px;
   }
   </style>
-  
