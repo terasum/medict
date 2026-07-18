@@ -33,9 +33,15 @@
       }
       .fn-box {
         width: 46px;
-        height: 40px;
+        height: 44px;
         margin-top: 0;
-        padding-top: 4px;
+        padding: 4px 0 5px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
         cursor: pointer;
         border-radius: 4px;
         margin-left: 2px;
@@ -53,17 +59,15 @@
           display: block;
           font-size: 16px;
           line-height: 18px;
-          margin-left: auto;
-          margin-right: auto;
+          flex: 0 0 18px;
         }
         .fn-box-text {
-          margin-top: 2px;
-          margin-left: auto;
-          margin-right: auto;
+          margin: 0;
           text-align: center;
           width: 100%;
           display: block;
           font-size: 12px;
+          line-height: 14px;
           user-select: none;
         }
       }

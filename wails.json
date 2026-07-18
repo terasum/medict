@@ -1,7 +1,7 @@
 {
   "name": "Medict",
   "outputfilename": "Medict",
-  "frontend:install": "bun install",
+  "frontend:install": "bun install --frozen-lockfile --registry=https://registry.npmmirror.com",
   "frontend:build": "bun run build",
   "frontend:dev:watcher": "bun run dev",
   "frontend:dev:serverUrl": "auto",

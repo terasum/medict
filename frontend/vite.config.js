@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import alias from '@rollup/plugin-alias';
 import UnoCSS from 'unocss/vite';
 
-import markdown from 'vite-plugin-md';
+import Markdown from 'unplugin-vue-markdown/vite';
 import Inspect from 'vite-plugin-inspect';
 import { resolve } from 'path';
 
@@ -19,7 +19,7 @@ export default defineConfig({
       include: [/\.vue$/, /\.md$/], // <--
 
     }),
-    markdown(),
+    Markdown(),
     Inspect()
   ],
   resolve: {
