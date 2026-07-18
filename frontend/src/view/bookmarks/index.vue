@@ -182,7 +182,7 @@ onMounted(() => {
       width: $layout-left-sidebar-width;
       flex: 0 0 auto;
       height: 100%;
-      border-right: 1px solid #dcdcdc;
+      border-right: 1px solid var(--c-gray-300);
       overflow: hidden;
     }
 
@@ -216,7 +216,7 @@ onMounted(() => {
             white-space: nowrap;
           }
           .bm-count {
-            color: #999;
+            color: var(--c-gray-500);
             font-size: 12px;
             flex-shrink: 0;
           }
@@ -253,7 +253,7 @@ onMounted(() => {
             white-space: nowrap;
           }
           .bm-time {
-            color: #aaa;
+            color: var(--c-gray-500);
             font-size: 12px;
           }
         }
@@ -264,7 +264,7 @@ onMounted(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #999;
+        color: var(--c-gray-500);
       }
     }
   }

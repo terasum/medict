@@ -73,7 +73,7 @@
       .setting-section{
           margin: 6px auto;
           .table-wrapper{
-            border: 1px solid #ccc;
+            border: 1px solid var(--c-gray-300);
           }
       }
     }

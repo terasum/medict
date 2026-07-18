@@ -33,7 +33,7 @@
     display: block;
     --wails-draggable: drag;
     background: transparent;
-    // background-color: #fafafa;
+    // background-color: var(--c-gray-100);
 
     background-color: $theme-top-header-background-color;
   }

@@ -125,7 +125,7 @@ onMounted(()=>{
             padding:0;
           pre{
             display: flex;
-            background-color: #f1f1f1;
+            background-color: var(--c-gray-100);
             padding: 10px;
             width: 100%;
             border-radius: 3px;
