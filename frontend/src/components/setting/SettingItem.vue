@@ -31,7 +31,7 @@ defineSlots<{
   flex-direction: column;
   justify-content: space-between;
   margin: 8 0;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--c-gray-300);
   &:nth-last-child(1) {
     border-bottom: none;
   }
@@ -57,7 +57,7 @@ defineSlots<{
         justify-content: center;
       }
       .setting-item-desc {
-        color: #999;
+        color: var(--c-gray-500);
         font-size: 13px;
         line-break: loose;
         padding-left: 20px;

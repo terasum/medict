@@ -31,6 +31,7 @@ import 'vfonts/Lato.css';
 import 'vfonts/FiraCode.css';
 
 import '@/style/renderer.scss';
+import 'virtual:uno.css';
 
 import '@/renderer.init';
 

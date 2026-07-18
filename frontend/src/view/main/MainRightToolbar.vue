@@ -33,7 +33,7 @@
     text-align: center;
     line-height: 32px;
     margin: 6px auto;
-    border: 1px solid #ccc;
+    border: 1px solid var(--c-gray-300);
     border-radius: 8px;
     font-size: 13px;
     cursor: pointer;
@@ -44,11 +44,11 @@
       rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
     &:hover {
-      background-color: #f1f1f1;
+      background-color: var(--c-gray-100);
     }
   }
   .dictionary-item-active {
-    border: 1px solid rgba(17, 168, 255, 0.858);
+    border: 1px solid var(--c-primary);
     width: 36px;
     height: 36px;
     line-height: 36px;
@@ -61,21 +61,21 @@
     width: 32px;
     height: 24px;
     margin: 4px auto 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--c-gray-300);
     border-radius: 6px;
     background: #fff;
-    color: #666;
+    color: var(--c-gray-700);
     font-size: 12px;
     cursor: pointer;
     user-select: none;
     &:hover {
-      background-color: #f1f1f1;
+      background-color: var(--c-gray-100);
     }
   }
   .multi-toggle-active {
-    background: #11a8ff;
+    background: var(--c-primary);
     color: #fff;
-    border-color: #11a8ff;
+    border-color: var(--c-primary);
   }
   // 多模式下激活词典的角标
   .dict-check {
@@ -85,7 +85,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #11a8ff;
+    background: var(--c-primary);
     color: #fff;
     font-size: 10px;
     line-height: 14px;

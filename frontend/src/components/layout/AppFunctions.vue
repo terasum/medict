@@ -15,7 +15,7 @@
     flex-direction: row;
     justify-content: space-between;
     // background-color: $theme-top-header-background-color;
-    // border-bottom: 1px solid #dcdcdc;
+    // border-bottom: 1px solid var(--c-gray-300);
 
     .header-nav-functions {
       max-width: 280px;

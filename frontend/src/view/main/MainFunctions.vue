@@ -22,7 +22,7 @@
           padding: 0;
           text-align: center;
           font-size: 13px;
-          color: #555;
+          color: var(--c-gray-700);
           outline: none;
           border: none;
           background-color: transparent;
@@ -39,7 +39,7 @@
             background-color: rgba(0, 0, 0, 0.1);
           }
           &:disabled {
-            color: #bbb;
+            color: var(--c-gray-400);
             cursor: not-allowed;
             opacity: 0.5;
             &:hover {
@@ -60,17 +60,17 @@
           margin: 0;
           box-shadow: none;
           font-size: 14px;
-          border: 1px solid #e0e0e0;
+          border: 1px solid var(--c-gray-300);
           border-radius: 8px;
           background-color: #fff;
 
           &:active {
             outline: none;
-            border-color: #bbb;
+            border-color: var(--c-gray-400);
           }
           &:focus {
             outline: none;
-            border-color: #999;
+            border-color: var(--c-gray-500);
           }
         }
       }
@@ -79,8 +79,8 @@
       &.is-disabled {
         .header-search-input {
           .n-input {
-            background-color: #f5f5f5;
-            border-color: #e8e8e8;
+            background-color: var(--c-gray-100);
+            border-color: var(--c-gray-200);
             cursor: not-allowed;
           }
         }
@@ -91,7 +91,7 @@
     .nb-picker {
       .nb-picker-title {
         font-size: 12px;
-        color: #999;
+        color: var(--c-gray-500);
         padding: 2px 4px 6px;
       }
       .nb-picker-item {
@@ -102,7 +102,7 @@
         border-radius: 6px;
         cursor: pointer;
         font-size: 13px;
-        color: #444;
+        color: var(--c-gray-800);
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.06);
@@ -119,8 +119,8 @@
         }
         .nb-picker-tag {
           font-size: 10px;
-          color: #aaa;
-          border: 1px solid #ddd;
+          color: var(--c-gray-500);
+          border: 1px solid var(--c-gray-300);
           border-radius: 3px;
           padding: 0 4px;
           flex-shrink: 0;
@@ -128,7 +128,7 @@
       }
       .nb-picker-empty {
         text-align: center;
-        color: #aaa;
+        color: var(--c-gray-500);
         font-size: 12px;
         padding: 12px 0;
       }

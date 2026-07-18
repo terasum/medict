@@ -33,18 +33,18 @@
     li {
       margin: 0 4px 0 4px;
       padding: 0 0px 0 6px;
-      border-bottom: 1px solid #f1f1f1;
+      border-bottom: 1px solid var(--c-gray-100);
       border-radius: 3px;
       user-select: none;
       font-size: 16px;
       -webkit-user-select: none;
       &:hover {
-        background-color: #f1f1f1;
+        background-color: var(--c-gray-100);
         cursor: pointer;
       }
     }
     .active {
-      background-color: #f2f2f2;
+      background-color: var(--c-gray-100);
     }
   }
 }

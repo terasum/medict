@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import alias from '@rollup/plugin-alias';
+import UnoCSS from 'unocss/vite';
 
 import markdown from 'vite-plugin-md';
 import Inspect from 'vite-plugin-inspect';
@@ -12,6 +13,7 @@ const root = resolve(__dirname);
 export default defineConfig({
   publicDir: 'assets',
   plugins: [
+    UnoCSS(), // must come before vue/markdown so utilities are available
     alias(),
     vue({
       include: [/\.vue$/, /\.md$/], // <--

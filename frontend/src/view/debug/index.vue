@@ -110,7 +110,6 @@
   
   <style lang="scss" scoped>
   @import '@/style/variables.scss';
-  @import '@/style/photon/photon.scss';
   
   .x-space {
     width: 100%;
@@ -137,7 +136,7 @@
           height: 100%;
           padding: 0;
           margin: 0;
-          background-color: #fafafa;
+          background-color: var(--c-gray-100);
         }
   
         .x-layout-content {
@@ -176,8 +175,8 @@
       display: flex;
       justify-content: center;
       flex-direction: row;
-      background-color: #ededed;
-      border-top: 1px solid #ccc;
+      background-color: var(--c-gray-200);
+      border-top: 1px solid var(--c-gray-300);
       .btn-group {
         margin-top: 3px;
       }
@@ -190,7 +189,7 @@
     padding-bottom: 20px;
   }
   .dict-toolbar {
-    background-color: #fafafa;
+    background-color: var(--c-gray-100);
     height: 100%;
     width: 100%;
   }
