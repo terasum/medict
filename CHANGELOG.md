@@ -4,6 +4,18 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.10
+
+Hotfix: CSS editor storage moved to app config dir (fixes readonly filesystem error).
+
+### Fixed
+- **CSS editor saves to app config dir** (#783): the per-dictionary CSS
+  override was stored in the dictionary directory (`_medict_user.css`), which
+  fails on read-only filesystems (EROFS). Now stored under
+  `<app_config_dir>/user_css/<dictId>.css` (always writable). `WrapContent`
+  reads from an in-memory map loaded at startup instead of reading a file per
+  render.
+
 ## v3.1.9
 
 Dictionary CSS editor (CodeMirror + live preview) + photon framework restore (fixes layout regressions from v3.1.8's UnoCSS migration).
