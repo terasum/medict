@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
@@ -336,6 +337,42 @@ func (b *App) ExportCurrentEntry(dictId, word string) *model.Resp {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
 	return model.BuildSuccess(path)
+}
+
+// GetDictUserCSS reads the per-dictionary user CSS override from the sidecar
+// file (_medict_user.css in the dict directory). Returns "" if absent (#783).
+func (b *App) GetDictUserCSS(dictId string) *model.Resp {
+	dict, ok := b.dictSvc.GetDictPlain(dictId)
+	if !ok {
+		return model.BuildError(errors.New("dict not found"), model.BadParamErrCode)
+	}
+	path := filepath.Join(dict.DictDir, "_medict_user.css")
+	if !utils.FileExists(path) {
+		return model.BuildSuccess("")
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(string(data))
+}
+
+// SaveDictUserCSS writes the per-dictionary user CSS override to the sidecar
+// file. An empty css string deletes the file (#783).
+func (b *App) SaveDictUserCSS(dictId, css string) *model.Resp {
+	dict, ok := b.dictSvc.GetDictPlain(dictId)
+	if !ok {
+		return model.BuildError(errors.New("dict not found"), model.BadParamErrCode)
+	}
+	path := filepath.Join(dict.DictDir, "_medict_user.css")
+	if css == "" {
+		os.Remove(path) // best-effort; ignore error if not exists
+		return model.BuildSuccess(nil)
+	}
+	if err := os.WriteFile(path, []byte(css), 0644); err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(nil)
 }
 
 func (b *App) ResourceServerAddr() string {

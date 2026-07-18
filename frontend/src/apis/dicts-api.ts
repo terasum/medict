@@ -53,3 +53,19 @@ export const exportCurrentEntry = async function (dictid: string, word: string):
     }
     return (resp.data as string) || '';
 }
+
+// getDictUserCSS reads the per-dictionary user CSS override (#783). Returns ''
+// if no override exists.
+export const getDictUserCSS = async (dictid: string): Promise<string> => {
+    const resp = await App.GetDictUserCSS(dictid);
+    return (resp.data as string) || '';
+};
+
+// saveDictUserCSS persists the per-dictionary user CSS override (#783). Empty
+// css deletes the sidecar file.
+export const saveDictUserCSS = async (dictid: string, css: string): Promise<void> => {
+    const resp = await App.SaveDictUserCSS(dictid, css);
+    if (resp.code !== 200) {
+        throw new Error(resp.err || '保存失败');
+    }
+};

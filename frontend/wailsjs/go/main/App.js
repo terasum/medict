@@ -42,6 +42,10 @@ export function GetBookmarks() {
   return window['go']['main']['App']['GetBookmarks']();
 }
 
+export function GetDictUserCSS(arg1) {
+  return window['go']['main']['App']['GetDictUserCSS'](arg1);
+}
+
 export function GetNotebooks() {
   return window['go']['main']['App']['GetNotebooks']();
 }
@@ -68,6 +72,10 @@ export function RenameNotebook(arg1, arg2) {
 
 export function ResourceServerAddr() {
   return window['go']['main']['App']['ResourceServerAddr']();
+}
+
+export function SaveDictUserCSS(arg1, arg2) {
+  return window['go']['main']['App']['SaveDictUserCSS'](arg1, arg2);
 }
 
 export function SavePreferences(arg1) {

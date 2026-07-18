@@ -81,7 +81,7 @@
       <span class="app-content-main-toolbar-box" title="导出当前词条 HTML(调试)" @click="onExportEntry"
         ><NIcon><Bug16Regular /></NIcon
       ></span>
-      <span class="app-content-main-toolbar-box" @click="todo"
+      <span class="app-content-main-toolbar-box" title="编辑词典 CSS(#783)" @click="onEditCSS"
         ><NIcon><DocumentCss20Regular /></NIcon
       ></span>
       <span class="app-content-main-toolbar-box" @click="refresh"
@@ -126,6 +126,21 @@
       :y="popupY"
       @close="popupVisible = false"
     />
+    <n-modal v-model:show="cssEditorVisible" preset="card" title="词典 CSS 编辑器" style="width: 760px;">
+      <Codemirror
+        :model-value="cssContent"
+        @update:model-value="onCSSChange"
+        :extensions="[cssLang()]"
+        :style="{ height: '380px', fontSize: '13px' }"
+        placeholder="/* 在此输入自定义 CSS,实时预览(防抖 300ms 注入 iframe);保存后下次查词自动生效 */"
+      />
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <n-button @click="cssEditorVisible = false">关闭</n-button>
+          <n-button type="primary" @click="onSaveCSS">保存</n-button>
+        </div>
+      </template>
+    </n-modal>
   </div>
 </template>
 
@@ -133,9 +148,11 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useDictQueryStore } from '@/store/dict';
 import { ZoomIn16Regular, ZoomOut16Regular,ArrowClockwise20Filled, Bug16Regular, DocumentCss20Regular } from '@vicons/fluent';
-import { NIcon } from 'naive-ui';
+import { NIcon, NModal, NButton } from 'naive-ui';
 import { useMessage } from 'naive-ui';
-import { exportCurrentEntry } from '@/apis/dicts-api';
+import { Codemirror } from 'vue-codemirror';
+import { css as cssLang } from '@codemirror/lang-css';
+import { exportCurrentEntry, getDictUserCSS, saveDictUserCSS } from '@/apis/dicts-api';
 import { getPreferences } from '@/apis/config';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
@@ -310,6 +327,55 @@ async function onExportEntry() {
 
 function todo() {
   message.info('功能开发中');
+}
+
+// ===== 词典 CSS 编辑器(#783)=====
+const TOP_WIN_MSG_APPLY_USER_CSS = '__Medict_TOP_WIN_MSG_EVTP_APPLY_USER_CSS';
+const cssEditorVisible = ref(false);
+const cssContent = ref('');
+let cssPreviewTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function onEditCSS() {
+  const dict = dictQueryStore.selectDict;
+  if (!dict?.id) {
+    message.warning('请先选择一个词典');
+    return;
+  }
+  cssEditorVisible.value = true;
+  try {
+    cssContent.value = await getDictUserCSS(dict.id);
+  } catch {
+    cssContent.value = '';
+  }
+}
+
+// CodeMirror 内容变化 → 防抖 300ms → 客户端注入 iframe(实时预览,无 IPC 往返)
+function onCSSChange(value: string) {
+  cssContent.value = value;
+  if (cssPreviewTimer) clearTimeout(cssPreviewTimer);
+  cssPreviewTimer = setTimeout(() => applyUserCSS(value), 300);
+}
+
+function applyUserCSS(css: string) {
+  const payload = { evtype: TOP_WIN_MSG_APPLY_USER_CSS, ts: Date.now(), css };
+  if (showMulti.value) {
+    for (const s of sectionRefs.value) {
+      s?.iframeRef?.contentWindow?.postMessage(payload, '*');
+    }
+  } else {
+    iframeRef.value?.contentWindow?.postMessage(payload, '*');
+  }
+}
+
+async function onSaveCSS() {
+  const dict = dictQueryStore.selectDict;
+  if (!dict?.id) return;
+  try {
+    await saveDictUserCSS(dict.id, cssContent.value);
+    message.success('CSS 已保存(下次查词自动生效)');
+  } catch (e) {
+    message.error((e as Error)?.message || '保存失败');
+  }
 }
 
 // 缩小
