@@ -21,12 +21,14 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/op/go-logging"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/terasum/medict/internal/config"
 	"github.com/terasum/medict/internal/entry"
+	"github.com/terasum/medict/internal/static/handler"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/backserver"
 	"github.com/terasum/medict/pkg/model"
@@ -86,6 +88,9 @@ func (b *App) appInit() error {
 	if err != nil {
 		return err
 	}
+
+	// #783: load per-dictionary CSS overrides into the handler's in-memory map.
+	loadUserCSSOverrides()
 
 	bs, err := backserver.NewStaticServer(conf)
 	if err != nil {
@@ -339,14 +344,49 @@ func (b *App) ExportCurrentEntry(dictId, word string) *model.Resp {
 	return model.BuildSuccess(path)
 }
 
-// GetDictUserCSS reads the per-dictionary user CSS override from the sidecar
-// file (_medict_user.css in the dict directory). Returns "" if absent (#783).
-func (b *App) GetDictUserCSS(dictId string) *model.Resp {
-	dict, ok := b.dictSvc.GetDictPlain(dictId)
-	if !ok {
-		return model.BuildError(errors.New("dict not found"), model.BadParamErrCode)
+// userCSSDir returns the directory for per-dictionary CSS overrides (under the
+// app config dir, which is always writable — unlike the dict directory itself).
+func userCSSDir() (string, error) {
+	dir, err := utils.AppConfigDir()
+	if err != nil {
+		return "", err
 	}
-	path := filepath.Join(dict.DictDir, "_medict_user.css")
+	cssDir := filepath.Join(dir, "user_css")
+	os.MkdirAll(cssDir, 0755)
+	return cssDir, nil
+}
+
+// loadUserCSSOverrides loads all per-dictionary CSS overrides from the app
+// config dir into the handler's in-memory map at startup (#783).
+func loadUserCSSOverrides() {
+	cssDir, err := userCSSDir()
+	if err != nil {
+		return
+	}
+	entries, err := os.ReadDir(cssDir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		name := e.Name()
+		if !strings.HasSuffix(name, ".css") {
+			continue
+		}
+		dictId := strings.TrimSuffix(name, ".css")
+		data, err := os.ReadFile(filepath.Join(cssDir, name))
+		if err == nil {
+			handler.SetUserCSS(dictId, string(data))
+		}
+	}
+}
+
+// GetDictUserCSS reads the per-dictionary user CSS override (#783).
+func (b *App) GetDictUserCSS(dictId string) *model.Resp {
+	cssDir, err := userCSSDir()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	path := filepath.Join(cssDir, dictId+".css")
 	if !utils.FileExists(path) {
 		return model.BuildSuccess("")
 	}
@@ -357,21 +397,23 @@ func (b *App) GetDictUserCSS(dictId string) *model.Resp {
 	return model.BuildSuccess(string(data))
 }
 
-// SaveDictUserCSS writes the per-dictionary user CSS override to the sidecar
-// file. An empty css string deletes the file (#783).
+// SaveDictUserCSS persists the per-dictionary user CSS override + updates the
+// in-memory map so WrapContent injects it immediately (#783).
 func (b *App) SaveDictUserCSS(dictId, css string) *model.Resp {
-	dict, ok := b.dictSvc.GetDictPlain(dictId)
-	if !ok {
-		return model.BuildError(errors.New("dict not found"), model.BadParamErrCode)
+	cssDir, err := userCSSDir()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
 	}
-	path := filepath.Join(dict.DictDir, "_medict_user.css")
+	path := filepath.Join(cssDir, dictId+".css")
 	if css == "" {
-		os.Remove(path) // best-effort; ignore error if not exists
+		os.Remove(path)
+		handler.SetUserCSS(dictId, "")
 		return model.BuildSuccess(nil)
 	}
 	if err := os.WriteFile(path, []byte(css), 0644); err != nil {
 		return model.BuildError(err, model.InnerSysErrCode)
 	}
+	handler.SetUserCSS(dictId, css)
 	return model.BuildSuccess(nil)
 }
 

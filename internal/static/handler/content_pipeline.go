@@ -19,8 +19,6 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/terasum/medict/internal/static/tmpl"
 	"github.com/terasum/medict/pkg/model"
@@ -60,27 +58,32 @@ func WrapDesc(dictid, title, desc string) string {
 	return rawHtml
 }
 
+// userCSSOverrides holds per-dictionary CSS overrides in memory (populated from
+// the app config dir at startup, updated by SaveDictUserCSS IPC). WrapContent
+// reads from here — no file I/O per render.
+var userCSSOverrides = map[string]string{}
+
+// SetUserCSS stores a per-dictionary CSS override in the in-memory map.
+func SetUserCSS(dictId, css string) {
+	if css == "" {
+		delete(userCSSOverrides, dictId)
+	} else {
+		userCSSOverrides[dictId] = css
+	}
+}
+
+// GetUserCSS returns the in-memory override for a dictionary ("" if none).
+func GetUserCSS(dictId string) string {
+	return userCSSOverrides[dictId]
+}
+
 func WrapContent(dict *model.PlainDictionaryItem, keyEntry *model.MdictKeyWordIndex, definition string) ([]byte, error) {
 	content := handleContent(dict, keyEntry, definition)
-	// #783: inject per-dictionary user CSS override (sidecar _medict_user.css).
-	// Appended after all original CSS → highest override priority.
-	if css := readUserCSS(dict.DictDir); css != "" {
+	// #783: inject per-dictionary user CSS override from the in-memory map.
+	if css := GetUserCSS(dict.ID); css != "" {
 		content += `<style id="medict-user-css">` + css + `</style>`
 	}
 	return []byte(fmt.Sprintf(tmpl.WordDefinitionTempl, dict.Name, dict.ID, dict.Name, dict.ID, dict.ID, content)), nil
-}
-
-// readUserCSS reads the per-dictionary user CSS override from a sidecar file
-// (_medict_user.css in the dict directory). Returns "" if absent/unreadable.
-func readUserCSS(dictDir string) string {
-	if dictDir == "" {
-		return ""
-	}
-	data, err := os.ReadFile(filepath.Join(dictDir, "_medict_user.css"))
-	if err != nil {
-		return ""
-	}
-	return string(data)
 }
 
 func WrapResource(dictId string, keyWord string, resource []byte) ([]byte, error) {
