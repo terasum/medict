@@ -18,42 +18,46 @@
 
 <template>
   <div class="notebook-sidebar">
-    <div class="nb-list">
+    <nav class="nb-list nav-group">
+      <h5 class="nav-group-title">生词本</h5>
       <div
         v-for="nb in store.notebooks"
         :key="nb.id"
-        class="nb-item"
+        class="nb-item nav-group-item"
         :class="{ active: nb.id === store.selectedNotebookId }"
-        @click="store.selectedNotebookId = nb.id"
       >
-        <n-icon class="nb-icon">
-          <Star v-if="nb.is_default" />
-          <Book v-else />
-        </n-icon>
-        <span class="nb-name" :title="nb.name">{{ nb.name }}</span>
-        <span v-if="nb.is_default" class="nb-tag">默认</span>
-        <span class="nb-count">{{ store.counts[nb.id] || 0 }}</span>
+        <button
+          type="button"
+          class="nb-select"
+          :aria-pressed="nb.id === store.selectedNotebookId"
+          @click="store.selectedNotebookId = nb.id"
+        >
+          <n-icon class="nb-icon">
+            <Star v-if="nb.is_default" />
+            <Book v-else />
+          </n-icon>
+          <span class="nb-name" :title="nb.name">{{ nb.name }}</span>
+          <span class="nb-count">{{ store.counts[nb.id] || 0 }}</span>
+        </button>
         <n-dropdown
           trigger="click"
           placement="bottom-end"
           :options="menuOptions(nb)"
           @select="(key: string) => onMenuSelect(key, nb)"
         >
-          <n-button quaternary size="tiny" class="nb-more" @click.stop>
+          <button type="button" class="nb-more" :aria-label="`${nb.name}的更多操作`" @click.stop>
             <n-icon><EllipsisH /></n-icon>
-          </n-button>
+          </button>
         </n-dropdown>
       </div>
       <div v-if="store.notebooks.length === 0" class="nb-empty">暂无生词本</div>
-    </div>
+    </nav>
 
     <div class="nb-footer">
-      <n-button quaternary size="small" block @click="openCreate">
-        <template #icon>
-          <n-icon><Plus /></n-icon>
-        </template>
+      <button type="button" class="btn btn-default nb-create" @click="openCreate">
+        <n-icon><Plus /></n-icon>
         新建生词本
-      </n-button>
+      </button>
     </div>
 
     <!-- 新建 / 重命名对话框 -->
@@ -192,45 +196,54 @@ function doDelete(nb: Notebook) {
   .nb-list {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 6px;
+    padding: 0;
   }
 
   .nb-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 8px;
-    border-radius: 6px;
+    gap: 5px;
+    min-height: 26px;
+    padding: 3px 6px 3px 10px;
+    border-radius: 0;
     cursor: pointer;
-    font-size: 13px;
-    color: var(--c-gray-800);
+    font-size: 12px;
+    color: var(--c-gray-700);
     user-select: none;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--c-gray-200);
     }
     &.active {
-      background-color: rgba(50, 108, 184, 0.12);
-      color: var(--c-primary);
+      background-color: var(--c-gray-300);
+      color: var(--c-gray-900);
     }
 
     .nb-icon {
-      font-size: 14px;
+      width: 16px;
+      font-size: 13px;
       flex-shrink: 0;
+      color: var(--c-gray-600);
+    }
+    .nb-select {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
     }
     .nb-name {
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-    .nb-tag {
-      font-size: 10px;
-      color: var(--c-gray-500);
-      border: 1px solid var(--c-gray-300);
-      border-radius: 3px;
-      padding: 0 4px;
-      flex-shrink: 0;
     }
     .nb-count {
       font-size: 11px;
@@ -239,11 +252,31 @@ function doDelete(nb: Notebook) {
     }
     .nb-more {
       opacity: 0;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--c-gray-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
+      cursor: default;
+
+      &:hover {
+        background-color: var(--c-gray-300);
+      }
     }
     &:hover .nb-more,
-    &.active .nb-more {
+    &.active .nb-more,
+    .nb-more:focus-visible {
       opacity: 1;
+    }
+
+    .nb-select:focus-visible {
+      outline: 1px solid var(--c-primary);
+      outline-offset: 1px;
     }
   }
 
@@ -255,8 +288,19 @@ function doDelete(nb: Notebook) {
   }
 
   .nb-footer {
-    padding: 8px;
-    border-top: 1px solid #ececec;
+    height: 32px;
+    padding: 3px 6px;
+    border-top: 1px solid var(--c-gray-300);
+    background-color: var(--c-gray-200);
+
+    .nb-create {
+      width: 100%;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
   }
 }
 </style>

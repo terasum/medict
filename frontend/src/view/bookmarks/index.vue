@@ -14,35 +14,66 @@
               <h2>{{ currentNotebookName }}</h2>
               <span class="bm-count">{{ store.currentBookmarks.length }} 词</span>
             </div>
-            <n-input v-model:value="filter" placeholder="搜索生词..." size="small" style="width: 200px;">
-              <template #suffix>
-                <n-icon :component="Search" />
-              </template>
-            </n-input>
-            <n-button
-              size="small"
-              :loading="exporting"
-              :disabled="store.currentBookmarks.length === 0"
-              @click="onExportAnki"
-            >
-              <template #icon><n-icon><Download /></n-icon></template>
-              导出 Anki
-            </n-button>
+            <div class="bm-actions">
+              <n-input v-model:value="filter" placeholder="搜索生词..." size="small">
+                <template #suffix>
+                  <n-icon :component="Search" />
+                </template>
+              </n-input>
+              <button
+                type="button"
+                class="btn btn-default bm-export"
+                :disabled="exporting || store.currentBookmarks.length === 0"
+                @click="onExportAnki"
+              >
+                <n-icon><Download /></n-icon>
+                {{ exporting ? '导出中…' : '导出 Anki' }}
+              </button>
+            </div>
           </div>
           <div class="bm-list" v-if="filtered.length > 0">
-            <div
-              v-for="item in filtered"
-              :key="item.word + '@' + item.dict_id"
-              class="bm-item"
-              @click="lookupWord(item)"
-            >
-              <span class="bm-word">{{ item.word }}</span>
-              <span class="bm-dict">{{ item.dict_name }}</span>
-              <span class="bm-time">{{ formatTime(item.saved_at) }}</span>
-              <n-button quaternary size="tiny" @click.stop="removeItem(item)">
-                <n-icon><Times /></n-icon>
-              </n-button>
-            </div>
+            <table class="table-striped bm-table">
+              <colgroup>
+                <col class="col-word" />
+                <col />
+                <col class="col-time" />
+                <col class="col-action" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>单词</th>
+                  <th>来源词典</th>
+                  <th>收藏日期</th>
+                  <th><span class="visually-hidden">操作</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in filtered"
+                  :key="item.word + '@' + item.dict_id"
+                  class="bm-item"
+                  @click="lookupWord(item)"
+                >
+                  <td class="bm-word">
+                    <button type="button" class="bm-lookup" @click.stop="lookupWord(item)">
+                      {{ item.word }}
+                    </button>
+                  </td>
+                  <td class="bm-dict">{{ item.dict_name }}</td>
+                  <td class="bm-time">{{ formatTime(item.saved_at) }}</td>
+                  <td class="bm-action">
+                    <button
+                      type="button"
+                      class="bm-remove"
+                      :aria-label="`移除生词 ${item.word}`"
+                      @click.stop="removeItem(item)"
+                    >
+                      <n-icon><Times /></n-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div class="bm-empty" v-else>
             <p>该生词本暂无生词。在搜索时点击星标按钮收藏单词。</p>
@@ -56,7 +87,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { NInput, NButton, NIcon, useMessage } from 'naive-ui';
+import { NInput, NIcon, useMessage } from 'naive-ui';
 import { Search, Times, Download } from '@vicons/fa';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import NotebookSidebar from '@/components/bookmarks/NotebookSidebar.vue';
@@ -193,15 +224,32 @@ onMounted(() => {
       min-width: 0;
       display: flex;
       flex-direction: column;
-      padding: 16px 20px;
+      padding: 0;
       overflow: hidden;
+      background-color: #fff;
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
 
       .bm-content-head {
+        min-height: 38px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 12px;
+        padding: 4px 8px 4px 10px;
+        margin: 0;
         flex: 0 0 auto;
+        background: var(--c-gray-100);
+        box-shadow: inset 0 -1px 0 var(--c-gray-300);
 
         .bm-title {
           display: flex;
@@ -211,7 +259,8 @@ onMounted(() => {
 
           h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 13px;
+            font-weight: 600;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -222,40 +271,119 @@ onMounted(() => {
             flex-shrink: 0;
           }
         }
+
+        .bm-actions {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          .n-input {
+            width: 200px;
+          }
+
+          .bm-export {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+        }
       }
 
       .bm-list {
         flex: 1 1 auto;
         overflow-y: auto;
+        background-color: #fff;
+
+        .bm-table {
+          table-layout: fixed;
+
+          .col-word {
+            width: 24%;
+          }
+          .col-time {
+            width: 110px;
+          }
+          .col-action {
+            width: 34px;
+          }
+
+          thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+          }
+
+          th,
+          td {
+            height: 28px;
+            padding: 3px 10px;
+          }
+
+          th {
+            color: var(--c-gray-600);
+          }
+        }
 
         .bm-item {
-          display: flex;
-          align-items: center;
-          padding: 8px 12px;
-          border-radius: 6px;
           cursor: pointer;
-          transition: background 0.15s;
-          gap: 12px;
-
-          &:hover {
-            background: rgba(128, 128, 128, 0.08);
-          }
 
           .bm-word {
-            font-weight: 500;
-            min-width: 120px;
+            font-weight: 600;
+            color: var(--c-gray-900);
+
+            .bm-lookup {
+              width: 100%;
+              padding: 0;
+              border: 0;
+              background: transparent;
+              color: inherit;
+              font: inherit;
+              font-weight: inherit;
+              text-align: left;
+              cursor: pointer;
+
+              &:focus-visible {
+                outline: 1px solid var(--c-primary);
+                outline-offset: 1px;
+              }
+            }
           }
           .bm-dict {
-            color: #888;
-            font-size: 13px;
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: var(--c-gray-600);
           }
           .bm-time {
             color: var(--c-gray-500);
-            font-size: 12px;
+          }
+          .bm-action {
+            padding: 0 5px;
+            text-align: center;
+          }
+          .bm-remove {
+            width: 22px;
+            height: 22px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--c-gray-500);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+
+            &:hover {
+              color: var(--c-gray-800);
+              background-color: var(--c-gray-300);
+            }
+          }
+          &:hover .bm-remove,
+          &:focus-within .bm-remove {
+            opacity: 1;
           }
         }
       }
@@ -266,6 +394,7 @@ onMounted(() => {
         align-items: center;
         justify-content: center;
         color: var(--c-gray-500);
+        font-size: 12px;
       }
     }
   }
