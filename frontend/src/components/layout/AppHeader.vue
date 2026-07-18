@@ -64,21 +64,25 @@ import MainFunctions from '@/view/main/MainFunctions.vue';
 
   .app-header-logo {
     display: flex;
-    height: calc($layout-sidebar-logo-height - 1px);
+    align-items: center;
+    height: 100%;
     width: 72px;
     .logo {
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center;
+      height: 100%;
       width: 100%;
       img {
         width: 100%;
       }
       h1 {
+        margin: 0;
         color: $theme-logo-font-color;
         font-size: 16px;
         font-weight: 600;
+        line-height: 20px;
       }
     }
   }
