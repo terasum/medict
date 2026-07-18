@@ -181,6 +181,7 @@ function doDelete(nb: Notebook) {
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
+@import '@/style/photon/photon.scss';
 
 .notebook-sidebar {
   height: 100%;
