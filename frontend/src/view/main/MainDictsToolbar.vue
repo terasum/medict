@@ -76,11 +76,12 @@
       :class="{ 'dictionary-item-active': isSelected(item) }"
       :key="item.id"
       @click="chooseDict(item)"
+      :style="getBackground(item)"
       :title="item.name"
       :aria-label="`选择词典 ${item.name}`"
       :aria-pressed="isSelected(item)"
     >
-      <n-icon class="dictionary-icon" :component="BookOpen" />
+      <n-icon v-if="!item.background" class="dictionary-icon" :component="BookOpen" />
     </button>
   </div>
 </template>
@@ -106,6 +107,18 @@ function chooseDict(item) {
 
 function isSelected(item) {
   return isDictionarySelected(item.id, dictQueryStore.selectDict.id);
+}
+
+function getBackground(item) {
+  if (!item.background) {
+    return undefined;
+  }
+  return {
+    backgroundImage: `url(${item.background})`,
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+  };
 }
 
 function loadDictionaries() {
