@@ -4,6 +4,25 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.9
+
+Dictionary CSS editor (CodeMirror + live preview) + photon framework restore (fixes layout regressions from v3.1.8's UnoCSS migration).
+
+### Added
+- **Dictionary CSS editor** (#783): a CodeMirror-powered CSS editor accessible
+  from the lookup-page toolbar. Edit per-dictionary CSS overrides with live
+  preview (client-side iframe injection, 300ms debounce — no round-trip).
+  Overrides persist to a sidecar `_medict_user.css` and auto-inject on every
+  future lookup via `WrapContent`.
+
+### Fixed
+- **Layout regressions from UnoCSS migration** (v3.1.8): the photon CSS
+  framework was retired in v3.1.8 and replaced with UnoCSS shortcuts that
+  didn't match photon's exact layout — causing sidebar lists to disappear,
+  settings sidebar to go horizontal, main layout overflow, and toolbar button
+  misalignment. Photon is now **restored** (the UnoCSS token color unification
+  is kept); the conflicting shortcuts removed.
+
 ## v3.1.8
 
 Default EN-CN dictionary (offline ECDICT + free online Bing), recursive dict-scan fix, a frontend style unification (UnoCSS), and frontend test infrastructure.
