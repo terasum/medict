@@ -26,39 +26,67 @@
   height: 100%;
   .dictionary-item {
     margin: 4px 3px;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 22px;
     height: 22px;
+    padding: 0;
+    border: 0;
     text-align: center;
-    line-height: 26px;
     border-radius: 3px;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
+    color: var(--c-gray-700);
+    background-color: var(--c-gray-50);
     // box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
       rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
     &:hover {
-      background-color: var(--c-gray-100);
+      background-color: var(--c-gray-200);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--c-primary);
+      outline-offset: 1px;
+    }
+
+    .dictionary-fallback-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
     }
   }
   .dictionary-item-active {
+    color: var(--c-primary);
+    box-shadow:
+      inset 0 0 0 2px var(--c-primary),
+      rgba(0, 0, 0, 0.1) 0 2px 4px;
   }
 }
 </style>
 <template>
   <div class="dictionaries">
-    <span
+    <button
       v-for="item in state.dictList"
+      type="button"
       class="dictionary-item"
-      :class="
-        item.id == dictQueryStore.selectDict.id ? 'dictionary-item-active' : ''
-      "
+      :class="{ 'dictionary-item-active': isSelected(item) }"
       :key="item.id"
       @click="chooseDict(item)"
       :style="getBackground(item)"
-    ></span>
+      :title="item.name"
+      :aria-label="`选择词典 ${item.name}`"
+      :aria-pressed="isSelected(item)"
+    >
+      <n-icon
+        v-if="!item.background"
+        class="dictionary-fallback-icon"
+        :component="getFallbackIcon(item)"
+      />
+    </button>
   </div>
 </template>
 <script setup>
@@ -66,9 +94,9 @@ import { useDictQueryStore } from '@/store/dict';
 import { useUIStore } from '@/store/ui';
 import { reactive, onMounted } from 'vue';
 import { BuildIndex } from '@/apis/dicts-api';
-import AppRightToolbar from '@/components/layout/AppRightToolbar.vue';
-
-import { NPopover } from 'naive-ui';
+import { NIcon } from 'naive-ui';
+import { BookOpen, Database, Globe, Language } from '@vicons/fa';
+import { dictionaryIconKind, isDictionarySelected } from './dictionary-toolbar';
 
 const dictQueryStore = useDictQueryStore();
 const uiStore = useUIStore();
@@ -81,16 +109,31 @@ function chooseDict(item) {
   dictQueryStore.updateSelectDict(item);
 }
 
+function isSelected(item) {
+  return isDictionarySelected(item.id, dictQueryStore.selectDict.id);
+}
+
 function getBackground(item) {
   if (item.background) {
-    let style = `background:url(${item.background});`;
-    style += `background-size:cover;`;
-    style += `background-repeat:no-repeat;`;
-    style += `background-position:center;`;
-    style += `color: #fff;`;
-    return style;
+    return {
+      backgroundImage: `url(${item.background})`,
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+    };
   }
-  return '';
+  return undefined;
+}
+
+const fallbackIcons = {
+  database: Database,
+  online: Globe,
+  language: Language,
+  book: BookOpen,
+};
+
+function getFallbackIcon(item) {
+  return fallbackIcons[dictionaryIconKind(item.dict_type)];
 }
 
 function loadDictionaries() {
