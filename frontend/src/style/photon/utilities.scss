@@ -1,3 +1,6 @@
+@use "mixins";
+@use "variables";
+
 //
 // Utilities styles
 // --------------------------------------------------
@@ -32,73 +35,73 @@
 
 // Padding
 .padded {
-  padding: $padding;
+  padding: variables.$padding;
 }
 
 .padded-less {
-  padding: $padding-less;
+  padding: variables.$padding-less;
 }
 
 .padded-more {
-  padding: $padding-more;
+  padding: variables.$padding-more;
 }
 
 // Vertical Padding
 .padded-vertically {
-  padding-top: $padding;
-  padding-bottom: $padding;
+  padding-top: variables.$padding;
+  padding-bottom: variables.$padding;
 }
 
 .padded-vertically-less {
-  padding-top: $padding-less;
-  padding-bottom: $padding-less;
+  padding-top: variables.$padding-less;
+  padding-bottom: variables.$padding-less;
 }
 
 .padded-vertically-more {
-  padding-top: $padding-more;
-  padding-bottom: $padding-more;
+  padding-top: variables.$padding-more;
+  padding-bottom: variables.$padding-more;
 }
 
 // Horizontal Padding
 .padded-horizontally {
-  padding-right: $padding;
-  padding-left: $padding;
+  padding-right: variables.$padding;
+  padding-left: variables.$padding;
 }
 
 .padded-horizontally-less {
-  padding-right: $padding-less;
-  padding-left: $padding-less;
+  padding-right: variables.$padding-less;
+  padding-left: variables.$padding-less;
 }
 
 .padded-horizontally-more {
-  padding-right: $padding-more;
-  padding-left: $padding-more;
+  padding-right: variables.$padding-more;
+  padding-left: variables.$padding-more;
 }
 
 // Padding top
 .padded-top {
-  padding-top: $padding;
+  padding-top: variables.$padding;
 }
 
 .padded-top-less {
-  padding-top: $padding-less;
+  padding-top: variables.$padding-less;
 }
 
 .padded-top-more {
-  padding-top: $padding-more;
+  padding-top: variables.$padding-more;
 }
 
 // Padding bottom
 .padded-bottom {
-  padding-bottom: $padding;
+  padding-bottom: variables.$padding;
 }
 
 .padded-bottom-less {
-  padding-bottom: $padding-less;
+  padding-bottom: variables.$padding-less;
 }
 
 .padded-bottom-more {
-  padding-bottom: $padding-more;
+  padding-bottom: variables.$padding-more;
 }
 
 // Set the background-color to set a sidebar back a bit.
@@ -113,5 +116,5 @@
 
 // Clearfix
 .clearfix {
-  @include clearfix();
+  @include mixins.clearfix();
 }

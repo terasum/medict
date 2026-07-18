@@ -17,8 +17,8 @@
 -->
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
+
 
 .app-content {
   display: flex;

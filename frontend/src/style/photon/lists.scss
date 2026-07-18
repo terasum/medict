@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // Lists.scss
 // --------------------------------------------------
@@ -25,7 +27,7 @@
   padding: 10px;
   font-size: 12px;
   color: #414142;
-  border-top: 1px solid $border-color;
+  border-top: 1px solid variables.$border-color;
 
   &:first-child {
     border-top: 0;
@@ -35,7 +37,7 @@
   // `.selected` is deprecated. Use `.active` instead.
   &.selected {
     color: #fff;
-    background-color: $active-color;
+    background-color: variables.$active-color;
   }
 }
 

@@ -119,11 +119,7 @@ let currentMenu = ref(0);
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
-
+@use '@/style/variables.scss' as *;
 
 .x-space {
   width: 100%;

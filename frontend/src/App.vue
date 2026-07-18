@@ -17,8 +17,8 @@
 -->
 
 <style lang="scss">
-@import './style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use './style/variables.scss' as *;
+@use '@/style/photon/photon.scss';
 
 #app-root {
   height: 100%;

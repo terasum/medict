@@ -41,8 +41,8 @@ import MainFunctions from '@/view/main/MainFunctions.vue';
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
+
 
 .app-header {
   width: 100%;

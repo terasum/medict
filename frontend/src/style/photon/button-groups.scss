@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // Button-groups.css
 // Adapted from Bootstrap's button-groups.less (https://github.com/twbs/bootstrap/blob/master/less/button-groups.less)
@@ -50,7 +52,7 @@
   }
 
   .btn + .btn {
-    border-left: 1px solid $dark-border-color;
+    border-left: 1px solid variables.$dark-border-color;
   }
 
   .btn + .btn.active {

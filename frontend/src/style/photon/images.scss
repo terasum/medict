@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // Images.scss
 // --------------------------------------------------
@@ -11,5 +13,5 @@ img {
 }
 
 .img-rounded {
-  border-radius: $default-border-radius;
+  border-radius: variables.$default-border-radius;
 }

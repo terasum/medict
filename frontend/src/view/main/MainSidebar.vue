@@ -17,8 +17,7 @@
 -->
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
 
 .sidebar-content {
   padding: 4px 2px;

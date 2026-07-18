@@ -1,3 +1,4 @@
+@use "sass:color";
 //
 // Variables
 // --------------------------------------------------
@@ -41,7 +42,7 @@ $dark-color: #57acf5 !default;
 
 // Focus and active colors
 $active-color: #116cd6;
-$focus-input-color: lighten($primary-color, 10%)  !default;
+$focus-input-color: color.adjust($primary-color, $lightness: 10%)  !default;
 
 // Other
 // --------------------------------------------------

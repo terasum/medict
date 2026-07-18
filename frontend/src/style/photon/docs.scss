@@ -3,7 +3,8 @@
 // --------------------------------------------------
 
 //Imports
-@import "mixins.scss";
+@use "sass:color";
+@use "mixins.scss";
 
 // Docs variables
 $desktop-spacing: 3rem;
@@ -139,7 +140,7 @@ a {
   margin-right: auto;
   padding-left: $mobile-spacing;
   padding-right: $mobile-spacing;
-  @include clearfix;
+  @include mixins.clearfix;
 }
 .col {
   position: relative;
@@ -239,7 +240,7 @@ a {
 .sub-masthead {
   color: #fff;
   text-shadow: 0 0 3px rgba(0,0,0,.3);
-  @include directional-gradient(#000, #0f2b3c);
+  @include mixins.directional-gradient(#000, #0f2b3c);
 }
 
 .subpage-header-content {
@@ -278,7 +279,7 @@ a {
   font-weight: 500;
   border-bottom: 1px solid rgba(255,255,255,.2);
   z-index: 10;
-  @include clearfix;
+  @include mixins.clearfix;
 }
 
 .title {
@@ -398,14 +399,14 @@ a {
   position: relative;
   color: #fff;
   text-shadow: 0 0 3px rgba(0,0,0,.3);
-  @include directional-gradient(#000, #0f2b3c);
+  @include mixins.directional-gradient(#000, #0f2b3c);
 
   a:not(.btn) {
     color: #fff;
   }
 
   p {
-    color: darken(#ffffff, 20%);
+    color: color.adjust(#ffffff, $lightness: -20%);
   }
 
   .btn {
@@ -441,7 +442,7 @@ a {
   .component-section {
     margin-bottom: 0;
     border-bottom: 0;
-    @include split-linear-gradient(#fff, #f5f5f5);
+    @include mixins.split-linear-gradient(#fff, #f5f5f5);
 
     .col {
       padding-top: $desktop-spacing;

@@ -34,8 +34,8 @@ const containerRef = (ref < HTMLElement) | (undefined > undefined);
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
+
 
 .setting-main-container {
   height: 100%;

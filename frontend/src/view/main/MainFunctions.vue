@@ -1,6 +1,6 @@
 <style lang="scss">
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
+
     .header-search-box {
       display: flex;
       align-items: center;

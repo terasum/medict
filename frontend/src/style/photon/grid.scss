@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // The Grid.css
 // --------------------------------------------------
@@ -15,7 +17,7 @@
   position: relative;
   overflow-y: auto;
   flex: 1;
-  border-left: 1px solid $border-color;
+  border-left: 1px solid variables.$border-color;
 
   &:first-child {
     border-left: 0;

@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // Base styles
 // --------------------------------------------------
@@ -20,10 +22,10 @@ body {
   height: 100%;
   padding: 0;
   margin: 0;
-  font-family: $font-family-default;
-  font-size: $font-size-default;
-  line-height: $line-height-default;
-  color: $gray-color;
+  font-family: variables.$font-family-default;
+  font-size: variables.$font-size-default;
+  line-height: variables.$line-height-default;
+  color: variables.$gray-color;
   background-color: transparent;
 }
 
@@ -32,7 +34,7 @@ hr {
   overflow: hidden;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid $border-color;
+  border-bottom: 1px solid variables.$border-color;
 }
 
 // Typography
@@ -61,7 +63,7 @@ h6 { font-size: 12px; }
   left: 0;
 	display: flex;
   flex-direction: column;
-  background-color: $chrome-color;
+  background-color: variables.$chrome-color;
 }
 
 .window-content {

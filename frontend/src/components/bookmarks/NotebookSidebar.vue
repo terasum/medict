@@ -184,8 +184,8 @@ function doDelete(nb: Notebook) {
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
+@use '@/style/variables.scss' as *;
+
 
 .notebook-sidebar {
   height: 100%;

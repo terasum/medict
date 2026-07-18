@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables";
+
 //
 // Navs.scss
 // --------------------------------------------------
@@ -9,7 +12,7 @@
 .nav-group-item {
   padding: 2px 10px 2px 25px;
   display: block;
-  color: $gray-color;
+  color: variables.$gray-color;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
@@ -37,5 +40,5 @@
   padding: 10px 10px 2px;
   font-size: 12px;
   font-weight: 500;
-  color: lighten($gray-color, 20%);
+  color: color.adjust(variables.$gray-color, $lightness: 20%);
 }

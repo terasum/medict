@@ -1,3 +1,5 @@
+@use "variables";
+
 //
 // Forms.css
 // Adapted from Bootstrap's forms.less (https://github.com/twbs/bootstrap/blob/master/less/forms.less)
@@ -5,7 +7,7 @@
 
 label {
   display: inline-block;
-  font-size: $font-size-default;
+  font-size: variables.$font-size-default;
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
@@ -26,20 +28,20 @@ input[type="checkbox"] {
   display: inline-block;
   width: 100%;
   min-height: 25px;
-  padding: $padding-less $padding;
-  font-size: $font-size-default;
-  line-height: $line-height-default;
-  background-color: $chrome-color;
-  border: 1px solid $border-color;
-  border-radius: $default-border-radius;
+  padding: variables.$padding-less variables.$padding;
+  font-size: variables.$font-size-default;
+  line-height: variables.$line-height-default;
+  background-color: variables.$chrome-color;
+  border: 1px solid variables.$border-color;
+  border-radius: variables.$default-border-radius;
   outline: none;
 
   &:focus {
-    border-color: $focus-input-color;
-    box-shadow: 3px 3px 0 $focus-input-color,
-                -3px -3px 0 $focus-input-color,
-                -3px 3px 0 $focus-input-color,
-                3px -3px 0 $focus-input-color;
+    border-color: variables.$focus-input-color;
+    box-shadow: 3px 3px 0 variables.$focus-input-color,
+                -3px -3px 0 variables.$focus-input-color,
+                -3px 3px 0 variables.$focus-input-color,
+                3px -3px 0 variables.$focus-input-color;
   }
 }
 
