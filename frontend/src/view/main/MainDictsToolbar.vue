@@ -53,7 +53,7 @@
       outline-offset: 1px;
     }
 
-    .dictionary-fallback-icon {
+    .dictionary-icon {
       width: 14px;
       height: 14px;
       font-size: 14px;
@@ -76,16 +76,11 @@
       :class="{ 'dictionary-item-active': isSelected(item) }"
       :key="item.id"
       @click="chooseDict(item)"
-      :style="getBackground(item)"
       :title="item.name"
       :aria-label="`选择词典 ${item.name}`"
       :aria-pressed="isSelected(item)"
     >
-      <n-icon
-        v-if="!item.background"
-        class="dictionary-fallback-icon"
-        :component="getFallbackIcon(item)"
-      />
+      <n-icon class="dictionary-icon" :component="BookOpen" />
     </button>
   </div>
 </template>
@@ -95,8 +90,8 @@ import { useUIStore } from '@/store/ui';
 import { reactive, onMounted } from 'vue';
 import { BuildIndex } from '@/apis/dicts-api';
 import { NIcon } from 'naive-ui';
-import { BookOpen, Database, Globe, Language } from '@vicons/fa';
-import { dictionaryIconKind, isDictionarySelected } from './dictionary-toolbar';
+import { BookOpen } from '@vicons/fa';
+import { isDictionarySelected } from './dictionary-toolbar';
 
 const dictQueryStore = useDictQueryStore();
 const uiStore = useUIStore();
@@ -111,29 +106,6 @@ function chooseDict(item) {
 
 function isSelected(item) {
   return isDictionarySelected(item.id, dictQueryStore.selectDict.id);
-}
-
-function getBackground(item) {
-  if (item.background) {
-    return {
-      backgroundImage: `url(${item.background})`,
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-    };
-  }
-  return undefined;
-}
-
-const fallbackIcons = {
-  database: Database,
-  online: Globe,
-  language: Language,
-  book: BookOpen,
-};
-
-function getFallbackIcon(item) {
-  return fallbackIcons[dictionaryIconKind(item.dict_type)];
 }
 
 function loadDictionaries() {

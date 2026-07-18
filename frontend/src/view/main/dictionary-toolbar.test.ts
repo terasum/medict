@@ -5,19 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { dictionaryIconKind, isDictionarySelected } from './dictionary-toolbar';
-
-describe('dictionaryIconKind', () => {
-  it.each([
-    ['ECDICT', 'database'],
-    ['online', 'online'],
-    ['MDICT', 'language'],
-    ['STARDICT', 'book'],
-    ['', 'book'],
-  ])('maps %s dictionaries to the %s fallback icon', (dictType, expected) => {
-    expect(dictionaryIconKind(dictType)).toBe(expected);
-  });
-});
+import { isDictionarySelected } from './dictionary-toolbar';
 
 describe('isDictionarySelected', () => {
   it('normalizes serialized dictionary IDs before comparing them', () => {
