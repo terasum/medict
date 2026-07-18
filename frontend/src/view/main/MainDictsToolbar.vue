@@ -39,7 +39,7 @@
       rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
     &:hover {
-      background-color: #f1f1f1;
+      background-color: var(--c-gray-100);
     }
   }
   .dictionary-item-active {

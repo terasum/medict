@@ -186,7 +186,7 @@ function doDelete(nb: Notebook) {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #fafafa;
+  background-color: var(--c-gray-100);
 
   .nb-list {
     flex: 1;
@@ -202,7 +202,7 @@ function doDelete(nb: Notebook) {
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
-    color: #444;
+    color: var(--c-gray-800);
     user-select: none;
 
     &:hover {
@@ -210,7 +210,7 @@ function doDelete(nb: Notebook) {
     }
     &.active {
       background-color: rgba(50, 108, 184, 0.12);
-      color: #326cb8;
+      color: var(--c-primary);
     }
 
     .nb-icon {
@@ -225,15 +225,15 @@ function doDelete(nb: Notebook) {
     }
     .nb-tag {
       font-size: 10px;
-      color: #aaa;
-      border: 1px solid #ddd;
+      color: var(--c-gray-500);
+      border: 1px solid var(--c-gray-300);
       border-radius: 3px;
       padding: 0 4px;
       flex-shrink: 0;
     }
     .nb-count {
       font-size: 11px;
-      color: #999;
+      color: var(--c-gray-500);
       flex-shrink: 0;
     }
     .nb-more {
@@ -248,7 +248,7 @@ function doDelete(nb: Notebook) {
 
   .nb-empty {
     text-align: center;
-    color: #aaa;
+    color: var(--c-gray-500);
     font-size: 12px;
     padding: 20px 0;
   }

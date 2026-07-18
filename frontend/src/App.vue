@@ -33,7 +33,7 @@
     display: block;
     --wails-draggable: drag;
     background: transparent;
-    // background-color: #fafafa;
+    // background-color: var(--c-gray-100);
 
     background-color: $theme-top-header-background-color;
   }
@@ -76,6 +76,7 @@ import { darkTheme as dark, lightTheme as light } from 'naive-ui';
 import { zhCN, dateZhCN } from 'naive-ui';
 import { GlobalThemeOverrides } from 'naive-ui';
 import { useDictQueryStore } from './store/dict';
+import { BRAND, palette } from '@/style/tokens';
 
 let isDark = ref(false);
 let theme = reactive(light);
@@ -86,34 +87,26 @@ if (isDark.value) {
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#326cb8',
+    primaryColor: BRAND,
   },
   Input: {
-    borderFocus: '1px solid #326cb8',
-    borderHover: '1px solid #326cc9',
+    borderFocus: `1px solid ${BRAND}`,
+    borderHover: `1px solid ${palette.primaryHover}`,
   },
   Button: {
-    textColor: '#333',
-    // borderFocus: '1px solid #326cb8',
-    // borderHover: '1px solid #326cc9',
-    textColorHoverPrimary: '#326cb8',
-    textColorPressedPrimary: '#326cb8',
-    textColorFocusPrimary: '#326cb8',
+    textColor: palette.gray[900],
+    textColorHoverPrimary: BRAND,
+    textColorPressedPrimary: BRAND,
+    textColorFocusPrimary: BRAND,
     border: 'none',
     borderHover: 'none',
     borderPressed: 'none',
     borderFocus: 'none',
     borderDisabled: 'none',
-  
   },
   Dialog: {
-    // iconColor: string;
-    // iconColorInfo: string;
-    // iconColorSuccess: "#326cb8",
-    iconSize: "0px",
-    // iconColorWarning: string;
-    // iconColorError: string;
-  }
+    iconSize: '0px',
+  },
 };
 
 

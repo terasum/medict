@@ -15,63 +15,32 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!-- 悬停弹窗(#780):在光标附近浮出该词的完整释义(GoldenDict 式)。
-     内容 = SearchWord 首匹配 → buildEntryURL → iframe(复用内容管线)。
-     经 <Teleport to="body"> + fixed 高 z-index,盖在主 iframe 之上。
-     弹窗内的 entry:// 跳转会以 postMessage 冒泡到父窗(走 ENTRY_JUMP 通路)。 -->
-<style lang="scss" scoped>
-.hover-popup {
-  position: fixed;
-  z-index: 1001;
-  width: 380px;
-  max-height: 320px;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
-
-  .hover-popup-head {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 26px;
-    padding: 0 10px;
-    background: #f6f8fa;
-    border-bottom: 1px solid #e3e3e3;
-    font-size: 12px;
-    .hover-popup-word { font-weight: 600; color: #24292f; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .hover-popup-status { color: #999; }
-  }
-  .hover-popup-body {
-    flex: 1 1 auto;
-    height: 280px;
-    background: #fff;
-    .hover-popup-iframe { width: 100%; height: 100%; display: block; }
-    .hover-popup-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 13px; }
-  }
-}
-</style>
-
+<!-- 悬停弹窗(#780):光标附近浮出该词完整释义。试点:样式全用 UnoCSS 原子类
+     (gray 标度 + 卡片 utility),不再有 <style scoped> 硬编码颜色。 -->
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="hover-popup" :style="posStyle" @mouseleave="onLeave">
-      <div class="hover-popup-head">
-        <span class="hover-popup-word">{{ word }}</span>
-        <span v-if="loading" class="hover-popup-status">查询中…</span>
-        <span v-else-if="empty" class="hover-popup-status">无此词</span>
+    <div
+      v-if="visible"
+      class="fixed z-[1001] flex flex-col w-[380px] max-h-[320px] overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md"
+      :style="posStyle"
+      @mouseleave="onLeave"
+    >
+      <div class="flex items-center gap-2 h-[26px] px-2.5 bg-gray-50 border-b border-gray-200 text-xs">
+        <span class="font-semibold text-gray-900 truncate">{{ word }}</span>
+        <span v-if="loading" class="text-gray-500">查询中…</span>
+        <span v-else-if="empty" class="text-gray-400">无此词</span>
       </div>
-      <div class="hover-popup-body">
-        <div v-if="empty || loading" class="hover-popup-placeholder">
+      <div class="h-[280px] bg-white">
+        <div
+          v-if="empty || loading"
+          class="h-full flex items-center justify-center text-gray-400 text-[13px]"
+        >
           {{ empty ? '该词典无此词' : '查询中…' }}
         </div>
         <iframe
           v-else-if="url"
           ref="iframeRef"
-          class="hover-popup-iframe"
+          class="block w-full h-full"
           :src="url"
           frameborder="0"
           style="border: 0;"
@@ -104,7 +73,7 @@ const empty = ref(false);
 
 const SETUP_MSG = '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 
-// 贴边翻转:预估尺寸,超出视口则翻到光标另一侧。
+// 贴边翻转:超出视口则翻到光标另一侧。
 const posStyle = computed(() => {
   const W = 380, H = 320, margin = 12;
   let left = props.x + margin;

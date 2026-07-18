@@ -18,7 +18,6 @@
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
 
 
 .about-view {
@@ -68,13 +67,13 @@
       }
 
       p {
-        color: #333;
+        color: var(--c-gray-900);
         font-style: italic;
         margin: 0;
       }
 
       a {
-        color: #333;
+        color: var(--c-gray-900);
       }
     }
 
@@ -93,13 +92,13 @@
 
 // .btn {
 //   background-color: rgb(252, 252, 252);
-//   background-image: linear-gradient(to bottom, #fcfcfc 0, #f1f1f1 100%);
+//   background-image: linear-gradient(to bottom, var(--c-gray-50) 0, var(--c-gray-100) 100%);
 //   border-radius: 4px;
 //   border: 1px solid transparent;
 //   box-shadow: 0 1px 1px rgb(0 0 0 / 6%);
-//   border-color: #c2c0c2 #c2c0c2 #a19fa1;
+//   border-color: var(--c-gray-300) var(--c-gray-300) #a19fa1;
 //   text-align: center;
-//   color: #666;
+//   color: var(--c-gray-700);
 //   font-size: 12px;
 //   display: inline-block;
 //   padding: 3px 8px;
@@ -108,7 +107,7 @@
 //   height: 26px;
 //   min-width: 80px;
 //   &:active {
-//     background-color: #ddd;
+//     background-color: var(--c-gray-300);
 //     background-image: none;
 //   }
 // }

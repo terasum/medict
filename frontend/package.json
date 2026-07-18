@@ -35,6 +35,7 @@
     "naive-ui": "^2.34.4",
     "sass": "^1.66.1",
     "typescript": "~5.4",
+    "unocss": "^66.7.5",
     "vfonts": "^0.0.3",
     "vite": "^4.5.14",
     "vite-plugin-inspect": "^0.7.38",

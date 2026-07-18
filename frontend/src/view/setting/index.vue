@@ -138,7 +138,6 @@ function changeTab(tablink) {
 
 <style lang="scss" scoped>
 @import '@/style/variables.scss';
-@import '@/style/photon/photon.scss';
 
 .x-space {
   width: 100%;
@@ -165,7 +164,7 @@ function changeTab(tablink) {
         height: 100%;
         padding: 0;
         margin: 0;
-        background-color: #fafafa;
+        background-color: var(--c-gray-100);
       }
 
       .x-layout-content {
@@ -191,7 +190,7 @@ function changeTab(tablink) {
 }
 .nav-group-item {
   a {
-    color: #666;
+    color: var(--c-gray-700);
     text-decoration: none;
   }
 }
@@ -206,7 +205,7 @@ function changeTab(tablink) {
   -ms-text-size-adjust: 100%;
   padding-bottom: 30px;
 
-  color: #444;
+  color: var(--c-gray-800);
   font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman',
     serif;
   font-size: 14px;
@@ -215,7 +214,7 @@ function changeTab(tablink) {
   margin: auto;
   max-width: 45em;
   a {
-    color: #0645ad;
+    color: var(--c-primary);
     text-decoration: none;
   }
   a:visited {
@@ -246,11 +245,11 @@ function changeTab(tablink) {
 
   a::-moz-selection {
     background: rgba(255, 255, 0, 0.3);
-    color: #0645ad;
+    color: var(--c-primary);
   }
   a::selection {
     background: rgba(255, 255, 0, 0.3);
-    color: #0645ad;
+    color: var(--c-primary);
   }
 
   p {
@@ -299,17 +298,17 @@ function changeTab(tablink) {
   }
 
   blockquote {
-    color: #666666;
+    color: var(--c-gray-700);
     margin: 0;
     padding-left: 3em;
-    border-left: 0.5em #eee solid;
+    border-left: 0.5em var(--c-gray-200) solid;
   }
   hr {
     display: block;
     height: 0;
     border: 0;
-    border-top: 1px solid #aaa;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid var(--c-gray-500);
+    border-bottom: 1px solid var(--c-gray-200);
     margin: 1em 0;
     padding: 0;
   }

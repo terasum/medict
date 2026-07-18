@@ -54,7 +54,6 @@
   
   <style lang="scss" scoped>
   @import '@/style/variables.scss';
-  @import '@/style/photon/photon.scss';
   
   .setting-main-container {
     height: 100%;
@@ -73,7 +72,7 @@
       .setting-section{
           margin: 6px auto;
           .table-wrapper{
-            border: 1px solid #ccc;
+            border: 1px solid var(--c-gray-300);
           }
       }
     }

@@ -90,7 +90,7 @@ uiStore.updateCurrentTab("search");
         height: 100%;
         padding: 0;
         margin: 0;
-        background-color: #fafafa;
+        background-color: var(--c-gray-100);
       }
 
       .x-layout-content {

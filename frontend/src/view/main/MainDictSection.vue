@@ -19,7 +19,7 @@
 <style lang="scss" scoped>
 .dict-section {
   margin: 0 0 10px 0;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--c-gray-200);
   border-radius: 6px;
   overflow: hidden;
   background: #fff;
@@ -30,10 +30,10 @@
     gap: 8px;
     height: 26px;
     padding: 0 10px;
-    background: #f6f8fa;
-    border-bottom: 1px solid #e3e3e3;
+    background: var(--c-gray-100);
+    border-bottom: 1px solid var(--c-gray-200);
     font-size: 12px;
-    color: #555;
+    color: var(--c-gray-700);
     user-select: none;
 
     .dict-section-name {
@@ -43,7 +43,7 @@
       white-space: nowrap;
     }
     .dict-section-tag {
-      color: #aaa;
+      color: var(--c-gray-500);
       font-size: 11px;
     }
   }
@@ -62,7 +62,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #bbb;
+      color: var(--c-gray-400);
       font-size: 13px;
     }
   }
