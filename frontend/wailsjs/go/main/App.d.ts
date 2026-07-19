@@ -8,9 +8,15 @@ export function BaseDictDir():Promise<string>;
 
 export function BuildIndexByDictId(arg1:string):Promise<model.Resp>;
 
+export function CSSWindowDictionary():Promise<Record<string, string>>;
+
+export function CloseCSSWindow():Promise<void>;
+
 export function CreateNotebook(arg1:string):Promise<model.Resp>;
 
 export function DeleteNotebook(arg1:string):Promise<model.Resp>;
+
+export function ECDICTStatus():Promise<model.Resp>;
 
 export function ExportAnki(arg1:string):Promise<model.Resp>;
 
@@ -22,6 +28,8 @@ export function GetBookmarkSnapshot(arg1:string,arg2:string,arg3:string):Promise
 
 export function GetBookmarks():Promise<model.Resp>;
 
+export function GetDictEditorCSS(arg1:string):Promise<model.Resp>;
+
 export function GetDictUserCSS(arg1:string):Promise<model.Resp>;
 
 export function GetNotebooks():Promise<model.Resp>;
@@ -29,6 +37,10 @@ export function GetNotebooks():Promise<model.Resp>;
 export function GetPreferences():Promise<model.Resp>;
 
 export function InitDicts():Promise<model.Resp>;
+
+export function InstallFullECDICT():Promise<model.Resp>;
+
+export function OpenDictCSSWindow(arg1:string,arg2:string,arg3:string):Promise<model.Resp>;
 
 export function OpenFinder(arg1:string):Promise<void>;
 
@@ -40,8 +52,10 @@ export function ResourceServerAddr():Promise<string>;
 
 export function SaveDictUserCSS(arg1:string,arg2:string):Promise<model.Resp>;
 
-export function SavePreferences(arg1:{[key: string]: any}):Promise<model.Resp>;
+export function SavePreferences(arg1:Record<string, any>):Promise<model.Resp>;
 
 export function SearchWord(arg1:string,arg2:string):Promise<model.Resp>;
 
 export function SetDefaultNotebook(arg1:string):Promise<model.Resp>;
+
+export function WindowMode():Promise<string>;

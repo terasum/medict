@@ -1,5 +1,5 @@
 <template>
-  <SettingPage title="词典设置" description="管理词典目录、加载规则与内容模板。">
+  <SettingPage>
     <section class="settings-section">
       <h2 class="settings-section-title">存储位置</h2>
       <SettingItem title="词典目录">

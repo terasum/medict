@@ -1,5 +1,5 @@
 <template>
-  <SettingPage title="外观设置" description="调整 Medict 的显示方式。">
+  <SettingPage>
     <section class="settings-section">
       <h2 class="settings-section-title">主题</h2>
       <SettingItem title="界面主题">

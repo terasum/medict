@@ -1,5 +1,5 @@
 <template>
-  <SettingPage title="插件设置" description="管理插件目录和前端网络访问范围。">
+  <SettingPage>
     <section class="settings-section">
       <h2 class="settings-section-title">访问权限</h2>
       <SettingItem title="允许访问的域名">

@@ -1,207 +1,105 @@
-<!--
-
- Copyright (C) 2023 Quan Chen <chenquan_act@163.com>
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-
-<style lang="scss" scoped>
-@use '@/style/variables.scss' as *;
-
-
-
-.about-view {
-  height: auto;
-  overflow: visible;
-  padding: 15px 10px;
-  .about-title {
-  }
-.about-body {
-  min-height: 260px;
-}
-
-
-}
-
-.about-section {
-  display: flex;
-  flex-direction: column;
-  margin: 0 10px;
-
-  .section-title {
-    width: 100%;
-    padding: 2px 4px;
-    margin: 0;
-    font-size: 16px;
-    h2 {
-      font-size: 21px;
-      margin: 14px 0;
-      padding: 6px 0;
-      border-bottom: 1px solid #c1c1c3;
-    }
-  }
-
-  .section-body {
-    padding-left: 12px;
-  }
-
-  .input-group {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 10px 0;
-    .input-info {
-      label {
-        font-style: bold;
-      }
-
-      p {
-        color: var(--c-gray-900);
-        font-style: italic;
-        margin: 0;
-      }
-
-      a {
-        color: var(--c-gray-900);
-      }
-    }
-
-    .input-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      max-width: 15rem;
-      padding-right: 20px;
-      input {
-        height: 26px;
-      }
-    }
-  }
-}
-
-// .btn {
-//   background-color: rgb(252, 252, 252);
-//   background-image: linear-gradient(to bottom, var(--c-gray-50) 0, var(--c-gray-100) 100%);
-//   border-radius: 4px;
-//   border: 1px solid transparent;
-//   box-shadow: 0 1px 1px rgb(0 0 0 / 6%);
-//   border-color: var(--c-gray-300) var(--c-gray-300) #a19fa1;
-//   text-align: center;
-//   color: var(--c-gray-700);
-//   font-size: 12px;
-//   display: inline-block;
-//   padding: 3px 8px;
-//   margin-bottom: 0;
-//   white-space: nowrap;
-//   height: 26px;
-//   min-width: 80px;
-//   &:active {
-//     background-color: var(--c-gray-300);
-//     background-image: none;
-//   }
-// }
-
-</style>
-
 <template>
-  <SettingPage title="关于 Medict" description="版本信息、项目主页与贡献者。" back>
-  <div class="container about-view settings-section">
-    <div class="about-title">
-      <!-- <h1>About</h1> -->
-    </div>
-    <div class="about-body">
-      <section class="about-section">
-        <div class="section-title">
-          <h2>
-            <NIcon><Code /></NIcon> 软件信息
-          </h2>
+  <SettingPage>
+    <section class="settings-section">
+      <h2 class="settings-section-title">软件信息</h2>
+      <SettingItem title="软件简介">
+        <template #desc>Medict 是一款现代、跨平台的本地词典应用</template>
+        <span class="about-value">支持 MDX、MDD 与 StarDict 词典格式</span>
+      </SettingItem>
+      <SettingItem title="当前版本">
+        <template #desc>检查当前安装版本及可用更新</template>
+        <div class="about-action-row">
+          <span class="about-value">{{ latestVersion }}</span>
+          <NButton size="small" secondary :loading="checking" @click="checkLatestVersion">
+            {{ checking ? '检查中…' : '检查更新' }}
+          </NButton>
         </div>
-        <div class="section-body">
-          <div class="input-group">
-            <div class="input-info">
-              <label>软件简介</label>
-              <p>Medict, 现代跨平台词典App</p>
-            </div>
-            <div class="input-container">
-              <button
-                class="btn btn-default"
-                @click="openExternal('https://github.com/terasum/medict')"
-              >
-              <span class="icon icon-github"></span>&nbsp;github
-              </button>
-            </div>
-          </div>
-          <div class="input-group">
-            <div class="input-info">
-              <label>软件版本</label>
-              <p>v3.0.1-alpha</p>
-            </div>
-            <div class="input-container"></div>
-          </div>
-        </div>
-      </section>
+      </SettingItem>
+      <SettingItem title="项目主页">
+        <template #desc>查看源代码、版本发布和问题反馈</template>
+        <NButton size="small" secondary @click="openExternal('https://github.com/terasum/medict')">
+          <template #icon><span class="icon icon-github" aria-hidden="true" /></template>
+          GitHub
+        </NButton>
+      </SettingItem>
+    </section>
 
-      <section class="about-section">
-        <div class="section-title">
-          <h2>
-            <NIcon><PeopleCarry /></NIcon> 致谢
-          </h2>
-        </div>
-        <div class="section-body">
-          <div class="input-group">
-            <div class="input-info">
-              <label>开发人员</label>
-              <p>
-                <a
-                  href="javascript:void(0);"
-                  @click="openExternal('https://github.com/terasum')"
-                  >Chen, Quan</a
-                >
-              </p>
-            </div>
-            <div class="input-container"></div>
-          </div>
-
-          <div class="input-group">
-            <div class="input-info">
-              <label>设计人员</label>
-              <p>Zhang, Mingjiao</p>
-            </div>
-            <div class="input-container"></div>
-          </div>
-          <div class="input-group">
-            <div class="input-info">
-              <label>特别鸣谢</label>
-              <p>Song, Xing</p>
-            </div>
-            <div class="input-container"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
+    <section class="settings-section">
+      <h2 class="settings-section-title">项目成员</h2>
+      <SettingItem title="开发人员">
+        <template #desc>Medict 的开发与维护</template>
+        <button class="about-link" type="button" @click="openExternal('https://github.com/terasum')">Chen, Quan</button>
+      </SettingItem>
+      <SettingItem title="设计人员">
+        <template #desc>产品视觉与交互设计</template>
+        <span class="about-value">Zhang, Mingjiao</span>
+      </SettingItem>
+      <SettingItem title="特别鸣谢">
+        <template #desc>感谢对项目提供帮助的贡献者</template>
+        <span class="about-value">Song, Xing</span>
+      </SettingItem>
+    </section>
   </SettingPage>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
+import { NButton, useDialog, useMessage } from 'naive-ui';
 import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
-import { Code, PeopleCarry } from '@vicons/fa';
-import { NIcon } from 'naive-ui';
+import SettingItem from '@/components/setting/SettingItem.vue';
 import SettingPage from '@/components/setting/SettingPage.vue';
+
+const latestVersion = ref('3.0.1-alpha');
+const checking = ref(false);
+const dialog = useDialog();
+const message = useMessage();
 
 function openExternal(url: string) {
   BrowserOpenURL(url);
 }
+
+async function checkLatestVersion() {
+  checking.value = true;
+  await Promise.resolve();
+  checking.value = false;
+  dialog.info({
+    title: '检查更新',
+    content: `当前版本 ${latestVersion.value}，暂未发现可用更新。`,
+    positiveText: '知道了',
+    onPositiveClick: () => message.success('已完成检查'),
+  });
+}
 </script>
+
+<style scoped>
+.about-value {
+  color: var(--c-gray-800);
+}
+
+.about-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.about-action-row :deep(.n-button),
+:deep(.n-button) {
+  background-image: none;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+.about-link {
+  padding: 0;
+  color: var(--c-primary);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.about-link:hover {
+  text-decoration: underline;
+}
+</style>

@@ -19,9 +19,7 @@
 import MainWindow from '@/view/main/index.vue';
 import DictWindow from '@/view/dict/index.vue';
 import PluginsWindow from '@/view/plugins/index.vue';
-import DebugWindow from '@/view/debug/index.vue';
 import SettingWindow from '@/view/setting/index.vue';
-import DocWindow from '@/view/docs/index.vue';
 import BookmarksWindow from '@/view/bookmarks/index.vue';
 
 import index_md from '@/assets/docs/index.md';
@@ -35,52 +33,45 @@ import SettingDict from "@/view/setting/SettingDict.vue";
 import SettingSoftware from "@/view/setting/SettingSoftware.vue";
 import SettingTheme from "@/view/setting/SettingTheme.vue";
 import SettingPlugin from "@/view/setting/SettingPlugin.vue";
-import SettingUpdater from "@/view/setting/SettingUpdate.vue";
-import SettingDocument from "@/components/setting/SettingDocument.vue";
-
-import DebugResourceSearchView from "@/view/debug/DebugResourceSearch.vue";
-import DebugEditDictView from "@/view/debug/DebugEditDict.vue";
+import SettingDebug from "@/view/setting/SettingDebug.vue";
+import SettingDocs from "@/view/setting/SettingDocs.vue";
 
 export default [
   { path: '/', component: MainWindow },
   { path: '/dict', component: DictWindow },
   { path: '/setting', component: SettingWindow, children:[
     
-      { path: '', redirect: 'dict' },
+      { path: '', redirect: '/setting/dict' },
       { path: 'dict', component: SettingDict },
       { path: 'software', component: SettingSoftware },
       { path: 'theme', component: SettingTheme },
       { path: 'plugin', component: SettingPlugin },
+      { path: 'debug', component: SettingDebug },
       {
-        path: 'terms',
-        component: SettingDocument,
-        props: { title: '隐私声明', description: '了解 Medict 如何处理本地数据。', document: terms_and_service },
+        path: 'docs',
+        component: SettingDocs,
+        children: [
+          { path: '', redirect: '/setting/docs/index' },
+          { path: 'index', component: index_md },
+          { path: 'select-and-use', component: select_and_use_md },
+          { path: 'faq', component: faq_md },
+          { path: 'privacy', component: terms_and_service },
+          { path: 'license', component: license_md },
+        ],
       },
-      {
-        path: 'license',
-        component: SettingDocument,
-        props: { title: '开源许可', description: 'Medict 与第三方组件的开源协议。', document: license_md },
-      },
+      { path: 'terms', redirect: '/setting/docs/privacy' },
+      { path: 'license', redirect: '/setting/docs/license' },
       { path: 'about', component: about_md },
-      { path: 'update', component: SettingUpdater },
+      { path: 'update', redirect: '/setting/about' },
     
   ]},
   { path: '/bookmarks', component: BookmarksWindow },
   { path: '/plugins', component: PluginsWindow },
-  { path: '/debug', component: DebugWindow,
-    children: [
-      {path:"", component: DebugResourceSearchView},
-      {path:"resource-search", component: DebugResourceSearchView},
-      {path:"edit-dict", component: DebugEditDictView},
-    ] },
-  {
-    path: '/docs',
-    component: DocWindow,
-    children: [
-      { path: '', component: index_md },
-      { path: 'index', component: index_md },
-      { path: 'select_and_use', component: select_and_use_md },
-      { path: 'faq', component: faq_md },
-    ],
-  },
+  { path: '/debug', redirect: '/setting/debug' },
+  { path: '/docs', redirect: '/setting/docs/index' },
+  { path: '/docs/index', redirect: '/setting/docs/index' },
+  { path: '/docs/select_and_use', redirect: '/setting/docs/select-and-use' },
+  { path: '/docs/faq', redirect: '/setting/docs/faq' },
+  { path: '/docs/privacy', redirect: '/setting/docs/privacy' },
+  { path: '/docs/license', redirect: '/setting/docs/license' },
 ];

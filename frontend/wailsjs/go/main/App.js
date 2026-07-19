@@ -14,12 +14,24 @@ export function BuildIndexByDictId(arg1) {
   return window['go']['main']['App']['BuildIndexByDictId'](arg1);
 }
 
+export function CSSWindowDictionary() {
+  return window['go']['main']['App']['CSSWindowDictionary']();
+}
+
+export function CloseCSSWindow() {
+  return window['go']['main']['App']['CloseCSSWindow']();
+}
+
 export function CreateNotebook(arg1) {
   return window['go']['main']['App']['CreateNotebook'](arg1);
 }
 
 export function DeleteNotebook(arg1) {
   return window['go']['main']['App']['DeleteNotebook'](arg1);
+}
+
+export function ECDICTStatus() {
+  return window['go']['main']['App']['ECDICTStatus']();
 }
 
 export function ExportAnki(arg1) {
@@ -42,6 +54,10 @@ export function GetBookmarks() {
   return window['go']['main']['App']['GetBookmarks']();
 }
 
+export function GetDictEditorCSS(arg1) {
+  return window['go']['main']['App']['GetDictEditorCSS'](arg1);
+}
+
 export function GetDictUserCSS(arg1) {
   return window['go']['main']['App']['GetDictUserCSS'](arg1);
 }
@@ -56,6 +72,14 @@ export function GetPreferences() {
 
 export function InitDicts() {
   return window['go']['main']['App']['InitDicts']();
+}
+
+export function InstallFullECDICT() {
+  return window['go']['main']['App']['InstallFullECDICT']();
+}
+
+export function OpenDictCSSWindow(arg1, arg2, arg3) {
+  return window['go']['main']['App']['OpenDictCSSWindow'](arg1, arg2, arg3);
 }
 
 export function OpenFinder(arg1) {
@@ -88,4 +112,8 @@ export function SearchWord(arg1, arg2) {
 
 export function SetDefaultNotebook(arg1) {
   return window['go']['main']['App']['SetDefaultNotebook'](arg1);
+}
+
+export function WindowMode() {
+  return window['go']['main']['App']['WindowMode']();
 }

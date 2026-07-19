@@ -106,7 +106,7 @@
           <span class="fn-box-text">生词</span>
         </div>
 
-        <div class="fn-box" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
+        <div class="fn-box" data-test="function-setting" @click="changeTab('setting')"  :class="uiStore.currentTab == 'setting'?'active':''">
           <span class="fn-box-icon">
             <ToggleOn />
           </span>
@@ -138,7 +138,7 @@ const tabRouters = {
 };
 
 function changeTab(tabName) {
-  if (uiStore.currentTab != tabName && tabRouters[tabName]) {
+  if (tabRouters[tabName]) {
     router.replace({ path: tabRouters[tabName] });
   }
   uiStore.updateCurrentTab(tabName);

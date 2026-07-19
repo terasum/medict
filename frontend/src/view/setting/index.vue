@@ -10,19 +10,15 @@
       <div class="x-layout-main-area">
         <aside class="x-layout-sidebar">
           <AppSidebar>
-            <nav v-for="group in settingsNavigation" :key="group.title" class="nav-group settings-nav-group">
-              <h2 class="nav-group-title">{{ group.title }}</h2>
+            <nav class="nav-group settings-nav-menu" aria-label="设置菜单">
               <RouterLink
-                v-for="item in group.items"
+                v-for="item in settingsNavigation"
                 :key="item.to"
                 :to="item.to"
                 class="nav-group-item settings-nav-item"
               >
                 <span :class="['icon', item.icon]" aria-hidden="true" />
-                <span class="settings-nav-copy">
-                  <strong>{{ item.label }}</strong>
-                  <small>{{ item.description }}</small>
-                </span>
+                <span class="settings-nav-label">{{ item.label }}</span>
               </RouterLink>
             </nav>
           </AppSidebar>
@@ -66,14 +62,14 @@ useUIStore().updateCurrentTab('setting');
 }
 
 .x-layout-sidebar {
-  width: 210px;
+  width: $layout-left-sidebar-width;
   height: 100%;
   background: var(--c-gray-100);
   border-right: 1px solid var(--c-gray-300);
 }
 
 .x-layout-content {
-  width: calc(100% - 210px);
+  width: calc(100% - $layout-left-sidebar-width);
   height: 100%;
   min-width: 0;
 }
@@ -83,26 +79,18 @@ useUIStore().updateCurrentTab('setting');
   height: $layout-footer-height;
 }
 
-.settings-nav-group + .settings-nav-group {
-  margin-top: 8px;
-}
-
-.settings-nav-group .nav-group-title {
-  padding: 14px 14px 5px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.settings-nav-menu {
+  padding: 4px 0;
 }
 
 .settings-nav-item {
   display: flex;
   align-items: center;
-  min-height: 44px;
-  padding: 5px 12px;
+  min-height: 27px;
+  padding: 2px 10px;
   border-radius: 6px;
   margin: 1px 8px;
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .settings-nav-item.router-link-active {
@@ -111,29 +99,33 @@ useUIStore().updateCurrentTab('setting');
 }
 
 .settings-nav-item .icon {
-  flex: 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 16px;
   float: none;
-  margin: 0 8px 0 0;
+  width: 16px;
+  height: 16px;
+  margin: 0 6px 0 0;
+  font-size: 16px;
+  line-height: 16px;
 }
 
-.settings-nav-copy {
-  display: flex;
+.settings-nav-item .icon::before {
+  position: static;
+  display: block;
+  line-height: 1;
+}
+
+.settings-nav-label {
+  display: inline-flex;
+  align-items: center;
   min-width: 0;
-  flex-direction: column;
-  line-height: 1.25;
-}
-
-.settings-nav-copy strong {
+  height: 16px;
   font-size: 13px;
   font-weight: 600;
-}
-
-.settings-nav-copy small {
-  margin-top: 2px;
-  color: var(--c-gray-600);
-  font-size: 11px;
+  line-height: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>

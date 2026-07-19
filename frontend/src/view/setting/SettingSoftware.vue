@@ -1,5 +1,5 @@
 <template>
-  <SettingPage title="通用设置" description="配置搜索行为与应用级参数。">
+  <SettingPage>
     <section class="settings-section">
       <h2 class="settings-section-title">搜索</h2>
       <SettingItem title="全文搜索引擎">
