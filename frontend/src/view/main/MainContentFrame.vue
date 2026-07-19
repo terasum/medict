@@ -37,7 +37,9 @@
     .toolbar-boxes{
     display: flex;
     .app-content-main-toolbar-box {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       height: 24px;
       width: 24px;
       border: 1px solid var(--c-gray-300);
@@ -50,6 +52,12 @@
       border-radius: 3px;
       background-color: var(--c-gray-100);
       color: var(--c-gray-600);
+      padding: 0;
+      cursor: pointer;
+      &:disabled {
+        color: var(--c-gray-400);
+        cursor: default;
+      }
       svg {
         cursor: pointer;
       }
@@ -89,12 +97,20 @@
         ><NIcon><ArrowClockwise20Filled /></NIcon
       ></span>
 
-      <span class="app-content-main-toolbar-box" @click="zoomIn"
-        ><NIcon><ZoomOut16Regular /></NIcon
-      ></span>
-      <span class="app-content-main-toolbar-box" @click="zoomOut"
-        ><NIcon><ZoomIn16Regular /></NIcon
-      ></span>
+      <button
+        class="app-content-main-toolbar-box"
+        type="button"
+        :title="`缩小词典内容（当前 ${contentZoom}%）`"
+        :disabled="contentZoom <= MIN_CONTENT_ZOOM"
+        @click="zoomOut"
+      ><NIcon><ZoomOut16Regular /></NIcon></button>
+      <button
+        class="app-content-main-toolbar-box"
+        type="button"
+        :title="`放大词典内容（当前 ${contentZoom}%）`"
+        :disabled="contentZoom >= MAX_CONTENT_ZOOM"
+        @click="zoomIn"
+      ><NIcon><ZoomIn16Regular /></NIcon></button>
      </div>
     </div>
     <div id="app-content-main-iframe-wrapper" ref="wrapperRef">
@@ -106,6 +122,7 @@
           :name="r.dictName"
           :url="r.url"
           :empty="r.empty"
+          :zoom="contentZoom"
         />
       </div>
       <iframe
@@ -129,6 +146,8 @@ import { NIcon } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
 import { exportCurrentEntry, openDictCSSWindow } from '@/apis/dicts-api';
+import { getPreferences, savePreferences } from '@/apis/config';
+import { DEFAULT_CONTENT_ZOOM, MAX_CONTENT_ZOOM, MIN_CONTENT_ZOOM, adjustContentZoom, normalizeContentZoom } from './content-zoom';
 
 import MainDictsToolbar from "./MainDictsToolbar.vue";
 import MainDictSection from "./MainDictSection.vue";
@@ -136,8 +155,7 @@ import MainDictSection from "./MainDictSection.vue";
 const dictQueryStore = useDictQueryStore();
 const message = useMessage();
 
-const TOP_WIN_MSG_ZOOM_OUT =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT';
-const TOP_WIN_MSG_ZOOM_IN =  '__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN';
+const TOP_WIN_MSG_SET_ZOOM = '__Medict_TOP_WIN_MSG_EVTP_SET_ZOOM';
 const TOP_WIN_MSG_REFRESH = '__Medict_TOP_WIN_MSG_EVTP_REFRESH';
 const TOP_WIN_MSG_SETUP =  '__Medict_TOP_WIN_MSG__EVTY_SETUP__';
 const INNER_FRAME_MSG_ENTRY_JUMP = '__Medict_INNER_FRAME_MSG_EVTP_ENTRY_JUMP';
@@ -149,12 +167,14 @@ const wrapperRef = ref<HTMLDivElement | null>(null);
 
 // 多词典模式：堆叠里各词典节的组件实例（暴露 iframeRef），用于广播缩放/刷新消息。
 const sectionRefs = ref<any[]>([]);
+const contentZoom = ref(DEFAULT_CONTENT_ZOOM);
+let zoomSaveTimer: number | null = null;
 const showMulti = computed(
   () => dictQueryStore.multiMode && dictQueryStore.multiResults.length > 0
 );
 // 把消息广播给当前生效的 iframe：多模式发给所有 section，单模式发给唯一 iframe。
-function broadcast(evtype: string) {
-  const payload = { evtype, ts: new Date().getTime() };
+function broadcast(evtype: string, detail: Record<string, unknown> = {}) {
+  const payload = { evtype, ts: new Date().getTime(), ...detail };
   if (showMulti.value) {
     for (const s of sectionRefs.value) {
       s?.iframeRef?.contentWindow?.postMessage(payload, '*');
@@ -182,6 +202,7 @@ function onIframeLoad() {
     return;
   }
   win.postMessage({ evtype: TOP_WIN_MSG_SETUP } as any, '*');
+  win.postMessage({ evtype: TOP_WIN_MSG_SET_ZOOM, scale: contentZoom.value, ts: Date.now() }, '*');
 }
 
 function isKnownIframeSource(source: MessageEventSource | null): boolean {
@@ -280,7 +301,7 @@ function applyUserCSS(css: string) {
 
 // 缩小
 function zoomOut() {
-  broadcast(TOP_WIN_MSG_ZOOM_OUT);
+  setContentZoom(adjustContentZoom(contentZoom.value, -1));
 }
 
 function refresh() {
@@ -289,7 +310,19 @@ function refresh() {
 
 // 放大
 function zoomIn() {
-  broadcast(TOP_WIN_MSG_ZOOM_IN);
+  setContentZoom(adjustContentZoom(contentZoom.value, 1));
+}
+
+function setContentZoom(value: number) {
+  const next = normalizeContentZoom(value);
+  if (next === contentZoom.value) return;
+  contentZoom.value = next;
+  broadcast(TOP_WIN_MSG_SET_ZOOM, { scale: next });
+  if (zoomSaveTimer !== null) window.clearTimeout(zoomSaveTimer);
+  zoomSaveTimer = window.setTimeout(() => {
+    savePreferences({ dictionarycontentzoom: next }).catch(() => message.warning('词典内容缩放比例未能保存'));
+    zoomSaveTimer = null;
+  }, 250);
 }
 
 // Ctrl/Cmd + =/- 与 Ctrl/Cmd + 滚轮缩放词典 iframe（#260）
@@ -327,6 +360,12 @@ onMounted(() => {
   setTimeout(function () {
     dictQueryStore.setUpAPIBaseURL();
   }, 1000);
+  getPreferences().then((preferences) => {
+    contentZoom.value = normalizeContentZoom(preferences.dictionarycontentzoom);
+    broadcast(TOP_WIN_MSG_SET_ZOOM, { scale: contentZoom.value });
+  }).catch(() => {
+    contentZoom.value = DEFAULT_CONTENT_ZOOM;
+  });
 });
 
 onUnmounted(() => {
@@ -335,6 +374,7 @@ onUnmounted(() => {
   window.removeEventListener('message', onInnerFrameMessage);
   window.removeEventListener('keydown', onZoomKey);
   wrapperRef.value?.removeEventListener('wheel', onIframeWheel);
+  if (zoomSaveTimer !== null) window.clearTimeout(zoomSaveTimer);
 })
 
 ///----------------------------

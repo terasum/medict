@@ -100,12 +100,18 @@ const props = defineProps<{
   name: string;
   url: string;
   empty: boolean;
+  zoom: number;
 }>();
 
 const iframeRef = ref<HTMLIFrameElement | null>(null);
 
 function onLoad() {
   iframeRef.value?.contentWindow?.postMessage({ evtype: SETUP_MSG }, '*');
+  iframeRef.value?.contentWindow?.postMessage({
+    evtype: '__Medict_TOP_WIN_MSG_EVTP_SET_ZOOM',
+    scale: props.zoom,
+    ts: Date.now(),
+  }, '*');
 }
 
 // 暴露给父组件,用于多词典模式下广播缩放/刷新消息。

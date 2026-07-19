@@ -80,6 +80,9 @@
           </div>
         </main>
       </div>
+      <div class="n-layout-footer">
+        <AppFooter />
+      </div>
     </div>
   </div>
 </template>
@@ -90,6 +93,7 @@ import { useRouter } from 'vue-router';
 import { NInput, NIcon, useMessage } from 'naive-ui';
 import { Search, Times, Download } from '@vicons/fa';
 import AppHeader from '@/components/layout/AppHeader.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
 import NotebookSidebar from '@/components/bookmarks/NotebookSidebar.vue';
 import { useBookmarkStore } from '@/store/bookmark';
 import { useDictQueryStore } from '@/store/dict';
@@ -397,6 +401,12 @@ onMounted(() => {
         font-size: 12px;
       }
     }
+  }
+
+  .n-layout-footer {
+    flex: 0 0 $layout-footer-height;
+    width: 100%;
+    height: $layout-footer-height;
   }
 }
 </style>

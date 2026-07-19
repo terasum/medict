@@ -45,3 +45,16 @@ func TestWordDefinitionTemplateUsesClickToLookup(t *testing.T) {
 		}
 	}
 }
+
+func TestWordDefinitionTemplateAppliesExplicitContentZoom(t *testing.T) {
+	required := []string{
+		"__Medict_TOP_WIN_MSG_EVTP_SET_ZOOM",
+		"document.documentElement.style.zoom",
+		"Math.min(160, Math.max(80",
+	}
+	for _, marker := range required {
+		if !strings.Contains(WordDefinitionTempl, marker) {
+			t.Fatalf("content zoom marker %q is missing", marker)
+		}
+	}
+}

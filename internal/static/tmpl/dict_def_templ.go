@@ -53,7 +53,11 @@ function __medict_entry_jump(word, dict_id) {
 // setup event listener and top frame origin
 !(function(){
 
-	let defaultFontSize = 1;
+	let contentZoom = 100;
+	function __medict_apply_content_zoom(value) {
+		contentZoom = Math.min(160, Math.max(80, Number(value) || 100));
+		document.documentElement.style.zoom = String(contentZoom / 100);
+	}
     window.addEventListener('message', function(e) {
         console.log("[inner frame got message] ", e)
 		if (e && e.origin && e.origin.startsWith("wails://")){
@@ -63,14 +67,13 @@ function __medict_entry_jump(word, dict_id) {
 			}
 		}
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_OUT"){
-			console.log("zoom out event", e);
-			defaultFontSize += 0.1;
-			document.body.style.fontSize = defaultFontSize + "em";
+			__medict_apply_content_zoom(contentZoom - 10);
 		}
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_ZOOM_IN"){
-			console.log("zoom out event", e);
-			defaultFontSize -= 0.1;
-			document.body.style.fontSize = defaultFontSize + "em";
+			__medict_apply_content_zoom(contentZoom + 10);
+		}
+		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_SET_ZOOM"){
+			__medict_apply_content_zoom(e.data.scale);
 		}
 		if (e && e.data && e.data.evtype === "__Medict_TOP_WIN_MSG_EVTP_REFRESH"){
 			console.log("refresh event", e);

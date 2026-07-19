@@ -53,12 +53,11 @@
       <div v-if="store.notebooks.length === 0" class="nb-empty">暂无生词本</div>
     </nav>
 
-    <div class="nb-footer">
-      <button type="button" class="btn btn-default nb-create" @click="openCreate">
-        <n-icon><Plus /></n-icon>
-        新建生词本
+    <SidebarActionBar class="nb-footer" aria-label="生词本操作">
+      <button type="button" aria-label="新建生词本" title="新建生词本" @click="openCreate">
+        <span class="icon icon-plus" aria-hidden="true" />
       </button>
-    </div>
+    </SidebarActionBar>
 
     <!-- 新建 / 重命名对话框 -->
     <n-modal v-model:show="formShow" preset="dialog" :title="formTitle" :show-icon="false">
@@ -81,9 +80,10 @@
 <script lang="ts" setup>
 import { ref, computed, nextTick } from 'vue';
 import { NIcon, NButton, NDropdown, NInput, NModal, useMessage, useDialog } from 'naive-ui';
-import { Book, Star, EllipsisH, Plus } from '@vicons/fa';
+import { Book, Star, EllipsisH } from '@vicons/fa';
 import { useBookmarkStore } from '@/store/bookmark';
 import type { Notebook } from '@/apis/bookmark-api';
+import SidebarActionBar from '@/components/layout/SidebarActionBar.vue';
 
 const store = useBookmarkStore();
 const message = useMessage();
@@ -287,20 +287,5 @@ function doDelete(nb: Notebook) {
     padding: 20px 0;
   }
 
-  .nb-footer {
-    height: 32px;
-    padding: 3px 6px;
-    border-top: 1px solid var(--c-gray-300);
-    background-color: var(--c-gray-200);
-
-    .nb-create {
-      width: 100%;
-      height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-  }
 }
 </style>
