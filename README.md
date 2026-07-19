@@ -1,135 +1,151 @@
 # Medict
-![Static Badge](https://img.shields.io/badge/version-v3.0.1-blue?style=flat)
-![GitHub Repo stars](https://img.shields.io/github/stars/terasum/medict)
-![license](https://img.shields.io/github/license/terasum/medict.svg)
 
-## Medict 介绍
+[![Latest Release](https://img.shields.io/github/v/release/terasum/medict?display_name=tag&style=flat-square)](https://github.com/terasum/medict/releases/latest)
+[![Release](https://github.com/terasum/medict/actions/workflows/package-and-release.yaml/badge.svg)](https://github.com/terasum/medict/actions/workflows/package-and-release.yaml)
+[![CI](https://github.com/terasum/medict/actions/workflows/ci.yml/badge.svg)](https://github.com/terasum/medict/actions/workflows/ci.yml)
+[![GitHub Stars](https://img.shields.io/github/stars/terasum/medict?style=flat-square)](https://github.com/terasum/medict/stargazers)
+[![License](https://img.shields.io/github/license/terasum/medict.svg?style=flat-square)](LICENSE)
 
-Medict 是一个跨平台的词典 APP, 主要支持 \*.mdx/\*.mdd 词典格式, 目前支持 v1.x 和 v2.0 格式的词典。
+Medict 是一款开源、跨平台的本地词典应用，支持 MDict（`.mdx` / `.mdd`）和 StarDict 词典。它基于 Wails、Go 与 Vue 构建，提供离线英汉词典、多词典查询、生词本、Anki 导出和词典样式编辑等完整的桌面查词体验。
 
-## v3-ing
-Medict v3 版本正在开发中，采用 wails 框架重构，启动性能与包容量大小将大大优化，尽情期待。
+当前稳定版本为 **v3.1.11**。
 
-Medict version 3 is under developing, will refactor by wails framework, waiting for time!
+## 主要功能
 
-## 下载与更新
+### 查词与阅读
 
-目前 Medict 正在紧张开发阶段，版本为自动打包滚动发布，请自行到 https://github.com/terasum/medict/releases 页面寻找最新开发版本, 所有版本均有打包日期，选择最新版本即可。
+- 支持 MDict v1.x / v2.0 的 `.mdx`、`.mdd` 词典，以及 StarDict 的 `.ifo`、`.idx`、`.dict` / `.dict.dz` 词典。
+- 内置约 5 万高频词的离线 ECDICT 英汉词典，无需账号、密钥或网络即可使用。
+- 可在「设置 → 词典设置」中下载完整 ECDICT 数据，安装后继续完全离线查询。
+- 支持前缀建议与模糊搜索，拼写不完全准确时仍可找到候选词。
+- 支持单词典查询和多词典同时查询；多词典选择会自动保存。
+- 正确加载词典内的 CSS、JavaScript、图片、字体与音频资源。
+- 支持 `entry://` 词条跳转和 `@@@LINK=` 重定向。
+- 鼠标悬停时自动识别并为单词添加下划线，点击后在主页面查询，体验接近 macOS 词典。
+- 支持前进、后退、刷新，以及工具栏、`Cmd/Ctrl + +/-`、`Cmd/Ctrl + 滚轮`缩放释义内容。
+- 缩放范围为 80%–160%，会应用到单词典和多词典内容并自动保存。
 
-## 使用说明
+### 词典管理
 
-### 界面概览
+- 自动递归扫描词典目录，并支持通过软链接引入词典。
+- 自动读取 MDict `Title` 或 StarDict `bookname` 作为显示名称。
+- 优先显示词典自带封面；没有封面时使用统一的默认图标。
+- 可创建词典组、管理组成员、删除分组和标记常用分组，不会改动原始词典文件。
+- 支持在独立窗口中编辑单个词典的 CSS；已有样式会作为编辑基础，并支持实时预览和持久化覆盖。
+- 可将当前词条导出为资源内联的独立 HTML，便于调试复杂词典内容。
 
-软件目前包括 “搜索”，“词典”，“插件”，“设置” 四个界面，其中“插件”目前尚在开发当中。
-<div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/zov3hq.png" alt="v3词典界面" style="zoom: 23%;" />
-</div>
+### 生词本
 
-### 词典安装
+- 查询时点击星标即可收藏当前词条。
+- 支持创建、重命名、删除生词本和设置默认生词本。
+- 收藏时保存离线 HTML 快照，即使原词典之后被移除，仍可查看释义。
+- 可按词条或来源词典筛选，并从生词列表直接返回查询。
+- 可将整个生词本导出为 Anki `.apkg`，词典图片会一并打包为 Anki 媒体资源。
 
-目前v3版本的Medict采用自动扫描词典的方式添加词典，您只需将词典放到词典扫描根目录即可，以下是各个操作系统的词典默认扫描根目录：
+### 设置与调试
 
-| 操作系统 | 默认词典目录                                              | 说明                                                         |
-| -------- | --------------------------------------------------------- | ------------------------------------------------------------ |
-| MacOS    | $HOME/Library/Application\ Support/medict/dicts | 您可以在Medict 的`设置`界面打开，也可打开Finder,按住 `Control+Shift+G`并输入该目录打开。 |
-| Windows  | %APPDATA%/medict/dicts                                    |                                                              |
-| Linux    | $HOME/.medict/dicts                                       |                                                              |
+- 统一管理词典目录、完整 ECDICT、软件、主题和插件相关设置。
+- 使用说明、隐私声明和开源许可直接集成在设置页面中。
+- 内置词典资源查询调试工具，可按词典检查图片、CSS、字体或音频资源。
+- 「关于软件」集中提供版本信息、源代码、版本发布和问题反馈入口。
 
-目前 Medict 采用的是目录词典组织方式，一个目录即为一个词典，内部可以放置mdict或stardict两种格式的词典，类似下图：
+## 下载
 
-<div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/image-20230927112451745.png" alt="v3词典界面" style="zoom: 23%;" />
-</div>
+请从 [GitHub Releases](https://github.com/terasum/medict/releases/latest) 下载最新稳定版本。每个正式版本由 GitHub Actions 自动构建并提供以下产物：
 
-#### 特殊文件
+| 平台 | 构建产物 |
+| --- | --- |
+| macOS（Apple Silicon / Intel） | Universal `.dmg`、`.app.zip` |
+| Windows x86_64 | `.zip` |
+| Linux x86_64 | `.tar.gz` |
 
-在目录中可以放置一些特殊用途的文件，用于增强词典：
+历史版本和完整更新记录请参阅 [CHANGELOG.md](CHANGELOG.md)。
 
-| 特殊文件名称               | 用途         | 说明                                                         |
-| -------------------------- | ------------ | ------------------------------------------------------------ |
-| cover.jpg或cover.png       | 词典封面图片 | 该文件针对stardict词典，若是mdict词典，也可提供与mdx同名的jpg或png文件 |
-| mdict.dtype/stardict.dtype | 词典类型文件 | 后续用于支持其他词典类型（目前可自动识别）                   |
+## 安装词典
 
-#### stardict
+Medict 以目录为单位识别词典。打开「设置 → 词典设置」，点击词典目录旁的按钮即可进入当前系统实际使用的目录。将每部词典放入独立子目录后，重新启动或重新加载应用即可。
 
-目前仅支持同时具备 (dict.dz或dict文件，ifo文件，idx文件)的词典，缺少文件的词典不支持。
+```text
+dicts/
+├── Oxford/
+│   ├── Oxford.mdx
+│   ├── Oxford.mdd
+│   └── Oxford.jpg
+└── StardictExample/
+    ├── example.ifo
+    ├── example.idx
+    └── example.dict.dz
+```
 
-### 查词功能
+目录可以继续按语言或用途嵌套，Medict 会递归找到其中真正包含词典文件的目录。
 
-在搜索框输入所需的词即可查词，右侧边栏可以选择使用的词典：
+### 词典文件规则
 
+| 类型 | 必需文件 | 可选文件 |
+| --- | --- | --- |
+| MDict | 一个 `.mdx` | 同目录下一个或多个 `.mdd`；与 `.mdx` 同名的 `.jpg` / `.png` 封面 |
+| StarDict | `.ifo`、`.idx`、`.dict` 或 `.dict.dz` | `cover.jpg` / `cover.png` |
 
-<div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/image-20230927112656769.png" alt="v3词典界面" style="zoom: 23%;" />
-</div>
+通用封面也可以命名为 `cover.jpg` 或 `cover.png`。词典内容及其授权由词典提供者负责，请仅使用你有权使用的词典文件。
 
+## 从源码运行
 
-### 词典界面
+### 环境要求
 
-点击上方词典按钮，可进入词典功能，进行词典管理，目前仅支持查看，词典请通过操作系统文件浏览器管理（Finder等）
+- Go 1.25
+- [Wails CLI v2](https://wails.io/docs/gettingstarted/installation)
+- [Bun](https://bun.sh/)
+- macOS、Windows，或安装了 GTK3 / WebKitGTK 的 Linux 环境
 
+安装 Wails CLI：
 
-<div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/image-20230927113137569.png" alt="v3词典界面" style="zoom: 23%;" />
-</div>
+```bash
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
 
-### 插件管理
+安装前端依赖并启动开发模式：
 
-**tobe done**
+```bash
+cd frontend
+bun install --frozen-lockfile
+cd ..
+make dev
+```
 
+构建桌面应用：
 
+```bash
+make build
+```
 
-### 词典设置
+产物会生成在 `build/bin/`。
 
-点击上方设置按钮，可进入词典设置功能。
+## 测试
 
-<div style="width: 100%;">
-  <img  width=500 style="display:block; margin: 0 auto;"  src="docs/_assets/image-20230927113331495-5785613-5785617.png" alt="v3词典界面" style="zoom: 23%;" />
-</div>
+```bash
+# Go 全量测试
+go test ./...
 
-## Q&A
+# 前端测试、类型检查和生产构建
+cd frontend
+bun run test
+bun run typecheck
+bun run build
+```
 
-### 发音问题
+## 技术栈
 
-目前 oale8 词典这种内嵌发音按钮的，将音频资源嵌入在mdd文件中的词典是可以支持发音的，但是目前采用的是js替换的方式完成，不一定适用于所有词典，需要case by case 调试
+- 桌面框架：[Wails v2](https://wails.io/)
+- 后端：Go、Gin、LevelDB、SQLite
+- 前端：Vue 3、Vite 6、Pinia、Naive UI、CodeMirror 6
+- 测试：Go testing、Vitest、Vue Test Utils
 
+## 参与贡献
 
-## Call for help
-**目前 Medict 正在开发当中，需要您的帮助！**
+欢迎通过 [Issues](https://github.com/terasum/medict/issues) 报告问题、提交词典兼容性案例或提出功能建议。提交界面问题时，请尽量附上操作系统、Medict 版本、复现步骤和截图；提交词典解析问题时，请说明词典格式与可公开的最小复现信息。
 
-目前希望得到的帮助：
-1. UI 设计 / Logo 设计
-2. e2e 测试框架集成
-3. 词典测试
-4. 词典内容安全测试
+## 许可证
 
-## 特性列表
-- [x] APP 新 LOGO
-- [x] 查词建议 suggest list
-- [x] mdx 查词结果展示
-- [x] mdd 资源加载
-- [x] mdd 音频播放(mp3/ogg)
-- [x] entry:// 词汇跳转
-- [x] @@@LINK= 词汇重定向
-  - [ ] 存在部分词典适配问题
-- [x] mdd/mdx 词典选择配置
-  - [x] mdd 可选配置
-- [x] 查词历史导航(</>)
-- [ ] 功能 tab 页跳转
-- [x] 多词典同时查询
-- [ ] 全文检索^1 #787
-- [x] 默认英汉词典：内置 ECDICT 离线精简版，并支持在设置中下载约 76 万词条的完整版本；不再默认注册不稳定的 Bing 在线词典
-- [x] 释义内查词:悬停自动分词并标记下划线，点击后在主视图查询(类 macOS Dictionary) #780
-- [ ] 词典卡死/性能问题排查(部分大词典卡顿) #781
-- [x] 词典显示名自动取 mdx Title / stardict bookname(从目录添加见 #257) #782
-- [ ] 词典 CSS 编辑器(右键编辑 + 实时预览) #783
-- [x] 导出当前词条 HTML 为文件(调试复杂词条) #784
-- [ ] MDX 打包/解包工具 #785
-- [ ] 词形/简繁/异体字变形查询(查不到时回退变形,或提示「你是不是要查…」) #786
-- [ ] 插件功能
-  - [ ] 词典扩展功能栏
-  - [ ] 词频展示插件
-  - [x] 生词本记录插件
-  - [x] 导出anki卡片插件
+Medict 使用 [GNU General Public License v3.0](LICENSE) 发布。
 
 **Medict is made by terasum and xing with ❤️**
