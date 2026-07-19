@@ -1,106 +1,108 @@
 # Medict
 
+**English** | [简体中文](README_ZH-CN.md)
+
 [![Latest Release](https://img.shields.io/github/v/release/terasum/medict?display_name=tag&style=flat-square)](https://github.com/terasum/medict/releases/latest)
 [![Release](https://github.com/terasum/medict/actions/workflows/package-and-release.yaml/badge.svg)](https://github.com/terasum/medict/actions/workflows/package-and-release.yaml)
 [![CI](https://github.com/terasum/medict/actions/workflows/ci.yml/badge.svg)](https://github.com/terasum/medict/actions/workflows/ci.yml)
 [![GitHub Stars](https://img.shields.io/github/stars/terasum/medict?style=flat-square)](https://github.com/terasum/medict/stargazers)
 [![License](https://img.shields.io/github/license/terasum/medict.svg?style=flat-square)](LICENSE)
 
-Medict 是一款开源、跨平台的本地词典应用，支持 MDict（`.mdx` / `.mdd`）和 StarDict 词典。它基于 Wails、Go 与 Vue 构建，提供离线英汉词典、多词典查询、生词本、Anki 导出和词典样式编辑等完整的桌面查词体验。
+Medict is an open-source, cross-platform desktop dictionary application with support for MDict (`.mdx` / `.mdd`) and StarDict dictionaries. Built with Wails, Go, and Vue, it provides an offline English-Chinese dictionary, multi-dictionary lookup, vocabulary notebooks, Anki export, and per-dictionary style editing.
 
-当前稳定版本为 **v3.1.11**。
+The current stable release is **v3.1.11**.
 
-## 主要功能
+## Features
 
-### 查词与阅读
+### Lookup and Reading
 
-- 支持 MDict v1.x / v2.0 的 `.mdx`、`.mdd` 词典，以及 StarDict 的 `.ifo`、`.idx`、`.dict` / `.dict.dz` 词典。
-- 内置约 5 万高频词的离线 ECDICT 英汉词典，无需账号、密钥或网络即可使用。
-- 可在「设置 → 词典设置」中下载完整 ECDICT 数据，安装后继续完全离线查询。
-- 支持前缀建议与模糊搜索，拼写不完全准确时仍可找到候选词。
-- 支持单词典查询和多词典同时查询；多词典选择会自动保存。
-- 正确加载词典内的 CSS、JavaScript、图片、字体与音频资源。
-- 支持 `entry://` 词条跳转和 `@@@LINK=` 重定向。
-- 鼠标悬停时自动识别并为单词添加下划线，点击后在主页面查询，体验接近 macOS 词典。
-- 支持前进、后退、刷新，以及工具栏、`Cmd/Ctrl + +/-`、`Cmd/Ctrl + 滚轮`缩放释义内容。
-- 缩放范围为 80%–160%，会应用到单词典和多词典内容并自动保存。
+- Supports MDict v1.x / v2.0 `.mdx` and `.mdd` dictionaries, plus StarDict `.ifo`, `.idx`, `.dict`, and `.dict.dz` dictionaries.
+- Includes an offline ECDICT English-Chinese dictionary with about 50,000 high-frequency entries—no account, API key, or network connection required.
+- The complete ECDICT dataset can be downloaded from **Settings → Dictionary Settings** and remains fully available offline after installation.
+- Provides prefix suggestions and fuzzy search, helping users find candidates even when spelling is not exact.
+- Supports both single-dictionary and simultaneous multi-dictionary lookup; the active selection is persisted automatically.
+- Loads dictionary-provided CSS, JavaScript, images, fonts, and audio resources.
+- Supports `entry://` navigation and `@@@LINK=` redirects.
+- Detects words under the pointer, underlines them on hover, and looks them up in the main view when clicked, similar to macOS Dictionary.
+- Supports back, forward, and refresh actions, plus definition zoom through the toolbar, `Cmd/Ctrl + +/-`, or `Cmd/Ctrl + mouse wheel`.
+- Definition zoom ranges from 80% to 160%, applies to single- and multi-dictionary views, and is persisted automatically.
 
-### 词典管理
+### Dictionary Management
 
-- 自动递归扫描词典目录，并支持通过软链接引入词典。
-- 自动读取 MDict `Title` 或 StarDict `bookname` 作为显示名称。
-- 优先显示词典自带封面；没有封面时使用统一的默认图标。
-- 可创建词典组、管理组成员、删除分组和标记常用分组，不会改动原始词典文件。
-- 支持在独立窗口中编辑单个词典的 CSS；已有样式会作为编辑基础，并支持实时预览和持久化覆盖。
-- 可将当前词条导出为资源内联的独立 HTML，便于调试复杂词典内容。
+- Recursively scans the dictionary directory and supports dictionaries referenced through symbolic links.
+- Uses the MDict `Title` or StarDict `bookname` metadata as the display name when available.
+- Prefers dictionary-provided cover artwork and falls back to a shared default icon.
+- Supports creating dictionary groups, managing group members, deleting groups, and marking a favorite group without modifying dictionary files.
+- Provides a standalone CSS editor for each dictionary. Existing dictionary styles are used as the editing base, with live preview and persistent overrides.
+- Exports the current entry as a self-contained HTML file with resources inlined for debugging complex dictionary content.
 
-### 生词本
+### Vocabulary Notebooks
 
-- 查询时点击星标即可收藏当前词条。
-- 支持创建、重命名、删除生词本和设置默认生词本。
-- 收藏时保存离线 HTML 快照，即使原词典之后被移除，仍可查看释义。
-- 可按词条或来源词典筛选，并从生词列表直接返回查询。
-- 可将整个生词本导出为 Anki `.apkg`，词典图片会一并打包为 Anki 媒体资源。
+- Save the current entry by clicking the star while looking up a word.
+- Create, rename, delete, and select a default vocabulary notebook.
+- Stores an offline HTML snapshot when an entry is saved, so definitions remain available even if the source dictionary is later removed.
+- Filter saved words by entry or source dictionary and return directly to lookup from the notebook.
+- Export an entire notebook as an Anki `.apkg`; dictionary images are packaged as Anki media resources.
 
-### 设置与调试
+### Settings and Diagnostics
 
-- 统一管理词典目录、完整 ECDICT、软件、主题和插件相关设置。
-- 使用说明、隐私声明和开源许可直接集成在设置页面中。
-- 内置词典资源查询调试工具，可按词典检查图片、CSS、字体或音频资源。
-- 「关于软件」集中提供版本信息、源代码、版本发布和问题反馈入口。
+- Manage the dictionary directory, complete ECDICT dataset, software, theme, and plugin-related preferences in one place.
+- Read the user guide, privacy notice, and open-source license directly inside Settings.
+- Inspect images, CSS, fonts, and audio through the built-in dictionary resource query tool.
+- Access version information, source code, releases, and issue reporting from the About page.
 
-## 下载
+## Download
 
-请从 [GitHub Releases](https://github.com/terasum/medict/releases/latest) 下载最新稳定版本。每个正式版本由 GitHub Actions 自动构建并提供以下产物：
+Download the latest stable build from [GitHub Releases](https://github.com/terasum/medict/releases/latest). Every official release is built automatically by GitHub Actions and includes:
 
-| 平台 | 构建产物 |
+| Platform | Artifact |
 | --- | --- |
-| macOS（Apple Silicon / Intel） | Universal `.dmg`、`.app.zip` |
+| macOS (Apple Silicon / Intel) | Universal `.dmg` and `.app.zip` |
 | Windows x86_64 | `.zip` |
 | Linux x86_64 | `.tar.gz` |
 
-历史版本和完整更新记录请参阅 [CHANGELOG.md](CHANGELOG.md)。
+See [CHANGELOG.md](CHANGELOG.md) for the complete release history.
 
-## 最新更新：v3.1.11
+## What's New in v3.1.11
 
-### 新增
+### Added
 
-- 新增词典组，可在词典侧边栏创建分组、管理成员、删除分组和标记常用组。
-- 释义缩放改为 80%–160% 的持久化比例，同时覆盖单词典和多词典模式。
-- 词典 CSS 编辑器改为独立窗口；存在原始 CSS 时以原样式为编辑基础，并继续支持实时预览。
-- 设置内新增顶部文档标签，集中展示使用说明、隐私声明和开源许可。
+- Dictionary groups in the dictionary sidebar, including group creation, member management, deletion, and favorite-group selection.
+- Persistent definition zoom from 80% to 160% in both single- and multi-dictionary modes.
+- A standalone dictionary CSS editor that starts from existing styles when available and retains live preview.
+- Top-level documentation tabs in Settings for the user guide, privacy notice, and open-source license.
 
-### 改进
+### Improved
 
-- 默认英汉查询改为离线优先：保留内置 ECDICT 精简版，并提供完整 ECDICT 的应用内下载入口。
-- 重新组织设置和调试工具，简化页面层级，并将资源查询直接融入设置页面。
-- 释义内查词改为悬停标记下划线、点击后查询，不再显示悬浮弹窗。
-- 统一顶部导航、词典图标与选中状态、侧边栏、底部操作栏、设置控件和页脚样式。
-- 前端构建工具升级到 Vite 6。
+- Switched the default English-Chinese experience to offline-first: the bundled ECDICT subset remains available, with an in-app installer for the complete dataset.
+- Reorganized Settings and diagnostics into a flatter structure, with resource queries integrated directly into Settings.
+- Replaced popup-based definition lookup with hover underlining followed by click-to-lookup.
+- Unified top navigation, dictionary icons and active states, sidebars, bottom action bars, settings controls, and footer styling.
+- Upgraded the frontend build toolchain to Vite 6.
 
-### 修复
+### Fixed
 
-- 修复释义跳转和侧边栏查词后搜索框未同步，以及当前页面无法继续切换词条的问题。
-- 优先使用词典自带封面，没有封面时回退到统一图标。
-- 在线词典异常现在会正常降级，不再直接返回未处理的 500 错误。
+- Definition jumps and sidebar lookups now keep the search field synchronized, and entries remain selectable after navigation.
+- Dictionary-provided cover artwork is preferred, with a shared fallback icon when no artwork exists.
+- Online dictionary errors now degrade gracefully instead of returning unhandled HTTP 500 responses.
 
-查看 [v3.1.11 Release](https://github.com/terasum/medict/releases/tag/v3.1.11) 或阅读[完整更新记录](CHANGELOG.md)。
+See the [v3.1.11 release](https://github.com/terasum/medict/releases/tag/v3.1.11) or read the [complete changelog](CHANGELOG.md).
 
 ## Roadmap
 
-下面是当前计划继续推进的主要方向，实施顺序可能根据使用反馈和贡献情况调整：
+The following areas are currently planned. Priorities may change based on user feedback and contributions:
 
-- [ ] [全文检索](https://github.com/terasum/medict/issues/787)：在词典全部释义中搜索关键词，而不仅限于词头匹配。
-- [ ] [词形、简繁与异体字回退查询](https://github.com/terasum/medict/issues/786)：查不到原词时尝试英文词形、中文简繁和异体字变换。
-- [ ] [大型词典性能与稳定性](https://github.com/terasum/medict/issues/781)：继续定位部分词典索引、查询或渲染时的卡顿问题。
-- [ ] [MDX 打包与解包工具](https://github.com/terasum/medict/issues/785)：提供面向词典维护者的本地工具链。
-- [ ] [自定义资源解压目录](https://github.com/terasum/medict/issues/120)：允许用户选择词典资源的缓存或解压位置。
+- [ ] [Full-text search](https://github.com/terasum/medict/issues/787): search inside all definitions instead of matching headwords only.
+- [ ] [Inflection, Simplified/Traditional Chinese, and variant-character fallback](https://github.com/terasum/medict/issues/786): retry a missing lookup using English inflections and Chinese character variants.
+- [ ] [Performance and stability for large dictionaries](https://github.com/terasum/medict/issues/781): continue investigating indexing, lookup, and rendering stalls in some dictionaries.
+- [ ] [MDX packing and unpacking tools](https://github.com/terasum/medict/issues/785): provide a local toolchain for dictionary maintainers.
+- [ ] [Custom resource extraction directory](https://github.com/terasum/medict/issues/120): allow users to select where dictionary resources are cached or extracted.
 
-更多计划、缺陷和讨论请查看 [GitHub Issues](https://github.com/terasum/medict/issues)。
+See [GitHub Issues](https://github.com/terasum/medict/issues) for more plans, bugs, and discussions.
 
-## 安装词典
+## Installing Dictionaries
 
-Medict 以目录为单位识别词典。打开「设置 → 词典设置」，点击词典目录旁的按钮即可进入当前系统实际使用的目录。将每部词典放入独立子目录后，重新启动或重新加载应用即可。
+Medict treats each directory as one dictionary. Open **Settings → Dictionary Settings**, then use the button next to the dictionary directory to open the actual location used by your system. Put each dictionary in its own subdirectory, then restart or reload the application.
 
 ```text
 dicts/
@@ -114,33 +116,33 @@ dicts/
     └── example.dict.dz
 ```
 
-目录可以继续按语言或用途嵌套，Medict 会递归找到其中真正包含词典文件的目录。
+Directories may be nested by language or purpose. Medict recursively discovers the directories that actually contain dictionary files.
 
-### 词典文件规则
+### Dictionary File Rules
 
-| 类型 | 必需文件 | 可选文件 |
+| Type | Required files | Optional files |
 | --- | --- | --- |
-| MDict | 一个 `.mdx` | 同目录下一个或多个 `.mdd`；与 `.mdx` 同名的 `.jpg` / `.png` 封面 |
-| StarDict | `.ifo`、`.idx`、`.dict` 或 `.dict.dz` | `cover.jpg` / `cover.png` |
+| MDict | One `.mdx` | One or more `.mdd` files in the same directory; `.jpg` / `.png` cover with the same base name as the `.mdx` |
+| StarDict | `.ifo`, `.idx`, and either `.dict` or `.dict.dz` | `cover.jpg` / `cover.png` |
 
-通用封面也可以命名为 `cover.jpg` 或 `cover.png`。词典内容及其授权由词典提供者负责，请仅使用你有权使用的词典文件。
+A shared cover may also be named `cover.jpg` or `cover.png`. Dictionary content and licensing remain the responsibility of each dictionary provider; only use dictionary files you are authorized to use.
 
-## 从源码运行
+## Running from Source
 
-### 环境要求
+### Requirements
 
 - Go 1.25
 - [Wails CLI v2](https://wails.io/docs/gettingstarted/installation)
 - [Bun](https://bun.sh/)
-- macOS、Windows，或安装了 GTK3 / WebKitGTK 的 Linux 环境
+- macOS, Windows, or Linux with GTK3 and WebKitGTK installed
 
-安装 Wails CLI：
+Install the Wails CLI:
 
 ```bash
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 ```
 
-安装前端依赖并启动开发模式：
+Install frontend dependencies and start development mode:
 
 ```bash
 cd frontend
@@ -149,40 +151,40 @@ cd ..
 make dev
 ```
 
-构建桌面应用：
+Build the desktop application:
 
 ```bash
 make build
 ```
 
-产物会生成在 `build/bin/`。
+Build artifacts are written to `build/bin/`.
 
-## 测试
+## Testing
 
 ```bash
-# Go 全量测试
+# Run all Go tests
 go test ./...
 
-# 前端测试、类型检查和生产构建
+# Run frontend tests, type checking, and the production build
 cd frontend
 bun run test
 bun run typecheck
 bun run build
 ```
 
-## 技术栈
+## Technology Stack
 
-- 桌面框架：[Wails v2](https://wails.io/)
-- 后端：Go、Gin、LevelDB、SQLite
-- 前端：Vue 3、Vite 6、Pinia、Naive UI、CodeMirror 6
-- 测试：Go testing、Vitest、Vue Test Utils
+- Desktop framework: [Wails v2](https://wails.io/)
+- Backend: Go, Gin, LevelDB, SQLite
+- Frontend: Vue 3, Vite 6, Pinia, Naive UI, CodeMirror 6
+- Testing: Go testing, Vitest, Vue Test Utils
 
-## 参与贡献
+## Contributing
 
-欢迎通过 [Issues](https://github.com/terasum/medict/issues) 报告问题、提交词典兼容性案例或提出功能建议。提交界面问题时，请尽量附上操作系统、Medict 版本、复现步骤和截图；提交词典解析问题时，请说明词典格式与可公开的最小复现信息。
+Bug reports, dictionary compatibility cases, and feature proposals are welcome through [GitHub Issues](https://github.com/terasum/medict/issues). For interface issues, please include your operating system, Medict version, reproduction steps, and screenshots when possible. For dictionary parsing issues, describe the dictionary format and provide the smallest publicly shareable reproduction details.
 
-## 许可证
+## License
 
-Medict 使用 [GNU General Public License v3.0](LICENSE) 发布。
+Medict is released under the [GNU General Public License v3.0](LICENSE).
 
 **Medict is made by terasum and xing with ❤️**
