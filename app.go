@@ -186,6 +186,34 @@ func (b *App) BuildIndexByDictId(dictid string) *model.Resp {
 	return b.bs.Controller.BuildIndexByDictId(dictid)
 }
 
+// ECDICTStatus returns the active offline English-Chinese dictionary edition.
+func (b *App) ECDICTStatus() *model.Resp {
+	if b.dictSvc == nil {
+		return model.BuildError(errors.New("dictionary service not initialized"), model.InnerSysErrCode)
+	}
+	status, err := b.dictSvc.ECDICTStatus()
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(status)
+}
+
+// InstallFullECDICT downloads and activates the complete official ECDICT data.
+func (b *App) InstallFullECDICT() *model.Resp {
+	if b.dictSvc == nil {
+		return model.BuildError(errors.New("dictionary service not initialized"), model.InnerSysErrCode)
+	}
+	ctx := b.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	count, err := b.dictSvc.InstallFullECDICT(ctx)
+	if err != nil {
+		return model.BuildError(err, model.InnerSysErrCode)
+	}
+	return model.BuildSuccess(map[string]any{"entryCount": count, "edition": "full"})
+}
+
 // GetPreferences returns all persisted settings (medict.toml + runtime overrides)
 // as a flat map, for the frontend to read back. b.conf may be nil if appInit
 // failed — return an empty map in that case.

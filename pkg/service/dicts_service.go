@@ -17,9 +17,9 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/terasum/medict/internal/static/handler"
 	"os"
 	"path"
 	"sort"
@@ -27,9 +27,10 @@ import (
 	"sync"
 
 	"github.com/terasum/medict/internal/config"
+	"github.com/terasum/medict/internal/static/handler"
 	"github.com/terasum/medict/internal/utils"
 	"github.com/terasum/medict/pkg/model"
-	"github.com/terasum/medict/pkg/service/onlinedict"
+	"github.com/terasum/medict/pkg/service/ecdict"
 	"github.com/terasum/medict/pkg/service/support"
 )
 
@@ -72,30 +73,54 @@ func (ds *DictService) Close() error {
 
 // InitDicts initialize the dictionaries
 func (ds *DictService) InitDicts() error {
-	if err := ds.walkDicts(); err != nil {
-		return err
-	}
-	ds.registerVirtualDicts()
-	return nil
+	return ds.walkDicts()
 }
 
-// registerVirtualDicts adds non-file (online) dictionaries to the dict map, so
-// they appear in the dict list like file dicts. Currently: Bing (free, no key).
-func (ds *DictService) registerVirtualDicts() {
-	bing := onlinedict.NewBing()
-	item := &model.DictionaryItem{
-		PlainDictionaryItem: &model.PlainDictionaryItem{
-			ID:          "online-bing",
-			Name:        bing.Name(),
-			DictType:    string(model.DictTypeOnline),
-			Description: bing.Description(),
-		},
-		Dict: bing,
-		// PathInfo 留 nil:在线词典无目录。
+// ECDICTStatus reports whether the bundled compact dictionary or the full
+// downloaded edition is currently active.
+func (ds *DictService) ECDICTStatus() (ecdict.Status, error) {
+	dict, err := ds.ecdict()
+	if err != nil {
+		return ecdict.Status{}, err
+	}
+	return dict.Status()
+}
+
+// InstallFullECDICT downloads the official ECDICT CSV and atomically replaces
+// the compact SQLite database. The ECDICT implementation keeps the compact
+// database active if download, conversion, validation, or replacement fails.
+func (ds *DictService) InstallFullECDICT(ctx context.Context) (int, error) {
+	dict, err := ds.ecdict()
+	if err != nil {
+		return 0, err
+	}
+	count, err := dict.InstallFull(ctx, nil)
+	if err != nil {
+		return 0, err
 	}
 	ds.dictLock.Lock()
-	ds.dicts[item.ID] = item
+	for _, item := range ds.dicts {
+		if item.Dict == dict {
+			item.Description = dict.Description()
+			break
+		}
+	}
 	ds.dictLock.Unlock()
+	return count, nil
+}
+
+func (ds *DictService) ecdict() (*ecdict.ECDict, error) {
+	ds.dictLock.Lock()
+	defer ds.dictLock.Unlock()
+	for _, item := range ds.dicts {
+		if item.DictType != string(model.DictTypeECDICT) {
+			continue
+		}
+		if dict, ok := item.Dict.(*ecdict.ECDict); ok {
+			return dict, nil
+		}
+	}
+	return nil, errors.New("ECDICT dictionary not loaded")
 }
 
 func (ds *DictService) FindFromDir(dictId string, key string) ([]byte, error) {

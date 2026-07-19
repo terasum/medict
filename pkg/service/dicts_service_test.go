@@ -24,6 +24,21 @@ import (
 	"github.com/terasum/medict/internal/config"
 )
 
+func TestInitDictsDoesNotRegisterBing(t *testing.T) {
+	ds, err := NewDictService(&config.Config{ConfigStruct: &config.ConfigStruct{BaseDictDir: t.TempDir()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ds.InitDicts(); err != nil {
+		t.Fatal(err)
+	}
+	for _, dict := range ds.Dicts() {
+		if dict.ID == "online-bing" {
+			t.Fatal("Bing must not be registered as a default dictionary")
+		}
+	}
+}
+
 func TestDictService_Dicts(t *testing.T) {
 	if _, err := os.Stat("./testdata/dicts"); err != nil {
 		t.Skip("testdata directory not present: ./testdata/dicts")

@@ -5,7 +5,7 @@
 # Generate a compact ECDICT subset (top-N frequent English->Chinese entries) as a
 # SQLite file for embedding as Medict's default offline EN-CN dictionary (#782/roadmap).
 #
-# Source: https://github.com/skywind3000/ECDICT  (ecdict.csv, CC-BY-SA / public)
+# Source: https://github.com/skywind3000/ECDICT (ecdict.csv, MIT)
 # We keep only: word, phonetic, definition (EN), translation (CN), pos, frq — and
 # only rows that HAVE a Chinese translation — then take the top N by frequency
 # (collins stars first, then frq). Output ~8MB for N=50000.

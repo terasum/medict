@@ -118,7 +118,7 @@ Medict version 3 is under developing, will refactor by wails framework, waiting 
 - [ ] 功能 tab 页跳转
 - [x] 多词典同时查询
 - [ ] 全文检索^1 #787
-- [x] 默认英汉词典:ECDICT 离线(#794)+ Bing 在线免费(#795);有道(付费)暂不做
+- [x] 默认英汉词典：内置 ECDICT 离线精简版，并支持在设置中下载约 76 万词条的完整版本；不再默认注册不稳定的 Bing 在线词典
 - [x] 释义内查词:悬停自动分词并标记下划线，点击后在主视图查询(类 macOS Dictionary) #780
 - [ ] 词典卡死/性能问题排查(部分大词典卡顿) #781
 - [x] 词典显示名自动取 mdx Title / stardict bookname(从目录添加见 #257) #782

@@ -32,6 +32,7 @@ import (
 	"html"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/terasum/medict/pkg/model"
 
@@ -43,7 +44,9 @@ import (
 // ECDict is an offline EN-CN dictionary over a SQLite file (table `ecdict`:
 // word, phonetic, definition, translation, pos, frq). Safe for read-only use.
 type ECDict struct {
-	db *sql.DB
+	mu     sync.RWMutex
+	db     *sql.DB
+	dbPath string
 }
 
 // NewECDict opens ecdict.db inside the dict directory.
@@ -55,12 +58,14 @@ func NewECDict(dirItem *model.DirItem) (*ECDict, error) {
 	}
 	// Read-only dictionary lookups; single connection avoids SQLITE_BUSY.
 	db.SetMaxOpenConns(1)
-	return &ECDict{db: db}, nil
+	return &ECDict{db: db, dbPath: dbPath}, nil
 }
 
 // BuildIndex ensures a prefix-friendly index on word. word is the PRIMARY KEY
 // (already indexed), so this is essentially a no-op safety net.
 func (e *ECDict) BuildIndex() error {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
 	_, err := e.db.Exec(`CREATE INDEX IF NOT EXISTS idx_ecdict_word ON ecdict(word)`)
 	return err
 }
@@ -70,14 +75,20 @@ func (e *ECDict) DictType() model.DictType { return model.DictTypeECDICT }
 func (e *ECDict) Name() string { return "简明英汉词典" }
 
 func (e *ECDict) Description() *model.PlainDictionaryInfo {
+	description := "ECDICT 离线英汉（5 万高频词条）"
+	if status, err := e.Status(); err == nil && status.Edition == "full" {
+		description = fmt.Sprintf("ECDICT 完整离线英汉（%d 词条）", status.EntryCount)
+	}
 	return &model.PlainDictionaryInfo{
 		Title:       "简明英汉词典",
-		Description: "ECDICT 离线英汉(高频词条)",
+		Description: description,
 	}
 }
 
 // Lookup returns the entry for an exact word as an HTML fragment ("" if absent).
 func (e *ECDict) Lookup(keyword string) ([]byte, error) {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
 	keyword = strings.TrimSpace(keyword)
 	if keyword == "" {
 		return nil, fmt.Errorf("ecdict: empty keyword")
@@ -108,6 +119,8 @@ func (e *ECDict) Locate(entry *model.KeyQueryIndex) ([]byte, error) {
 
 // Search returns prefix matches (frq ascending = most frequent first), capped.
 func (e *ECDict) Search(keyword string) ([]*model.KeyQueryIndex, error) {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
 	keyword = strings.TrimSpace(keyword)
 	if keyword == "" {
 		return []*model.KeyQueryIndex{}, nil
@@ -141,10 +154,14 @@ func (e *ECDict) LookupResource(keyword string) ([]byte, error) {
 
 // Close releases the database handle.
 func (e *ECDict) Close() error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if e.db == nil {
 		return nil
 	}
-	return e.db.Close()
+	err := e.db.Close()
+	e.db = nil
+	return err
 }
 
 // renderCard builds the entry HTML fragment (word + phonetic + CN translation +
