@@ -4,6 +4,44 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.11
+
+Dictionary groups, persistent definition zoom, a unified settings experience,
+and a more reliable offline-first default dictionary.
+
+### Added
+- **Dictionary groups**: organize dictionaries from the dictionary sidebar and
+  manage groups with the same bottom action-bar pattern used by bookmarks.
+- **Definition zoom** (#260): the search-page zoom controls now change the whole
+  definition document in 10% steps from 80% to 160%, work in single- and
+  multi-dictionary modes, and persist across reloads.
+- **Standalone CSS editor** (#783): dictionary CSS editing now opens in its own
+  Wails window, starts from the dictionary's existing styles when available,
+  and keeps live preview support.
+- **Settings documentation tabs**: usage, privacy, and license documents now
+  live inside Settings with a stable sidebar and top-level document tabs.
+
+### Changed
+- **Offline-first default dictionary**: removed the unreliable Bing default and
+  added an in-app installer for the full ECDICT dataset while retaining the
+  bundled subset as the always-available fallback.
+- **Settings and debug tools**: flattened the settings hierarchy, merged version
+  information into About, and embedded the resource-query debugger directly in
+  the Proton-styled settings layout.
+- **Definition lookup interaction**: hovering marks word boundaries with an
+  underline; lookup occurs only after clicking, without a popup.
+- **Interface consistency**: unified header alignment, dictionary icons and
+  active state, bookmark/dictionary sidebars, action bars, controls, and footer
+  placement. Vite was upgraded to version 6.
+
+### Fixed
+- Definition-link and sidebar lookups now update both the active entry and the
+  search field, and sidebar entries remain clickable after navigation.
+- Dictionary-provided cover icons are preferred, with a shared fallback icon
+  for dictionaries that do not include one.
+- Online dictionary failures degrade cleanly instead of returning unhandled 500
+  responses.
+
 ## v3.1.10
 
 Hotfix: CSS editor storage moved to app config dir (fixes readonly filesystem error).
