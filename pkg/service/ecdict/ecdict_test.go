@@ -116,3 +116,125 @@ func firstWord(res []*model.KeyQueryIndex) string {
 	}
 	return res[0].KeyWord
 }
+
+// ─── Benchmarks (go test -bench=. -benchmem) ───
+//
+// These cover the core Search/Lookup/Locate operations on the seed DB (4 rows).
+// For full-scale benchmarking with the 50K preset + pprof profiling, use:
+//
+//	go run ./cmd/benchmark
+//
+// The tests below verify the performance CHARACTERISTICS that matter:
+//   - Search (LIKE with case_sensitive_like=ON) should use the PK index
+//   - Lookup (exact PK) should be constant-time
+//   - Locate should be ≈ Lookup
+
+// benchECDict opens a seeded ECDict for benchmarking (shared setup).
+func benchECDict(b *testing.B) *ECDict {
+	b.Helper()
+	dir := b.TempDir()
+	seedDBTB(b, dir)
+	d, err := NewECDict(&model.DirItem{CurrentDir: dir})
+	if err != nil {
+		b.Fatal(err)
+	}
+	if err := d.BuildIndex(); err != nil {
+		b.Fatal(err)
+	}
+	return d
+}
+
+// seedDBTB is the testing.B variant of seedDB.
+func seedDBTB(b *testing.B, dir string) {
+	b.Helper()
+	db, err := sql.Open("sqlite", filepath.Join(dir, "ecdict.db"))
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer db.Close()
+	if _, err := db.Exec(`CREATE TABLE ecdict (word TEXT PRIMARY KEY, phonetic TEXT, definition TEXT, translation TEXT, pos TEXT, frq INTEGER)`); err != nil {
+		b.Fatal(err)
+	}
+	for _, r := range []struct{ word, phon, def, trans string; frq int }{
+		{"apple", "", "fruit", "n. 苹果", 2695},
+		{"application", "", "request", "n. 应用", 800},
+		{"book", "", "written work", "n. 书", 241},
+		{"run", "", "move fast", "v. 跑", 202},
+	} {
+		if _, err := db.Exec(`INSERT INTO ecdict(word,phonetic,definition,translation,frq) VALUES(?,?,?,?,?)`, r.word, r.phon, r.def, r.trans, r.frq); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearch_PrefixHit(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := d.Search("ap"); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkSearch_Miss(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := d.Search("zzzzz"); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkLookup_Hit(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := d.Lookup("apple"); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkLookup_Miss(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := d.Lookup("xxnotaword"); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkLocate_Pipeline(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		res, err := d.Search("ap")
+		if err != nil || len(res) == 0 {
+			b.Fatal(err)
+		}
+		if _, err := d.Locate(res[0]); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkBuildIndex measures the CREATE INDEX IF NOT EXISTS call
+// (should be near-instant on a 4-row DB; for real scale see cmd/benchmark).
+func BenchmarkBuildIndex(b *testing.B) {
+	d := benchECDict(b)
+	defer d.Close()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := d.BuildIndex(); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
