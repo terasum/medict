@@ -1,7 +1,6 @@
 package mdict
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"sync"
@@ -190,6 +189,10 @@ func (mh *mdictHolder) BuildIndex() error {
 		if v, _ := mh.idxer.GetMeta("entries_num"); v != "" {
 			log.Infof("index already built (schema %s), entries: %s", indexSchemaVersion, v)
 		}
+		// #781: Even when the leveldb index is cached, the BK-tree is in-memory
+		// only and must be rebuilt on every app launch. Start it asynchronously
+		// so the first Search miss doesn't block for ~2 minutes.
+		mh.startAsyncBkTree()
 		return nil
 	}
 
@@ -230,22 +233,63 @@ func (mh *mdictHolder) BuildIndex() error {
 		return err
 	}
 
-	// Build the in-memory BK-tree under mh.lock so Search / ensureBkTree (which
-	// take the same lock) can never observe a half-built tree. Previously
-	// BuildIndex mutated bktree/bktreeDone unlocked, relying on the caller to
-	// serialize — fragile (issue #722 P3).
-	mh.lock.Lock()
-	for _, idx := range records {
-		mh.bktreeAdd(idx)
-	}
-	mh.bktreeDone = true
-	mh.lock.Unlock()
-
 	if err := mh.idxer.SetMeta("schema_version", indexSchemaVersion); err != nil {
 		return err
 	}
 	err = mh.idxer.SetMeta("entries_num", strconv.FormatInt(mh.rawdict.GetKeyWordEntriesSize(), 10))
+	if err != nil {
+		return err
+	}
+
+	// #781: Build the BK-tree asynchronously. The eager in-loop build consumed
+	// ~125s for a 195K-entry dictionary (92% of BuildIndex wall time), blocking
+	// the UI ("卡死"). The BK-tree is only needed for fuzzy fallback on Search
+	// misses — defer it to a background goroutine. ensureBkTree() guards lazy
+	// access: Search misses skip fuzzy if the tree isn't ready yet.
+	recordsSnapshot := records // capture for goroutine
+	go func() {
+		mh.lock.Lock()
+		defer mh.lock.Unlock()
+		if mh.bktreeDone {
+			return
+		}
+		tree := &bktree.BKTree{}
+		for _, idx := range recordsSnapshot {
+			tree.Add(&fuzzyEntry{idx})
+		}
+		mh.bktree = tree
+		mh.bktreeDone = true
+		log.Infof("BK-tree built asynchronously: %d entries", len(recordsSnapshot))
+	}()
+
 	return nil
+}
+
+// startAsyncBkTree builds the BK-tree in a background goroutine by reading
+// records from the leveldb index (AllRecords). Used when BuildIndex is skipped
+// because the leveldb index is already cached — the BK-tree is in-memory only
+// and must be rebuilt on every app launch. Non-blocking; Search misses skip
+// fuzzy if the tree isn't ready yet.
+func (mh *mdictHolder) startAsyncBkTree() {
+	go func() {
+		mh.lock.Lock()
+		defer mh.lock.Unlock()
+		if mh.bktreeDone {
+			return
+		}
+		records, err := mh.idxer.AllRecords()
+		if err != nil {
+			log.Errorf("async BK-tree build: AllRecords failed: %v", err)
+			return
+		}
+		tree := &bktree.BKTree{}
+		for _, r := range records {
+			tree.Add(&fuzzyEntry{r})
+		}
+		mh.bktree = tree
+		mh.bktreeDone = true
+		log.Infof("BK-tree built asynchronously from cache: %d entries", len(records))
+	}()
 }
 
 // bktreeAdd 向模糊搜索 BK-tree 添加一个词项（BuildIndex 时逐条调用）。
@@ -325,12 +369,19 @@ func (mh *mdictHolder) Search(keyword string) ([]*model.MdictKeyWordIndex, error
 		return result, nil
 	}
 	// 前缀为空（拼错/记不清词头）→ BK-tree 模糊兜底
-	if err := mh.ensureBkTree(); err != nil {
-		return nil, fmt.Errorf("build fuzzy index: %w", err)
+	// #781: 如果 BK-tree 还在后台构建中,跳过 fuzzy(返回空),不阻塞用户。
+	// 后台构建完成后自动生效,后续 miss 正常返回 fuzzy 结果。
+	mh.lock.Lock()
+	treeReady := mh.bktreeDone && mh.bktree != nil
+	tree := mh.bktree
+	mh.lock.Unlock()
+	if !treeReady {
+		return nil, nil // BK-tree 构建中,暂时跳过 fuzzy
 	}
-	// needle 必须是 *fuzzyEntry：Distance 依赖其类型断言
+	// tree pointer is stable once bktreeDone=true (async goroutine sets both
+	// atomically under mh.lock). Safe to read without lock for Search (read-only).
 	needle := &fuzzyEntry{&model.MdictKeyWordIndex{KeyWord: keyword}}
-	raw := mh.bktree.Search(needle, fuzzyTolerance, fuzzyLimit)
+	raw := tree.Search(needle, fuzzyTolerance, fuzzyLimit)
 	if len(raw) == 0 {
 		return nil, nil
 	}
