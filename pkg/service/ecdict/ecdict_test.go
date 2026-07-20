@@ -110,6 +110,69 @@ func TestECDict_LookupAndSearch(t *testing.T) {
 	}
 }
 
+// TestCaseSensitiveLikeEnabled guards the PRAGMA case_sensitive_like = ON
+// invariant set in NewECDict. Without it, SQLite's LIKE is case-insensitive and
+// CANNOT use the primary key index → full table scan (12ms vs 0.1ms on 50K
+// rows). If this test fails, someone removed the PRAGMA in NewECDict; restore it.
+//
+// We can't query `PRAGMA case_sensitive_like` (SQLite doesn't support reading
+// it). Instead we verify the BEHAVIOR: LIKE 'app%' must be case-sensitive (match
+// only "apple", not "Apple").
+func TestCaseSensitiveLikeEnabled(t *testing.T) {
+	dir := t.TempDir()
+	// Create a DB with mixed-case words to test case sensitivity.
+	db, err := sql.Open("sqlite", filepath.Join(dir, "ecdict.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`CREATE TABLE ecdict (word TEXT PRIMARY KEY, phonetic TEXT, definition TEXT, translation TEXT, pos TEXT, frq INTEGER)`); err != nil {
+		t.Fatal(err)
+	}
+	for _, w := range []string{"apple", "Apple", "application"} {
+		if _, err := db.Exec(`INSERT INTO ecdict(word,frq) VALUES(?,1)`, w); err != nil {
+			t.Fatal(err)
+		}
+	}
+	db.Close()
+
+	d, err := NewECDict(&model.DirItem{CurrentDir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer d.Close()
+
+	// case_sensitive_like=ON → LIKE 'app%' matches "apple","application" but NOT "Apple"
+	// case_sensitive_like=OFF → LIKE 'app%' matches all three
+	rows, err := d.db.Query(`SELECT word FROM ecdict WHERE word LIKE 'app%'`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	var matches []string
+	for rows.Next() {
+		var w string
+		rows.Scan(&w)
+		matches = append(matches, w)
+	}
+
+	hasApple := false
+	for _, w := range matches {
+		if w == "Apple" {
+			hasApple = true
+		}
+	}
+	if hasApple {
+		t.Fatalf("case_sensitive_like must be ON: LIKE 'app%%' matched 'Apple' "+
+			"(case-insensitive). This means the PRAGMA in NewECDict was removed → "+
+			"LIKE will do a full table scan instead of using the PK index "+
+			"(12ms vs 0.1ms on 50K rows). Restore: db.Exec(\"PRAGMA case_sensitive_like = ON\"). "+
+			"Matches were: %v", matches)
+	}
+	if len(matches) < 2 {
+		t.Fatalf("LIKE 'app%%' should match at least apple+application, got %v", matches)
+	}
+}
+
 func firstWord(res []*model.KeyQueryIndex) string {
 	if len(res) == 0 {
 		return ""
