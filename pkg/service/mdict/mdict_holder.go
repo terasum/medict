@@ -1,6 +1,9 @@
 package mdict
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"sync"
@@ -190,9 +193,16 @@ func (mh *mdictHolder) BuildIndex() error {
 			log.Infof("index already built (schema %s), entries: %s", indexSchemaVersion, v)
 		}
 		// #781: Even when the leveldb index is cached, the BK-tree is in-memory
-		// only and must be rebuilt on every app launch. Start it asynchronously
-		// so the first Search miss doesn't block for ~2 minutes.
-		mh.startAsyncBkTree()
+		// only and must be rebuilt on every app launch. Try loading the persisted
+		// BK-tree cache (instant); if not found, build asynchronously.
+		mh.lock.Lock()
+		loaded := mh.loadBkTreeCache()
+		mh.lock.Unlock()
+		if !loaded {
+			mh.startAsyncBkTree()
+		} else {
+			log.Infof("BK-tree loaded from cache (bktree.gob)")
+		}
 		return nil
 	}
 
@@ -260,9 +270,63 @@ func (mh *mdictHolder) BuildIndex() error {
 		mh.bktree = tree
 		mh.bktreeDone = true
 		log.Infof("BK-tree built asynchronously: %d entries", len(recordsSnapshot))
+		mh.saveBkTreeCache() // #781: persist for instant load on next launch
 	}()
 
 	return nil
+}
+
+// bktreeCachePath returns the .bktree file path inside the .melev directory.
+func (mh *mdictHolder) bktreeCachePath() string {
+	return filepath.Join(mh.idxFilePath, "bktree.gob")
+}
+
+// saveBkTreeCache serializes the BK-tree to bktree.gob inside the .melev dir.
+// Called after async build completes.
+func (mh *mdictHolder) saveBkTreeCache() {
+	tree := mh.bktree
+	if tree == nil {
+		return
+	}
+	path := mh.bktreeCachePath()
+	f, err := os.Create(path)
+	if err != nil {
+		log.Errorf("save BK-tree cache: %v", err)
+		return
+	}
+	defer f.Close()
+	marshalEntry := func(e bktree.Entry) ([]byte, error) {
+		fe := e.(*fuzzyEntry)
+		return json.Marshal(fe.MdictKeyWordIndex)
+	}
+	if err := tree.Save(f, marshalEntry); err != nil {
+		log.Errorf("encode BK-tree cache: %v", err)
+	}
+}
+
+// loadBkTreeCache tries to load the BK-tree from bktree.gob. Returns true if loaded.
+func (mh *mdictHolder) loadBkTreeCache() bool {
+	path := mh.bktreeCachePath()
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	unmarshalEntry := func(data []byte) (bktree.Entry, error) {
+		var idx model.MdictKeyWordIndex
+		if err := json.Unmarshal(data, &idx); err != nil {
+			return nil, err
+		}
+		return &fuzzyEntry{&idx}, nil
+	}
+	tree, err := bktree.Load(f, unmarshalEntry)
+	if err != nil {
+		log.Errorf("load BK-tree cache: %v", err)
+		return false
+	}
+	mh.bktree = tree
+	mh.bktreeDone = true
+	return true
 }
 
 // startAsyncBkTree builds the BK-tree in a background goroutine by reading
@@ -289,6 +353,7 @@ func (mh *mdictHolder) startAsyncBkTree() {
 		mh.bktree = tree
 		mh.bktreeDone = true
 		log.Infof("BK-tree built asynchronously from cache: %d entries", len(records))
+		mh.saveBkTreeCache() // persist for instant load on next launch
 	}()
 }
 
