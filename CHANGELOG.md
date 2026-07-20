@@ -4,6 +4,31 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.12
+
+Performance: dictionary BuildIndex 51x faster, ECDICT Search 100x faster, BK-tree persistence, benchmark harness.
+
+### Added
+- **Benchmark harness** (#806, #807): `cmd/benchmark` tool profiles both built-in
+  dictionaries (ECDICT + cc-cedict) with per-scenario CPU/heap profiling, outputs
+  structured JSON for AI analysis.
+
+### Changed
+- **ECDICT Search 100x faster** (#808): `PRAGMA case_sensitive_like = ON` lets
+  SQLite use the primary key index for `LIKE 'prefix%'` — prefix search on 50K
+  entries drops from 12ms to 0.1ms. Regression guard test prevents removal.
+
+### Fixed
+- **Dictionary BuildIndex 51x faster** (#781): the BK-tree (fuzzy search
+  structure) consumed 92% of BuildIndex time (~2 minutes for 195K entries).
+  Now built asynchronously in a background goroutine — BuildIndex drops from
+  2m3s to 2.4s. The UI no longer freezes when adding large dictionaries.
+- **BK-tree persistence**: the in-memory BK-tree is now serialized to
+  `.melev/bktree.gob` after async build. On subsequent launches it loads in
+  ~1.6s (vs 2-minute rebuild), making fuzzy search immediately available.
+- **Search non-blocking on BK-tree miss**: if the background BK-tree build is
+  still running, Search misses skip fuzzy (return empty) instead of blocking.
+
 ## v3.1.11
 
 Dictionary groups, persistent definition zoom, a unified settings experience,
