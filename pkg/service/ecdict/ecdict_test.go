@@ -36,6 +36,16 @@ func seedDB(t *testing.T, dir string) {
 		{"application", "ˌæplɪˈkeɪʃn", "a formal request", "n. 应用,申请", 800},
 		{"book", "buk", "a written work", "n. 书,书籍\nv. 预订", 241},
 		{"run", "rʌn", "to move fast", "v. 跑,运行\nn. 跑", 202},
+		// ECDICT's CSV encodes in-field line breaks as a literal backslash-n;
+		// the importer stores those bytes verbatim (see preset ecdict.db: 10k+
+		// rows affected). "go" here mirrors that real-world form.
+		{"go", "gəu", "v. move away\\nfrom a place", "vi. 去, 走\\nvt. 忍受", 300},
+		// base forms for the inflection-fallback tests (ECDICT stores base
+		// forms; parts/studies/boxes/loved are absent on purpose)
+		{"part", "pɑ:t", "n. a piece", "n. 部分", 1000},
+		{"study", "'stʌdi", "v. learn", "v./n. 学习", 900},
+		{"box", "bɔks", "n. container", "n. 盒子", 500},
+		{"love", "lʌv", "v. feel affection", "v./n. 爱", 800},
 	}
 	for _, r := range rows {
 		if _, err := db.Exec(
@@ -74,6 +84,53 @@ func TestECDict_LookupAndSearch(t *testing.T) {
 	// Lookup 未命中 → 空片段
 	if def, _ := d.Lookup("no_such_word"); string(def) != "" {
 		t.Fatalf("missing word should give empty fragment, got %q", string(def))
+	}
+
+	// ECDICT 的 CSV 把字段内换行存为字面量 \n,渲染时必须转为 <br>
+	goFrag, err := d.Lookup("go")
+	if err != nil {
+		t.Fatalf("Lookup go: %v", err)
+	}
+	s := string(goFrag)
+	if strings.Contains(s, `\n`) {
+		t.Fatalf("literal \\n leaked into fragment: %q", s)
+	}
+	if !strings.Contains(s, "去, 走<br>vt. 忍受") {
+		t.Fatalf("literal \\n not rendered as <br>: %q", s)
+	}
+
+	// 屈折回退:库里只有基础词形,parts/studies/ran 等变形必须回退到 part/study/run
+	for _, tc := range []struct{ in, want string }{
+		{"parts", "部分"},
+		{"studies", "学习"},
+		{"boxes", "盒子"},
+		{"loved", "爱"},
+		{"ran", "跑,运行"},
+	} {
+		frag, lerr := d.Lookup(tc.in)
+		if lerr != nil {
+			t.Fatalf("Lookup %s: %v", tc.in, lerr)
+		}
+		if !strings.Contains(string(frag), tc.want) {
+			t.Fatalf("inflection fallback %s: want fragment containing %q, got %q", tc.in, tc.want, string(frag))
+		}
+	}
+
+	// Search 同样回退:parts 前缀无结果 → 以 part 前缀重查
+	sres, serr := d.Search("parts")
+	if serr != nil {
+		t.Fatalf("Search parts: %v", serr)
+	}
+	if len(sres) == 0 || sres[0].KeyWord != "part" {
+		t.Fatalf("Search parts should fall back to prefix 'part', got %v", sres)
+	}
+
+	// 中文等非 ASCII 输入不做屈折回退(规则仅适用英文)
+	if frag, _ := d.Lookup("苹果"); strings.Contains(string(frag), "苹果") {
+		t.Fatalf("non-English input should not match, got %q", string(frag))
+	}
+	if lemmaCandidates("苹果") != nil {
+		t.Fatalf("lemmaCandidates must yield nothing for non-ASCII input")
 	}
 
 	// Locate 用 entry 的 keyword

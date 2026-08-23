@@ -90,6 +90,9 @@ func (e *ECDict) Description() *model.PlainDictionaryInfo {
 }
 
 // Lookup returns the entry for an exact word as an HTML fragment ("" if absent).
+// On an exact miss it retries with lemmaCandidates ("parts"→"part", "ran"→"run"):
+// ECDICT stores base forms almost exclusively, so inflected input would
+// otherwise always come back empty (roadmap #786).
 func (e *ECDict) Lookup(keyword string) ([]byte, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -97,18 +100,21 @@ func (e *ECDict) Lookup(keyword string) ([]byte, error) {
 	if keyword == "" {
 		return nil, fmt.Errorf("ecdict: empty keyword")
 	}
-	var phonetic, definition, translation string
-	err := e.db.QueryRow(
-		`SELECT phonetic, definition, translation FROM ecdict WHERE word = ?`,
-		keyword,
-	).Scan(&phonetic, &definition, &translation)
-	if err == sql.ErrNoRows {
-		return []byte(""), nil
+	for _, cand := range lookupCandidates(keyword) {
+		var phonetic, definition, translation string
+		err := e.db.QueryRow(
+			`SELECT phonetic, definition, translation FROM ecdict WHERE word = ?`,
+			cand,
+		).Scan(&phonetic, &definition, &translation)
+		if err == sql.ErrNoRows {
+			continue // try the next candidate (typed form → lowercase → lemmas)
+		}
+		if err != nil {
+			return nil, err
+		}
+		return []byte(renderCard(cand, phonetic, definition, translation)), nil
 	}
-	if err != nil {
-		return nil, err
-	}
-	return []byte(renderCard(keyword, phonetic, definition, translation)), nil
+	return []byte(""), nil
 }
 
 // Locate serves the word carried by the entry (offsets are irrelevant for
@@ -123,7 +129,9 @@ func (e *ECDict) Locate(entry *model.KeyQueryIndex) ([]byte, error) {
 
 // Search returns prefix matches (frq ascending = most frequent first), capped.
 // With case_sensitive_like = ON, SQLite uses the primary key index for LIKE
-// 'prefix%' — no full table scan.
+// 'prefix%' — no full table scan. On a prefix miss it retries with lemma
+// candidates ("parts" → prefix "part"), because ECDICT headwords are base
+// forms; inflected input would otherwise return nothing (roadmap #786).
 func (e *ECDict) Search(keyword string) ([]*model.KeyQueryIndex, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -131,26 +139,44 @@ func (e *ECDict) Search(keyword string) ([]*model.KeyQueryIndex, error) {
 	if keyword == "" {
 		return []*model.KeyQueryIndex{}, nil
 	}
-	rows, err := e.db.Query(
-		`SELECT word FROM ecdict WHERE word LIKE ? ORDER BY frq ASC LIMIT 50`,
-		keyword+"%",
-	)
-	if err != nil {
-		return nil, err
+	// typed form first, then lemma prefixes ("parts" → "part")
+	prefixes := []string{keyword}
+	seen := map[string]bool{keyword: true}
+	for _, c := range lemmaCandidates(keyword) {
+		if !seen[c] {
+			seen[c] = true
+			prefixes = append(prefixes, c)
+		}
 	}
-	defer rows.Close()
 	out := make([]*model.KeyQueryIndex, 0, 50)
-	for rows.Next() {
-		var w string
-		if err := rows.Scan(&w); err != nil {
+	for _, p := range prefixes {
+		rows, err := e.db.Query(
+			`SELECT word FROM ecdict WHERE word LIKE ? ORDER BY frq ASC LIMIT 50`,
+			p+"%",
+		)
+		if err != nil {
 			return nil, err
 		}
-		out = append(out, &model.KeyQueryIndex{
-			IndexType:         string(model.DictTypeECDICT),
-			MdictKeyWordIndex: &model.MdictKeyWordIndex{KeyWord: w},
-		})
+		for rows.Next() {
+			var w string
+			if err := rows.Scan(&w); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			out = append(out, &model.KeyQueryIndex{
+				IndexType:         string(model.DictTypeECDICT),
+				MdictKeyWordIndex: &model.MdictKeyWordIndex{KeyWord: w},
+			})
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+		if len(out) > 0 {
+			break // prefix hit (typed or lemma); stop — no further fallback
+		}
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
 // LookupResource — ECDICT has no external resources (css/images/fonts).
@@ -172,7 +198,8 @@ func (e *ECDict) Close() error {
 
 // renderCard builds the entry HTML fragment (word + phonetic + CN translation +
 // EN definition). WrapContent wraps it into the full page. Text is HTML-escaped;
-// newlines become <br>.
+// newlines become <br> — including the literal `\n` sequences ECDICT's CSV uses
+// to encode in-field line breaks (stored verbatim by the importer).
 func renderCard(word, phonetic, definition, translation string) string {
 	var b strings.Builder
 	b.WriteString(`<style>
@@ -204,6 +231,12 @@ func renderCard(word, phonetic, definition, translation string) string {
 	return b.String()
 }
 
+// nl2br converts newlines to <br>. ECDICT's source CSV escapes in-field line
+// breaks as a literal backslash-n (and backslashes as \\), and the importer
+// stores those bytes verbatim — so real '\n' and the literal "\n" sequence
+// must both become <br>. A literal "\\" un-escapes to a single backslash,
+// which HTML-escaping happened to render correctly before, so leave it alone.
 func nl2br(s string) string {
+	s = strings.ReplaceAll(s, `\n`, "<br>")
 	return strings.ReplaceAll(s, "\n", "<br>")
 }
