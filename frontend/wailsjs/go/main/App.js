@@ -86,6 +86,10 @@ export function OpenFinder(arg1) {
   return window['go']['main']['App']['OpenFinder'](arg1);
 }
 
+export function Platform() {
+  return window['go']['main']['App']['Platform']();
+}
+
 export function RemoveBookmark(arg1, arg2, arg3) {
   return window['go']['main']['App']['RemoveBookmark'](arg1, arg2, arg3);
 }

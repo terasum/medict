@@ -29,9 +29,19 @@
   display: block;
   overflow: hidden;
 
+  // macOS hides the native title bar (mac.TitleBarHidden()), so the in-app
+  // strip keeps the full height. Windows/Linux cannot hide the native title
+  // bar, so the strip shrinks by 12px there (.os-windows / .os-linux).
+  --fake-title-bar-height: #{$fake-title-bar-height};
+
+  &.os-windows,
+  &.os-linux {
+    --fake-title-bar-height: #{$fake-title-bar-height - 12px};
+  }
+
   .fake-title-bar {
     width: 100%;
-    height: $fake-title-bar-height;
+    height: var(--fake-title-bar-height);
     display: block;
     --wails-draggable: drag;
     background: transparent;
@@ -41,13 +51,13 @@
   }
   .x-space-provider {
     width: 100%;
-    height: calc(100% - $fake-title-bar-height);
+    height: calc(100% - var(--fake-title-bar-height));
   }
 }
 </style>
 
 <template>
-  <div id="app-root" class="app-container">
+  <div id="app-root" class="app-container" :class="platformClass">
     <div class="fake-title-bar" data-wails-drag></div>
     <n-config-provider
       :theme="theme"
@@ -81,9 +91,13 @@ import { GlobalThemeOverrides } from 'naive-ui';
 import { useDictQueryStore } from './store/dict';
 import { BRAND, palette } from '@/style/tokens';
 import CSSWindow from '@/view/css-editor/index.vue';
+import { detectPlatform, platformClass as toPlatformClass, sniffPlatformSync } from '@/utils/platform';
 
 let isDark = ref(false);
 const windowMode = ref<'loading' | 'main' | 'css-editor'>('loading');
+// synchronous guess first so the first paint already has the right height;
+// refined with the authoritative runtime.GOOS answer in onMounted
+const platformClass = ref(toPlatformClass(sniffPlatformSync()));
 let theme = reactive(light);
 
 if (isDark.value) {
@@ -155,6 +169,9 @@ function listenStoreChange(store: any) {
 let unscribeDictQueryStore: (() => void) | null = null;
 const dictQueryStore = useDictQueryStore();
 onMounted(()=>{
+  detectPlatform().then((os) => {
+    platformClass.value = toPlatformClass(os);
+  });
   const modeCall = (window as any)?.go?.main?.App?.WindowMode;
   if (typeof modeCall === 'function') {
     modeCall().then((mode: string) => {

@@ -158,3 +158,10 @@ func TestWriteFileAtomicReplacesContent(t *testing.T) {
 		t.Fatalf("atomic replacement failed: data=%q err=%v", data, err)
 	}
 }
+
+func TestPlatformReportsHostGOOS(t *testing.T) {
+	got := (&App{}).Platform()
+	if got != runtime.GOOS {
+		t.Fatalf("Platform() = %q, want runtime.GOOS %q", got, runtime.GOOS)
+	}
+}

@@ -548,6 +548,13 @@ func (b *App) WindowMode() string {
 	return "main"
 }
 
+// Platform reports the operating system (runtime.GOOS: "darwin", "windows",
+// "linux") to the frontend. Windows and Linux keep the native title bar, so
+// the frontend uses this to shorten the in-app fake title bar accordingly.
+func (b *App) Platform() string {
+	return goruntime.GOOS
+}
+
 func (b *App) CSSWindowDictionary() map[string]string {
 	return map[string]string{"id": b.cssWindowDictID, "name": b.cssWindowDictName}
 }

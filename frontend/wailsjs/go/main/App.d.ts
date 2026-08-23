@@ -44,6 +44,8 @@ export function OpenDictCSSWindow(arg1:string,arg2:string,arg3:string):Promise<m
 
 export function OpenFinder(arg1:string):Promise<void>;
 
+export function Platform():Promise<string>;
+
 export function RemoveBookmark(arg1:string,arg2:string,arg3:string):Promise<model.Resp>;
 
 export function RenameNotebook(arg1:string,arg2:string):Promise<model.Resp>;
