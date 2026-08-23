@@ -4,6 +4,32 @@ All notable changes to [Medict](https://github.com/terasum/medict) are recorded
 here. The most recent release is at the top. For the full history before
 v3.1.0, see `git log v3.0.1..HEAD`.
 
+## v3.1.13
+
+Platform-aware title bar, ECDICT rendering fix, and inflection fallback for the built-in dictionary.
+
+### Added
+- **Platform detection** (`App.Platform()`): the frontend can now query the
+  host OS (runtime.GOOS) over IPC. On Windows and Linux, where the native
+  title bar cannot be hidden, the in-app fake title bar shrinks by 12px
+  (26px → 14px), reclaiming vertical space for dictionary content. macOS
+  keeps the full-height strip for window dragging.
+- **ECDICT inflection fallback** (part of #786): searching or clicking an
+  inflected English form now falls back to its base form — `parts` → `part`,
+  `studies` → `study`, `boxes` → `box`, `ran` / `went` / `written` via an
+  irregular-verb table, `-ing` forms (`lying` → `lie`, `running` → `run`),
+  and comparatives (`bigger` → `big`, `happiest` → `happy`). Works in both
+  exact lookup and prefix search, including in-entry hyperlink lookups.
+  Non-English (e.g. Chinese) input is exempt from the English-only rules.
+
+### Fixed
+- **ECDICT line breaks**: ECDICT's source CSV encodes in-field line breaks as
+  a literal `\n` (backslash-n), which the importer stores verbatim — so
+  multi-sense definitions rendered as one run-on line with visible `\n`
+  text (10k+ rows in the bundled preset affected). The renderer now converts
+  both the literal `\n` sequence and real newlines to `<br>`. No database
+  reinstall is needed.
+
 ## v3.1.12
 
 Performance: dictionary BuildIndex 51x faster, ECDICT Search 100x faster, BK-tree persistence, benchmark harness.

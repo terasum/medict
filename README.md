@@ -10,7 +10,7 @@
 
 Medict is an open-source, cross-platform desktop dictionary application with support for MDict (`.mdx` / `.mdd`) and StarDict dictionaries. Built with Wails, Go, and Vue, it provides an offline English-Chinese dictionary, multi-dictionary lookup, vocabulary notebooks, Anki export, and per-dictionary style editing.
 
-The current stable release is **v3.1.11**.
+The current stable release is **v3.1.13**.
 
 ## Features
 
@@ -63,30 +63,20 @@ Download the latest stable build from [GitHub Releases](https://github.com/teras
 
 See [CHANGELOG.md](CHANGELOG.md) for the complete release history.
 
-## What's New in v3.1.11
+## What's New in v3.1.13
+
+This release makes the built-in English-Chinese dictionary handle inflected word forms, fixes its multi-sense line rendering, and reclaims vertical space on Windows and Linux.
 
 ### Added
 
-- Dictionary groups in the dictionary sidebar, including group creation, member management, deletion, and favorite-group selection.
-- Persistent definition zoom from 80% to 160% in both single- and multi-dictionary modes.
-- A standalone dictionary CSS editor that starts from existing styles when available and retains live preview.
-- Top-level documentation tabs in Settings for the user guide, privacy notice, and open-source license.
-
-### Improved
-
-- Switched the default English-Chinese experience to offline-first: the bundled ECDICT subset remains available, with an in-app installer for the complete dataset.
-- Reorganized Settings and diagnostics into a flatter structure, with resource queries integrated directly into Settings.
-- Replaced popup-based definition lookup with hover underlining followed by click-to-lookup.
-- Unified top navigation, dictionary icons and active states, sidebars, bottom action bars, settings controls, and footer styling.
-- Upgraded the frontend build toolchain to Vite 6.
+- Inflection fallback for the built-in ECDICT dictionary: searching or clicking an inflected form now falls back to its base form — `parts` → `part`, `studies` → `study`, `boxes` → `box`, irregular verbs (`ran` / `went` / `written`), `-ing` forms (`lying` → `lie`, `running` → `run`), and comparatives (`bigger` → `big`, `happiest` → `happy`). Works in exact lookup, prefix search, and in-entry hyperlink lookups.
+- Platform detection: the frontend queries the host OS via a new `App.Platform()` binding, and on Windows and Linux — where the native title bar cannot be hidden — the in-app title strip shrinks by 12px to reclaim space for dictionary content.
 
 ### Fixed
 
-- Definition jumps and sidebar lookups now keep the search field synchronized, and entries remain selectable after navigation.
-- Dictionary-provided cover artwork is preferred, with a shared fallback icon when no artwork exists.
-- Online dictionary errors now degrade gracefully instead of returning unhandled HTTP 500 responses.
+- Multi-sense ECDICT definitions rendered as one run-on line with visible `\n` text (10,000+ entries affected). Line breaks now render correctly; no database reinstall is needed.
 
-See the [v3.1.11 release](https://github.com/terasum/medict/releases/tag/v3.1.11) or read the [complete changelog](CHANGELOG.md).
+See the [v3.1.13 release](https://github.com/terasum/medict/releases/tag/v3.1.13) or read the [complete changelog](CHANGELOG.md).
 
 ## Roadmap
 
